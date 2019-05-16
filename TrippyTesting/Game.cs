@@ -141,6 +141,7 @@ namespace TrippyTesting
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             TrippyLib.ResetGLBindStates();
+
             PosTexBuffer.SetData(1, 0, 2, new Vector5[]
             {
                 new Vector5(0.5f+wave(0.05f, time, 1.7f, 0f), -0.5f+wave(0.05f, time, 1.81f, 0f), 0, 1, 0),
