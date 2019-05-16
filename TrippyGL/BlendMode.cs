@@ -9,7 +9,7 @@ namespace TrippyGL
     {
         /// <summary>Whether the blend mode is opaque. If this is true, all other BlendMode members are irrelevant</summary>
         public bool IsOpaque;
-
+        
         public BlendEquationMode EquationModeRGB, EquationModeAlpha;
         public BlendingFactorSrc SourceFactorRGB, SourceFactorAlpha;
         public BlendingFactorDest DestFactorRGB, DestFactorAlpha;
