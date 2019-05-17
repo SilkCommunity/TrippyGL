@@ -1,24 +1,47 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     public class VertexArray : IDisposable
     {
+        /// <summary>The last vertex array object's name to be bound. This variable is used on EnsureBound() so to not bind the same vao consecutively</summary>
         private static int lastArrayBound = -1;
+
+        /// <summary>
+        /// Resets the last bound vertex array object variable. This variable is used on EnsureBound() to not call glBindVertexArray if the array is already bound.
+        /// You might want to call this if interoperating with another library
+        /// </summary>
         public static void ResetBindState()
         {
-            lastArrayBound = -1;
+            lastArrayBound = GL.GetInteger(GetPName.VertexArrayBinding);
         }
 
-        /// <summary></summary>
+        /// <summary>
+        /// Unbinds the current VertexArray by binding to vertex array object 0
+        /// </summary>
+        public static void BindEmpty()
+        {
+            GL.BindVertexArray(0);
+            lastArrayBound = 0;
+        }
+
+
+        /// <summary>The GL VertexArrayObject's name</summary>
         public readonly int Handle;
+
+        /// <summary>The sources that will feed the vertex attribute's data on draw calls</summary>
         public readonly VertexAttribSource[] AttribSources;
 
+        /// <summary>
+        /// Creates a VertexArray with the specified attribute sources
+        /// </summary>
+        /// <param name="attribSources"></param>
         public VertexArray(VertexAttribSource[] attribSources)
         {
+            if (attribSources == null)
+                throw new ArgumentNullException("attribSources");
+
             Handle = GL.GenVertexArray();
             this.AttribSources = attribSources;
 
@@ -27,9 +50,14 @@ namespace TrippyGL
 
         ~VertexArray()
         {
-            dispose();
+            if (TrippyLib.isLibActive)
+                dispose();
         }
 
+        /// <summary>
+        /// Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.
+        /// The parameters of glVertexAttribPointer are calculated based on the VertexAttribSource-s from AttribSources
+        /// </summary>
         private void MakeVertexAttribPointerCalls()
         {
             EnsureBound();
@@ -61,6 +89,9 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Ensure that this vertex array is the currently bound one
+        /// </summary>
         public void EnsureBound()
         {
             if (lastArrayBound != Handle)

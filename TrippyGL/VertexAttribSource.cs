@@ -1,5 +1,5 @@
-﻿using System;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
@@ -22,6 +22,15 @@ namespace TrippyGL
 
         public VertexAttribSource(IVertexArrayAttribSource dataBuffer, int size, bool normalized, VertexAttribPointerType attribType, int sizeInBytes)
         {
+            if (dataBuffer == null)
+                throw new ArgumentNullException("dataBuffer");
+
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException("size", size, "Size must be greater than 0");
+
+            if (sizeInBytes <= 0)
+                throw new ArgumentOutOfRangeException("sizeInBytes", sizeInBytes, "sizeInBytes must be greater than 0");
+
             this.DataBuffer = dataBuffer;
             this.Size = size;
             this.Normalized = normalized;

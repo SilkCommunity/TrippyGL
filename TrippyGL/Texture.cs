@@ -1,7 +1,5 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
@@ -80,7 +78,8 @@ namespace TrippyGL
 
         ~Texture()
         {
-            dispose();
+            if (TrippyLib.isLibActive)
+                dispose();
         }
 
         /// <summary>
@@ -113,7 +112,7 @@ namespace TrippyGL
         /// <summary>
         /// Binds the texture to the currently active texture unit
         /// </summary>
-        protected void BindToCurrentTextureUnit()
+        internal void BindToCurrentTextureUnit()
         {
             lastBindUnit = activeTextureUnit;
             binds[lastBindUnit] = Handle;
@@ -131,7 +130,6 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)minFilter);
             GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
-
 
         public void SetWrapMode(TextureWrapMode sWrapMode)
         {

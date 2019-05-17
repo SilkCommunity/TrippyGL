@@ -15,8 +15,10 @@ namespace TrippyTesting
         System.Diagnostics.Stopwatch stopwatch;
         Random r = new Random();
 
-        VertexDataBufferObject<Vector5> PosTexBuffer;
-        VertexDataBufferObject<Color4b> ColBuffer;
+        VertexDataBufferObject<Vector5> posTexBuffer;
+        VertexDataBufferObject<Color4b> colBuffer;
+
+        IndexBufferObject indexBuffer;
 
         VertexArray vertexArray;
 
@@ -39,32 +41,16 @@ namespace TrippyTesting
             BlendMode.AlphaBlend.Apply();
 
             #region LoadVBO
-            /*VertexColorTexture[] vboData = new VertexColorTexture[]
-            {
-                new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 0)),
-                new VertexColorTexture(new Vector3(0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
-                new VertexColorTexture(new Vector3(-0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 1)),
-                new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 1)),
-            };
-            BufferObject = new VertexDataBufferObject<VertexColorTexture>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
-            BufferObject.EnsureBound();
 
-            vertexArray = new VertexArray(new VertexAttribSource[]
-            {
-                new VertexAttribSource(BufferObject, 3, false, VertexAttribPointerType.Float),
-                new VertexAttribSource(BufferObject, 4, true, VertexAttribPointerType.UnsignedByte),
-                new VertexAttribSource(BufferObject, 2, false, VertexAttribPointerType.Float)
-            });*/
-
-            PosTexBuffer = new VertexDataBufferObject<Vector5>(4, new Vector5[]
+            posTexBuffer = new VertexDataBufferObject<Vector5>(4, new Vector5[]
             {
                 new Vector5(-0.5f, -0.5f, 0, 0, 0),
                 new Vector5(0.5f, -0.5f, 0, 1, 0),
                 new Vector5(-0.5f, 0.5f, 0, 0, 1),
                 new Vector5(0.5f, 0.5f, 0, 1, 1)
             }, BufferUsageHint.DynamicDraw);
-
-            ColBuffer = new VertexDataBufferObject<Color4b>(4, new Color4b[]
+            Console.WriteLine(GL.GetError());
+            colBuffer = new VertexDataBufferObject<Color4b>(4, new Color4b[]
             {
                 new Color4b(255, 255, 255, 255),
                 new Color4b(255, 255, 255, 255),
@@ -74,10 +60,15 @@ namespace TrippyTesting
 
             vertexArray = new VertexArray(new VertexAttribSource[]
             {
-                new VertexAttribSource(PosTexBuffer, 3, false, VertexAttribPointerType.Float),
-                new VertexAttribSource(ColBuffer, 4, true, VertexAttribPointerType.UnsignedByte),
-                new VertexAttribSource(PosTexBuffer, 2, false, VertexAttribPointerType.Float),
+                new VertexAttribSource(posTexBuffer, 3, false, VertexAttribPointerType.Float),
+                new VertexAttribSource(colBuffer, 4, true, VertexAttribPointerType.UnsignedByte),
+                new VertexAttribSource(posTexBuffer, 2, false, VertexAttribPointerType.Float),
             });
+
+            indexBuffer = new IndexBufferObject(4, 0, new byte[]
+            {
+                3, 1, 2, 0
+            }, BufferUsageHint.DynamicDraw);
 
             #endregion
 
@@ -142,14 +133,14 @@ namespace TrippyTesting
         {
             TrippyLib.ResetGLBindStates();
 
-            PosTexBuffer.SetData(1, 0, 2, new Vector5[]
+            posTexBuffer.SetData(1, 0, 2, new Vector5[]
             {
                 new Vector5(0.5f+wave(0.05f, time, 1.7f, 0f), -0.5f+wave(0.05f, time, 1.81f, 0f), 0, 1, 0),
                 new Vector5(-0.5f+wave(0.05f, time, 1.44f, 0f), 0.5f+wave(0.05f, time, 1.47f, 0f), 0, 0, 1),
             });
 
             byte intensity = (byte)((wave(0.5f, time, 3f, 0f) + 0.5f) * 255);
-            ColBuffer.SetData(2, 1, 2, new Color4b[]
+            colBuffer.SetData(2, 1, 2, new Color4b[]
             {
                 new Color4b(intensity, intensity, intensity, 255),
                 new Color4b(intensity, intensity, intensity, 255),
@@ -196,8 +187,11 @@ namespace TrippyTesting
             plant.Dispose();
             yarn.Dispose();
             vertexArray.Dispose();
-            PosTexBuffer.Dispose();
-            ColBuffer.Dispose();
+            posTexBuffer.Dispose();
+            colBuffer.Dispose();
+            indexBuffer.Dispose();
+
+            TrippyLib.Quit();
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -231,12 +225,17 @@ namespace TrippyTesting
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
         {
             vertexArray.EnsureBound();
+
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
             GL.UseProgram(program);
             GL.UniformMatrix4(worldUniform, false, ref mat);
             texture.EnsureBoundAndActive();
             GL.Uniform1(texUniform, 0);
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+
+            indexBuffer.EnsureBound();
+
+            //GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            GL.DrawElements(PrimitiveType.TriangleStrip, 4, indexBuffer.ElementType, 0);
         }
 
         private Color4b randomColor()

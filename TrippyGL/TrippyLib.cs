@@ -1,7 +1,4 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
@@ -12,12 +9,23 @@ namespace TrippyGL
         /// </summary>
         public static void Init()
         {
+            isLibActive = true;
             GL.Enable(EnableCap.Multisample);
 
             Texture.Init();
 
-            Console.WriteLine(MaxTextureSize);
+            ResetGLBindStates();
         }
+
+        /// <summary>
+        /// Call this when quitting the TrippyGL library. This should be called before the context is destroyed
+        /// </summary>
+        public static void Quit()
+        {
+            isLibActive = false;
+        }
+
+        internal static bool isLibActive;
 
         /// <summary>
         /// Resets any internal library variable storing OpenGL states. These variables are used to, for example, dont bind the same texture twice if it's already bound.
@@ -28,6 +36,7 @@ namespace TrippyGL
         {
             Texture.ResetBindStates();
             VertexDataBufferObject<int>.ResetBindState();
+            IndexBufferObject.ResetBindState();
             VertexArray.ResetBindState();
         }
 

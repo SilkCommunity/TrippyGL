@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,6 +49,7 @@
   <ItemGroup>
     <Compile Include="BlendMode.cs" />
     <Compile Include="Color4b.cs" />
+    <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertexArrayAttribSource.cs" />
     <Compile Include="TrippyLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

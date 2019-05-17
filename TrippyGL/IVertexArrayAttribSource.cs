@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrippyGL
+﻿namespace TrippyGL
 {
     /// <summary>
     /// Defines a source of data for a vertex attribute. This data must be stored in an OpenGL Buffer Object bound to GL_ARRAY_BUFFER

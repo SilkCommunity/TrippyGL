@@ -4,39 +4,39 @@ using System.Drawing;
 namespace OpenTK.Graphics
 {
     /// <summary>
-    /// Represents a color with 4 floating-point components (R, G, B, A).
+    /// Represents a color with 4 byte components (R, G, B, A).
     /// </summary>
     [Serializable]
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct Color4b
     {
         /// <summary>
-        /// The red component of this Color4 structure.
+        /// The red component of this Color4b structure.
         /// </summary>
         public byte R;
 
         /// <summary>
-        /// The green component of this Color4 structure.
+        /// The green component of this Color4b structure.
         /// </summary>
         public byte G;
 
         /// <summary>
-        /// The blue component of this Color4 structure.
+        /// The blue component of this Color4b structure.
         /// </summary>
         public byte B;
 
         /// <summary>
-        /// The alpha component of this Color4 structure.
+        /// The alpha component of this Color4b structure.
         /// </summary>
         public byte A;
 
         /// <summary>
-        /// Constructs a new Color4 structure from the specified components.
+        /// Constructs a new Color4b structure from the specified components.
         /// </summary>
-        /// <param name="r">The red component of the new Color4 structure.</param>
-        /// <param name="g">The green component of the new Color4 structure.</param>
-        /// <param name="b">The blue component of the new Color4 structure.</param>
-        /// <param name="a">The alpha component of the new Color4 structure.</param>
+        /// <param name="r">The red component of the new Color4b structure.</param>
+        /// <param name="g">The green component of the new Color4b structure.</param>
+        /// <param name="b">The blue component of the new Color4b structure.</param>
+        /// <param name="a">The alpha component of the new Color4b structure.</param>
         public Color4b(byte r, byte g, byte b, byte a)
         {
             R = r;
@@ -73,7 +73,7 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Compares the specified Color4 structures for inequality.
+        /// Compares the specified Color4b structures for inequality.
         /// </summary>
         /// <param name="left">The left-hand side of the comparison.</param>
         /// <param name="right">The right-hand side of the comparison.</param>
@@ -84,7 +84,7 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Converts the specified System.Drawing.Color to a Color4 structure.
+        /// Converts the specified System.Drawing.Color to a Color4b structure.
         /// </summary>
         /// <param name="color">The System.Drawing.Color to convert.</param>
         /// <returns>A new Color4 structure containing the converted components.</returns>
@@ -94,9 +94,9 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Converts the specified Color4 to a System.Drawing.Color structure.
+        /// Converts the specified Color4b to a System.Drawing.Color structure.
         /// </summary>
-        /// <param name="color">The Color4 to convert.</param>
+        /// <param name="color">The Color4b to convert.</param>
         /// <returns>A new System.Drawing.Color structure containing the converted components.</returns>
         public static explicit operator Color(Color4b color)
         {
@@ -109,10 +109,10 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Compares whether this Color4 structure is equal to the specified object.
+        /// Compares whether this Color4b structure is equal to the specified object.
         /// </summary>
         /// <param name="obj">An object to compare to.</param>
-        /// <returns>True obj is a Color4 structure with the same components as this Color4; false otherwise.</returns>
+        /// <returns>True obj is a Color4b structure with the same components as this Color4; false otherwise.</returns>
         public override bool Equals(object obj)
         {
             if (!(obj is Color4b))
@@ -124,18 +124,18 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Calculates the hash code for this Color4 structure.
+        /// Calculates the hash code for this Color4b structure.
         /// </summary>
-        /// <returns>A System.Int32 containing the hashcode of this Color4 structure.</returns>
+        /// <returns>A System.Int32 containing the hashcode of this Color4b structure.</returns>
         public override int GetHashCode()
         {
             return ToArgb();
         }
 
         /// <summary>
-        /// Creates a System.String that describes this Color4 structure.
+        /// Creates a System.String that describes this Color4b structure.
         /// </summary>
-        /// <returns>A System.String that describes this Color4 structure.</returns>
+        /// <returns>A System.String that describes this Color4b structure.</returns>
         public override string ToString()
         {
             return String.Format("{{(R, G, B, A) = ({0}, {1}, {2}, {3})}}", R.ToString(), G.ToString(), B.ToString(), A.ToString());
@@ -849,11 +849,11 @@ namespace OpenTK.Graphics
         #endregion
 
         /// <summary>
-        /// Compares whether this Color4 structure is equal to the specified Color4.
+        /// Compares whether this Color4b structure is equal to the specified Color4b.
         /// </summary>
-        /// <param name="other">The Color4 structure to compare to.</param>
-        /// <returns>True if both Color4 structures contain the same components; false otherwise.</returns>
-        public bool Equals(Color4 other)
+        /// <param name="other">The Color4b structure to compare to.</param>
+        /// <returns>True if both Color4b structures contain the same components; false otherwise.</returns>
+        public bool Equals(Color4b other)
         {
             return
                 this.R == other.R &&

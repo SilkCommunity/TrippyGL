@@ -1,17 +1,16 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// VertexDataBufferObjects are used to manage a buffer storage on the GPU. This buffer storage's purpose is to feed vertex attribute data
+    /// VertexDataBufferObjects are used to manage a buffer storage on the GPU.
+    /// This buffer storage's purpose is to feed vertex attribute data, so it is always bound to GL_ARRAY_BUFFER
     /// </summary>
     /// <typeparam name="T">The type of struct the buffer will manage. This type is used to help you upload data in a format that isn't byte array</typeparam>
     public class VertexDataBufferObject<T> : IDisposable, IVertexArrayAttribSource where T : struct
     {
-        /// <summary>The last buffer object's handle to be bound to GL_ARRAY_TARGET</summary>
+        /// <summary>The last buffer object's name to be bound to GL_ARRAY_BUFFER. This variable is used on EnsureBound() so to not bind the same buffer consecutively</summary>
         private static int lastBoundBuffer = -1;
 
         /// <summary>
@@ -20,9 +19,17 @@ namespace TrippyGL
         /// </summary>
         public static void ResetBindState()
         {
-            lastBoundBuffer = -1;
+            lastBoundBuffer = GL.GetInteger(GetPName.ArrayBufferBinding);
         }
 
+        /// <summary>
+        /// Unbinds any VertexDataBufferObject by binding to buffer 0
+        /// </summary>
+        public static void BindEmpty()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            lastBoundBuffer = 0;
+        }
 
 
         /// <summary>The GL Buffer Object's name</summary>
@@ -37,8 +44,9 @@ namespace TrippyGL
         /// <summary>The length of the buffer object's storage measured in bytes</summary>
         public int StorageLengthInBytes { get { return StorageLength * StructSize; } }
 
+        /// <summary>Whether this is the currently bound VertexDataBufferObject</summary>
         public bool IsCurrentlyBound { get { return lastBoundBuffer == Handle; } }
-        
+
         /// <summary>
         /// Creates a VertexDataBufferObject with the specified storage length and initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
@@ -46,8 +54,8 @@ namespace TrippyGL
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="dataOffset">The first element of the given data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
-        /// <param name="bufferHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, int dataOffset, T[] data, BufferUsageHint bufferHint)
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
+        public VertexDataBufferObject(int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
         {
             if (data == null)
                 throw new ArgumentNullException("data", "Data array can't be null. Try using another constructor if you don't want to set an initial value to the buffer storage");
@@ -55,8 +63,8 @@ namespace TrippyGL
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException("storageLength", storageLength, "Storage length must be a positive number");
 
-            if (dataOffset < 0)
-                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be equal or greater than 0");
+            if (dataOffset < 0 || dataOffset >= data.Length)
+                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
 
             if (data.Length - dataOffset < storageLength)
                 throw new ArgumentOutOfRangeException("There isn't enough data in the data array starting from dataOffset to fill the entire buffer storage");
@@ -66,38 +74,28 @@ namespace TrippyGL
             this.StorageLength = storageLength;
 
             EnsureBound();
-            GL.BufferData(BufferTarget.ArrayBuffer, storageLength * StructSize, ref data[dataOffset], bufferHint);
+            GL.BufferData(BufferTarget.ArrayBuffer, storageLength * StructSize, ref data[dataOffset], usageHint);
         }
 
         /// <summary>
         /// Creates a VertexDataBufferObject with the specified storage length and initializes the storage data by copying it from a given array.
-        /// The entire storage must be filled with data, it cannot be only partially written by this constructor
+        /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
-        /// <param name="data">An array containing the data to be uploaded to the buffer's storage. If null, the storage is created but no data is uploaded. If longer than necessary, only enough data to fill the storage will be read</param>
-        /// <param name="bufferHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, T[] data, BufferUsageHint bufferHint)
+        /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
+        public VertexDataBufferObject(int storageLength, T[] data, BufferUsageHint usageHint)
+            : this(storageLength, 0, data, usageHint)
         {
-            if (storageLength <= 0)
-                throw new ArgumentOutOfRangeException("storageLength", storageLength, "Storage length must be a positive number");
 
-            if (data != null && data.Length < storageLength)
-                throw new ArgumentException("There isn't enough data in the array to fill the entire buffer", "data");
-
-            this.Handle = GL.GenBuffer();
-            this.StructSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
-            this.StorageLength = storageLength;
-
-            EnsureBound();
-            GL.BufferData(BufferTarget.ArrayBuffer, storageLength * StructSize, data, bufferHint);
         }
 
         /// <summary>
         /// Creates a VertexDataBufferObject with the specified storage length. The storage is created but the data has no specified initial value
         /// </summary>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
-        /// <param name="bufferHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, BufferUsageHint bufferHint)
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
+        public VertexDataBufferObject(int storageLength, BufferUsageHint usageHint)
         {
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException("storageLength", storageLength, "Storage length must be a positive number");
@@ -107,23 +105,28 @@ namespace TrippyGL
             this.StorageLength = storageLength;
 
             EnsureBound();
-            GL.BufferData(BufferTarget.ArrayBuffer, storageLength * StructSize, IntPtr.Zero, bufferHint);
+            GL.BufferData(BufferTarget.ArrayBuffer, storageLength * StructSize, IntPtr.Zero, usageHint);
         }
 
         ~VertexDataBufferObject()
         {
-            dispose();
+            if (TrippyLib.isLibActive)
+                dispose();
         }
 
         /// <summary>
-        /// Ensures this buffer object is currently bound to OpenGL. VertexDataBufferObjects always bind to GL_ARRAY_TARGET.
+        /// Ensures this buffer object is currently bound to OpenGL. VertexDataBufferObjects always bind to GL_ARRAY_BUFFER.
         /// </summary>
         public void EnsureBound()
         {
-            if (lastBoundBuffer != Handle)
+            if (lastBoundBuffer != Handle || true)
             {
+                // Found a bug on the compiler. Value of static field lastBoundBuffer changes on it's own.
+                // Until I get this sorted out or decide on something else, this " || true" will have to stay there to keep the lib running.
+                // Link to bug report: https://developercommunity.visualstudio.com/content/problem/573077/bug-in-the-c-compiler-static-variable-changing-on.html
+
                 GL.BindBuffer(BufferTarget.ArrayBuffer, Handle);
-                lastBoundBuffer = -1;
+                lastBoundBuffer = Handle;
             }
         }
 
@@ -131,8 +134,8 @@ namespace TrippyGL
         /// Writes part or all of the buffer object's storage
         /// </summary>
         /// <param name="storageOffset">The first element index in the buffer's storage to modify</param>
-        /// <param name="dataOffset">The first element from the specified data array to start reading from</param>
-        /// <param name="dataLength">The amount of elements to read from the data array</param>
+        /// <param name="dataOffset">The index of the first element from the specified data array to start reading from</param>
+        /// <param name="dataLength">The amount of elements to copy from the data array to the buffer</param>
         /// <param name="data">The array containing the data to upload</param>
         public void SetData(int storageOffset, int dataOffset, int dataLength, T[] data)
         {
@@ -142,8 +145,8 @@ namespace TrippyGL
             if (storageOffset < 0 || storageOffset >= StorageLength)
                 throw new ArgumentOutOfRangeException("storageOffset", storageOffset, "Storage offset must be in the range [0, StorageLength)");
 
-            if (dataLength < 0)
-                throw new ArgumentOutOfRangeException("dataLength", dataLength, "Data length must be equal or greater than 0");
+            if (dataOffset < 0 || dataOffset >= data.Length)
+                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
 
             if (data.Length - dataOffset < dataLength)
                 throw new ArgumentOutOfRangeException("There isn't enough data in the array to start from index dataOffset and read dataLength elements");
@@ -169,11 +172,6 @@ namespace TrippyGL
             GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, Math.Min(data.Length, StorageLength) * StructSize, data);
         }
 
-        public override string ToString()
-        {
-            return String.Concat("Handle=", Handle, ". StorageLength=", StorageLength, ", StructSize=", StructSize, " StructType=", typeof(T), " CurrentlyBound=", IsCurrentlyBound);
-        }
-
         private void dispose()
         {
             GL.DeleteBuffer(Handle);
@@ -187,6 +185,11 @@ namespace TrippyGL
         {
             dispose();
             GC.SuppressFinalize(this);
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("Handle=", Handle, ". StorageLength=", StorageLength, ", StructSize=", StructSize, " StructType=", typeof(T), " IsCurrentlyBound=", IsCurrentlyBound);
         }
     }
 }
