@@ -67,7 +67,7 @@ namespace TrippyTesting
 
             indexBuffer = new IndexBufferObject(4, 0, new byte[]
             {
-                3, 1, 2, 0
+                0, 2, 1, 3
             }, BufferUsageHint.DynamicDraw);
 
             #endregion
@@ -132,6 +132,11 @@ namespace TrippyTesting
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             TrippyLib.ResetGLBindStates();
+
+            indexBuffer.SetData(0, 0, 4, new byte[]
+            {
+                0, 1, 2, 3
+            });
 
             posTexBuffer.SetData(1, 0, 2, new Vector5[]
             {

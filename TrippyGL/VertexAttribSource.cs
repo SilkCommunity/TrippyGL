@@ -6,7 +6,7 @@ namespace TrippyGL
     public struct VertexAttribSource
     {
         /// <summary>The VertexDataBufferObject from which the vertex attributes will be read</summary>
-        public readonly IVertexArrayAttribSource DataBuffer;
+        public readonly BufferObject DataBuffer;
 
         /// <summary>The size of the attribute. A float or int would be 1, a vec2 would be 2, a vec3i would be 3, etc</summary>
         public readonly int Size;
@@ -20,10 +20,13 @@ namespace TrippyGL
         /// <summary>The type of variable this attribute corresponds to. Vectors and non-vectors would have the same AttribType as other sized same-type vectors, so a vec4 has AttribType float and a vec2i has AttribType int</summary>
         public readonly VertexAttribPointerType AttribType;
 
-        public VertexAttribSource(IVertexArrayAttribSource dataBuffer, int size, bool normalized, VertexAttribPointerType attribType, int sizeInBytes)
+        public VertexAttribSource(BufferObject dataBuffer, int size, bool normalized, VertexAttribPointerType attribType, int sizeInBytes)
         {
             if (dataBuffer == null)
                 throw new ArgumentNullException("dataBuffer");
+
+            if (dataBuffer.BufferTarget != BufferTarget.ArrayBuffer)
+                throw new ArgumentException("The specified BufferObject must be usable as vertex attrib data. Try using a VertexDataBufferObject", "dataBuffer");
 
             if (size <= 0)
                 throw new ArgumentOutOfRangeException("size", size, "Size must be greater than 0");
@@ -38,7 +41,7 @@ namespace TrippyGL
             this.SizeInBytes = sizeInBytes;
         }
 
-        public VertexAttribSource(IVertexArrayAttribSource dataBuffer, int size, bool normalized, VertexAttribPointerType attribType)
+        public VertexAttribSource(BufferObject dataBuffer, int size, bool normalized, VertexAttribPointerType attribType)
             : this(dataBuffer, size, normalized, attribType, GetSizeInBytesOfAttribType(attribType) * size)
         {
 

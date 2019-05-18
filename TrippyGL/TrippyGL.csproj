@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -48,9 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlendMode.cs" />
+    <Compile Include="BufferObject.cs" />
     <Compile Include="Color4b.cs" />
     <Compile Include="IndexBufferObject.cs" />
-    <Compile Include="IVertexArrayAttribSource.cs" />
     <Compile Include="TrippyLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture.cs" />

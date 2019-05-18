@@ -42,6 +42,9 @@ namespace TrippyGL
             if (attribSources == null)
                 throw new ArgumentNullException("attribSources");
 
+            if (attribSources.Length == 0)
+                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribSources");
+
             Handle = GL.GenVertexArray();
             this.AttribSources = attribSources;
 
@@ -51,7 +54,7 @@ namespace TrippyGL
         ~VertexArray()
         {
             if (TrippyLib.isLibActive)
-                dispose();
+                InternalDispose();
         }
 
         /// <summary>
@@ -101,14 +104,21 @@ namespace TrippyGL
             }
         }
 
-        private void dispose()
+        /// <summary>
+        /// This method disposes the Vertex Array with no checks at all
+        /// </summary>
+        private void InternalDispose()
         {
             GL.DeleteVertexArray(Handle);
         }
 
+        /// <summary>
+        /// Disposes this Vertex Array, deleting and releasing the resources it uses.
+        /// The Vertex Array cannot be used after it's been disposed
+        /// </summary>
         public void Dispose()
         {
-            dispose();
+            InternalDispose();
             GC.SuppressFinalize(this);
         }
 

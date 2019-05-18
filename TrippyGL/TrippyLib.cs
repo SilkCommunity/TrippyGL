@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System;
+using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
@@ -9,10 +10,14 @@ namespace TrippyGL
         /// </summary>
         public static void Init()
         {
+            if (isLibActive)
+                throw new InvalidOperationException("The library is already active!");
+
             isLibActive = true;
             GL.Enable(EnableCap.Multisample);
 
             Texture.Init();
+            BufferObject.Init();
 
             ResetGLBindStates();
         }
@@ -22,9 +27,12 @@ namespace TrippyGL
         /// </summary>
         public static void Quit()
         {
+            if (!isLibActive)
+                throw new InvalidOperationException("The library isn't active!");
+
             isLibActive = false;
         }
-
+        
         internal static bool isLibActive;
 
         /// <summary>
@@ -34,9 +42,8 @@ namespace TrippyGL
         /// </summary>
         public static void ResetGLBindStates()
         {
+            BufferObject.ResetBindStates();
             Texture.ResetBindStates();
-            VertexDataBufferObject<int>.ResetBindState();
-            IndexBufferObject.ResetBindState();
             VertexArray.ResetBindState();
         }
 
