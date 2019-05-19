@@ -48,6 +48,21 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Ensures a buffer's handle is bound to the specified bufferTarget
+        /// </summary>
+        /// <param name="bufferTarget"></param>
+        /// <param name="bufferHandle"></param>
+        public static void EnsureBufferBound(BufferTarget bufferTarget, int bufferHandle)
+        {
+            int index = GetBindingTargetIndex(bufferTarget);
+            if (binds[index] != bufferHandle)
+            {
+                binds[index] = bufferHandle;
+                GL.BindBuffer(bufferTarget, bufferHandle);
+            }
+        }
+
+        /// <summary>
         /// Gets the index on the 'binds' list for the specified BufferTarget.
         /// If there's no index for that BufferTarget, it's created
         /// </summary>
@@ -90,7 +105,7 @@ namespace TrippyGL
         /// The buffer object's storage isn't initialized by this constructor
         /// </summary>
         /// <param name="bufferTarget"></param>
-        internal BufferObject(BufferTarget bufferTarget)
+        private protected BufferObject(BufferTarget bufferTarget)
         {
             Handle = GL.GenBuffer();
             this.BufferTarget = bufferTarget;

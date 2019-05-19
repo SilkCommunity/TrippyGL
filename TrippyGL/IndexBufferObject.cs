@@ -113,7 +113,7 @@ namespace TrippyGL
         /// <param name="data">The array containing the data to upload</param>
         public void SetData(int storageOffset, int dataOffset, int dataLength, uint[] data)
         {
-            ValidateSetParams(storageOffset, dataOffset, dataLength, StorageLength, data);
+            ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
             EnsureBound();
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
@@ -129,7 +129,7 @@ namespace TrippyGL
         /// <param name="data">The array containing the data to upload</param>
         public void SetData(int storageOffset, int dataOffset, int dataLength, ushort[] data)
         {
-            ValidateSetParams(storageOffset, dataOffset, dataLength, StorageLength, data);
+            ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
             EnsureBound();
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
@@ -145,7 +145,7 @@ namespace TrippyGL
         /// <param name="data">The array containing the data to upload</param>
         public void SetData(int storageOffset, int dataOffset, int dataLength, byte[] data)
         {
-            ValidateSetParams(storageOffset, dataOffset, dataLength, StorageLength, data);
+            ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes, data);
 
             EnsureBound();
             GL.BufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
@@ -164,7 +164,7 @@ namespace TrippyGL
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
             EnsureBound();
-            GL.GetBufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
+            GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -173,14 +173,14 @@ namespace TrippyGL
         /// </summary>
         /// <param name="storageOffset">The first UnsignedShort's index in the buffer to read</param>
         /// <param name="dataOffset">The index of the first ushort to read from the buffer's storage</param>
-        /// <param name="dataLength">The amount of uints to copy from the buffer storage into the data array</param>
+        /// <param name="dataLength">The amount of ushorts to copy from the buffer storage into the data array</param>
         /// <param name="data">The array in which to write the recieved storage data</param>
         public void GetData(int storageOffset, int dataOffset, int dataLength, ushort[] data)
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
             EnsureBound();
-            GL.GetBufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
+            GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
         }
 
         /// <summary>
