@@ -37,7 +37,7 @@ namespace TrippyGL
         /// Creates a VertexArray with the specified attribute sources
         /// </summary>
         /// <param name="attribSources"></param>
-        public VertexArray(VertexAttribSource[] attribSources)
+        public VertexArray(params VertexAttribSource[] attribSources)
         {
             if (attribSources == null)
                 throw new ArgumentNullException("attribSources");
@@ -86,7 +86,7 @@ namespace TrippyGL
                     }
                 }
 
-                vas.DataBuffer.EnsureBound();
+                vas.DataBuffer.EnsureBound(); // WE DON'T NEED TO CALCULATE STRIDE, JUST USE vas.DataBuffer.ElementSize
                 GL.VertexAttribPointer(i, vas.Size, vas.AttribType, vas.Normalized, stride, offset);
                 GL.EnableVertexAttribArray(i);
             }
@@ -99,9 +99,17 @@ namespace TrippyGL
         {
             if (lastArrayBound != Handle)
             {
-                GL.BindVertexArray(Handle);
-                lastArrayBound = Handle;
+                Bind();
             }
+        }
+
+        /// <summary>
+        /// Binds this VertexArray. Prefer using EnsureBound() to avoid unnecessary binds
+        /// </summary>
+        public void Bind()
+        {
+            GL.BindVertexArray(Handle);
+            lastArrayBound = Handle;
         }
 
         /// <summary>

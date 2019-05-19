@@ -7,7 +7,7 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            using(GameWindow w = new Game())
+            using(GameWindow w = new TransformGame())
             {
                 w.Run(60, 60);
             }
