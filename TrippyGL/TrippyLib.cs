@@ -52,5 +52,9 @@ namespace TrippyGL
         public static int MaxSamples { get { return GL.GetInteger(GetPName.MaxSamples); } }
 
         public static int MaxTextureSize { get { return GL.GetInteger(GetPName.MaxTextureSize); } }
+
+        public static int GLMajorVersion { get { return GL.GetInteger(GetPName.MajorVersion); } }
+
+        public static int GLMinorVersion { get { return GL.GetInteger(GetPName.MinorVersion); } }
     }
 }

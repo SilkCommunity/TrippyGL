@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
 
 namespace TrippyTesting
 {
+    [StructLayout(LayoutKind.Sequential)]
     struct VertexColorTexture
     {
         public const int SizeInBytes = 24;

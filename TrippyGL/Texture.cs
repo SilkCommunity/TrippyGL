@@ -131,12 +131,21 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
 
+        /// <summary>
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// </summary>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
         public void SetWrapMode(TextureWrapMode sWrapMode)
         {
             EnsureBoundAndActive();
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
         }
 
+        /// <summary>
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// </summary>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
+        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode)
         {
             EnsureBoundAndActive();
@@ -144,6 +153,12 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
         }
 
+        /// <summary>
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// </summary>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
+        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
+        /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
         {
             EnsureBoundAndActive();
@@ -152,11 +167,18 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
         }
 
+        /// <summary>
+        /// This method disposes the texture with no checks at all
+        /// </summary>
         private void dispose()
         {
             GL.DeleteTexture(Handle);
         }
 
+        /// <summary>
+        /// Disposes the texture, releasing the resources it uses.
+        /// The texture can't be used after being disposed
+        /// </summary>
         public void Dispose()
         {
             dispose();

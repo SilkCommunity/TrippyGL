@@ -20,7 +20,8 @@ namespace TrippyTesting
 
         IndexBufferObject indexBuffer;
 
-        VertexArray vertexArray;
+        //VertexArray vertexArray;
+        int vao;
 
         int drawProgram, worldUniform, viewUniform, projUniform, texUniform;
 
@@ -36,14 +37,29 @@ namespace TrippyTesting
 
         protected override void OnLoad(EventArgs e)
         {
+            VertexAttribDescription jajaa;
+            jajaa = new VertexAttribDescription(ActiveAttribType.FloatVec4);
+            jajaa = new VertexAttribDescription(ActiveAttribType.DoubleVec4);
+            jajaa = new VertexAttribDescription(ActiveAttribType.FloatMat4);
+            jajaa = new VertexAttribDescription(ActiveAttribType.FloatMat3x2);
+            jajaa = new VertexAttribDescription(ActiveAttribType.Int);
+            jajaa = new VertexAttribDescription(ActiveAttribType.UnsignedIntVec2);
+            jajaa = new VertexAttribDescription(ActiveAttribType.FloatVec4, true, VertexAttribPointerType.Byte);
+            jajaa = new VertexAttribDescription(ActiveAttribType.DoubleVec3, true, VertexAttribPointerType.Int);
+
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             BlendMode.AlphaBlend.Apply();
-            
+
             #region LoadVBO
 
-            posTexBuffer = new VertexDataBufferObject<PositionTexCoord>(4, BufferUsageHint.DynamicDraw);
-
+            posTexBuffer = new VertexDataBufferObject<PositionTexCoord>(4, new PositionTexCoord[]
+            {
+                new PositionTexCoord(new Vector3(-0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(), new Vector2(0, 0)),
+                new PositionTexCoord(new Vector3(0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(1, 0)),
+                new PositionTexCoord(new Vector3(-0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(0, 1)),
+                new PositionTexCoord(new Vector3(0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(1, 1))
+            }, BufferUsageHint.DynamicDraw);
             Console.WriteLine(GL.GetError());
             colBuffer = new VertexDataBufferObject<Color4b>(4, new Color4b[]
             {
@@ -53,15 +69,41 @@ namespace TrippyTesting
                 new Color4b(255, 255, 255, 255)
             }, BufferUsageHint.DynamicDraw);
 
-            vertexArray = new VertexArray(new VertexAttribSource[]
+            /*vertexArray = new VertexArray(new VertexAttribSource[]
             {
-                new VertexAttribSource(posTexBuffer, ActiveAttribType.FloatVec3),
-                new VertexAttribSource(colBuffer, ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
-                new VertexAttribSource(posTexBuffer, ActiveAttribType.FloatMat3),
-                new VertexAttribSource(posTexBuffer, ActiveAttribType.DoubleVec4),
-                new VertexAttribSource(posTexBuffer, ActiveAttribType.FloatVec2),
-                new VertexAttribSource(posTexBuffer, ActiveAttribType.IntVec4)
-            });
+                new VertexAttribSource(posTexBuffer, 3, false, VertexAttribPointerType.Float),
+                new VertexAttribSource(colBuffer, 4, true, VertexAttribPointerType.UnsignedByte),
+                new VertexAttribSource(posTexBuffer, 2, false, VertexAttribPointerType.Float),
+            });*/
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
+
+            int xdxd = System.Runtime.InteropServices.Marshal.SizeOf<PositionTexCoord>();
+            int jaja = System.Runtime.InteropServices.Marshal.SizeOf<Vector3i>();
+
+            posTexBuffer.EnsureBound();
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 104, 0);
+            GL.EnableVertexAttribArray(0);
+
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 104, 12);
+            GL.EnableVertexAttribArray(2);
+            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, 104, 24);
+            GL.EnableVertexAttribArray(3);
+            GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 104, 36);
+            GL.EnableVertexAttribArray(4);
+
+            GL.VertexAttribLPointer(5, 4, VertexAttribDoubleType.Double, 104, (IntPtr)48);
+            GL.EnableVertexAttribArray(5);
+
+            GL.VertexAttribPointer(6, 3, VertexAttribPointerType.Int, true, 104, 80);
+            GL.EnableVertexAttribArray(6);
+
+            GL.VertexAttribPointer(7, 2, VertexAttribPointerType.Float, false, 104, 92);
+            GL.EnableVertexAttribArray(7);
+
+            colBuffer.EnsureBound();
+            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.UnsignedByte, true, 4, 0);
+            GL.EnableVertexAttribArray(1);
 
             indexBuffer = new IndexBufferObject(4, 0, new uint[]
             {
@@ -86,10 +128,10 @@ namespace TrippyTesting
             GL.AttachShader(drawProgram, fs);
             GL.BindAttribLocation(drawProgram, 0, "vPosition");
             GL.BindAttribLocation(drawProgram, 1, "vColor");
-            GL.BindAttribLocation(drawProgram, 2, "vMat");
-            GL.BindAttribLocation(drawProgram, 5, "vDou");
-            GL.BindAttribLocation(drawProgram, 6, "vTexCoords");
-            GL.BindAttribLocation(drawProgram, 7, "vInts");
+            GL.BindAttribLocation(drawProgram, 2, "vFuckmat");
+            GL.BindAttribLocation(drawProgram, 5, "vOther");
+            GL.BindAttribLocation(drawProgram, 6, "vInts");
+            GL.BindAttribLocation(drawProgram, 7, "vTexCoords");
             GL.LinkProgram(drawProgram);
             GL.DetachShader(drawProgram, vs);
             GL.DetachShader(drawProgram, fs);
@@ -148,15 +190,15 @@ namespace TrippyTesting
 
             /*posTexBuffer.SetData(1, 0, 2, new PositionTexCoord[]
             {
-                new PositionTexCoord(new Vector3(0.5f+wave(0.05f, time, 1.7f, 0f), -0.5f+wave(0.05f, time, 1.81f, 0f), 0), new Vector2(1, 0)),
-                new PositionTexCoord(new Vector3(-0.5f+wave(0.05f, time, 1.44f, 0f), 0.5f+wave(0.05f, time, 1.47f, 0f), 0), new Vector2(0, 1)),
+                new PositionTexCoord(new Vector3(0.5f+wave(0.05f, time, 1.7f, 0f), -0.5f+wave(0.05f, time, 1.81f, 0f), 0), MakeMat3(), new Vector2(1, 0)),
+                new PositionTexCoord(new Vector3(-0.5f+wave(0.05f, time, 1.44f, 0f), 0.5f+wave(0.05f, time, 1.47f, 0f), 0), MakeMat3(), new Vector2(0, 1)),
             });*/
             posTexBuffer.SetData(0, 0, 4, new PositionTexCoord[]
             {
-                new PositionTexCoord(new Vector3(-0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(0, 0), MakeVec4i()),
-                new PositionTexCoord(new Vector3(0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(1, 0), MakeVec4i()),
-                new PositionTexCoord(new Vector3(-0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(0, 1), MakeVec4i()),
-                new PositionTexCoord(new Vector3(0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(1, 1), MakeVec4i())
+                new PositionTexCoord(new Vector3(-0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(0, 0)),
+                new PositionTexCoord(new Vector3(0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(1, 0)),
+                new PositionTexCoord(new Vector3(-0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(0, 1)),
+                new PositionTexCoord(new Vector3(0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), MakeVec3i(),new Vector2(1, 1))
             });
 
             byte intensity = (byte)((wave(0.5f, time, 3f, 0f) + 0.5f) * 255);
@@ -167,6 +209,7 @@ namespace TrippyTesting
                 new Color4b(intensity, intensity, intensity, 255)
             });
 
+            GL.Disable(EnableCap.RasterizerDiscard);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, this.Width, this.Height);
             GL.ClearColor(0f, 0f, 0f, 1f);
@@ -206,7 +249,8 @@ namespace TrippyTesting
             jeru.Dispose();
             plant.Dispose();
             yarn.Dispose();
-            vertexArray.Dispose();
+            //vertexArray.Dispose();
+            GL.DeleteVertexArray(vao);
             posTexBuffer.Dispose();
             colBuffer.Dispose();
             indexBuffer.Dispose();
@@ -244,7 +288,8 @@ namespace TrippyTesting
 
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
         {
-            vertexArray.EnsureBound();
+            //vertexArray.EnsureBound();
+            GL.BindVertexArray(vao);
 
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
             GL.UseProgram(drawProgram);
@@ -280,13 +325,13 @@ namespace TrippyTesting
 
         private Vector4d MakeVec4d()
         {
-            return new Vector4d(-time, -time, time, time) * 0.1;
+            return new Vector4d(time, -time, time, -time) * 0.1;
         }
 
-        private Vector4i MakeVec4i()
+        private Vector3i MakeVec3i()
         {
-            int v = (int)time;
-            return new Vector4i(v, v, v, v);
+            int v = (int)(time*9999);
+            return new Vector3i(v, v, 0);
         }
     }
 
@@ -295,31 +340,30 @@ namespace TrippyTesting
     {
         public Vector3 Position;
         public Matrix3 Mat;
-        public Vector4d Dou;
+        public Vector4d Vec4d;
+        public Vector3i Ints;
         public Vector2 TexCoords;
-        public Vector4i Ints;
 
-        public PositionTexCoord(Vector3 position, Matrix3 mat, Vector4d dou, Vector2 texCoords, Vector4i ints)
+        public PositionTexCoord(Vector3 position, Matrix3 mat, Vector4d vec4d, Vector3i ints, Vector2 texCoords)
         {
             this.Position = position;
             this.Mat = mat;
-            this.Dou = dou;
-            this.TexCoords = texCoords;
+            this.Vec4d = vec4d;
             this.Ints = ints;
+            this.TexCoords = texCoords;
         }
     }
 
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    struct Vector4i
+    struct Vector3i
     {
-        public int X, Y, Z, W;
+        public int X, Y, Z;
 
-        public Vector4i(int x, int y, int z, int w)
+        public Vector3i(int x, int y, int z)
         {
             this.X = x;
             this.Y = y;
             this.Z = z;
-            this.W = w;
         }
 
         public override string ToString()

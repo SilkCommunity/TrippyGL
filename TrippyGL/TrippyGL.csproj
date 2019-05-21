@@ -53,6 +53,7 @@
     <Compile Include="Color4b.cs" />
     <Compile Include="DataBufferObject.cs" />
     <Compile Include="IndexBufferObject.cs" />
+    <Compile Include="ShaderProgram.cs" />
     <Compile Include="TrippyLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture.cs" />

@@ -54,7 +54,7 @@ namespace TrippyGL
         ~VertexArray()
         {
             if (TrippyLib.isLibActive)
-                InternalDispose();
+                dispose();
         }
 
         /// <summary>
@@ -65,11 +65,12 @@ namespace TrippyGL
         {
             EnsureBound();
 
+            int attribIndex = 0;
             for (int i = 0; i < AttribSources.Length; i++)
             {
                 VertexAttribSource vas = AttribSources[i];
-                int stride = 0, offset = 0;
-                for (int c = 0; c < AttribSources.Length; c++)
+                int offset = 0;
+                for (int c = 0; c < i; c++)
                 {
                     // Calculates the stride and offset values for this attribute.
                     // These are calculated by going through all other vertex attributes and finding the sources that share the same BufferObject
@@ -78,17 +79,23 @@ namespace TrippyGL
 
                     VertexAttribSource vas2 = AttribSources[c];
                     if (vas2.DataBuffer == vas.DataBuffer)
-                    {
-                        int sib = vas2.SizeInBytes;
-                        stride += sib;
-                        if (c < i)
-                            offset += sib;
-                    }
+                        offset += vas2.AttribDescription.SizeInBytes;
                 }
 
                 vas.DataBuffer.EnsureBound(); // WE DON'T NEED TO CALCULATE STRIDE, JUST USE vas.DataBuffer.ElementSize
-                GL.VertexAttribPointer(i, vas.Size, vas.AttribType, vas.Normalized, stride, offset);
-                GL.EnableVertexAttribArray(i);
+                for (int c = 0; c < vas.AttribDescription.AttribIndicesUseCount; c++)
+                {
+                    if (!vas.AttribDescription.Normalized && vas.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
+                        GL.VertexAttribLPointer(attribIndex, vas.AttribDescription.Size, VertexAttribDoubleType.Double, vas.DataBuffer.ElementSize, (IntPtr)offset);
+                    else if (!vas.AttribDescription.Normalized && VertexAttribDescription.IsIntegerType(vas.AttribDescription.AttribBaseType))
+                        GL.VertexAttribIPointer(attribIndex, vas.AttribDescription.Size, (VertexAttribIntegerType)vas.AttribDescription.AttribBaseType, vas.DataBuffer.ElementSize, (IntPtr)offset);
+                    else
+                        GL.VertexAttribPointer(attribIndex, vas.AttribDescription.Size, vas.AttribDescription.AttribBaseType, vas.AttribDescription.Normalized, vas.DataBuffer.ElementSize, offset);
+
+                    GL.EnableVertexAttribArray(attribIndex);
+                    attribIndex++;
+                    offset += vas.AttribDescription.SizeInBytes / vas.AttribDescription.AttribIndicesUseCount;
+                }
             }
         }
 
@@ -115,7 +122,7 @@ namespace TrippyGL
         /// <summary>
         /// This method disposes the Vertex Array with no checks at all
         /// </summary>
-        private void InternalDispose()
+        private void dispose()
         {
             GL.DeleteVertexArray(Handle);
         }
@@ -126,7 +133,7 @@ namespace TrippyGL
         /// </summary>
         public void Dispose()
         {
-            InternalDispose();
+            dispose();
             GC.SuppressFinalize(this);
         }
 
