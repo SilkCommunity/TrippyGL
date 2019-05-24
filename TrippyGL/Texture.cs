@@ -1,18 +1,19 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 
 namespace TrippyGL
 {
     public abstract class Texture : IDisposable
     {
-        private static int[] binds;
+        private static Texture[] binds;
         private static int activeTextureUnit;
         internal static int maxTextureSize;
         internal static void Init()
         {
-            binds = new int[TrippyLib.MaxTextureImageUnits];
+            binds = new Texture[TrippyLib.MaxTextureImageUnits];
             for (int i = 0; i < binds.Length; i++)
-                binds[i] = -1;
+                binds[i] = null;
             activeTextureUnit = 0;
             GL.ActiveTexture(TextureUnit.Texture0);
             maxTextureSize = TrippyLib.MaxTextureSize;
@@ -26,7 +27,7 @@ namespace TrippyGL
         {
             activeTextureUnit = GL.GetInteger(GetPName.ActiveTexture) - (int)TextureUnit.Texture0;
             for (int i = 0; i < binds.Length; i++)
-                binds[i] = -1;
+                binds[i] = null;
         }
 
         /// <summary>
@@ -36,19 +37,46 @@ namespace TrippyGL
         /// <param name="textures">The textures to ensure are all bound</param>
         public static TextureUnit[] EnsureAllBound(Texture[] textures)
         {
-            TextureUnit[] units = new TextureUnit[textures.Length];
             if (textures.Length > binds.Length)
+                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
+
+            TextureUnit[] units = new TextureUnit[textures.Length];
+            for (int i = 0; i < textures.Length; i++)
             {
-                for (int i = 0; i < textures.Length; i++)
+                if (binds[i] != textures[i])
                 {
-                    if (binds[i] != textures[i].Handle)
-                    {
-                        GL.ActiveTexture(TextureUnit.Texture0 + i);
-                        textures[i].BindToCurrentTextureUnit();
-                    }
-                    units[i] = TextureUnit.Texture0 + i;
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    activeTextureUnit = i;
+                    textures[i].BindToCurrentTextureUnit();
                 }
+                units[i] = TextureUnit.Texture0 + i;
             }
+
+            return units;
+        }
+
+        /// <summary>
+        /// Ensures all the given textures are bound to a TextureUnit.
+        /// Returns an array indicating the TextureUnit to which the texture of the same index is bound to
+        /// </summary>
+        /// <param name="textures">The textures to ensure are all bound</param>
+        public static TextureUnit[] EnsureAllBound(List<Texture> textures)
+        {
+            if (textures.Count > binds.Length)
+                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
+
+            TextureUnit[] units = new TextureUnit[textures.Count];
+            for (int i = 0; i < textures.Count; i++)
+            {
+                if (binds[i] != textures[i])
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    activeTextureUnit = i;
+                    textures[i].BindToCurrentTextureUnit();
+                }
+                units[i] = TextureUnit.Texture0 + i;
+            }
+
             return units;
         }
 
@@ -64,8 +92,7 @@ namespace TrippyGL
         /// <summary>The data type of the components of the texture's pixels, such as UnsignedByte (typical), Float, Int, HalfFloat, etc</summary>
         public readonly PixelType PixelType;
 
-        /// <summary>The last texture unit to which this texture got bound. Used to check if it's still bound there so no unnecesary glBindTextures are called</summary>
-        private int lastBindUnit;
+        internal int LastBindUnit { get; private set; }
 
         internal Texture(TextureTarget type, PixelInternalFormat pixelInternalFormat, PixelType pixelType)
         {
@@ -88,14 +115,14 @@ namespace TrippyGL
         /// </summary>
         public TextureUnit EnsureBoundAndActive()
         {
-            if (binds[lastBindUnit] == Handle)
+            if (binds[LastBindUnit] == this)
             {
-                if (activeTextureUnit != lastBindUnit)
-                    GL.ActiveTexture(TextureUnit.Texture0 + lastBindUnit);
+                if (activeTextureUnit != LastBindUnit)
+                    GL.ActiveTexture(TextureUnit.Texture0 + LastBindUnit);
             }
             else
                 BindToCurrentTextureUnit();
-            return TextureUnit.Texture0 + lastBindUnit;
+            return TextureUnit.Texture0 + LastBindUnit;
         }
 
         /// <summary>
@@ -104,18 +131,19 @@ namespace TrippyGL
         /// </summary>
         public TextureUnit EnsureBound()
         {
-            if (binds[lastBindUnit] != Handle)
+            if (binds[LastBindUnit] != this)
                 BindToCurrentTextureUnit();
-            return TextureUnit.Texture0 + lastBindUnit;
+            return TextureUnit.Texture0 + LastBindUnit;
         }
 
         /// <summary>
-        /// Binds the texture to the currently active texture unit
+        /// Binds the texture to the currently active texture unit.
+        /// Prefer using EnsureBound() or EnsureBoundAndActive()
         /// </summary>
-        internal void BindToCurrentTextureUnit()
+        public void BindToCurrentTextureUnit()
         {
-            lastBindUnit = activeTextureUnit;
-            binds[lastBindUnit] = Handle;
+            LastBindUnit = activeTextureUnit;
+            binds[LastBindUnit] = this;
             GL.BindTexture(TextureType, Handle);
         }
 

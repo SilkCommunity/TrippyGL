@@ -22,7 +22,8 @@ namespace TrippyTesting
 
         VertexArray vertexArray;
 
-        int drawProgram, worldUniform, viewUniform, projUniform, texUniform;
+        ShaderProgram program;
+        ShaderUniform world, view, proj, tex;
 
         Texture2D texture, fondo, invernadero, jeru, plant, yarn;
 
@@ -71,42 +72,28 @@ namespace TrippyTesting
             #endregion
 
             #region LoadShaderProgram
-            int vs = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vs, File.ReadAllText("data/vs.glsl"));
-            GL.CompileShader(vs);
-            //Console.WriteLine("VS: " + GL.GetShaderInfoLog(vs));
 
-            int fs = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fs, File.ReadAllText("data/fs.glsl"));
-            GL.CompileShader(fs);
-            //Console.WriteLine("FS: " + GL.GetShaderInfoLog(fs));
+            program = new ShaderProgram();
+            program.AddVertexShader(File.ReadAllText("data/vs.glsl"));
+            program.AddFragmentShader(File.ReadAllText("data/fs.glsl"));
+            program.SpecifyVertexAttribs(vertexArray.AttribSources, new string[]
+            {
+                "vPosition", "vColor", "vMat", "vDou", "vTexCoords", "vInts"
+            });
+            program.LinkProgram();
+            Console.WriteLine(GL.GetError());
 
-            drawProgram = GL.CreateProgram();
-            GL.AttachShader(drawProgram, vs);
-            GL.AttachShader(drawProgram, fs);
-            GL.BindAttribLocation(drawProgram, 0, "vPosition");
-            GL.BindAttribLocation(drawProgram, 1, "vColor");
-            GL.BindAttribLocation(drawProgram, 2, "vMat");
-            GL.BindAttribLocation(drawProgram, 5, "vDou");
-            GL.BindAttribLocation(drawProgram, 6, "vTexCoords");
-            GL.BindAttribLocation(drawProgram, 7, "vInts");
-            GL.LinkProgram(drawProgram);
-            GL.DetachShader(drawProgram, vs);
-            GL.DetachShader(drawProgram, fs);
-            GL.DeleteShader(vs);
-            GL.DeleteShader(fs);
+            world = program.Uniforms["World"];
+            view = program.Uniforms["View"];
+            proj = program.Uniforms["Projection"];
+            tex = program.Uniforms["texture"];
 
-            worldUniform = GL.GetUniformLocation(drawProgram, "World");
-            viewUniform = GL.GetUniformLocation(drawProgram, "View");
-            projUniform = GL.GetUniformLocation(drawProgram, "Projection");
-            texUniform = GL.GetUniformLocation(drawProgram, "texture");
-            GL.UseProgram(drawProgram);
             Matrix4 i = Matrix4.Identity;
-            GL.UniformMatrix4(worldUniform, false, ref i);
-            GL.UniformMatrix4(viewUniform, false, ref i);
-            GL.UniformMatrix4(projUniform, false, ref i);
+            world.SetValue(ref i);
+            view.SetValue(ref i);
+            proj.SetValue(ref i);
 
-            Console.WriteLine("Program: \n" + GL.GetProgramInfoLog(drawProgram));
+            Console.WriteLine("Program: \n" + GL.GetProgramInfoLog(program.Handle));
             Console.WriteLine("[end program log]");
             #endregion
 
@@ -133,7 +120,7 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            TrippyLib.ResetGLBindStates();
+            //TrippyLib.ResetGLBindStates();
 
             byte[] iboData = new byte[16];
             indexBuffer.GetData(0, 0, 16, iboData);
@@ -146,11 +133,11 @@ namespace TrippyTesting
                 //0, 2, 1, 3
             });
 
-            /*posTexBuffer.SetData(1, 0, 2, new PositionTexCoord[]
-            {
-                new PositionTexCoord(new Vector3(0.5f+wave(0.05f, time, 1.7f, 0f), -0.5f+wave(0.05f, time, 1.81f, 0f), 0), new Vector2(1, 0)),
-                new PositionTexCoord(new Vector3(-0.5f+wave(0.05f, time, 1.44f, 0f), 0.5f+wave(0.05f, time, 1.47f, 0f), 0), new Vector2(0, 1)),
-            });*/
+            float XD = wave(0.5f, time, 3.1415f*8, 0f) + 0.5f;
+            program.Uniforms["haha"].SetValue(new Vector4[]{
+                new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD)
+            }, 0, 0, 4);
+
             posTexBuffer.SetData(0, 0, 4, new PositionTexCoord[]
             {
                 new PositionTexCoord(new Vector3(-0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(0, 0), MakeVec4i()),
@@ -199,7 +186,7 @@ namespace TrippyTesting
 
         protected override void OnUnload(EventArgs e)
         {
-            GL.DeleteProgram(drawProgram);
+            program.Dispose();
             texture.Dispose();
             fondo.Dispose();
             invernadero.Dispose();
@@ -233,29 +220,29 @@ namespace TrippyTesting
         {
             GL.Viewport(0, 0, this.Width, this.Height);
 
-            GL.UseProgram(drawProgram);
             Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, this.Width, this.Height, 0, 0, 1);
-            GL.UniformMatrix4(projUniform, false, ref mat);
-            //mat = Matrix4.CreateScale(Math.Min(this.Width, this.Height) * 0.5f);
-            //mat *= Matrix4.CreateTranslation(this.Width / 2f, this.Height / 2f, 0);
+            proj.SetValue(ref mat);
             mat = Matrix4.CreateScale(Math.Min(this.Width/(float)fondo.Width, this.Height/(float)fondo.Height));
-            GL.UniformMatrix4(viewUniform, false, ref mat);
+            view.SetValue(ref mat);
         }
 
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
         {
             vertexArray.EnsureBound();
 
+            GL.GetError();
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
-            GL.UseProgram(drawProgram);
-            GL.UniformMatrix4(worldUniform, false, ref mat);
-            texture.EnsureBoundAndActive();
-            GL.Uniform1(texUniform, 0);
+            world.SetValue(ref mat);
+            GL.GetError();
+            tex.SetValue(texture);
+            GL.GetError();
 
             indexBuffer.EnsureBound();
-
-            //GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            GL.GetError();
+            program.Uniforms.EnsureSamplerUniformsSet();
+            GL.GetError();
             GL.DrawElements(PrimitiveType.TriangleStrip, 4, indexBuffer.ElementType, 0);
+            GL.GetError();
         }
 
         private Color4b randomColor()

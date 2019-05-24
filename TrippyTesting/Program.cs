@@ -1,13 +1,15 @@
 ﻿using System;
 using OpenTK;
 
+using OpenTK.Graphics.OpenGL4;
+
 namespace TrippyTesting
 {
     class Program
     {
         static void Main(string[] args)
         {
-            using(GameWindow w = new Game())
+            using (GameWindow w = new Game2())
             {
                 w.Run(60, 60);
             }

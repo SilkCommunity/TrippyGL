@@ -6,7 +6,10 @@ namespace TrippyGL
     public class VertexArray : IDisposable
     {
         /// <summary>The last vertex array object's name to be bound. This variable is used on EnsureBound() so to not bind the same vao consecutively</summary>
-        private static int lastArrayBound = -1;
+        private static VertexArray lastArrayBound = null;
+
+        /// <summary>Gets the last VertexArray to get bound</summary>
+        public static VertexArray LastArrayBound { get { return lastArrayBound; } }
 
         /// <summary>
         /// Resets the last bound vertex array object variable. This variable is used on EnsureBound() to not call glBindVertexArray if the array is already bound.
@@ -14,7 +17,7 @@ namespace TrippyGL
         /// </summary>
         public static void ResetBindState()
         {
-            lastArrayBound = GL.GetInteger(GetPName.VertexArrayBinding);
+            lastArrayBound = null;
         }
 
         /// <summary>
@@ -23,7 +26,7 @@ namespace TrippyGL
         public static void BindEmpty()
         {
             GL.BindVertexArray(0);
-            lastArrayBound = 0;
+            lastArrayBound = null;
         }
 
 
@@ -63,12 +66,14 @@ namespace TrippyGL
         /// </summary>
         private void MakeVertexAttribPointerCalls()
         {
+            // TODO: Compensate for C#'s struct padding?
             EnsureBound();
 
             int attribIndex = 0;
             for (int i = 0; i < AttribSources.Length; i++)
             {
                 VertexAttribSource vas = AttribSources[i];
+                
                 int offset = 0;
                 for (int c = 0; c < i; c++)
                 {
@@ -104,7 +109,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureBound()
         {
-            if (lastArrayBound != Handle)
+            if (lastArrayBound != this)
             {
                 Bind();
             }
@@ -116,7 +121,7 @@ namespace TrippyGL
         public void Bind()
         {
             GL.BindVertexArray(Handle);
-            lastArrayBound = Handle;
+            lastArrayBound = this;
         }
 
         /// <summary>

@@ -52,8 +52,13 @@
     <Compile Include="BufferObject.cs" />
     <Compile Include="Color4b.cs" />
     <Compile Include="DataBufferObject.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="ShaderProgram.cs" />
+    <Compile Include="ShaderSamplerUniform.cs" />
+    <Compile Include="ShaderUniform.cs" />
+    <Compile Include="ShaderUniformList.cs" />
+    <Compile Include="TextureRectangle.cs" />
     <Compile Include="TrippyLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture.cs" />

@@ -5,6 +5,8 @@ namespace TrippyGL
 {
     public static class TrippyLib
     {
+        private static int glMinorVersion, glMajorVersion;
+
         /// <summary>
         /// Initiates the TrippyGL library. This should be called after the context has been created and on the same thread
         /// </summary>
@@ -12,6 +14,7 @@ namespace TrippyGL
         {
             if (isLibActive)
                 throw new InvalidOperationException("The library is already active!");
+            RecheckGLVersion();
 
             isLibActive = true;
             GL.Enable(EnableCap.Multisample);
@@ -32,7 +35,19 @@ namespace TrippyGL
 
             isLibActive = false;
         }
-        
+
+        /// <summary>
+        /// Checks the OpenGL versions for the library. You shouldn't need to call this though
+        /// </summary>
+        public static void RecheckGLVersion()
+        {
+            glMajorVersion = GL.GetInteger(GetPName.MajorVersion);
+            glMinorVersion = GL.GetInteger(GetPName.MinorVersion);
+
+            if (glMajorVersion < 3)
+                throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
+        }
+
         internal static bool isLibActive;
 
         /// <summary>
@@ -53,8 +68,8 @@ namespace TrippyGL
 
         public static int MaxTextureSize { get { return GL.GetInteger(GetPName.MaxTextureSize); } }
 
-        public static int GLMajorVersion { get { return GL.GetInteger(GetPName.MajorVersion); } }
+        public static int GLMajorVersion { get { return glMajorVersion; } }
 
-        public static int GLMinorVersion { get { return GL.GetInteger(GetPName.MinorVersion); } }
+        public static int GLMinorVersion { get { return GLMinorVersion; } }
     }
 }

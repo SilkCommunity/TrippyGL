@@ -3,7 +3,7 @@ using System;
 
 namespace TrippyGL
 {
-    public struct VertexAttribSource
+    public class VertexAttribSource
     {
         /// <summary>The VertexDataBufferObject from which the vertex attributes will be read</summary>
         public readonly BufferObject DataBuffer;

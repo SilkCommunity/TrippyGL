@@ -3,9 +3,10 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
-    class ShaderProgram : IDisposable
+    public class ShaderProgram : IDisposable
     {
-        private static int lastUsedProgram;
+        /// <summary>Gets the last program to be used</summary>
+        public static ShaderProgram LastUsedProgram { get; private set; }
 
         /// <summary>The handle for the OpenGL Progrma object</summary>
         public readonly int Handle;
@@ -13,11 +14,13 @@ namespace TrippyGL
         private int vsHandle = -1;
         private int gsHandle = -1;
         private int fsHandle = -1;
-
-        private bool isLinked = false;
         private bool areAttribsBound = false;
 
-        public bool IsLinked { get { return isLinked; } }
+        public ShaderUniformList Uniforms { get; private set; }
+
+        public bool IsLinked { get; private set; } = false;
+
+        public bool IsCurrentlyInUse { get { return LastUsedProgram == this; } }
 
         public ShaderProgram()
         {
@@ -40,6 +43,8 @@ namespace TrippyGL
             vsHandle = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vsHandle, code);
             GL.CompileShader(vsHandle);
+            EnsureShaderCompiledProperly(vsHandle);
+
             GL.AttachShader(Handle, vsHandle);
         }
 
@@ -53,28 +58,49 @@ namespace TrippyGL
             fsHandle = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fsHandle, code);
             GL.CompileShader(fsHandle);
+            EnsureShaderCompiledProperly(fsHandle);
+
             GL.AttachShader(Handle, fsHandle);
         }
 
-        public void SpecifyVertexAttribs(VertexAttribSource[] attribSources, string[] attribNames)
+        public void SpecifyVertexAttribs(VertexAttribDescription[] attribData, string[] attribNamesOrdered)
         {
-            if (attribSources == null)
-                throw new ArgumentNullException("attribSources");
+            EnsureUnlinked();
 
-            if (attribNames == null)
+            if (vsHandle == -1)
+                throw new InvalidOperationException("You must add a vertex shader before specifying vertex attributes");
+
+            if (areAttribsBound)
+                throw new InvalidOperationException("Attributes have already been bound for this program");
+
+            if (attribData == null)
+                throw new ArgumentNullException("attribData");
+
+            if (attribNamesOrdered == null)
                 throw new ArgumentNullException("attribNames");
 
-            if (attribSources.Length == 0)
-                throw new ArgumentException("There must be at least one attribute source", "attribSources");
+            if (attribData.Length == 0)
+                throw new ArgumentException("There must be at least one attribute source", "attribData");
 
-            if (attribSources.Length != attribNames.Length)
-                throw new ArgumentException("The attribSources and attribNames arrays must have matching lengths");
+            if (attribData.Length != attribNamesOrdered.Length)
+                throw new ArgumentException("The attribData and attribNames arrays must have matching lengths");
 
-            for (int i = 0; i < attribSources.Length; i++)
+            int index = 0;
+            for(int i=0; i<attribNamesOrdered.Length; i++)
             {
-                GL.GetActiveAttrib(Handle, i, out int size, out ActiveAttribType type);
-                GL.BindAttribLocation(Handle, i, attribNames[i]);
+                GL.BindAttribLocation(Handle, index, attribNamesOrdered[i]);
+                index += attribData[i].AttribIndicesUseCount;
             }
+
+            areAttribsBound = true;
+        }
+
+        public void SpecifyVertexAttribs(VertexAttribSource[] attribSources, string[] attribNamesOrdered)
+        {
+            VertexAttribDescription[] attribData = new VertexAttribDescription[attribSources.Length];
+            for (int i = 0; i < attribData.Length; i++)
+                attribData[i] = attribSources[i].AttribDescription;
+            SpecifyVertexAttribs(attribData, attribNamesOrdered);
         }
 
         public void LinkProgram()
@@ -87,29 +113,37 @@ namespace TrippyGL
             if (!areAttribsBound)
                 throw new InvalidOperationException("The vertex attributes's indices have never been specified");
 
+            GL.LinkProgram(Handle);
+            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int status);
+            if (status == (int)All.False)
+                throw new ProgramLinkException(GL.GetProgramInfoLog(Handle));
+            IsLinked = true;
+
+            Uniforms = new ShaderUniformList(this);
         }
 
-        public void EnsureBound()
+        public void EnsureInUse()
         {
-            if (lastUsedProgram != Handle)
-                Bind();
+            if (LastUsedProgram != this)
+                Use();
         }
 
-        public void Bind()
+        public void Use()
         {
-            lastUsedProgram = Handle;
+            LastUsedProgram = this;
             GL.UseProgram(Handle);
+            Uniforms.EnsureSamplerUniformsSet();
         }
 
         internal void EnsureUnlinked()
         {
-            if (isLinked)
+            if (IsLinked)
                 throw new InvalidOperationException("The program has already been linked");
         }
 
         internal void EnsureLinked()
         {
-            if (!isLinked)
+            if (!IsLinked)
                 throw new InvalidOperationException("The program must be linked first");
         }
 
@@ -131,50 +165,11 @@ namespace TrippyGL
             GC.SuppressFinalize(this);
         }
 
-        internal void jaja(ActiveAttribType type)
+        private static void EnsureShaderCompiledProperly(int shader)
         {
-            type = ActiveAttribType.None;
-
-            type = ActiveAttribType.Float;
-            type = ActiveAttribType.FloatVec2;
-            type = ActiveAttribType.FloatVec3;
-            type = ActiveAttribType.FloatVec4;
-
-            type = ActiveAttribType.Double;
-            type = ActiveAttribType.DoubleVec2;
-            type = ActiveAttribType.DoubleVec3;
-            type = ActiveAttribType.DoubleVec4;
-
-            type = ActiveAttribType.Int;
-            type = ActiveAttribType.IntVec2;
-            type = ActiveAttribType.IntVec3;
-            type = ActiveAttribType.IntVec4;
-
-            type = ActiveAttribType.UnsignedInt;
-            type = ActiveAttribType.UnsignedIntVec2;
-            type = ActiveAttribType.UnsignedIntVec3;
-            type = ActiveAttribType.UnsignedIntVec4;
-
-            type = ActiveAttribType.FloatMat2;
-            type = ActiveAttribType.FloatMat2x3;
-            type = ActiveAttribType.FloatMat2x4;
-            type = ActiveAttribType.FloatMat3;
-            type = ActiveAttribType.FloatMat3x2;
-            type = ActiveAttribType.FloatMat3x4;
-            type = ActiveAttribType.FloatMat4;
-            type = ActiveAttribType.FloatMat4x2;
-            type = ActiveAttribType.FloatMat4x3;
-
-            type = ActiveAttribType.DoubleMat2;
-            type = ActiveAttribType.DoubleMat2x3;
-            type = ActiveAttribType.DoubleMat2x4;
-            type = ActiveAttribType.DoubleMat3;
-            type = ActiveAttribType.DoubleMat3x2;
-            type = ActiveAttribType.DoubleMat3x4;
-            type = ActiveAttribType.DoubleMat4;
-            type = ActiveAttribType.DoubleMat4x2;
-            type = ActiveAttribType.DoubleMat4x3;
-           
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
+            if (status == (int)All.False)
+                throw new ShaderCompilationException(GL.GetShaderInfoLog(shader));
         }
     }
 }
