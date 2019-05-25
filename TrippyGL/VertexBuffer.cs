@@ -126,7 +126,7 @@ namespace TrippyGL
         /// <summary>
         /// This method disposes the VertexBuffer with no checks at all
         /// </summary>
-        public void dispose()
+        private void dispose()
         {
             DataBuffer.Dispose();
             VertexArray.Dispose();

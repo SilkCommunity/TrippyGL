@@ -89,9 +89,9 @@ namespace TrippyTesting
             tex = program.Uniforms["texture"];
 
             Matrix4 i = Matrix4.Identity;
-            world.SetValue(ref i);
-            view.SetValue(ref i);
-            proj.SetValue(ref i);
+            world.SetValueMat4(ref i);
+            view.SetValueMat4(ref i);
+            proj.SetValueMat4(ref i);
 
             Console.WriteLine("Program: \n" + GL.GetProgramInfoLog(program.Handle));
             Console.WriteLine("[end program log]");
@@ -134,7 +134,7 @@ namespace TrippyTesting
             });
 
             float XD = wave(0.5f, time, 3.1415f*8, 0f) + 0.5f;
-            program.Uniforms["haha"].SetValue(new Vector4[]{
+            program.Uniforms["haha"].SetValue4Array(new Vector4[]{
                 new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD)
             }, 0, 0, 4);
 
@@ -221,9 +221,9 @@ namespace TrippyTesting
             GL.Viewport(0, 0, this.Width, this.Height);
 
             Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, this.Width, this.Height, 0, 0, 1);
-            proj.SetValue(ref mat);
+            proj.SetValueMat4(ref mat);
             mat = Matrix4.CreateScale(Math.Min(this.Width/(float)fondo.Width, this.Height/(float)fondo.Height));
-            view.SetValue(ref mat);
+            view.SetValueMat4(ref mat);
         }
 
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
@@ -232,9 +232,9 @@ namespace TrippyTesting
 
             GL.GetError();
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
-            world.SetValue(ref mat);
+            world.SetValueMat4(ref mat);
             GL.GetError();
-            tex.SetValue(texture);
+            tex.SetValueTexture(texture);
             GL.GetError();
 
             indexBuffer.EnsureBound();

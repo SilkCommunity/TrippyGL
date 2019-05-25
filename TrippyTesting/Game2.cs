@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using OpenTK;
-using OpenTK.Input;
+﻿using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using TrippyGL;
 
 namespace TrippyTesting
@@ -19,11 +17,11 @@ namespace TrippyTesting
         ShaderProgram program;
         ShaderUniform worldUniform, viewUniform, projUniform, sampUniform, timeUniform;
 
-        VertexBuffer<VertexColorTexture> vertexBuffer;
+        VertexBuffer<VertexJeje> vertexBuffer;
 
-        Texture2D yarn, jeru, texture, invernadero;
+        Texture2D yarn, jeru, texture, invernadero, fondo;
 
-        public Game2() : base(1280, 720, new GraphicsMode(new ColorFormat(8,8,8,8), 0, 0, 8, ColorFormat.Empty, 2), "T R I P P Y", GameWindowFlags.Default, DisplayDevice.Default, 4, 4, GraphicsContextFlags.Default)
+        public Game2() : base(1280, 720, new GraphicsMode(new ColorFormat(8,8,8,8), 24, 0, 8, ColorFormat.Empty, 2), "T R I P P Y", GameWindowFlags.Default, DisplayDevice.Default, 4, 4, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
@@ -33,19 +31,20 @@ namespace TrippyTesting
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            VertexColorTexture[] vboData = new VertexColorTexture[]
+            VertexJeje[] vboData = new VertexJeje[]
             {
-                new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 0, 0, 255), new Vector2(0, 1)),
-                new VertexColorTexture(new Vector3(-0.5f, 0.5f, 0), new Color4b(0, 255, 0, 255), new Vector2(0, 0)),
-                new VertexColorTexture(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255), new Vector2(1, 1)),
-                new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
+                new VertexJeje(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 0, 0, 255), new Vector2(0, 1)),
+                new VertexJeje(new Vector3(-0.5f, 0.5f, 0), new Color4b(0, 255, 0, 255), new Vector2(0, 0)),
+                new VertexJeje(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255), new Vector2(1, 1)),
+                //new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
             };
-            vertexBuffer = new VertexBuffer<VertexColorTexture>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
+            vertexBuffer = new VertexBuffer<VertexJeje>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
 
             program = new ShaderProgram();
             program.AddVertexShader(File.ReadAllText("data2/vs.glsl"));
+            program.AddGeometryShader(File.ReadAllText("data2/gs.glsl"));
             program.AddFragmentShader(File.ReadAllText("data2/fs.glsl"));
-            program.SpecifyVertexAttribs(vertexBuffer.VertexArray.AttribSources, new string[] {"vPosition", "vColor", "vTexCoords" });
+            program.SpecifyVertexAttribs<VertexJeje>(new string[] {"vPosition", "vColor", "vTexCoords" });
             program.LinkProgram();
 
             worldUniform = program.Uniforms["World"];
@@ -55,20 +54,21 @@ namespace TrippyTesting
             timeUniform = program.Uniforms["time"];
 
             Matrix4 ide = Matrix4.Identity;
-            worldUniform.SetValue(ref ide);
-            viewUniform.SetValue(ref ide);
-            projUniform.SetValue(ref ide);
+            worldUniform.SetValueMat4(ref ide);
+            viewUniform.SetValueMat4(ref ide);
+            projUniform.SetValueMat4(ref ide);
 
             yarn = new Texture2D("data/YARN.png");
             jeru = new Texture2D("data/jeru.png");
             texture = new Texture2D("data/texture.png");
             invernadero = new Texture2D("data/invernadero.png");
+            fondo = new Texture2D("data/fondo.png");
 
             Texture2D[] hehe = new Texture2D[]
             {
-                yarn, jeru, invernadero, texture, jeru
+                yarn, fondo, invernadero, texture, jeru
             };
-            sampUniform.SetValue(hehe, 0, 0, hehe.Length);
+            sampUniform.SetValueTextureArray(hehe, 0, 0, hehe.Length);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -83,14 +83,19 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.ClearColor(0f, 0f, 0f, 1f);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.CullFace);
+
+            GL.ClearColor(0.2f, 0.2f, 0.2f, 1f);
+            GL.ClearDepth(1f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             BlendMode.AlphaBlend.Apply();
+            
             vertexBuffer.EnsureArrayBound();
             program.EnsureInUse();
             program.Uniforms.EnsureSamplerUniformsSet();
-            timeUniform.SetValue(time);
+            timeUniform.SetValue1(time);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             SwapBuffers();
@@ -104,10 +109,12 @@ namespace TrippyTesting
         {
             program.Dispose();
             vertexBuffer.Dispose();
+
             yarn.Dispose();
             jeru.Dispose();
             texture.Dispose();
             invernadero.Dispose();
+            fondo.Dispose();
 
             TrippyLib.Quit();
         }
@@ -115,6 +122,37 @@ namespace TrippyTesting
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(0, 0, this.Width, this.Height);
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct VertexJeje : IVertex
+    {
+        public Vector3 Position;
+        public byte R, G, B;
+        Vector2 TexCoords;
+
+        public VertexJeje(Vector3 position, Color4b color, Vector2 texCoords)
+        {
+            this.Position = position;
+            this.R = color.R;
+            this.G = color.G;
+            this.B = color.B;
+            this.TexCoords = texCoords;
+        }
+
+        public VertexAttribDescription[] AttribDescriptions
+        {
+            get
+            {
+                return new VertexAttribDescription[]
+                {
+                    new VertexAttribDescription(ActiveAttribType.FloatVec3),
+                    new VertexAttribDescription(ActiveAttribType.FloatVec3, true, VertexAttribPointerType.UnsignedByte),
+                    new VertexAttribDescription(ActiveAttribType.FloatVec2)
+                };
+            }
         }
     }
 }

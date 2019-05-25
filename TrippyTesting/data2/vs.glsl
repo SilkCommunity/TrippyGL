@@ -5,14 +5,14 @@ uniform mat4 View;
 uniform mat4 Projection;
 
 in vec3 vPosition;
-in vec4 vColor;
+in vec3 vColor;
 in vec2 vTexCoords;
 
-out vec4 fColor;
-out vec2 fTexCoords;
+out vec4 gColor;
+out vec2 gTexCoords;
 
 void main () {
 	gl_Position = Projection * (View * (World * vec4(vPosition, 1.0)));
-	fColor = vColor;
-	fTexCoords = vTexCoords;
+	gColor = vec4(vColor, 1.0);
+	gTexCoords = vTexCoords;
 }

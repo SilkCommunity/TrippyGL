@@ -79,7 +79,8 @@ namespace TrippyGL
 
         /// <summary>
         /// When using sampler uniforms, this will make sure they all work together properly.
-        /// This is called automatically when the program is used, so you should't need to call this unless you modified many sampler uniforms after the program's Use() was called
+        /// This is called automatically when the program is used.
+        /// You should call this if you have multiple sampler uniforms (or an array of samplers) after modifying the uniforms but before drawing
         /// </summary>
         public void EnsureSamplerUniformsSet()
         {

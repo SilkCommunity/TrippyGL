@@ -41,8 +41,14 @@ namespace TrippyTesting
 
             bufferRead = new VertexDataBufferObject<ParticleVertex>(bufferData.Length, bufferData, BufferUsageHint.DynamicDraw);
             bufferWrite = new VertexDataBufferObject<ParticleVertex>(bufferData.Length, BufferUsageHint.DynamicDraw);
-            vaoRead = new VertexArray(new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec3), new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec4));
-            vaoWrite = new VertexArray(new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec3), new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec4));
+            vaoRead = new VertexArray(new VertexAttribSource[] {
+                new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec3),
+                new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec4)
+            });
+            vaoWrite = new VertexArray(new VertexAttribSource[] {
+                new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec3),
+                new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec4)
+            });
 
             #endregion
 

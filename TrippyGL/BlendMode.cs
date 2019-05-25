@@ -20,6 +20,29 @@ namespace TrippyGL
             this.IsOpaque = isOpaque;
         }
 
+        public BlendMode(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba)
+        {
+            this.IsOpaque = isOpaque;
+            this.EquationModeRGB = equationModeRgba;
+            this.EquationModeAlpha = equationModeRgba;
+            this.SourceFactorRGB = sourceFactorRgba;
+            this.SourceFactorAlpha = sourceFactorRgba;
+            this.DestFactorRGB = destFactorRgba;
+            this.DestFactorAlpha = destFactorRgba;
+        }
+
+        public BlendMode(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba, Color4 blendColor)
+        {
+            this.IsOpaque = isOpaque;
+            this.EquationModeRGB = equationModeRgba;
+            this.EquationModeAlpha = equationModeRgba;
+            this.SourceFactorRGB = sourceFactorRgba;
+            this.SourceFactorAlpha = sourceFactorRgba;
+            this.DestFactorRGB = destFactorRgba;
+            this.DestFactorAlpha = destFactorRgba;
+            this.BlendColor = blendColor;
+        }
+
         public BlendMode(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha)
         {
             this.IsOpaque = isOpaque;
@@ -57,7 +80,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the current blending mode to Opaque. This acts the same as saying BlendMode.Opaque.Apply();
+        /// Sets the current blending mode to Opaque. This acts the same as BlendMode.Opaque.Apply(); (just faster)
         /// </summary>
         public static void SetOpaque()
         {

@@ -3,6 +3,9 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Represents a sampler-type shader uniform from a shader program and allows control over that uniform
+    /// </summary>
     public class ShaderSamplerUniform : ShaderUniform
     {
         /// <summary>The texture value assigned to this sampler uniform</summary>
@@ -17,7 +20,7 @@ namespace TrippyGL
 
         }
 
-        public override void SetValue(Texture value)
+        public override void SetValueTexture(Texture value)
         {
             if (value == null)
                 throw new ArgumentNullException("texture");
@@ -27,7 +30,7 @@ namespace TrippyGL
                 ApplyUniformValue(value.EnsureBound() - TextureUnit.Texture0);
         }
 
-        public override void SetValue(Texture[] values, int startValueIndex, int startUniformIndex, int count)
+        public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
         {
             if (values == null)
                 throw new ArgumentNullException("textures");
@@ -36,9 +39,15 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException("startValueIndex", "startValueIndex must be in the range [0, Length)");
 
             if (startUniformIndex == 0 && count > 0)
-                SetValue(values[startValueIndex]);
+                SetValueTexture(values[startValueIndex]);
         }
 
+        /// <summary>
+        /// Applies an integer value to the uniform. If it's already the value stored in the uniform, then it doesn't modify it.
+        /// This is because to indicate to a sampler which texture it should sample from, you have to bind that texture to a texture unit
+        /// and apply that value as int to the uniform
+        /// </summary>
+        /// <param name="unit">The value to apply to the uniform</param>
         private void ApplyUniformValue(int unit)
         {
             if (lastTextureUnitApplied != unit)
@@ -59,11 +68,15 @@ namespace TrippyGL
         }
     }
 
+    /// <summary>
+    /// Represents a sampler-array-type shader uniform from a shader program and allows control over that uniform
+    /// </summary>
     public class ShaderSamplerArrayUniform : ShaderUniform
     {
         /// <summary>The texture values for the samplers in the array</summary>
         internal Texture[] texValues;
 
+        /// <summary>The length of the uniform array</summary>
         public int ArrayLength { get { return texValues.Length; } }
 
         internal ShaderSamplerArrayUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
@@ -72,12 +85,15 @@ namespace TrippyGL
             texValues = new Texture[size];
         }
 
+        /// <summary>
+        /// Gets the applied texture value for the specified index on the uniform array
+        /// </summary>
         public Texture GetValue(int index)
         {
             return texValues[index];
         }
 
-        public override void SetValue(Texture value)
+        public override void SetValueTexture(Texture value)
         {
             if (value == null)
                 throw new ArgumentNullException("texture");
@@ -85,7 +101,7 @@ namespace TrippyGL
             texValues[0] = value;
         }
 
-        public override void SetValue(Texture[] values, int startValueIndex, int startUniformIndex, int count)
+        public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
         {
             ValidateSetParams(values, startValueIndex, startUniformIndex, count);
 
