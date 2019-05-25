@@ -11,10 +11,10 @@ namespace TrippyGL
     public class DataBufferObject<T> : BufferObject where T : struct
     {
         /// <summary>The length of the buffer object's storage, measured in elements</summary>
-        private readonly int storageLength;
+        private int storageLength;
 
         /// <summary>The size of each element, measured in bytes</summary>
-        private readonly int elementSize;
+        private int elementSize;
 
         /// <summary>The length of the buffer object's storage, measured in elements</summary>
         public override int StorageLength { get { return storageLength; } }
@@ -24,6 +24,9 @@ namespace TrippyGL
 
         /// <summary>The size of each element in the buffer object's storage measured in bytes</summary>
         public override int ElementSize { get { return elementSize; } }
+
+        /// <summary>The usage hint with which this buffer was created</summary>
+        public BufferUsageHint UsageHint { get; private set; }
 
         /// <summary>
         /// Creates a DataBufferObject with the specified storage length and initializes the storage data by copying it from a specified index of a given array.
@@ -37,6 +40,7 @@ namespace TrippyGL
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
+            this.UsageHint = usageHint;
 
             InitializeStorage(this.storageLength, this.elementSize, dataOffset, data, usageHint);
         }
@@ -63,6 +67,7 @@ namespace TrippyGL
         {
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
             this.storageLength = storageLength;
+            this.UsageHint = usageHint;
 
             InitializeStorage(storageLength * elementSize, usageHint);
         }
@@ -95,6 +100,58 @@ namespace TrippyGL
 
             EnsureBound();
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * this.elementSize), dataLength * this.elementSize, ref data[dataOffset]);
+        }
+
+        /// <summary>
+        /// Recreates the storage for this buffer object with a new specified length, initial data and usage hint.
+        /// The specified amount of data must be enough to fill the entire storage
+        /// </summary>
+        /// <param name="storageLength">The new length for the buffer's storage</param>
+        /// <param name="dataOffset">The index of the first element to read from the data array</param>
+        /// <param name="data">The array containing the data to upload</param>
+        /// <param name="usageHint">The new usage hint for this buffer</param>
+        public void RecreateStorage(int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
+        {
+            InitializeStorage(storageLength, this.elementSize, dataOffset, data, usageHint);
+            this.storageLength = storageLength;
+            this.UsageHint = usageHint;
+        }
+
+        /// <summary>
+        /// Recreates the storage for this buffer object with a new specified length and initial data.
+        /// The specified amount of data must be enough to fill the entire storage
+        /// </summary>
+        /// <param name="storageLength">The new length for the buffer's storage</param>
+        /// <param name="dataOffset">The index of the first element to read from the data array</param>
+        /// <param name="data">The array containing the data to upload</param>
+        public void RecreateStorage(int storageLength, int dataOffset, T[] data)
+        {
+            InitializeStorage(storageLength, this.elementSize, dataOffset, data, this.UsageHint);
+            this.storageLength = storageLength;
+        }
+
+        /// <summary>
+        /// Recreates the storage for this buffer oject with a new specified length and usage hint.
+        /// All the context in the previous storage is lost after this operation and the new storage's data is undefined
+        /// </summary>
+        /// <param name="storageLength">The new length for the buffer's storage</param>
+        /// <param name="usageHint">The new usage hint for this buffer</param>
+        public void RecreateStorage(int storageLength, BufferUsageHint usageHint)
+        {
+            InitializeStorage(storageLength * this.elementSize, usageHint);
+            this.storageLength = storageLength;
+            this.UsageHint = usageHint;
+        }
+
+        /// <summary>
+        /// Recreates the storage for this buffer object with a new specified length.
+        /// All the content in the previous storage is lost after this operation and the new storage's data is undefined
+        /// </summary>
+        /// <param name="storageLength">The new length for the buffer's storage</param>
+        public void RecreateStorage(int storageLength)
+        {
+            InitializeStorage(storageLength * this.elementSize, this.UsageHint);
+            this.storageLength = storageLength;
         }
 
         public override string ToString()

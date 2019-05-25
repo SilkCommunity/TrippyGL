@@ -54,6 +54,7 @@
     <Compile Include="DataBufferObject.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IndexBufferObject.cs" />
+    <Compile Include="IVertex.cs" />
     <Compile Include="ShaderProgram.cs" />
     <Compile Include="ShaderSamplerUniform.cs" />
     <Compile Include="ShaderUniform.cs" />
@@ -65,7 +66,12 @@
     <Compile Include="Texture2D.cs" />
     <Compile Include="VertexArray.cs" />
     <Compile Include="VertexAttribSource.cs" />
+    <Compile Include="VertexBuffer.cs" />
+    <Compile Include="VertexColor.cs" />
+    <Compile Include="VertexColorTexture.cs" />
     <Compile Include="VertexDataBufferObject.cs" />
+    <Compile Include="VertexPosition.cs" />
+    <Compile Include="VertexTexture.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

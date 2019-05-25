@@ -115,7 +115,7 @@ namespace TrippyGL
         ~BufferObject()
         {
             if (TrippyLib.isLibActive)
-                this.DisposeInternal();
+                dispose();
         }
         
         /// <summary>
@@ -131,7 +131,7 @@ namespace TrippyGL
         /// <param name="usageHint"></param>
         private protected void InitializeStorage<T>(int storageLength, int elementSize, int dataOffset, T[] data, BufferUsageHint usageHint) where T : struct
         {
-            ValidateInitWithDataParams<T>(storageLength, elementSize, dataOffset, data);
+            ValidateInitWithDataParams(storageLength, dataOffset, data);
 
             EnsureBound();
             GL.BufferData(this.BufferTarget, storageLength * elementSize, ref data[dataOffset], usageHint);
@@ -173,7 +173,7 @@ namespace TrippyGL
         /// <summary>
         /// This method disposes the buffer object with no checks at all
         /// </summary>
-        private void DisposeInternal()
+        private void dispose()
         {
             GL.DeleteBuffer(Handle);
         }
@@ -184,7 +184,7 @@ namespace TrippyGL
         /// </summary>
         public void Dispose()
         {
-            DisposeInternal();
+            dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -200,7 +200,7 @@ namespace TrippyGL
         /// <param name="elementSize">The size of each element, measured in bytes</param>
         /// <param name="dataOffset">The first element's index in the data array to start reading from</param>
         /// <param name="data">The array containing the data to upload</param>
-        private protected static void ValidateInitWithDataParams<T>(int storageLength, int elementSize, int dataOffset, T[] data)
+        private protected static void ValidateInitWithDataParams<T>(int storageLength, int dataOffset, T[] data)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("Data array can't be null nor empty", "data");

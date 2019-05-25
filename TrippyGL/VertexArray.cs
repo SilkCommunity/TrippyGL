@@ -5,11 +5,8 @@ namespace TrippyGL
 {
     public class VertexArray : IDisposable
     {
-        /// <summary>The last vertex array object's name to be bound. This variable is used on EnsureBound() so to not bind the same vao consecutively</summary>
-        private static VertexArray lastArrayBound = null;
-
         /// <summary>Gets the last VertexArray to get bound</summary>
-        public static VertexArray LastArrayBound { get { return lastArrayBound; } }
+        public static VertexArray LastArrayBound { get; private set; } = null;
 
         /// <summary>
         /// Resets the last bound vertex array object variable. This variable is used on EnsureBound() to not call glBindVertexArray if the array is already bound.
@@ -17,7 +14,7 @@ namespace TrippyGL
         /// </summary>
         public static void ResetBindState()
         {
-            lastArrayBound = null;
+            LastArrayBound = null;
         }
 
         /// <summary>
@@ -26,7 +23,7 @@ namespace TrippyGL
         public static void BindEmpty()
         {
             GL.BindVertexArray(0);
-            lastArrayBound = null;
+            LastArrayBound = null;
         }
 
 
@@ -50,6 +47,31 @@ namespace TrippyGL
 
             Handle = GL.GenVertexArray();
             this.AttribSources = attribSources;
+
+            MakeVertexAttribPointerCalls();
+        }
+
+        /// <summary>
+        /// Creates a VertexArray in which all the vertex attributes come from the same data buffer
+        /// </summary>
+        /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
+        /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
+        public VertexArray(BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions)
+        {
+            if (dataBuffer == null)
+                throw new ArgumentNullException("dataBuffer");
+
+            if (attribDescriptions == null)
+                throw new ArgumentNullException("attribDescriptions");
+
+            if (attribDescriptions.Length == 0)
+                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
+
+            Handle = GL.GenVertexArray();
+
+            AttribSources = new VertexAttribSource[attribDescriptions.Length];
+            for (int i = 0; i < AttribSources.Length; i++)
+                AttribSources[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
 
             MakeVertexAttribPointerCalls();
         }
@@ -105,11 +127,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensure that this vertex array is the currently bound one
+        /// Ensure that this vertex array is the currently bound one, and binds it otherwise
         /// </summary>
         public void EnsureBound()
         {
-            if (lastArrayBound != this)
+            if (LastArrayBound != this)
             {
                 Bind();
             }
@@ -121,7 +143,7 @@ namespace TrippyGL
         public void Bind()
         {
             GL.BindVertexArray(Handle);
-            lastArrayBound = this;
+            LastArrayBound = this;
         }
 
         /// <summary>

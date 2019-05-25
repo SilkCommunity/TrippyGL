@@ -19,8 +19,7 @@ namespace TrippyTesting
         ShaderProgram program;
         ShaderUniform worldUniform, viewUniform, projUniform, sampUniform, timeUniform;
 
-        VertexDataBufferObject<VertexColorTexture> vertexBuffer;
-        VertexArray vertexArray;
+        VertexBuffer<VertexColorTexture> vertexBuffer;
 
         Texture2D yarn, jeru, texture, invernadero;
 
@@ -41,19 +40,12 @@ namespace TrippyTesting
                 new VertexColorTexture(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255), new Vector2(1, 1)),
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
             };
-            vertexBuffer = new VertexDataBufferObject<VertexColorTexture>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
-
-            vertexArray = new VertexArray(new VertexAttribSource[]
-            {
-                new VertexAttribSource(vertexBuffer, ActiveAttribType.FloatVec3),
-                new VertexAttribSource(vertexBuffer, ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
-                new VertexAttribSource(vertexBuffer, ActiveAttribType.FloatVec2),
-            });
+            vertexBuffer = new VertexBuffer<VertexColorTexture>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
 
             program = new ShaderProgram();
             program.AddVertexShader(File.ReadAllText("data2/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("data2/fs.glsl"));
-            program.SpecifyVertexAttribs(vertexArray.AttribSources, new string[] {"vPosition", "vColor", "vTexCoords" });
+            program.SpecifyVertexAttribs(vertexBuffer.VertexArray.AttribSources, new string[] {"vPosition", "vColor", "vTexCoords" });
             program.LinkProgram();
 
             worldUniform = program.Uniforms["World"];
@@ -95,7 +87,7 @@ namespace TrippyTesting
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             BlendMode.AlphaBlend.Apply();
-            vertexArray.EnsureBound();
+            vertexBuffer.EnsureArrayBound();
             program.EnsureInUse();
             program.Uniforms.EnsureSamplerUniformsSet();
             timeUniform.SetValue(time);
@@ -112,7 +104,6 @@ namespace TrippyTesting
         {
             program.Dispose();
             vertexBuffer.Dispose();
-            vertexArray.Dispose();
             yarn.Dispose();
             jeru.Dispose();
             texture.Dispose();
