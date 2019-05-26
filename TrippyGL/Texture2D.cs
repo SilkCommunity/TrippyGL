@@ -46,6 +46,10 @@ namespace TrippyGL
             GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
         }
 
+        /// <summary>
+        /// Creates a Texture2D and loads all it's data from an image in the specified file
+        /// </summary>
+        /// <param name="file">The file containing the texture pixels data</param>
         public Texture2D(string file) : this(file, TextureTarget.Texture2D)
         {
 
@@ -53,51 +57,142 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of the entire texture by copying from the specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
-        /// You can't replace a multisampled texture's data
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
         /// </summary>
-        /// <param name="dataPtr">The pointer to the data</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr</param>
-        public void SetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        /// <param name="dataPtr">The pointer for reading the data</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
+        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
         {
-            SetData(dataPtr, 0, 0, this.Width, this.Height, pixelDataFormat);
+            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+
+            EnsureBoundAndActive();
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelDataFormat, this.PixelType, dataPtr);
         }
 
         /// <summary>
-        /// Sets the data of the entire texture by copying from the specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
-        /// You can't replace a multisampled texture's data
+        /// Sets the data of a specified area of the texture, copying the new data from a specified array
         /// </summary>
-        /// <param name="dataPtr">The pointer to the data</param>
-        /// <param name="rectX">The X value of the first pixel to replace</param>
-        /// <param name="rectY">The Y value of the first pixel to replace</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to replace</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to replace</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="data">The new texture data</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
+        public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
+            ValidateSetGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
+
             EnsureBoundAndActive();
-            if (Multisample == 0)
-                GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelDataFormat, this.PixelType, dataPtr);
-            else
-                throw new InvalidOperationException("You can't replace a multisampled texture's data");
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
 
-        public void SetData(Color4b[] data, int rectX, int rectY, int rectWidth, int rectHeight)
+        /// <summary>
+        /// Sets the data of the entire texture, copying the new data from a given array
+        /// </summary>
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="colorData">The new texture data</param>
+        public void SetData<T>(T[] colorData) where T : struct
         {
+            SetData(colorData, 0, 0, 0, this.Width, this.Height);
+        }
+
+        /// <summary>
+        /// Gets the data of the entire texture and copies it to a specified pointer.
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// </summary>
+        /// <param name="dataPtr">The pointer for writting the data</param>
+        /// <param name="rectX">The X coordinate of the first pixel to read</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to read</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to read</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to read</param>
+        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
+        public void GetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        {
+            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+
             EnsureBoundAndActive();
-            if (Multisample == 0)
-                GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
-            else
-                throw new NotSupportedException("You can't write the data of a multisampled texture");
+            GL.GetTexImage(this.TextureType, 0, pixelDataFormat, this.PixelType, dataPtr);
         }
 
-        public void SetData(Color4b[] colorData)
+        /// <summary>
+        /// Gets the data of a specified area of the texture, copying the texture data to a specified array
+        /// </summary>
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="data">The array in which to write the texture data</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start writing from</param>
+        /// <param name="rectX">The X coordinate of the first pixel to read</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to read</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to read</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to read</param>
+        public void GetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
-            SetData(colorData, 0, 0, this.Width, this.Height);
+            ValidateSetGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
+
+            EnsureBoundAndActive();
+            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
         }
 
-        private protected void ValidateSetOperation(Color4b[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight)
+        /// <summary>
+        /// Gets the data of the entire texture, copying the texture data to a given array
+        /// </summary>
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="colorData">The array in which to write the texture data</param>
+        public void GetData<T>(T[] colorData) where T : struct
+        {
+            GetData(colorData, 0, 0, 0, this.Width, this.Height);
+        }
+
+        /// <summary>
+        /// Saves this texture as an image file.
+        /// You can't save multisampled textures
+        /// </summary>
+        /// <param name="file">The location in which to store the file</param>
+        /// <param name="imageFormat">The format</param>
+        public void SaveAsImage(string file, SaveImageFormat imageFormat)
+        {
+            if (Multisample != 0)
+                throw new NotSupportedException("You can't save multisampled images. If this is a framebuffer, try blitting it to a non-multisampled framebuffer and saving that one");
+
+            if (String.IsNullOrEmpty(file))
+                throw new ArgumentException("You must specify a file name", "file");
+
+            ImageFormat format;
+
+            switch (imageFormat)
+            {
+                case SaveImageFormat.Png:
+                    format = ImageFormat.Png;
+                    break;
+                case SaveImageFormat.Jpeg:
+                    format = ImageFormat.Jpeg;
+                    break;
+                case SaveImageFormat.Bmp:
+                    format = ImageFormat.Bmp;
+                    break;
+                case SaveImageFormat.Tiff:
+                    format = ImageFormat.Tiff;
+                    break;
+                default:
+                    throw new ArgumentException("Please use a proper value from SaveImageFormat", "imageFormat");
+            }
+
+            using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            {
+                BitmapData data = b.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                EnsureBoundAndActive();
+                GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                b.UnlockBits(data);
+
+                b.Save(file, ImageFormat.Png);
+            }
+        }
+
+        private protected void ValidateSetGetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
             if (data == null)
                 throw new ArgumentNullException("data", "Color data array can't be null");
@@ -105,14 +200,19 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
+            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+
+            // set: if (spaceToRead < amountToWrite)
+            // get: if (spaceToWrite < amountToRead)
             if (data.Length - dataOffset < (rectWidth - rectX) * (rectHeight - rectY))
                 throw new ArgumentException("The provided data array isn't big enough starting from dataOffset", "data");
-
-            ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
         }
 
-        private protected void ValidateSetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private protected void ValidateSetGetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
+            if (Multisample != 0)
+                throw new InvalidOperationException("You can't write the data of a multisampled texture");
+
             if (rectX < 0 || rectY >= this.Height)
                 throw new ArgumentOutOfRangeException("rectX", rectX, "rectX must be in the range [0, Width)");
 

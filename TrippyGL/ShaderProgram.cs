@@ -59,6 +59,9 @@ namespace TrippyGL
         {
             EnsureUnlinked();
 
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
+
             if (vsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
 
@@ -78,6 +81,9 @@ namespace TrippyGL
         {
             EnsureUnlinked();
 
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
+
             if (gsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
 
@@ -96,6 +102,9 @@ namespace TrippyGL
         public void AddFragmentShader(string code)
         {
             EnsureUnlinked();
+
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
 
             if (fsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
@@ -138,6 +147,9 @@ namespace TrippyGL
             int index = 0;
             for(int i=0; i<attribNames.Length; i++)
             {
+                if (String.IsNullOrEmpty(attribNames[i]))
+                    throw new ArgumentException("All names in the array must have be valid");
+
                 GL.BindAttribLocation(Handle, index, attribNames[i]);
                 index += attribData[i].AttribIndicesUseCount;
             }

@@ -54,7 +54,6 @@ namespace TrippyTesting
 
             texture = new Texture2D("data/fondo.png");
             program.Uniforms["samp"].SetValueTexture(texture);
-
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -69,7 +68,6 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            TrippyLib.ResetGLBindStates();
             BlendMode.Opaque.Apply();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, this.Width, this.Height);

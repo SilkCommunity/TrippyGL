@@ -166,8 +166,8 @@ namespace TrippyTesting
                 randomColor(), randomColor(), randomColor(), randomColor(),
                 randomColor(), randomColor(), randomColor(), randomColor()
             };
-            fondo.SetData(xdxd, r.Next(fondo.Width - 4), r.Next(fondo.Height - 4), 4, 4);
-            jeru.SetData(xdxd, r.Next(jeru.Width - 4), r.Next(jeru.Height - 4), 4, 4);
+            fondo.SetData(xdxd, 0, r.Next(fondo.Width - 4), r.Next(fondo.Height - 4), 4, 4);
+            jeru.SetData(xdxd, 0, r.Next(jeru.Width - 4), r.Next(jeru.Height - 4), 4, 4);
 
             drawTexture(fondo, new Vector2(fondo.Width / 2f, fondo.Height / 2f), new Vector2(1f), 0f);
             drawTexture(texture, new Vector2(500, 300), new Vector2(0.35f), time * 0.1f);

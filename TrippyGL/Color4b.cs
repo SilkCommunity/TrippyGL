@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace OpenTK.Graphics
 {
@@ -7,7 +8,7 @@ namespace OpenTK.Graphics
     /// Represents a color with 4 byte components (R, G, B, A).
     /// </summary>
     [Serializable]
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct Color4b
     {
         /// <summary>

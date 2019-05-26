@@ -52,6 +52,7 @@
     <Compile Include="BufferObject.cs" />
     <Compile Include="Color4b.cs" />
     <Compile Include="DataBufferObject.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertex.cs" />
