@@ -33,6 +33,15 @@ namespace TrippyTesting
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+
+            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
+            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
+            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)

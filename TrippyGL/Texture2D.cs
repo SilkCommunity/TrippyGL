@@ -67,7 +67,7 @@ namespace TrippyGL
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
         public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
         {
-            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+            ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             EnsureBoundAndActive();
             GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelDataFormat, this.PixelType, dataPtr);
@@ -85,7 +85,7 @@ namespace TrippyGL
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
         public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
-            ValidateSetGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
+            ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
 
             EnsureBoundAndActive();
             GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
@@ -113,7 +113,7 @@ namespace TrippyGL
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
         public void GetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
         {
-            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+            ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             EnsureBoundAndActive();
             GL.GetTexImage(this.TextureType, 0, pixelDataFormat, this.PixelType, dataPtr);
@@ -131,7 +131,7 @@ namespace TrippyGL
         /// <param name="rectHeight">The height of the rectangle of pixels to read</param>
         public void GetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
-            ValidateSetGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
+            ValidateGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
 
             EnsureBoundAndActive();
             GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
@@ -192,7 +192,9 @@ namespace TrippyGL
             }
         }
 
-        private protected void ValidateSetGetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
+        //TODO: SaveImageAs(string file, SaveImageFormat imageFormat, int rectX, int rectY, int rectWidth, int rectHeight)
+
+        private protected void ValidateSetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
             if (data == null)
                 throw new ArgumentNullException("data", "Color data array can't be null");
@@ -200,15 +202,27 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
-            ValidateSetGetOperation(rectX, rectY, rectWidth, rectHeight);
+            ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-            // set: if (spaceToRead < amountToWrite)
-            // get: if (spaceToWrite < amountToRead)
-            if (data.Length - dataOffset < (rectWidth - rectX) * (rectHeight - rectY))
-                throw new ArgumentException("The provided data array isn't big enough starting from dataOffset", "data");
+            if (data.Length - dataOffset > rectWidth * rectHeight)
+                throw new ArgumentException("Too much data was specified for the texture area to write", "data");
         }
 
-        private protected void ValidateSetGetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private protected void ValidateGetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
+        {
+            if (data == null)
+                throw new ArgumentNullException("data", "Color data array can't be null");
+
+            if (dataOffset < 0 || dataOffset >= data.Length)
+                throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
+
+            ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
+
+            if (data.Length - dataOffset < rectWidth * rectHeight)
+                throw new ArgumentException("The provided data array isn't big enough for the specified texture area starting from dataOffset", "data");
+        }
+
+        private protected void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
             if (Multisample != 0)
                 throw new InvalidOperationException("You can't write the data of a multisampled texture");

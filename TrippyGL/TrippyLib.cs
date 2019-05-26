@@ -43,7 +43,7 @@ namespace TrippyGL
         {
             glMajorVersion = GL.GetInteger(GetPName.MajorVersion);
             glMinorVersion = GL.GetInteger(GetPName.MinorVersion);
-
+            
             if (glMajorVersion < 3)
                 throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
         }
@@ -70,6 +70,14 @@ namespace TrippyGL
 
         public static int GLMajorVersion { get { return glMajorVersion; } }
 
-        public static int GLMinorVersion { get { return GLMinorVersion; } }
+        public static int GLMinorVersion { get { return glMinorVersion; } }
+
+        public static string GLVersion { get { return GL.GetString(StringName.Version); } }
+
+        public static string GLVendor { get { return GL.GetString(StringName.Vendor); } }
+
+        public static string GLRenderer { get { return GL.GetString(StringName.Renderer); } }
+
+        public static string GLShadingLanguageVersion { get { return GL.GetString(StringName.ShadingLanguageVersion); } }
     }
 }

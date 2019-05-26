@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using TrippyGL;
 
-namespace TrippyTesting
+namespace TrippyTesting.Tests
 {
     class StructPaddingTest : GameWindow
     {
@@ -19,10 +19,19 @@ namespace TrippyTesting
 
         VertexBuffer<WeirdAssVertex> buffer;
 
-        public StructPaddingTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "struct padding", GameWindowFlags.Default, DisplayDevice.Default, 4, 4, GraphicsContextFlags.Default)
+        public StructPaddingTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "struct padding", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+
+            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
+            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
+            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)

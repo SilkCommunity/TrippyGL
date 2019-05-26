@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     [StructLayout(LayoutKind.Sequential)]
-    struct VertexColor : IVertex
+    public struct VertexColor : IVertex
     {
         public Vector3 Position;
         public Color4b Color;

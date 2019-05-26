@@ -21,10 +21,19 @@ namespace TrippyTesting
 
         Texture2D yarn, jeru, texture, invernadero, fondo;
 
-        public Game2() : base(1280, 720, new GraphicsMode(new ColorFormat(8,8,8,8), 24, 0, 8, ColorFormat.Empty, 2), "T R I P P Y", GameWindowFlags.Default, DisplayDevice.Default, 4, 4, GraphicsContextFlags.Default)
+        public Game2() : base(1280, 720, new GraphicsMode(new ColorFormat(8,8,8,8), 24, 0, 8, ColorFormat.Empty, 2), "T R I P P Y", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+
+            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
+            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
+            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)
