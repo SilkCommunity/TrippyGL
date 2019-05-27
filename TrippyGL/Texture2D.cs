@@ -6,14 +6,24 @@ using System.Drawing.Imaging;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A 2D sized OpenGL texture, stored in GPU memory as a grid of pixels
+    /// </summary>
     public class Texture2D : Texture
     {
-        public readonly int Width, Height;
+        /// <summary>The width of this texture</summary>
+        public readonly int Width;
+
+        /// <summary>The height of this texture</summary>
+        public readonly int Height;
+
+        /// <summary>The amount of samples this texture has. Most common value is 0</summary>
         public readonly int Multisample;
 
         internal Texture2D(int width, int height, int multisample, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte) : base(multisample == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, pixelFormat, pixelType)
         {
             //BindToCurrentTextureUnit(); //texture is already bound by base constructor
+            ValidateTextureSize(width, height);
             this.Width = width;
             this.Height = height;
             this.Multisample = multisample;
@@ -35,8 +45,7 @@ namespace TrippyGL
             {
                 this.Width = bitmap.Width;
                 this.Height = bitmap.Height;
-                if (Width > maxTextureSize || Height > maxTextureSize)
-                    throw new NotSupportedException("The maximum supported texture size on this system is " + maxTextureSize);
+                ValidateTextureSize(this.Width, this.Height);
 
                 BitmapData data = bitmap.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
@@ -125,26 +134,19 @@ namespace TrippyGL
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
         /// <param name="data">The array in which to write the texture data</param>
         /// <param name="dataOffset">The index of the first element in the data array to start writing from</param>
-        /// <param name="rectX">The X coordinate of the first pixel to read</param>
-        /// <param name="rectY">The Y coordinate of the first pixel to read</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to read</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to read</param>
-        public void GetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
+        public void GetData<T>(T[] data, int dataOffset) where T : struct
         {
-            ValidateGetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
+            if (Multisample != 0)
+                throw new InvalidOperationException("You can't write the data of a multisampled texture");
+
+            if (data == null)
+                throw new ArgumentNullException("data", "Color data array can't be null");
+
+            if (dataOffset < 0 || dataOffset >= data.Length)
+                throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
             EnsureBoundAndActive();
-            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
-        }
-
-        /// <summary>
-        /// Gets the data of the entire texture, copying the texture data to a given array
-        /// </summary>
-        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="colorData">The array in which to write the texture data</param>
-        public void GetData<T>(T[] colorData) where T : struct
-        {
-            GetData(colorData, 0, 0, 0, this.Width, this.Height);
+            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -192,10 +194,20 @@ namespace TrippyGL
             }
         }
 
-        //TODO: SaveImageAs(string file, SaveImageFormat imageFormat, int rectX, int rectY, int rectWidth, int rectHeight)
+        private protected void ValidateTextureSize(int width, int height)
+        {
+            if (width <= 0 || width > maxTextureSize)
+                throw new ArgumentOutOfRangeException("width", width, "Texture width must be in the range (0, MAX_TEXTURE_SIZE]");
+
+            if (height <= 0 || height > maxTextureSize)
+                throw new ArgumentOutOfRangeException("height", height, "Texture height must be in the range (0, MAX_TEXTURE_SIZE]");
+        }
 
         private protected void ValidateSetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
+            if (Multisample != 0)
+                throw new InvalidOperationException("You can't write the data of a multisampled texture");
+
             if (data == null)
                 throw new ArgumentNullException("data", "Color data array can't be null");
 
@@ -210,6 +222,9 @@ namespace TrippyGL
 
         private protected void ValidateGetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
+            if (Multisample != 0)
+                throw new InvalidOperationException("You can't read the data of a multisampled texture");
+
             if (data == null)
                 throw new ArgumentNullException("data", "Color data array can't be null");
 
@@ -224,9 +239,6 @@ namespace TrippyGL
 
         private protected void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
-            if (Multisample != 0)
-                throw new InvalidOperationException("You can't write the data of a multisampled texture");
-
             if (rectX < 0 || rectY >= this.Height)
                 throw new ArgumentOutOfRangeException("rectX", rectX, "rectX must be in the range [0, Width)");
 

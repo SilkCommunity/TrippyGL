@@ -12,6 +12,9 @@ namespace TrippyTesting.Tests
 {
     class SimpleTriangleTest : GameWindow
     {
+        System.Diagnostics.Stopwatch stopwatch;
+        float time;
+
         ShaderProgram program;
         VertexBuffer<VertexColor> buffer;
 
@@ -32,6 +35,8 @@ namespace TrippyTesting.Tests
 
         protected override void OnLoad(EventArgs e)
         {
+            stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             VertexColor[] data = new VertexColor[]
             {
                 new VertexColor(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 0, 0, 255)),
@@ -46,6 +51,16 @@ namespace TrippyTesting.Tests
             program.AddFragmentShader("#version 400\r\nin vec4 fCol; out vec4 FragColor; void main() { FragColor = fCol; }");
             program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPos", "vCol" });
             program.LinkProgram();
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            time = (float)stopwatch.Elapsed.TotalSeconds;
+            ErrorCode c;
+            while ((c = GL.GetError()) != ErrorCode.NoError)
+            {
+                Console.WriteLine("Error found: " + c);
+            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

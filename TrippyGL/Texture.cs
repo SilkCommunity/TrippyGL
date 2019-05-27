@@ -4,8 +4,13 @@ using System.Collections.Generic;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Encapsulates an OpenGL texture object. This is the base class for all texture types and manages a lot of their internal workings
+    /// </summary>
     public abstract class Texture : IDisposable
     {
+        // These values store which texture is bound to which texture unit and which texture unit is currently active.
+        // These are used to manage texture bindings, and to, for example, not bind the same texture twice unnecessarily
         private static Texture[] binds;
         private static int activeTextureUnit;
         internal static int maxTextureSize;
@@ -115,14 +120,17 @@ namespace TrippyGL
         /// </summary>
         public TextureUnit EnsureBoundAndActive()
         {
-            if (binds[LastBindUnit] == this)
+            if (binds[this.LastBindUnit] == this)
             {
-                if (activeTextureUnit != LastBindUnit)
-                    GL.ActiveTexture(TextureUnit.Texture0 + LastBindUnit);
+                if (activeTextureUnit != this.LastBindUnit)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + this.LastBindUnit);
+                    activeTextureUnit = this.LastBindUnit;
+                }
             }
             else
                 BindToCurrentTextureUnit();
-            return TextureUnit.Texture0 + LastBindUnit;
+            return TextureUnit.Texture0 + this.LastBindUnit;
         }
 
         /// <summary>
@@ -131,9 +139,9 @@ namespace TrippyGL
         /// </summary>
         public TextureUnit EnsureBound()
         {
-            if (binds[LastBindUnit] != this)
+            if (binds[this.LastBindUnit] != this)
                 BindToCurrentTextureUnit();
-            return TextureUnit.Texture0 + LastBindUnit;
+            return TextureUnit.Texture0 + this.LastBindUnit;
         }
 
         /// <summary>
