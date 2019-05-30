@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.3</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -56,6 +58,8 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertex.cs" />
+    <Compile Include="MathHelper2.cs" />
+    <Compile Include="PrimitiveBatcher.cs" />
     <Compile Include="ShaderProgram.cs" />
     <Compile Include="ShaderSamplerUniform.cs" />
     <Compile Include="ShaderUniform.cs" />

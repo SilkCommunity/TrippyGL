@@ -50,15 +50,16 @@ namespace TrippyTesting.Tests
 
             program = new ShaderProgram();
             program.AddVertexShader("#version 400\r\nuniform mat4 w, v, p; in vec3 vP; in vec4 vC; in vec2 vT; out vec4 fC; out vec2 fT; void main() { fC = vC; fT = vT; gl_Position = p * v * w * vec4(vP, 1.0); }");
-            program.AddFragmentShader("#version 400\r\nuniform sampler2D tex; uniform float t; in vec4 fC; in vec2 fT; out vec4 FragColor; void main() { FragColor = (fC*fract(t) + 1.0-fract(t)) * texture2D(tex, fT); }");
+            program.AddFragmentShader("#version 400\r\nuniform sampler2D tex; uniform float t; in vec4 fC; in vec2 fT; out vec4 FragColor; void main() { FragColor = (fC*fract(t) + 1.0-fract(t)) * texture(tex, fT); }");
             program.SpecifyVertexAttribs<VertexColorTexture>(new string[] {"vP", "vC", "vT" });
             program.LinkProgram();
+            Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
 
             tex1 = new Texture2D("data/jeru.png");
             tex2 = new Texture2D("data/texture.png");
 
-            //tex1.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
-            //tex2.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            tex1.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            tex2.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -95,6 +96,10 @@ namespace TrippyTesting.Tests
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             SwapBuffers();
+
+            int slp = (int)(15f - (stopwatch.Elapsed.TotalSeconds - time) * 1000f);
+            if (slp >= 0)
+                System.Threading.Thread.Sleep(slp);
         }
 
         protected override void OnUnload(EventArgs e)
@@ -103,6 +108,8 @@ namespace TrippyTesting.Tests
             buffer.Dispose();
             tex1.Dispose();
             tex2.Dispose();
+
+            TrippyLib.Quit();
         }
 
         protected override void OnResize(EventArgs e)

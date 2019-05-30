@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 using System.Drawing;
 using System.Drawing.Imaging;
 using TrippyGL;
+using System.Runtime.InteropServices;
 
 namespace TrippyTesting
 {
@@ -44,7 +45,7 @@ namespace TrippyTesting
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             #region LoadVertex
-            ParticleVertex[] bufferData = new ParticleVertex[20000];
+            ParticleVertex[] bufferData = new ParticleVertex[5000];
             for (int i = 0; i < bufferData.Length; i++)
                 bufferData[i] = new ParticleVertex(new Vector3(RandomFloat(0, 1), RandomFloat(0, 1), 0), RandomFullAlphaColor());
 
@@ -201,6 +202,25 @@ namespace TrippyTesting
         Color4 RandomFullAlphaColor()
         {
             return new Color4((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256), 255);
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct ParticleVertex
+    {
+        public Vector3 Position;
+        public Color4 Color;
+
+        public ParticleVertex(Vector3 position, Color4 color)
+        {
+            this.Position = position;
+            this.Color = color;
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, ") (", Color.R, ", ", Color.G, ", ", Color.B, ", ", Color.A, ")");
         }
     }
 }

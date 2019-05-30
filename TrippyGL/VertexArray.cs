@@ -36,7 +36,8 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexArray with the specified attribute sources
         /// </summary>
-        /// <param name="attribSources"></param>
+        /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         public VertexArray(VertexAttribSource[] attribSources, bool compensateStructPadding = true)
         {
             if (attribSources == null)
@@ -56,6 +57,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         public VertexArray(BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true)
         {
             if (dataBuffer == null)
@@ -248,6 +250,18 @@ namespace TrippyGL
             GC.SuppressFinalize(this);
         }
 
+
+        /// <summary>
+        /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer
+        /// </summary>
+        /// <typeparam name="T">The type of vertex to use</typeparam>
+        /// <param name="dataBuffer">The buffer from which all attributes come from</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
+        public static VertexArray CreateSingleBuffer<T>(BufferObject dataBuffer, bool compensateStructPadding = true) where T : struct, IVertex
+        {
+            VertexAttribDescription[] desc = new T().AttribDescriptions;
+            return new VertexArray(dataBuffer, desc, true);
+        }
 
 
         private class AttribCallDesc

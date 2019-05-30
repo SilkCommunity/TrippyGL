@@ -55,6 +55,7 @@ namespace TrippyTesting
             program.AddFragmentShader(File.ReadAllText("data2/fs.glsl"));
             program.SpecifyVertexAttribs<VertexJeje>(new string[] {"vPosition", "vColor", "vTexCoords" });
             program.LinkProgram();
+            Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
 
             worldUniform = program.Uniforms["World"];
             viewUniform = program.Uniforms["View"];

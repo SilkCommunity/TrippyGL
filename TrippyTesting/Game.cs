@@ -90,12 +90,13 @@ namespace TrippyTesting
                 "vPosition", "vColor", "vMat", "vDou", "vTexCoords", "vInts"
             });
             program.LinkProgram();
+            Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
             Console.WriteLine(GL.GetError());
 
             world = program.Uniforms["World"];
             view = program.Uniforms["View"];
             proj = program.Uniforms["Projection"];
-            tex = program.Uniforms["texture"];
+            tex = program.Uniforms["tex"];
 
             Matrix4 i = Matrix4.Identity;
             world.SetValueMat4(ref i);

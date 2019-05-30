@@ -46,6 +46,7 @@ namespace TrippyTesting.Tests
                 "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
             });
             program.LinkProgram();
+            Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
 
             Matrix4 id = Matrix4.Identity;
             program.Uniforms["World"].SetValueMat4(ref id);
@@ -89,6 +90,10 @@ namespace TrippyTesting.Tests
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             SwapBuffers();
+
+            int slp = (int)(15f - (stopwatch.Elapsed.TotalSeconds - time) * 1000f);
+            if (slp >= 0)
+                System.Threading.Thread.Sleep(slp);
         }
 
         protected override void OnUnload(EventArgs e)

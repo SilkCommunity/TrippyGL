@@ -51,6 +51,7 @@ namespace TrippyTesting.Tests
             program.AddFragmentShader("#version 400\r\nin vec4 fCol; out vec4 FragColor; void main() { FragColor = fCol; }");
             program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPos", "vCol" });
             program.LinkProgram();
+            Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -73,12 +74,18 @@ namespace TrippyTesting.Tests
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 3);
 
             SwapBuffers();
+
+            int slp = (int)(15f - (stopwatch.Elapsed.TotalSeconds - time) * 1000f);
+            if (slp >= 0)
+                System.Threading.Thread.Sleep(slp);
         }
 
         protected override void OnUnload(EventArgs e)
         {
             buffer.Dispose();
             program.Dispose();
+
+            TrippyLib.Quit();
         }
 
         protected override void OnResize(EventArgs e)
