@@ -9,6 +9,8 @@ namespace TrippyGL
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexPosition : IVertex
     {
+        public const int SizeInBytes = 3 * 4;
+
         public Vector3 Position;
 
         public VertexPosition(Vector3 position)

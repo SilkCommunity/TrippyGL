@@ -51,12 +51,20 @@ namespace TrippyGL
         public PrimitiveBatcher(int initialTriangleCount, int initialLineCount)
         {
             if (initialLineCount > 0)
+            {
                 lines = new T[initialLineCount];
-            if (initialTriangleCount > 0)
-                triangles = new T[initialTriangleCount];
+                lineVertexCount = 0;
+            }
+            else
+                lineVertexCount = -1;
 
-            lineVertexCount = 0;
-            triangleVertexCount = 0;
+            if (initialTriangleCount > 0)
+            {
+                triangles = new T[initialTriangleCount];
+                triangleVertexCount = 0;
+            }
+            else
+                triangleVertexCount = -1;
         }
 
         /// <summary>
@@ -138,9 +146,9 @@ namespace TrippyGL
             EnsureTriangleSpace(triangleVertexCount + (count - 2) * 3);
             for(int i=2; i<count; i++)
             {
-                triangles[triangleVertexCount++] = vertex[i - 2 - startIndex];
-                triangles[triangleVertexCount++] = vertex[i - 1 - startIndex];
-                triangles[triangleVertexCount++] = vertex[i - startIndex];
+                triangles[triangleVertexCount++] = vertex[i - 2 + startIndex];
+                triangles[triangleVertexCount++] = vertex[i - 1 + startIndex];
+                triangles[triangleVertexCount++] = vertex[i + startIndex];
             }
         }
 
@@ -326,8 +334,8 @@ namespace TrippyGL
             EnsureLineSpace(lineVertexCount + count * 2);
             for (int i = 1; i < count; i++)
             {
-                lines[lineVertexCount++] = vertex[i - 1 - startIndex];
-                lines[lineVertexCount++] = vertex[i - startIndex];
+                lines[lineVertexCount++] = vertex[i - 1 + startIndex];
+                lines[lineVertexCount++] = vertex[i + startIndex];
             }
             lines[lineVertexCount++] = vertex[startIndex + count - 1];
             lines[lineVertexCount++] = vertex[startIndex];

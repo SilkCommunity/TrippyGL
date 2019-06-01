@@ -38,6 +38,17 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Creates a VertexDataBufferObject with the specified storage data. The data array not only gives the initial data, but the size of the storage
+        /// </summary>
+        /// <param name="data">The data with which to initialize the buffer's storage. This also marks the storage's length</param>
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
+        public VertexDataBufferObject(T[] data, BufferUsageHint usageHint)
+            : this(data.Length, 0, data, usageHint)
+        {
+
+        }
+
+        /// <summary>
         /// Creates a VertexDataBufferObject with the specified storage length. The storage is created but the data has no specified initial value
         /// </summary>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>

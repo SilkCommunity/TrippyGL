@@ -11,13 +11,13 @@ namespace TrippyGL
     public class ShaderUniformList
     {
         /// <summary>All of the uniforms from the ShaderProgram</summary>
-        private ShaderUniform[] uniforms;
+        private readonly ShaderUniform[] uniforms;
 
         /// <summary>This array contains only the sampler uniforms</summary>
-        private ShaderSamplerUniform[] samplerUniforms;
+        private readonly ShaderSamplerUniform[] samplerUniforms;
 
         /// <summary>This array contains only the sampler array uniforms</summary>
-        private ShaderSamplerArrayUniform[] samplerArrayUniforms;
+        private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
 
         /// <summary>Gets a uniform by name</summary>
         /// <param name="name">The name (declared in the shaders) of the uniform to get</param>
@@ -31,12 +31,15 @@ namespace TrippyGL
                 return null;
             }
         }
-
-        public int UniformCount { get { return uniforms.Length; } }
+        
+        /// <summary>The amount of uniforms in this shader program</summary>
+        public int Count { get { return uniforms.Length; } }
 
         internal ShaderUniformList(ShaderProgram program)
         {
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int count);
+            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalCount);
+            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniformBlocks, out int blocksCount);
+            int count = totalCount - blocksCount;
             uniforms = new ShaderUniform[count];
 
             // All ShaderSamplerUniform-s and ShaderSamplerArrayUniform-s found will be added to these lists,
@@ -44,33 +47,37 @@ namespace TrippyGL
             List<ShaderSamplerUniform> su = new List<ShaderSamplerUniform>(uniforms.Length);
             List<ShaderSamplerArrayUniform> suarr = new List<ShaderSamplerArrayUniform>(uniforms.Length);
 
-            int location = 0; // The location of each uniform, this value is added the size of the uniform each loop to account for array uniforms
-            for (int i = 0; i < count; i++)
+            int arrIndex = 0;
+            for (int i = 0; i < totalCount; i++)
             {
                 string name = GL.GetActiveUniform(program.Handle, i, out int size, out ActiveUniformType type);
-                if (size == 1) // if size is 1, it's not an array uniform
+                int location = GL.GetUniformLocation(program.Handle, name);
+                if (location != -1) //If the location is -1, then it's probably a uniform block so let's not add it to the uniform list
                 {
-                    if (IsSamplerUniformType(type))
-                    { // sampler uniforms are treated differently, they are called on use to ensure the proper texture value is applied
-                        ShaderSamplerUniform s = new ShaderSamplerUniform(program, location, name, type);
-                        uniforms[i] = s;
-                        su.Add(s);
+                    if (size == 1) // if size is 1, it's not an array uniform
+                    {
+                        if (IsSamplerUniformType(type))
+                        { // sampler uniforms are treated differently, they are called on use to ensure the proper texture value is applied
+                            ShaderSamplerUniform s = new ShaderSamplerUniform(program, location, name, type);
+                            uniforms[arrIndex++] = s;
+                            su.Add(s);
+                        }
+                        else
+                            uniforms[arrIndex++] = new ShaderUniform(program, location, name, type);
                     }
-                    else
-                        uniforms[i] = new ShaderUniform(program, location, name, type);
-                }
-                else // size is > 1, this is an array
-                {
-                    if (IsSamplerUniformType(type))
-                    { // sampler uniform arrays, like sampler uniforms, also treated differently for the same reason
-                        ShaderSamplerArrayUniform s = new ShaderSamplerArrayUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), size, type);
-                        uniforms[i] = s;
-                        suarr.Add(s);
+                    else // size is > 1, this is an array
+                    {
+                        if (IsSamplerUniformType(type))
+                        { // sampler uniform arrays, like sampler uniforms, also treated differently for the same reason
+                            ShaderSamplerArrayUniform s = new ShaderSamplerArrayUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), size, type);
+                            uniforms[arrIndex++] = s;
+                            suarr.Add(s);
+                        }
+                        else
+                            uniforms[arrIndex++] = new ShaderUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), type);
                     }
-                    else
-                        uniforms[i] = new ShaderUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), type);
                 }
-                location += size;
+
             }
 
             samplerUniforms = su.ToArray();
@@ -115,6 +122,11 @@ namespace TrippyGL
                 samplerArrayUniforms[i].ApplyUniformValues();
 
             //TODO: Sampler uniform arrays
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("ShaderUniformList with ", uniforms.Length, " uniforms");
         }
 
         public static bool IsSamplerUniformType(ActiveUniformType type)

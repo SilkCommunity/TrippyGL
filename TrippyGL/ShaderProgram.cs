@@ -25,6 +25,9 @@ namespace TrippyGL
         /// <summary>The list of uniforms in this program</summary>
         public ShaderUniformList Uniforms { get; private set; }
 
+        /// <summary>The list of block uniforms in this program</summary>
+        public ShaderBlockUniformList BlockUniforms { get; private set; }
+
         /// <summary>Whether this ShaderProgram has been linked</summary>
         public bool IsLinked { get; private set; } = false;
 
@@ -217,6 +220,7 @@ namespace TrippyGL
                 this.GeometryShader = new GeometryShaderData(this.Handle);
             }
 
+            BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = new ShaderUniformList(this);
         }
 

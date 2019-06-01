@@ -9,6 +9,8 @@ namespace TrippyGL
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexTexture : IVertex
     {
+        public const int SizeInBytes = (3 + 2) * 4;
+
         public Vector3 Position;
         public Vector2 TexCoords;
 

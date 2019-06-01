@@ -21,6 +21,7 @@ namespace TrippyGL
 
             Texture.Init();
             BufferObject.Init();
+            UniformBufferObject<int>.Init1();
 
             ResetGLBindStates();
         }
@@ -63,6 +64,12 @@ namespace TrippyGL
         }
 
         public static int MaxTextureImageUnits { get { return GL.GetInteger(GetPName.MaxTextureImageUnits); } }
+
+        public static int UniformBufferOffsetAlignment { get { return GL.GetInteger(GetPName.UniformBufferOffsetAlignment); } }
+
+        public static int MaxUniformBufferBindings { get { return GL.GetInteger(GetPName.MaxUniformBufferBindings); } }
+
+        public static int MaxUniformBlockSize { get { return GL.GetInteger(GetPName.MaxUniformBlockSize); } }
 
         public static int MaxSamples { get { return GL.GetInteger(GetPName.MaxSamples); } }
 

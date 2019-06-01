@@ -32,11 +32,12 @@ namespace TrippyGL
         /// Creates a DataBufferObject with the specified storage length and initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
         /// <param name="storageLength">The length of the buffer storage measured in elements</param>
         /// <param name="dataOffset">The first element of the given data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        internal DataBufferObject(BufferTarget bufferTarget, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint) : base(BufferTarget.ArrayBuffer)
+        public DataBufferObject(BufferTarget bufferTarget, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint) : base(BufferTarget.ArrayBuffer)
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
@@ -46,24 +47,38 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexDataBufferObject with the specified storage length and initializes the storage data by copying it from a given array.
+        /// Creates a DataBufferObject with the specified storage length and initializes the storage data by copying it from a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
         /// <param name="storageLength">The length of the buffer storage measured in elements</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        internal DataBufferObject(BufferTarget bufferTarget, int storageLength, T[] data, BufferUsageHint usageHint)
+        public DataBufferObject(BufferTarget bufferTarget, int storageLength, T[] data, BufferUsageHint usageHint)
             : this(bufferTarget, storageLength, 0, data, usageHint)
         {
 
         }
 
         /// <summary>
-        /// Creates a VertexDataBufferObject with the specified storage length. The storage is created but the data has no specified initial value
+        /// Creates a DataBufferObject with the specified storage data. The data array not only gives the initial data, but the size of the storage
         /// </summary>
+        /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
+        /// <param name="data">The data with which to initialize the buffer's storage. This also marks the storage's length</param>
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
+        public DataBufferObject(BufferTarget bufferTarget, T[] data, BufferUsageHint usageHint)
+            : this(bufferTarget, data.Length, 0, data, usageHint)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a DataBufferObject with the specified storage length. The storage is created but the data has no specified initial value
+        /// </summary>
+        /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
         /// <param name="storageLength">The length of the buffer storage measured in elements</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        internal DataBufferObject(BufferTarget bufferTarget, int storageLength, BufferUsageHint usageHint) : base(bufferTarget)
+        public DataBufferObject(BufferTarget bufferTarget, int storageLength, BufferUsageHint usageHint) : base(bufferTarget)
         {
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
             this.storageLength = storageLength;

@@ -24,10 +24,10 @@ namespace TrippyGL
         /// This list stores which BufferObject.Handle was las bound to each BufferTarget.
         /// Each index is associated to the BufferTarget on the same index in bindsTarget
         /// </summary>
-        private static List<int> binds;
+        private protected static List<int> binds;
         
         /// <summary>Stores the associated BufferTarget of each index in the 'binds' list</summary>
-        private static List<BufferTarget> bindsTargets;
+        private protected static List<BufferTarget> bindsTargets;
 
         /// <summary>
         /// Initializes BufferObject's static fields. This internal function is called by once by TrippyGL.Init()
@@ -36,6 +36,7 @@ namespace TrippyGL
         {
             binds = new List<int>(14);
             bindsTargets = new List<BufferTarget>(14);
+
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace TrippyGL
         public readonly BufferTarget BufferTarget;
 
         /// <summary>The index on the static 'binds' array where this BufferObject's BufferTarget last bound handle is stored</summary>
-        private readonly int bindingIndex;
+        private protected readonly int bindingIndex;
 
         /// <summary>
         /// Creates a BufferObject with the specified bufferTarget.
@@ -292,6 +293,18 @@ namespace TrippyGL
 
             if (data.Length < storageLength)
                 throw new ArgumentException("The data array isn't big enough to write the entire buffer object's storage to it");
+        }
+
+
+
+        private interface IBufferBindingPoint
+        {
+            
+        }
+
+        private class BufferBindingPoint : IBufferBindingPoint
+        {
+
         }
     }
 }
