@@ -238,7 +238,7 @@ namespace TrippyTesting
 
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
         {
-            vertexArray.EnsureBound();
+            States.EnsureVertexArrayBound(vertexArray);
 
             GL.GetError();
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
@@ -247,7 +247,7 @@ namespace TrippyTesting
             tex.SetValueTexture(texture);
             GL.GetError();
 
-            indexBuffer.EnsureBound();
+            States.EnsureBufferBound(indexBuffer);
             GL.GetError();
             program.Uniforms.EnsureSamplerUniformsSet();
             GL.GetError();

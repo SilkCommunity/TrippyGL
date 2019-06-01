@@ -24,8 +24,6 @@ namespace TrippyTesting.Tests
         VertexDataBufferObject<VertexColor> triangleBuffer, lineBuffer;
         VertexArray triangleArray, lineArray;
 
-        UniformBufferObject<Matrix4> ubo;
-
         bool isMouseDown;
         Vector3 cameraPos;
         float rotY, rotX;
@@ -83,9 +81,6 @@ namespace TrippyTesting.Tests
             projUniform.SetValueMat4(ref mat);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
-
-            ubo = new UniformBufferObject<Matrix4>(3, 0, new Matrix4[] { Matrix4.Identity, Matrix4.Identity, Matrix4.Identity }, BufferUsageHint.DynamicDraw);
-            program.BlockUniforms["MatrixBlock"].SetValue(ubo);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -294,14 +289,10 @@ namespace TrippyTesting.Tests
             batcher.WriteLinesTo(lineBuffer);
             program.EnsureInUse();
 
-            mat = Matrix4.CreateRotationZ(time % MathHelper.TwoPi);
-            ubo.SetValue(mat, 0);
-            program.BlockUniforms.EnsureAllSet();
-
-            lineArray.EnsureBound();
+            States.EnsureVertexArrayBound(lineArray);
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
 
-            triangleArray.EnsureBound();
+            States.EnsureVertexArrayBound(triangleArray);
             GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
 
             batcher.ClearTriangles();

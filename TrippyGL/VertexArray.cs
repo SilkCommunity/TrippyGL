@@ -5,28 +5,6 @@ namespace TrippyGL
 {
     public class VertexArray : IDisposable
     {
-        /// <summary>Gets the last VertexArray to get bound</summary>
-        public static VertexArray LastArrayBound { get; private set; } = null;
-
-        /// <summary>
-        /// Resets the last bound vertex array object variable. This variable is used on EnsureBound() to not call glBindVertexArray if the array is already bound.
-        /// You might want to call this if interoperating with another library
-        /// </summary>
-        public static void ResetBindState()
-        {
-            LastArrayBound = null;
-        }
-
-        /// <summary>
-        /// Unbinds the current VertexArray by binding to vertex array object 0
-        /// </summary>
-        public static void BindEmpty()
-        {
-            GL.BindVertexArray(0);
-            LastArrayBound = null;
-        }
-
-
         /// <summary>The GL VertexArrayObject's name</summary>
         public readonly int Handle;
 
@@ -92,7 +70,7 @@ namespace TrippyGL
         /// <param name="packValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int packValue = 4)
         {
-            EnsureBound();
+            States.EnsureVertexArrayBound(this);
 
             AttribCallDesc[] calls = new AttribCallDesc[AttribSources.Length];
 
@@ -213,26 +191,6 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensure that this vertex array is the currently bound one, and binds it otherwise
-        /// </summary>
-        public void EnsureBound()
-        {
-            if (LastArrayBound != this)
-            {
-                Bind();
-            }
-        }
-
-        /// <summary>
-        /// Binds this VertexArray. Prefer using EnsureBound() to avoid unnecessary binds
-        /// </summary>
-        public void Bind()
-        {
-            GL.BindVertexArray(Handle);
-            LastArrayBound = this;
-        }
-
-        /// <summary>
         /// This method disposes the Vertex Array with no checks at all
         /// </summary>
         private void dispose()
@@ -272,7 +230,7 @@ namespace TrippyGL
             public void CallGlVertexAttribPointer()
             {
                 int offs = offset;
-                source.DataBuffer.EnsureBound();
+                States.EnsureBufferBound(source.DataBuffer);
                 for (int i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)

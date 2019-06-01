@@ -12,7 +12,7 @@ namespace TrippyGL
         public readonly int BindingIndex;
 
         private IBufferRangeBindable uniformSource;
-        private int elementIndex;
+        private int uniformSourceElementIndex;
 
         internal ShaderBlockUniform(ShaderProgram owner, int bindingIndex, string name)
         {
@@ -29,12 +29,17 @@ namespace TrippyGL
             if (elementIndex < 0 || elementIndex > value.StorageLength)
                 throw new ArgumentOutOfRangeException("valueIndex", "Value index must be in the range [0, value.StorageLength)");
 
-            uniformSource = value;
-            this.elementIndex = elementIndex;
+            this.uniformSource = value;
+            this.uniformSourceElementIndex = elementIndex;
 
             if (OwnerProgram.IsCurrentlyInUse)
-                uniformSource.EnsureBoundRange(BindingIndex, elementIndex);
+                EnsureValueApplied();
+        }
 
+        public void EnsureValueApplied()
+        {
+            if (uniformSource != null)
+                uniformSource.EnsureBoundRange(BindingIndex, uniformSourceElementIndex);
         }
 
         public override string ToString()

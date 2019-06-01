@@ -13,72 +13,12 @@ namespace TrippyGL
         // The BufferObject class takes care of handling the object. This includes binding (to the correct target), creating the
         // object (storing the handle) and disposing (destroying the buffer object)
         
-        // For binding, BufferObject manages some static fields that store the last BufferObject's handle bound to each target.
-        // This is used to check whether a BufferObject is currently bound, and that gets used so to not bind the same BufferObject
-        // twice consecutively, as this might affect performance.
+        // For binding, most of the lifting is done by the States static class, with the BufferObject storing some variables it
+        // will need for binding like the BufferTarget and the bufferBindingTargetIndex, which is used internally by States to
+        // get better performance when checking whether to bind
 
         // BufferObject also provides private protected methods for initializing the buffer's storage and different check parameter
         // functions to be consisten across all BufferObjects when throwing exceptions on methods like SetData() and GetData()
-        
-        /// <summary>
-        /// This list stores which BufferObject.Handle was las bound to each BufferTarget.
-        /// Each index is associated to the BufferTarget on the same index in bindsTarget
-        /// </summary>
-        private protected static List<int> binds;
-        
-        /// <summary>Stores the associated BufferTarget of each index in the 'binds' list</summary>
-        private protected static List<BufferTarget> bindsTargets;
-
-        /// <summary>
-        /// Initializes BufferObject's static fields. This internal function is called by once by TrippyGL.Init()
-        /// </summary>
-        internal static void Init()
-        {
-            binds = new List<int>(14);
-            bindsTargets = new List<BufferTarget>(14);
-
-        }
-
-        /// <summary>
-        /// Resets all BufferObject bind variables. These variables are used by Bind functions so to not unnecessarily bind the same BufferObject twice
-        /// </summary>
-        public static void ResetBindStates()
-        {
-            for (int i = 0; i < binds.Count; i++)
-                binds[i] = -1;
-        }
-
-        /// <summary>
-        /// Ensures a buffer's handle is bound to the specified bufferTarget
-        /// </summary>
-        /// <param name="bufferTarget"></param>
-        /// <param name="bufferHandle"></param>
-        public static void EnsureBufferBound(BufferTarget bufferTarget, int bufferHandle)
-        {
-            int index = GetBindingTargetIndex(bufferTarget);
-            if (binds[index] != bufferHandle)
-            {
-                binds[index] = bufferHandle;
-                GL.BindBuffer(bufferTarget, bufferHandle);
-            }
-        }
-
-        /// <summary>
-        /// Gets the index on the 'binds' list for the specified BufferTarget.
-        /// If there's no index for that BufferTarget, it's created
-        /// </summary>
-        /// <param name="bufferTarget">The BufferTarget to get the binds list index for</param>
-        private static int GetBindingTargetIndex(BufferTarget bufferTarget)
-        {
-            for (int i = 0; i < bindsTargets.Count; i++)
-                if (bindsTargets[i] == bufferTarget)
-                    return i;
-            binds.Add(-1);
-            bindsTargets.Add(bufferTarget);
-            return binds.Count - 1;
-        }
-
-
 
         /// <summary>The GL Buffer Object's name</summary>
         public readonly int Handle;
@@ -93,13 +33,13 @@ namespace TrippyGL
         public abstract int ElementSize { get; }
 
         /// <summary>Whether this buffer object is the currently bound one on it's BufferTarget</summary>
-        public bool IsCurrentlyBound { get { return binds[bindingIndex] == Handle; } }
+        public bool IsCurrentlyBound { get { return States.IsBufferCurrentlyBound(this); } }
 
         /// <summary>The target this BufferObject will always bind to</summary>
         public readonly BufferTarget BufferTarget;
 
         /// <summary>The index on the static 'binds' array where this BufferObject's BufferTarget last bound handle is stored</summary>
-        private protected readonly int bindingIndex;
+        internal readonly int bufferBindingTargetIndex;
 
         /// <summary>
         /// Creates a BufferObject with the specified bufferTarget.
@@ -110,7 +50,7 @@ namespace TrippyGL
         {
             Handle = GL.GenBuffer();
             this.BufferTarget = bufferTarget;
-            bindingIndex = GetBindingTargetIndex(bufferTarget);
+            bufferBindingTargetIndex = States.GetBindingTargetIndex(bufferTarget);
         }
 
         ~BufferObject()
@@ -134,7 +74,7 @@ namespace TrippyGL
         {
             ValidateInitWithDataParams(storageLength, dataOffset, data);
 
-            EnsureBound();
+            States.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLength * elementSize, ref data[dataOffset], usageHint);
         }
 
@@ -149,26 +89,8 @@ namespace TrippyGL
         {
             ValidateInitWithoutDataParams(storageLengthInBytes);
 
-            EnsureBound();
+            States.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLengthInBytes, IntPtr.Zero, usageHint);
-        }
-
-        /// <summary>
-        /// Ensures this buffer object is the currently bound one on it's BufferTarget
-        /// </summary>
-        public void EnsureBound()
-        {
-            if (binds[bindingIndex] != Handle)
-                Bind();
-        }
-
-        /// <summary>
-        /// Binds this buffer object to it's BufferTarget. Prefer using EnsureBound() instead, so to prevent unnecesary binds
-        /// </summary>
-        public void Bind()
-        {
-            GL.BindBuffer(this.BufferTarget, Handle);
-            binds[bindingIndex] = Handle;
         }
 
         /// <summary>
@@ -295,16 +217,5 @@ namespace TrippyGL
                 throw new ArgumentException("The data array isn't big enough to write the entire buffer object's storage to it");
         }
 
-
-
-        private interface IBufferBindingPoint
-        {
-            
-        }
-
-        private class BufferBindingPoint : IBufferBindingPoint
-        {
-
-        }
     }
 }

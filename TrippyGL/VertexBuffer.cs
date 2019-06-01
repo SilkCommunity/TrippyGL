@@ -72,7 +72,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureBufferBound()
         {
-            DataBuffer.EnsureBound();
+            States.EnsureBufferBound(DataBuffer);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace TrippyGL
         /// </summary>
         public void BindBuffer()
         {
-            DataBuffer.Bind();
+            States.EnsureBufferBound(DataBuffer);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureArrayBound()
         {
-            VertexArray.EnsureBound();
+            States.EnsureVertexArrayBound(VertexArray);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace TrippyGL
         /// </summary>
         public void BindArray()
         {
-            VertexArray.Bind();
+            States.BindVertexArray(VertexArray);
         }
 
         /// <summary>

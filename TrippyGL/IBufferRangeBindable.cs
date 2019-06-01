@@ -8,10 +8,6 @@ namespace TrippyGL
 {
     public interface IBufferRangeBindable
     {
-        void Bind();
-        void EnsureBound();
-
-        void BindRange(int bindingIndex, int elementIndex);
         void EnsureBoundRange(int bindingIndex, int elementIndex);
     }
 }

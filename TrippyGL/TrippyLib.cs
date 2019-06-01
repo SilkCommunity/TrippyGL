@@ -19,8 +19,10 @@ namespace TrippyGL
             isLibActive = true;
             GL.Enable(EnableCap.Multisample);
 
+            States.Init();
+
             Texture.Init();
-            BufferObject.Init();
+            //BufferObject.Init();
             UniformBufferObject<int>.Init1();
 
             ResetGLBindStates();
@@ -58,9 +60,9 @@ namespace TrippyGL
         /// </summary>
         public static void ResetGLBindStates()
         {
-            BufferObject.ResetBindStates();
+            States.ResetStates();
+
             Texture.ResetBindStates();
-            VertexArray.ResetBindState();
         }
 
         public static int MaxTextureImageUnits { get { return GL.GetInteger(GetPName.MaxTextureImageUnits); } }
