@@ -5,7 +5,6 @@ namespace TrippyGL
 {
     public static class TrippyLib
     {
-        private static int glMinorVersion, glMajorVersion;
 
         /// <summary>
         /// Initiates the TrippyGL library. This should be called after the context has been created and on the same thread
@@ -19,11 +18,11 @@ namespace TrippyGL
             isLibActive = true;
             GL.Enable(EnableCap.Multisample);
 
+            UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
+
             States.Init();
 
             Texture.Init();
-            //BufferObject.Init();
-            UniformBufferObject<int>.Init1();
 
             ResetGLBindStates();
         }
@@ -44,10 +43,10 @@ namespace TrippyGL
         /// </summary>
         public static void RecheckGLVersion()
         {
-            glMajorVersion = GL.GetInteger(GetPName.MajorVersion);
-            glMinorVersion = GL.GetInteger(GetPName.MinorVersion);
+            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
+            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
             
-            if (glMajorVersion < 3)
+            if (GLMajorVersion < 3)
                 throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
         }
 
@@ -67,7 +66,7 @@ namespace TrippyGL
 
         public static int MaxTextureImageUnits { get { return GL.GetInteger(GetPName.MaxTextureImageUnits); } }
 
-        public static int UniformBufferOffsetAlignment { get { return GL.GetInteger(GetPName.UniformBufferOffsetAlignment); } }
+        public static int UniformBufferOffsetAlignment { get; private set; }
 
         public static int MaxUniformBufferBindings { get { return GL.GetInteger(GetPName.MaxUniformBufferBindings); } }
 
@@ -77,9 +76,9 @@ namespace TrippyGL
 
         public static int MaxTextureSize { get { return GL.GetInteger(GetPName.MaxTextureSize); } }
 
-        public static int GLMajorVersion { get { return glMajorVersion; } }
+        public static int GLMajorVersion { get; private set; }
 
-        public static int GLMinorVersion { get { return glMinorVersion; } }
+        public static int GLMinorVersion { get; private set; }
 
         public static string GLVersion { get { return GL.GetString(StringName.Version); } }
 

@@ -19,10 +19,12 @@ namespace TrippyTesting.Tests
         public static float time, deltaTime;
 
         ShaderProgram program;
-        ShaderUniform worldUniform, viewUniform, projUniform;
 
         VertexDataBufferObject<VertexColor> triangleBuffer, lineBuffer;
         VertexArray triangleArray, lineArray;
+
+        UniformBufferObject<ThreeMat4> ubo;
+        ThreeMat4 uniformVal;
 
         bool isMouseDown;
         Vector3 cameraPos;
@@ -71,14 +73,12 @@ namespace TrippyTesting.Tests
             program.LinkProgram();
             Console.WriteLine(GL.GetError());
 
-            worldUniform = program.Uniforms["World"];
-            viewUniform = program.Uniforms["View"];
-            projUniform = program.Uniforms["Projection"];
-
             Matrix4 mat = Matrix4.Identity;
-            worldUniform.SetValueMat4(ref mat);
-            viewUniform.SetValueMat4(ref mat);
-            projUniform.SetValueMat4(ref mat);
+            uniformVal.World = mat;
+            uniformVal.View = mat;
+            uniformVal.Projection = mat;
+
+            ubo = new UniformBufferObject<ThreeMat4>(uniformVal, BufferUsageHint.StreamDraw);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
         }
@@ -153,8 +153,7 @@ namespace TrippyTesting.Tests
             GL.ClearDepth(1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Matrix4 view = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
-            viewUniform.SetValueMat4(ref view);
+            uniformVal.View = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             /*VertexColor[] cube = new VertexColor[]{
                 new VertexColor(new Vector3(0,0,0), Color4b.LightBlue),//4
                 new VertexColor(new Vector3(0,0,1), Color4b.Lime),//3
@@ -192,7 +191,7 @@ namespace TrippyTesting.Tests
 
             VertexColor[] circleFan = new VertexColor[12];
             circleFan[0] = new VertexColor(new Vector3(0, 0, 0), new Color4b(0, 0, 0, 255));
-            for(int i=1; i<circleFan.Length-1; i++)
+            for (int i = 1; i < circleFan.Length - 1; i++)
             {
                 float rot = (i - 1) * MathHelper.TwoPi / (circleFan.Length - 2);
                 circleFan[i] = new VertexColor(new Vector3((float)Math.Cos(rot), 0, (float)Math.Sin(rot)), randomCol());
@@ -222,7 +221,7 @@ namespace TrippyTesting.Tests
             batcher.AddLine(new VertexColor(new Vector3(0, -9999, 0), new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, 9999, 0), new Color4b(0, 255, 0, 255)));
             batcher.AddLine(new VertexColor(new Vector3(0, 0, -9999), new Color4b(0, 0, 255, 255)), new VertexColor(new Vector3(0, 0, 9999), new Color4b(0, 0, 255, 255)));
 
-            for(int i=0; i<fuckables.Count; i++)
+            for (int i = 0; i < fuckables.Count; i++)
                 fuckables[i].Draw(batcher);
 
             for (int i = -10; i < 11; i++)
@@ -287,7 +286,12 @@ namespace TrippyTesting.Tests
 
             batcher.WriteTrianglesTo(triangleBuffer);
             batcher.WriteLinesTo(lineBuffer);
+            ubo.SetValue(uniformVal);
+            program.BlockUniforms["MatrixBlock"].SetValue(ubo);
             program.EnsureInUse();
+
+            program.Uniforms["time"].SetValue1(time * 10f);
+            program.Uniforms["amp"].SetValue1(0.2f);
 
             States.EnsureVertexArrayBound(lineArray);
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
@@ -324,7 +328,8 @@ namespace TrippyTesting.Tests
             wid *= 0.5f;
             //Matrix4 mat = Matrix4.CreateOrthographicOffCenter(-wid, wid, 0, 1, 0, 100);
             Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.001f, 10f);
-            projUniform.SetValueMat4(ref mat);
+            //projUniform.SetValueMat4(ref mat);
+            uniformVal.Projection = mat;
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -350,7 +355,7 @@ namespace TrippyTesting.Tests
             switch (r.Next(5))
             {
                 case 0:
-                    return new VertexColor[] 
+                    return new VertexColor[]
                     {
                         new VertexColor(new Vector3(-0.5f,-0.5f,-0.5f), Color4b.LightBlue),//4
                         new VertexColor(new Vector3(-0.5f,-0.5f,0.5f), Color4b.Lime),//3
@@ -424,25 +429,33 @@ namespace TrippyTesting.Tests
             return new Color4b((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256), 255);
         }
 
-    }
-
-    class Fuckable
-    {
-        private VertexColor[] mesh;
-        private Vector3 pos;
-        private float inittime;
-
-        public Fuckable(VertexColor[] mesh, Vector3 pos)
+        private class Fuckable
         {
-            this.mesh = mesh;
-            this.pos = pos;
-            inittime = Test3DBatcher.time;
+            private VertexColor[] mesh;
+            private Vector3 pos;
+            private float inittime;
+
+            public Fuckable(VertexColor[] mesh, Vector3 pos)
+            {
+                this.mesh = mesh;
+                this.pos = pos;
+                inittime = Test3DBatcher.time;
+            }
+
+            public void Draw(PrimitiveBatcher<VertexColor> batcher)
+            {
+                Matrix4 mat = Matrix4.CreateRotationY(Test3DBatcher.time) * Matrix4.CreateScale((float)Math.Sin(Test3DBatcher.time - inittime) * 0.3f + 1f) * Matrix4.CreateTranslation(pos);
+                batcher.AddTriangleStrip(Test3DBatcher.MultiplyAllToNew(mesh, ref mat));
+            }
         }
 
-        public void Draw(PrimitiveBatcher<VertexColor> batcher)
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        struct ThreeMat4
         {
-            Matrix4 mat = Matrix4.CreateRotationY(Test3DBatcher.time) * Matrix4.CreateScale((float)Math.Sin(Test3DBatcher.time - inittime) * 0.3f + 1f) * Matrix4.CreateTranslation(pos);
-            batcher.AddTriangleStrip(Test3DBatcher.MultiplyAllToNew(mesh, ref mat));
+            public Matrix4 World;
+            public Matrix4 View;
+            public Matrix4 Projection;
         }
     }
+
 }

@@ -11,14 +11,17 @@ namespace TrippyGL
 
         public readonly int BindingIndex;
 
+        public readonly int ActiveUniformCount;
+
         private IBufferRangeBindable uniformSource;
         private int uniformSourceElementIndex;
 
-        internal ShaderBlockUniform(ShaderProgram owner, int bindingIndex, string name)
+        internal ShaderBlockUniform(ShaderProgram owner, int bindingIndex, string name, int activeUniformCount)
         {
             this.OwnerProgram = owner;
             this.BindingIndex = bindingIndex;
             this.Name = name;
+            this.ActiveUniformCount = activeUniformCount;
         }
 
         public void SetValue<T>(UniformBufferObject<T> value, int elementIndex = 0) where T : struct

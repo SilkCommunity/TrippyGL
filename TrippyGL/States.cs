@@ -219,6 +219,7 @@ namespace TrippyGL
 
         #endregion VertexArrayBindingStates
 
+        //TODO: Pass absolutely ALL BINDING THINGS to here. Textures and ShaderPrograms are missing!
 
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.
