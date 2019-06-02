@@ -103,7 +103,7 @@ namespace TrippyTesting
             BlendMode.AlphaBlend.Apply();
             
             vertexBuffer.EnsureArrayBound();
-            program.EnsureInUse();
+            States.EnsureShaderProgramInUse(program);
             program.Uniforms.EnsureSamplerUniformsSet();
             timeUniform.SetValue1(time);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);

@@ -9,9 +9,6 @@ namespace TrippyGL
     /// </summary>
     public class ShaderProgram : IDisposable
     {
-        /// <summary>Gets the last program to be used</summary>
-        public static ShaderProgram LastUsedProgram { get; private set; }
-
         /// <summary>The handle for the OpenGL Progrma object</summary>
         public readonly int Handle;
 
@@ -32,7 +29,7 @@ namespace TrippyGL
         public bool IsLinked { get; private set; } = false;
 
         /// <summary>Whether this ShaderProgram is the one currently in use</summary>
-        public bool IsCurrentlyInUse { get { return LastUsedProgram == this; } }
+        public bool IsCurrentlyInUse { get { return States.IsShaderProgramInUse(this); } }
 
         /// <summary>Whether this ShaderProgram has a geometry shader attached</summary>
         public bool HasGeometryShader { get { return gsHandle != -1; } }
@@ -222,24 +219,6 @@ namespace TrippyGL
 
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = new ShaderUniformList(this);
-        }
-
-        /// <summary>
-        /// Ensures this ShaderProgram is the one currently in use
-        /// </summary>
-        public void EnsureInUse()
-        {
-            if (LastUsedProgram != this)
-                Use();
-        }
-
-        /// <summary>
-        /// Installs this program into the rendering pipeline. Prefer using EnsureInUse() to avoid unnecessary Use()-s
-        /// </summary>
-        public void Use()
-        {
-            LastUsedProgram = this;
-            GL.UseProgram(Handle);
         }
 
         /// <summary>

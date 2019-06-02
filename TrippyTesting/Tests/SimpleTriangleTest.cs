@@ -69,7 +69,7 @@ namespace TrippyTesting.Tests
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            program.EnsureInUse();
+            States.EnsureShaderProgramInUse(program);
             buffer.EnsureArrayBound();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 3);
 

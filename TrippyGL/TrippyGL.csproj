@@ -56,6 +56,7 @@
     <Compile Include="DataBufferObject.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="FramebufferObject.cs" />
     <Compile Include="IBufferRangeBindable.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertex.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="ShaderUniform.cs" />
     <Compile Include="ShaderUniformList.cs" />
     <Compile Include="States.cs" />
+    <Compile Include="Texture1D.cs" />
     <Compile Include="TextureRectangle.cs" />
     <Compile Include="TrippyLib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -22,7 +22,7 @@ namespace TrippyGL
 
         internal Texture2D(int width, int height, int multisample, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte) : base(multisample == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, pixelFormat, pixelType)
         {
-            //BindToCurrentTextureUnit(); //texture is already bound by base constructor
+            //texture is already bound by base constructor
             ValidateTextureSize(width, height);
             this.Width = width;
             this.Height = height;
@@ -39,7 +39,7 @@ namespace TrippyGL
 
         internal Texture2D(string file, TextureTarget textureTarget) : base(textureTarget, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
         {
-            //BindToCurrentTextureUnit(); //texture is already bound by base constructor
+            //texture is already bound by base constructor
             this.Multisample = 0;
             using (Bitmap bitmap = new Bitmap(file))
             {

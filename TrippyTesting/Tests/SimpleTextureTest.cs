@@ -78,7 +78,7 @@ namespace TrippyTesting.Tests
             
 
             buffer.EnsureArrayBound();
-            program.EnsureInUse();
+            States.EnsureShaderProgramInUse(program);
             program.Uniforms["t"].SetValue1(time);
             program.Uniforms["tex"].SetValueTexture(tex1);
 

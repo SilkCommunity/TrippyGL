@@ -11,7 +11,7 @@ namespace TrippyTesting
         static void Main(string[] args)
         {
 
-            using(GameWindow w = new Tests.Test3DBatcher())
+            using(GameWindow w = new Game3())
             {
                 w.Run(60, 60);
             }

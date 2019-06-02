@@ -38,6 +38,7 @@ namespace TrippyGL
 
 
             vertexArrayBinding = 0;
+            shaderProgramBinding = 0;
         }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace TrippyGL
         {
             ResetBufferStates();
             ResetVertexArrayStates();
+            ResetShaderProgramStates();
         }
 
 
@@ -209,7 +211,7 @@ namespace TrippyGL
         }
         
         /// <summary>
-        /// Unbinds any currently active vertex array by binding to array 0
+        /// Unbinds the currently active vertex array by binding to array 0
         /// </summary>
         public static void UnbindVertexArray()
         {
@@ -219,7 +221,68 @@ namespace TrippyGL
 
         #endregion VertexArrayBindingStates
 
-        //TODO: Pass absolutely ALL BINDING THINGS to here. Textures and ShaderPrograms are missing!
+        #region ShaderProgramBindingStates
+
+        /// <summary>The currently bound ShaderProgram's handle</summary>
+        private static int shaderProgramBinding;
+
+        /// <summary>
+        /// Returns whether the given shader program is the one currently in use
+        /// </summary>
+        /// <param name="program">The program to check, This value is assumed to not be null</param>
+        public static bool IsShaderProgramInUse(ShaderProgram program)
+        {
+            return shaderProgramBinding == program.Handle;
+        }
+
+        /// <summary>
+        /// Ensures the given ShaderProgram is the one currently in use
+        /// </summary>
+        /// <param name="program">The shader program to use. This value is assumed not to be null</param>
+        public static void EnsureShaderProgramInUse(ShaderProgram program)
+        {
+            if (shaderProgramBinding != program.Handle)
+                UseShaderProgram(program);
+        }
+
+        /// <summary>
+        /// Installs the given program into the rendering pipeline. Prefer using EnsureShaderProgramInUse() to avoid unnecessary uses
+        /// </summary>
+        /// <param name="program">The shader program to use. This value is assumed not to be null</param>
+        public static void UseShaderProgram(ShaderProgram program)
+        {
+            shaderProgramBinding = program.Handle;
+            GL.UseProgram(program.Handle);
+        }
+
+        /// <summary>
+        /// Uninstalls the current shader program from the pipeline by using program 0
+        /// </summary>
+        public static void UninstallShaderProgram()
+        {
+            shaderProgramBinding = 0;
+            GL.UseProgram(0);
+        }
+
+        /// <summary>
+        /// Resets all saved states for shader programs. This is, the variables used to check whether to use a shader program or not.
+        /// You should only need to call this when itneroperating with other libraries or using your own GL functions
+        /// </summary>
+        public static void ResetShaderProgramStates()
+        {
+            shaderProgramBinding = 0;
+        }
+
+        #endregion ShaderProgramBindingStates
+
+        #region TextureBindingStates
+
+        private static int[] textureBindings;
+        private static int activeTextureUnit;
+
+        #endregion TextureBindingStates
+
+        //TODO: Pass absolutely ALL BINDING THINGS to here. Textures are missing!
 
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.

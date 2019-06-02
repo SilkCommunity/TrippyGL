@@ -288,7 +288,7 @@ namespace TrippyTesting.Tests
             batcher.WriteLinesTo(lineBuffer);
             ubo.SetValue(uniformVal);
             program.BlockUniforms["MatrixBlock"].SetValue(ubo);
-            program.EnsureInUse();
+            States.EnsureShaderProgramInUse(program);
 
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);
