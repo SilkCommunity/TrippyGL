@@ -14,6 +14,8 @@ namespace TrippyTesting.Tests
         Random r = new Random();
         float time;
 
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
         Texture2D texture;
 
@@ -23,6 +25,7 @@ namespace TrippyTesting.Tests
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -38,7 +41,7 @@ namespace TrippyTesting.Tests
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("spad/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("spad/fs.glsl"));
             program.SpecifyVertexAttribs<WeirdAssVertex>(new string[]
@@ -60,9 +63,9 @@ namespace TrippyTesting.Tests
                 new WeirdAssVertex(new Vector3(0.2f, 0.8f, 0), new Vector2(0, 1)),
                 new WeirdAssVertex(new Vector3(0.8f, 0.8f, 0), new Vector2(1, 1)),
             };
-            buffer = new VertexBuffer<WeirdAssVertex>(data.Length, data, BufferUsageHint.DynamicDraw);
+            buffer = new VertexBuffer<WeirdAssVertex>(graphicsDevice, data.Length, data, BufferUsageHint.DynamicDraw);
 
-            texture = new Texture2D("data/fondo.png");
+            texture = new Texture2D(graphicsDevice, "data/fondo.png");
             program.Uniforms["samp"].SetValueTexture(texture);
         }
 

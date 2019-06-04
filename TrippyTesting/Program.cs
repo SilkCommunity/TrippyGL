@@ -11,7 +11,7 @@ namespace TrippyTesting
         static void Main(string[] args)
         {
 
-            using(GameWindow w = new Game3())
+            using(GameWindow w = new MultithreadTest1())
             {
                 w.Run(60, 60);
             }

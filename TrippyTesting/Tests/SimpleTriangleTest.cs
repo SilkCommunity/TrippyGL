@@ -15,6 +15,8 @@ namespace TrippyTesting.Tests
         System.Diagnostics.Stopwatch stopwatch;
         float time;
 
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
         VertexBuffer<VertexColor> buffer;
 
@@ -22,6 +24,7 @@ namespace TrippyTesting.Tests
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -44,9 +47,9 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255)),
             };
 
-            buffer = new VertexBuffer<VertexColor>(data.Length, data, BufferUsageHint.StaticDraw);
+            buffer = new VertexBuffer<VertexColor>(graphicsDevice, data.Length, data, BufferUsageHint.StaticDraw);
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader("#version 400\r\nin vec3 vPos; in vec4 vCol; out vec4 fCol; void main() { gl_Position=vec4(vPos, 1.0); fCol = vCol; }");
             program.AddFragmentShader("#version 400\r\nin vec4 fCol; out vec4 FragColor; void main() { FragColor = fCol; }");
             program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPos", "vCol" });

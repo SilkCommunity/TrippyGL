@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// An abstract class containing code shared among all BufferObject types.
     /// </summary>
-    public abstract class BufferObject : IDisposable
+    public abstract class BufferObject : GraphicsResource
     {
         // Note: BufferObject contains code shared among all BufferObject types.
         // The BufferObject class takes care of handling the object. This includes binding (to the correct target), creating the
@@ -46,17 +46,11 @@ namespace TrippyGL
         /// The buffer object's storage isn't initialized by this constructor
         /// </summary>
         /// <param name="bufferTarget"></param>
-        private protected BufferObject(BufferTarget bufferTarget)
+        private protected BufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget) : base(graphicsDevice)
         {
             Handle = GL.GenBuffer();
             this.BufferTarget = bufferTarget;
             bufferBindingTargetIndex = States.GetBindingTargetIndex(bufferTarget);
-        }
-
-        ~BufferObject()
-        {
-            if (TrippyLib.isLibActive)
-                dispose();
         }
         
         /// <summary>
@@ -94,21 +88,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This method disposes the buffer object with no checks at all
-        /// </summary>
-        private void dispose()
-        {
-            GL.DeleteBuffer(Handle);
-        }
-
-        /// <summary>
         /// Disposes this buffer object, deleting and releasing the resources it uses.
         /// The buffer object cannot be used after it's been disposed
         /// </summary>
-        public void Dispose()
+        protected override void Dispose(bool isManualDispose)
         {
-            dispose();
-            GC.SuppressFinalize(this);
+            GL.DeleteBuffer(Handle);
+            base.Dispose(isManualDispose);
         }
 
         public override string ToString()

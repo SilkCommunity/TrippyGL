@@ -18,6 +18,8 @@ namespace TrippyTesting.Tests
         public static Random r = new Random();
         public static float time, deltaTime;
 
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
 
         VertexDataBufferObject<VertexColor> triangleBuffer, lineBuffer;
@@ -41,6 +43,7 @@ namespace TrippyTesting.Tests
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -61,12 +64,12 @@ namespace TrippyTesting.Tests
             rotY = 0;
             rotX = 0;
 
-            triangleBuffer = new VertexDataBufferObject<VertexColor>(512, BufferUsageHint.StreamDraw);
-            lineBuffer = new VertexDataBufferObject<VertexColor>(512, BufferUsageHint.StreamDraw);
-            triangleArray = VertexArray.CreateSingleBuffer<VertexColor>(triangleBuffer);
-            lineArray = VertexArray.CreateSingleBuffer<VertexColor>(lineBuffer);
+            triangleBuffer = new VertexDataBufferObject<VertexColor>(graphicsDevice, 512, BufferUsageHint.StreamDraw);
+            lineBuffer = new VertexDataBufferObject<VertexColor>(graphicsDevice, 512, BufferUsageHint.StreamDraw);
+            triangleArray = VertexArray.CreateSingleBuffer<VertexColor>(graphicsDevice, triangleBuffer);
+            lineArray = VertexArray.CreateSingleBuffer<VertexColor>(graphicsDevice, lineBuffer);
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data3/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("data3/fs.glsl"));
             program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
@@ -78,7 +81,7 @@ namespace TrippyTesting.Tests
             uniformVal.View = mat;
             uniformVal.Projection = mat;
 
-            ubo = new UniformBufferObject<ThreeMat4>(uniformVal, BufferUsageHint.StreamDraw);
+            ubo = new UniformBufferObject<ThreeMat4>(graphicsDevice, uniformVal, BufferUsageHint.StreamDraw);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
         }

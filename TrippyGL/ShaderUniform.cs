@@ -379,6 +379,8 @@ namespace TrippyGL
         //region SetValueMatrix2Array or god knows what the fuck WHY ARE THERE SO MANY SET VALUES
 
         //TODO: SetValues for ivecX-s and uvecX-s somehow? We don't have such structs from OpenTK...
+        //Note from the future: methods can have multiple parameters you malnourished rat
+        //now implement these god fucking SetValue methods haha yes I will, one day.
 
         public override string ToString()
         {

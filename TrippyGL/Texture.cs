@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// Encapsulates an OpenGL texture object. This is the base class for all texture types and manages a lot of their internal workings
     /// </summary>
-    public abstract class Texture : IDisposable
+    public abstract class Texture : GraphicsResource
     {
         // These values store which texture is bound to which texture unit and which texture unit is currently active.
         // These are used to manage texture bindings, and to, for example, not bind the same texture twice unnecessarily
@@ -99,19 +99,13 @@ namespace TrippyGL
 
         internal int LastBindUnit { get; private set; }
 
-        internal Texture(TextureTarget type, PixelInternalFormat pixelInternalFormat, PixelType pixelType)
+        internal Texture(GraphicsDevice graphicsDevice, TextureTarget type, PixelInternalFormat pixelInternalFormat, PixelType pixelType) : base (graphicsDevice)
         {
             this.Handle = GL.GenTexture();
             this.TextureType = type;
             this.PixelFormat = pixelInternalFormat;
             this.PixelType = pixelType;
             BindToCurrentTextureUnit();
-        }
-
-        ~Texture()
-        {
-            if (TrippyLib.isLibActive)
-                dispose();
         }
 
         /// <summary>
@@ -203,22 +197,10 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
         }
 
-        /// <summary>
-        /// This method disposes the texture with no checks at all
-        /// </summary>
-        private void dispose()
+        protected override void Dispose(bool isManualDispose)
         {
-            GL.DeleteTexture(Handle);
-        }
-
-        /// <summary>
-        /// Disposes the texture, releasing the resources it uses.
-        /// The texture can't be used after being disposed
-        /// </summary>
-        public void Dispose()
-        {
-            dispose();
-            GC.SuppressFinalize(this);
+            GL.DeleteTexture(this.Handle);
+            base.Dispose(isManualDispose);
         }
     }
 }

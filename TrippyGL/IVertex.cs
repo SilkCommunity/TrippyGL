@@ -1,6 +1,4 @@
-﻿
-
-namespace TrippyGL
+﻿namespace TrippyGL
 {
     public interface IVertex
     {

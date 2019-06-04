@@ -64,7 +64,10 @@ namespace TrippyGL
         internal void ApplyUniformValue()
         {
             if (TextureValue != null)
+            {
+                States.EnsureShaderProgramInUse(OwnerProgram);
                 ApplyUniformValue(TextureValue.LastBindUnit);
+            }
         }
     }
 
@@ -119,6 +122,7 @@ namespace TrippyGL
             for (int i = 0; i < texValues.Length; i++)
                 if (texValues[i] != null)
                     units[i] = texValues[i].LastBindUnit;
+            States.EnsureShaderProgramInUse(OwnerProgram);
             GL.Uniform1(location, texValues.Length, units);
         }
 

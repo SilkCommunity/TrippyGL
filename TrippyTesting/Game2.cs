@@ -14,6 +14,8 @@ namespace TrippyTesting
         Random r = new Random();
         float time;
 
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
         ShaderUniform worldUniform, viewUniform, projUniform, sampUniform, timeUniform;
 
@@ -25,6 +27,7 @@ namespace TrippyTesting
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -47,9 +50,9 @@ namespace TrippyTesting
                 new VertexJeje(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255), new Vector2(1, 1)),
                 //new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
             };
-            vertexBuffer = new VertexBuffer<VertexJeje>(vboData.Length, vboData, BufferUsageHint.DynamicDraw);
+            vertexBuffer = new VertexBuffer<VertexJeje>(graphicsDevice, vboData.Length, vboData, BufferUsageHint.DynamicDraw);
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data2/vs.glsl"));
             program.AddGeometryShader(File.ReadAllText("data2/gs.glsl"));
             program.AddFragmentShader(File.ReadAllText("data2/fs.glsl"));
@@ -68,11 +71,11 @@ namespace TrippyTesting
             viewUniform.SetValueMat4(ref ide);
             projUniform.SetValueMat4(ref ide);
 
-            yarn = new Texture2D("data/YARN.png");
-            jeru = new Texture2D("data/jeru.png");
-            texture = new Texture2D("data/texture.png");
-            invernadero = new Texture2D("data/invernadero.png");
-            fondo = new Texture2D("data/fondo.png");
+            yarn = new Texture2D(graphicsDevice, "data/YARN.png");
+            jeru = new Texture2D(graphicsDevice, "data/jeru.png");
+            texture = new Texture2D(graphicsDevice, "data/texture.png");
+            invernadero = new Texture2D(graphicsDevice, "data/invernadero.png");
+            fondo = new Texture2D(graphicsDevice, "data/fondo.png");
 
             Texture2D[] hehe = new Texture2D[]
             {

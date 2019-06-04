@@ -15,6 +15,8 @@ namespace TrippyTesting
         System.Diagnostics.Stopwatch stopwatch;
         Random r = new Random();
 
+        GraphicsDevice graphicsDevice;
+
         VertexDataBufferObject<PositionTexCoord> posTexBuffer;
         VertexDataBufferObject<Color4b> colBuffer;
 
@@ -33,6 +35,7 @@ namespace TrippyTesting
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -52,10 +55,10 @@ namespace TrippyTesting
             
             #region LoadVBO
 
-            posTexBuffer = new VertexDataBufferObject<PositionTexCoord>(4, BufferUsageHint.DynamicDraw);
+            posTexBuffer = new VertexDataBufferObject<PositionTexCoord>(graphicsDevice, 4, BufferUsageHint.DynamicDraw);
 
             Console.WriteLine(GL.GetError());
-            colBuffer = new VertexDataBufferObject<Color4b>(4, new Color4b[]
+            colBuffer = new VertexDataBufferObject<Color4b>(graphicsDevice, 4, new Color4b[]
             {
                 new Color4b(255, 255, 255, 255),
                 new Color4b(255, 255, 255, 255),
@@ -63,7 +66,7 @@ namespace TrippyTesting
                 new Color4b(255, 255, 255, 255)
             }, BufferUsageHint.DynamicDraw);
 
-            vertexArray = new VertexArray(new VertexAttribSource[]
+            vertexArray = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
                 new VertexAttribSource(posTexBuffer, ActiveAttribType.FloatVec3),
                 new VertexAttribSource(colBuffer, ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
@@ -73,7 +76,7 @@ namespace TrippyTesting
                 new VertexAttribSource(posTexBuffer, ActiveAttribType.IntVec4)
             });
 
-            indexBuffer = new IndexBufferObject(4, 0, new uint[]
+            indexBuffer = new IndexBufferObject(graphicsDevice, 4, 0, new uint[]
             {
                 0, 2, 1, 3
             }, BufferUsageHint.DynamicDraw);
@@ -82,7 +85,7 @@ namespace TrippyTesting
 
             #region LoadShaderProgram
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("data/fs.glsl"));
             program.SpecifyVertexAttribs(vertexArray.AttribSources, new string[]
@@ -108,12 +111,12 @@ namespace TrippyTesting
             #endregion
 
             #region LoadTexture
-            texture = new Texture2D("data/texture.png");
-            fondo = new Texture2D("data/fondo.png");
-            invernadero = new Texture2D("data/invernadero.png");
-            jeru = new Texture2D("data/jeru.png");
-            plant = new Texture2D("data/plant.png");
-            yarn = new Texture2D("data/YARN.png");
+            texture = new Texture2D(graphicsDevice, "data/texture.png");
+            fondo = new Texture2D(graphicsDevice, "data/fondo.png");
+            invernadero = new Texture2D(graphicsDevice, "data/invernadero.png");
+            jeru = new Texture2D(graphicsDevice, "data/jeru.png");
+            plant = new Texture2D(graphicsDevice, "data/plant.png");
+            yarn = new Texture2D(graphicsDevice, "data/YARN.png");
             jeru.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             #endregion
         }

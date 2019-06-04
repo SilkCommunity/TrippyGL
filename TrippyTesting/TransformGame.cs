@@ -16,6 +16,8 @@ namespace TrippyTesting
         System.Diagnostics.Stopwatch stopwatch;
         Random r = new Random();
 
+        GraphicsDevice graphicsDevice;
+
         VertexDataBufferObject<ParticleVertex> bufferRead, bufferWrite;
         VertexArray vaoRead, vaoWrite;
 
@@ -29,6 +31,7 @@ namespace TrippyTesting
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -49,13 +52,13 @@ namespace TrippyTesting
             for (int i = 0; i < bufferData.Length; i++)
                 bufferData[i] = new ParticleVertex(new Vector3(RandomFloat(0, 1), RandomFloat(0, 1), 0), RandomFullAlphaColor());
 
-            bufferRead = new VertexDataBufferObject<ParticleVertex>(bufferData.Length, bufferData, BufferUsageHint.DynamicDraw);
-            bufferWrite = new VertexDataBufferObject<ParticleVertex>(bufferData.Length, BufferUsageHint.DynamicDraw);
-            vaoRead = new VertexArray(new VertexAttribSource[] {
+            bufferRead = new VertexDataBufferObject<ParticleVertex>(graphicsDevice, bufferData.Length, bufferData, BufferUsageHint.DynamicDraw);
+            bufferWrite = new VertexDataBufferObject<ParticleVertex>(graphicsDevice, bufferData.Length, BufferUsageHint.DynamicDraw);
+            vaoRead = new VertexArray(graphicsDevice, new VertexAttribSource[] {
                 new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec3),
                 new VertexAttribSource(bufferRead, ActiveAttribType.FloatVec4)
             });
-            vaoWrite = new VertexArray(new VertexAttribSource[] {
+            vaoWrite = new VertexArray(graphicsDevice, new VertexAttribSource[] {
                 new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec3),
                 new VertexAttribSource(bufferWrite, ActiveAttribType.FloatVec4)
             });

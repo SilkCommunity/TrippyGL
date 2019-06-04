@@ -7,7 +7,7 @@ namespace TrippyGL
     /// Encapsulates an OpenGL program object for using shaders.
     /// Shaders define how things are processed in the graphics card, from calculating vertex positions to choosing the color of each fragment
     /// </summary>
-    public class ShaderProgram : IDisposable
+    public class ShaderProgram : GraphicsResource
     {
         /// <summary>The handle for the OpenGL Progrma object</summary>
         public readonly int Handle;
@@ -31,6 +31,8 @@ namespace TrippyGL
         /// <summary>Whether this ShaderProgram is the one currently in use</summary>
         public bool IsCurrentlyInUse { get { return States.IsShaderProgramInUse(this); } }
 
+        public bool HasVertexShader { get { return vsHandle != -1; } }
+
         /// <summary>Whether this ShaderProgram has a geometry shader attached</summary>
         public bool HasGeometryShader { get { return gsHandle != -1; } }
 
@@ -40,15 +42,9 @@ namespace TrippyGL
         /// <summary>
         /// Creates a ShaderProgram
         /// </summary>
-        public ShaderProgram()
+        public ShaderProgram(GraphicsDevice graphicsDevice) : base(graphicsDevice)
         {
             Handle = GL.CreateProgram();
-        }
-
-        ~ShaderProgram()
-        {
-            if (TrippyLib.isLibActive)
-                dispose();
         }
 
         /// <summary>
@@ -57,7 +53,7 @@ namespace TrippyGL
         /// <param name="code">The GLSL code for the vertex shader</param>
         public void AddVertexShader(string code)
         {
-            EnsureUnlinked();
+            ValidateUnlinked();
 
             if (String.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
@@ -68,7 +64,7 @@ namespace TrippyGL
             vsHandle = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vsHandle, code);
             GL.CompileShader(vsHandle);
-            EnsureShaderCompiledProperly(vsHandle);
+            ValidateShaderCompiledProperly(vsHandle);
 
             GL.AttachShader(Handle, vsHandle);
         }
@@ -79,7 +75,7 @@ namespace TrippyGL
         /// <param name="code">The GLSL code for the geometry shader</param>
         public void AddGeometryShader(string code)
         {
-            EnsureUnlinked();
+            ValidateUnlinked();
 
             if (String.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
@@ -90,7 +86,7 @@ namespace TrippyGL
             gsHandle = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(gsHandle, code);
             GL.CompileShader(gsHandle);
-            EnsureShaderCompiledProperly(gsHandle);
+            ValidateShaderCompiledProperly(gsHandle);
 
             GL.AttachShader(Handle, gsHandle);
         }
@@ -101,7 +97,7 @@ namespace TrippyGL
         /// <param name="code">The GLSL code for the fragment shader</param>
         public void AddFragmentShader(string code)
         {
-            EnsureUnlinked();
+            ValidateUnlinked();
 
             if (String.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
@@ -112,7 +108,7 @@ namespace TrippyGL
             fsHandle = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fsHandle, code);
             GL.CompileShader(fsHandle);
-            EnsureShaderCompiledProperly(fsHandle);
+            ValidateShaderCompiledProperly(fsHandle);
 
             GL.AttachShader(Handle, fsHandle);
         }
@@ -124,7 +120,7 @@ namespace TrippyGL
         /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
         public void SpecifyVertexAttribs(VertexAttribDescription[] attribData, string[] attribNames)
         {
-            EnsureUnlinked();
+            ValidateUnlinked();
 
             //if (vsHandle == -1) //this order is actually not a requirement on OpenGL...
             //    throw new InvalidOperationException("You must add a vertex shader before specifying vertex attributes");
@@ -186,7 +182,7 @@ namespace TrippyGL
         /// </summary>
         public void LinkProgram()
         {
-            EnsureUnlinked();
+            ValidateUnlinked();
 
             if (vsHandle == -1)
                 throw new InvalidOperationException("Shader program must have a vertex shader");
@@ -222,9 +218,20 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Ensures all necessary states are set for a draw command to use this program.
+        /// This includes making sure sampler or block uniforms are properly set and the program is currently in use
+        /// </summary>
+        public void EnsurePreDrawStates()
+        {
+            Uniforms.EnsureSamplerUniformsSet();
+            BlockUniforms.EnsureAllSet();
+            States.EnsureShaderProgramInUse(this);
+        }
+
+        /// <summary>
         /// Make sure this program is unlinked and throw a proper exception otherwise
         /// </summary>
-        internal void EnsureUnlinked()
+        internal void ValidateUnlinked()
         {
             if (IsLinked)
                 throw new InvalidOperationException("The program has already been linked");
@@ -233,35 +240,23 @@ namespace TrippyGL
         /// <summary>
         /// Make sure this program is linked and throw a proper exception otherwise
         /// </summary>
-        internal void EnsureLinked()
+        internal void ValidateLinked()
         {
             if (!IsLinked)
                 throw new InvalidOperationException("The program must be linked first");
         }
 
-        /// <summary>
-        /// Disposes the shader program with no checks at all
-        /// </summary>
-        private void dispose()
+        protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteProgram(Handle);
-        }
-
-        /// <summary>
-        /// Disposes the resources used by this ShaderProgram.
-        /// The ShaderProgram cannot be used after disposing
-        /// </summary>
-        public void Dispose()
-        {
-            dispose();
-            GC.SuppressFinalize(this);
+            base.Dispose(isManualDispose);
         }
 
         /// <summary>
         /// Checks that the given shader has compiled properly and throw an appropiate exception otherwise
         /// </summary>
         /// <param name="shader"></param>
-        private static void EnsureShaderCompiledProperly(int shader)
+        private static void ValidateShaderCompiledProperly(int shader)
         {
             GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
             if (status == (int)All.False)
@@ -269,29 +264,38 @@ namespace TrippyGL
         }
 
 
-
+        /// <summary>
+        /// Stores data about a geometry shader
+        /// </summary>
         public class GeometryShaderData
         {
+            /// <summary>The PrimitiveType the geometry shader takes as input</summary>
             public readonly PrimitiveType GeometryInputType;
+
+            /// <summary>The PrimitiveType the geometry shader takes as output</summary>
             public readonly PrimitiveType GeometryOutputType;
+
+            /// <summary>The amount of invocations the geometry shader will do</summary>
             public readonly int GeometryShaderInvocations;
+
+            /// <summary>The maximum amount of vertices the geometry shader can output</summary>
             public readonly int GeometryVerticesOut;
 
             internal GeometryShaderData(int program)
             {
-                int i;
+                int tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryInputType, out i);
-                GeometryInputType = (PrimitiveType)i;
+                GL.GetProgram(program, GetProgramParameterName.GeometryInputType, out tmp);
+                GeometryInputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryOutputType, out i);
-                GeometryOutputType = (PrimitiveType)i;
+                GL.GetProgram(program, GetProgramParameterName.GeometryOutputType, out tmp);
+                GeometryOutputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryShaderInvocations, out i);
-                GeometryShaderInvocations = i;
+                GL.GetProgram(program, GetProgramParameterName.GeometryShaderInvocations, out tmp);
+                GeometryShaderInvocations = tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryVerticesOut, out i);
-                GeometryVerticesOut = i;
+                GL.GetProgram(program, GetProgramParameterName.GeometryVerticesOut, out tmp);
+                GeometryVerticesOut = tmp;
             }
         }
     }

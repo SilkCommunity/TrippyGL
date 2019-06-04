@@ -43,7 +43,8 @@ namespace TrippyGL
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="elementType">The type of elements the index buffer will use</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public IndexBufferObject(int storageLength, DrawElementsType elementType, BufferUsageHint usageHint) : base(BufferTarget.ElementArrayBuffer)
+        public IndexBufferObject(GraphicsDevice graphicsDevice, int storageLength, DrawElementsType elementType, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ElementArrayBuffer)
         {
             this.elementType = elementType;
             this.elementSizeInBytes = GetSizeInBytesOfType(elementType);
@@ -60,7 +61,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The index of the first uint in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public IndexBufferObject(int storageLength, int dataOffset, uint[] data, BufferUsageHint usageHint) : base(BufferTarget.ElementArrayBuffer)
+        public IndexBufferObject(GraphicsDevice graphicsDevice, int storageLength, int dataOffset, uint[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ElementArrayBuffer)
         {
             this.elementType = DrawElementsType.UnsignedInt;
             elementSizeInBytes = 4;
@@ -77,7 +79,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The index of the first ushort in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public IndexBufferObject(int storageLength, int dataOffset, ushort[] data, BufferUsageHint usageHint) : base(BufferTarget.ElementArrayBuffer)
+        public IndexBufferObject(GraphicsDevice graphicsDevice, int storageLength, int dataOffset, ushort[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ElementArrayBuffer)
         {
             this.elementType = DrawElementsType.UnsignedShort;
             elementSizeInBytes = 2;
@@ -94,7 +97,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The index of the first byte in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public IndexBufferObject(int storageLength, int dataOffset, byte[] data, BufferUsageHint usageHint) : base(BufferTarget.ElementArrayBuffer)
+        public IndexBufferObject(GraphicsDevice graphicsDevice, int storageLength, int dataOffset, byte[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ElementArrayBuffer)
         {
             this.elementType = DrawElementsType.UnsignedByte;
             elementSizeInBytes = 1;

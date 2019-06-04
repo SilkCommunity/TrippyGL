@@ -6,7 +6,7 @@ namespace TrippyGL
 {
     public class TextureRectangle : Texture2D
     {
-        public TextureRectangle(string file) : base(file, TextureTarget.TextureRectangle)
+        public TextureRectangle(GraphicsDevice graphicsDevice, string file) : base(graphicsDevice, file, TextureTarget.TextureRectangle)
         {
             
         }

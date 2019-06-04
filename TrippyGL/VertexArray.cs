@@ -3,7 +3,7 @@ using System;
 
 namespace TrippyGL
 {
-    public class VertexArray : IDisposable
+    public class VertexArray : GraphicsResource
     {
         /// <summary>The GL VertexArrayObject's name</summary>
         public readonly int Handle;
@@ -16,7 +16,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public VertexArray(VertexAttribSource[] attribSources, bool compensateStructPadding = true)
+        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true)
+            : base(graphicsDevice)
         {
             if (attribSources == null)
                 throw new ArgumentNullException("attribSources");
@@ -36,7 +37,8 @@ namespace TrippyGL
         /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public VertexArray(BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true)
+        public VertexArray(GraphicsDevice graphicsDevice, BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true)
+            : base(graphicsDevice)
         {
             if (dataBuffer == null)
                 throw new ArgumentNullException("dataBuffer");
@@ -54,12 +56,6 @@ namespace TrippyGL
                 AttribSources[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
 
             MakeVertexAttribPointerCalls(compensateStructPadding);
-        }
-
-        ~VertexArray()
-        {
-            if (TrippyLib.isLibActive)
-                dispose();
         }
 
         /// <summary>
@@ -183,31 +179,11 @@ namespace TrippyGL
             }*/
         }
 
-        private int CompensateStructPadding(int sizeInBytes, bool doPadding)
+        protected override void Dispose(bool isManualDispose)
         {
-            if (doPadding)
-                return (sizeInBytes + 3) / 4 * 4;
-            return sizeInBytes;
+            GL.DeleteVertexArray(this.Handle);
+            base.Dispose(isManualDispose);
         }
-
-        /// <summary>
-        /// This method disposes the Vertex Array with no checks at all
-        /// </summary>
-        private void dispose()
-        {
-            GL.DeleteVertexArray(Handle);
-        }
-
-        /// <summary>
-        /// Disposes this Vertex Array, deleting and releasing the resources it uses.
-        /// The Vertex Array cannot be used after it's been disposed
-        /// </summary>
-        public void Dispose()
-        {
-            dispose();
-            GC.SuppressFinalize(this);
-        }
-
 
         /// <summary>
         /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer
@@ -215,10 +191,10 @@ namespace TrippyGL
         /// <typeparam name="T">The type of vertex to use</typeparam>
         /// <param name="dataBuffer">The buffer from which all attributes come from</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public static VertexArray CreateSingleBuffer<T>(BufferObject dataBuffer, bool compensateStructPadding = true) where T : struct, IVertex
+        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObject dataBuffer, bool compensateStructPadding = true) where T : struct, IVertex
         {
             VertexAttribDescription[] desc = new T().AttribDescriptions;
-            return new VertexArray(dataBuffer, desc, true);
+            return new VertexArray(graphicsDevice, dataBuffer, desc, true);
         }
 
 

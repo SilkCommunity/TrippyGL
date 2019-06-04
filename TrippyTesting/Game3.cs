@@ -16,16 +16,26 @@ namespace TrippyTesting
         System.Diagnostics.Stopwatch stopwatch;
         float time;
 
-        float scale = 1;
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
         VertexBuffer<VertexColorTexture> buffer;
         Texture2D tex2d;
-        Texture1D tex1d;
+        Texture1D tex1d, otherTex1d;
 
-        public Game3() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 8, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        Texture2D fboTexture;
+
+        ShaderProgram program3d;
+        VertexBuffer<VertexColor> batchBuffer;
+        PrimitiveBatcher<VertexColor> batcher;
+
+        int fbo, rbo;
+
+        public Game3() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -42,13 +52,15 @@ namespace TrippyTesting
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
-            tex2d = new Texture2D("data/YARN.png");
+            tex2d = new Texture2D(graphicsDevice, "data/YARN.png");
             GL.GenerateMipmap((GenerateMipmapTarget)tex2d.TextureType);
-            tex2d.SetTextureFilters(TextureMinFilter.NearestMipmapNearest, TextureMagFilter.Nearest);
+            tex2d.SetTextureFilters(TextureMinFilter.NearestMipmapLinear, TextureMagFilter.Nearest);
 
-            tex1d = new Texture1D("dataa3/tex1d.png");
+            tex1d = new Texture1D(graphicsDevice, "dataa3/tex1d.png");
+            otherTex1d = new Texture1D(graphicsDevice, 1);
+            otherTex1d.SetData(new Color4b[] { Color4b.White });
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("dataa3/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("dataa3/fs.glsl"));
             program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
@@ -62,7 +74,31 @@ namespace TrippyTesting
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 0, 255), new Vector2(1, 0))
             };
 
-            buffer = new VertexBuffer<VertexColorTexture>(vboData.Length, 0, vboData, BufferUsageHint.StaticDraw);
+            buffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, vboData.Length, 0, vboData, BufferUsageHint.StaticDraw);
+
+
+
+            batchBuffer = new VertexBuffer<VertexColor>(graphicsDevice, 512, BufferUsageHint.StreamDraw);
+            batcher = new PrimitiveBatcher<VertexColor>(512, 64);
+            program3d = new ShaderProgram(graphicsDevice);
+            program3d.AddVertexShader(File.ReadAllText("dataa3/vs3d.glsl"));
+            program3d.AddFragmentShader(File.ReadAllText("dataa3/fs3d.glsl"));
+            program3d.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            program3d.LinkProgram();
+            Matrix4 mat = Matrix4.Identity;
+            program3d.Uniforms["World"].SetValueMat4(ref mat);
+            program3d.Uniforms["View"].SetValueMat4(ref mat);
+            program3d.Uniforms["Projection"].SetValueMat4(ref mat);
+
+            fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height, 0);
+            fbo = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexture.TextureType, fboTexture.Handle, 0);
+
+            rbo = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -77,17 +113,54 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            BlendMode.AlphaBlend.Apply();
+            GL.Enable(EnableCap.DepthTest);
 
+            BlendMode.AlphaBlend.Apply();
+            Matrix4 mat;
             GL.ClearColor(0f, 0f, 0f, 1f);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.ClearDepth(1f);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            
+            VertexColor[] cone = new VertexColor[]
+            {
+                new VertexColor(new Vector3(-1, 0, -1), new Color4b(255, 0, 0, 255)),
+                new VertexColor(new Vector3(-1, 0, 1), new Color4b(0, 255, 0, 255)),
+                new VertexColor(new Vector3(0, 1, 0), new Color4b(0, 0, 255, 255)),
+                new VertexColor(new Vector3(1, 0, 1), new Color4b(255, 0, 0, 255)),
+                new VertexColor(new Vector3(1, 0, -1), new Color4b(0, 255, 0, 255)),
+                new VertexColor(new Vector3(-1, 0, -1), new Color4b(0, 0, 255, 255)),
+                new VertexColor(new Vector3(0, 1, 0), new Color4b(0, 0, 255, 255)),
+            };
+            mat = Matrix4.CreateRotationY(time) * Matrix4.CreateScale(0.9f, 2.2f, 0.9f);
+            batcher.AddTriangleStrip(MultiplyAllToNew(cone, ref mat));
+            batcher.WriteTrianglesTo(batchBuffer.DataBuffer);
+            batcher.ClearTriangles();
+
+            batchBuffer.EnsureArrayBound();
+            program3d.EnsurePreDrawStates();
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, batchBuffer.StorageLength);
+
+
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             buffer.EnsureArrayBound();
-            Matrix4 mat = Matrix4.CreateScale(scale);
+            program.Uniforms["time"].SetValue1(time);
+            mat = Matrix4.CreateScale(0.7f) * Matrix4.CreateTranslation(-0.5f, 0f, 0f);
             program.Uniforms["World"].SetValueMat4(ref mat);
             program.Uniforms["samp2d"].SetValueTexture(tex2d);
-            program.Uniforms["samp1d"].SetValueTexture(tex1d);
-            program.Uniforms.EnsureSamplerUniformsSet();
+            program.Uniforms["samp1d"].SetValueTexture(otherTex1d);
+            program.EnsurePreDrawStates();
+
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
+
+            mat = Matrix4.CreateScale(0.7f) * Matrix4.CreateTranslation(0.5f, 0f, 0f);
+            program.Uniforms["World"].SetValueMat4(ref mat);
+            program.Uniforms["samp2d"].SetValueTexture(fboTexture);
+            program.EnsurePreDrawStates();
 
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
 
@@ -111,12 +184,31 @@ namespace TrippyTesting
             program.Uniforms["Projection"].SetValueMat4(ref mat);
             program.Uniforms["View"].SetValueMat4(ref mat);
             program.Uniforms["World"].SetValueMat4(ref mat);
+
+            mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
+            program3d.Uniforms["Projection"].SetValueMat4(ref mat);
+            mat = Matrix4.LookAt(new Vector3(0.5f, -0.5f, 0.5f), Vector3.Zero, -Vector3.UnitY);
+            program3d.Uniforms["View"].SetValueMat4(ref mat);
+
+            fboTexture.RecreateImage(this.Width, this.Height);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
+
+
+        public static VertexColor[] MultiplyAllToNew(VertexColor[] vertex, ref Matrix4 mat)
         {
-            scale += e.DeltaPrecise * 0.1f;
-            scale = MathHelper.Clamp(scale, 0.01f, 10f);
+            VertexColor[] arr = new VertexColor[vertex.Length];
+            for (int i = 0; i < vertex.Length; i++)
+            {
+                Vector4 t = new Vector4(vertex[i].Position, 1f);
+                Vector4.Transform(ref t, ref mat, out t);
+                arr[i].Position = t.Xyz;
+                arr[i].Color = vertex[i].Color;
+            }
+            return arr;
         }
+
     }
 }

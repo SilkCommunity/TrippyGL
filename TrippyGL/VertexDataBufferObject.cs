@@ -18,8 +18,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The first element of the given data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
-            : base(BufferTarget.ArrayBuffer, storageLength, dataOffset, data, usageHint)
+        public VertexDataBufferObject(GraphicsDevice graphicsDevice, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ArrayBuffer, storageLength, dataOffset, data, usageHint)
         {
 
         }
@@ -31,8 +31,8 @@ namespace TrippyGL
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, T[] data, BufferUsageHint usageHint)
-            : base(BufferTarget.ArrayBuffer, storageLength, 0, data, usageHint)
+        public VertexDataBufferObject(GraphicsDevice graphicsDevice, int storageLength, T[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ArrayBuffer, storageLength, 0, data, usageHint)
         {
 
         }
@@ -42,8 +42,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="data">The data with which to initialize the buffer's storage. This also marks the storage's length</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(T[] data, BufferUsageHint usageHint)
-            : this(data.Length, 0, data, usageHint)
+        public VertexDataBufferObject(GraphicsDevice graphicsDevice, T[] data, BufferUsageHint usageHint)
+            : this(graphicsDevice, data.Length, 0, data, usageHint)
         {
 
         }
@@ -53,8 +53,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public VertexDataBufferObject(int storageLength, BufferUsageHint usageHint)
-            : base(BufferTarget.ArrayBuffer, storageLength, usageHint)
+        public VertexDataBufferObject(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ArrayBuffer, storageLength, usageHint)
         {
 
         }

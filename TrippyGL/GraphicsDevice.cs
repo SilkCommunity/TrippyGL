@@ -6,61 +6,77 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
-    /// <summary>
-    /// Manages all OpenGL operations such as binding buffers, textures, arrays, etc.
-    /// This class saves which things are bound where and ensures things like unnecessarily binding twice don't happen
-    /// </summary>
-    public static class States
+    public class GraphicsDevice
     {
-        /// <summary>
-        /// Initializes all states variables
-        /// </summary>
-        internal static void Init()
+        public IGraphicsContext Context { get; private set; }
+
+        public GraphicsDevice(IGraphicsContext context)
         {
+            this.Context = context;
+
             InitBufferObjectStates();
-            InitTextureStates();
             vertexArrayBinding = 0;
             shaderProgramBinding = 0;
+            InitTextureStates();
+            framebufferDrawHandle = 0;
+            framebufferReadHandle = 0;
         }
 
         /// <summary>
         /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
         /// You should only need to call this when interoperating with other libraries or using your own GL functions
         /// </summary>
-        public static void ResetStates()
+        public void ResetStates()
         {
             ResetBufferStates();
             ResetVertexArrayStates();
             ResetShaderProgramStates();
+            ResetTextureStates();
+            ResetFramebufferStates();
         }
 
 
         #region BufferObjectBindingStates
 
+        /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
+        private const int BufferTargetCount = 14;
+
         /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array</summary>
-        private static List<int> bufferBindings;
-        
+        private static int[] bufferBindings;
+
         /// <summary>The BufferTargets for the handles found on the bufferBindings array</summary>
-        private static List<BufferTarget> bufferBindingTargets;
+        private static BufferTarget[] bufferBindingTargets;
 
         /// <summary>TODO: add summary and explanation</summary>
         private static BufferRangeBinding[][] bufferRangeBindings;
 
         private static void InitBufferObjectStates()
         {
-            bufferBindings = new List<int>(14);
-            bufferBindingTargets = new List<BufferTarget>(14);
+            bufferBindingTargets = new BufferTarget[BufferTargetCount]
+            {
+                // The first four need to be the ones that are managed with glBindBufferBase/glBindBufferRange
+                // because these also have an index, offset and size value to them. So we need to handle more data!
+                // The way it's done then, is by having the bufferRangeBindings array. The same index used to get
+                // the buffer target and generic binding id used to get the BufferRangeBinding array.
+                
+                BufferTarget.TransformFeedbackBuffer,   // While not all of these might be needed, I'll put them all
+                BufferTarget.UniformBuffer,             // in here to ensure compatibility if such features are ever 
+                BufferTarget.ShaderStorageBuffer,       // implemented into the library or whatever.
+                BufferTarget.AtomicCounterBuffer,
+                BufferTarget.ArrayBuffer,
+                BufferTarget.ElementArrayBuffer,
+                BufferTarget.TextureBuffer,
+                BufferTarget.PixelUnpackBuffer,
+                BufferTarget.PixelPackBuffer,
+                BufferTarget.DrawIndirectBuffer,
+                BufferTarget.DispatchIndirectBuffer,
+                BufferTarget.CopyWriteBuffer,
+                BufferTarget.CopyReadBuffer,
+                BufferTarget.QueryBuffer
+            };
+            bufferBindings = new int[BufferTargetCount];
+
             bufferRangeBindings = new BufferRangeBinding[4][];
-
-            bufferBindingTargets.Add(BufferTarget.TransformFeedbackBuffer);
-            bufferBindingTargets.Add(BufferTarget.UniformBuffer);       // While not all of these might be needed, I'll put them all
-            bufferBindingTargets.Add(BufferTarget.ShaderStorageBuffer); // in here to ensure compatibility if such features are ever 
-            bufferBindingTargets.Add(BufferTarget.AtomicCounterBuffer); // implemented into the library or whatever.
-
-            bufferBindings.Add(0);
-            bufferBindings.Add(0);
-            bufferBindings.Add(0);
-            bufferBindings.Add(0);
 
             bufferRangeBindings[0] = new BufferRangeBinding[GL.GetInteger(GetPName.MaxTransformFeedbackBuffers)];
             bufferRangeBindings[1] = new BufferRangeBinding[GL.GetInteger(GetPName.MaxUniformBufferBindings)];
@@ -155,17 +171,15 @@ namespace TrippyGL
 
         /// <summary>
         /// Gets the index on the 'bufferBindings' list for the specified BufferTarget.
-        /// If there's no index for that BufferTarget, it's created
+        /// If there's no such index, it returns -1, though this won't happen as long as you only use proper BufferTarget enum values
         /// </summary>
         /// <param name="bufferTarget">The BufferTarget to get the binds list index for</param>
         internal static int GetBindingTargetIndex(BufferTarget bufferTarget)
         {
-            for (int i = 0; i < bufferBindingTargets.Count; i++)
+            for (int i = 0; i < BufferTargetCount; i++)
                 if (bufferBindingTargets[i] == bufferTarget)
                     return i;
-            bufferBindings.Add(-1);
-            bufferBindingTargets.Add(bufferTarget);
-            return bufferBindings.Count - 1;
+            return -1;
         }
 
         /// <summary>
@@ -174,8 +188,14 @@ namespace TrippyGL
         /// </summary>
         public static void ResetBufferStates()
         {
-            for (int i = 0; i < bufferBindings.Count; i++)
+            for (int i = 0; i < BufferTargetCount; i++)
                 bufferBindings[i] = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                BufferRangeBinding[] arr = bufferRangeBindings[i];
+                for (int c = 0; c < arr.Length; c++)
+                    arr[c].Reset();
+            }
         }
 
         #endregion BufferObjectBindingStates
@@ -213,7 +233,7 @@ namespace TrippyGL
         {
             vertexArrayBinding = 0;
         }
-        
+
         /// <summary>
         /// Unbinds the currently active vertex array by binding to array 0
         /// </summary>
@@ -262,7 +282,7 @@ namespace TrippyGL
         /// <summary>
         /// Uninstalls the current shader program from the pipeline by using program 0
         /// </summary>
-        public static void UninstallShaderProgram()
+        public static void UninstallCurrentShaderProgram()
         {
             shaderProgramBinding = 0;
             GL.UseProgram(0);
@@ -288,6 +308,14 @@ namespace TrippyGL
         {
             textureBindings = new int[GL.GetInteger(GetPName.MaxTextureImageUnits)];
             activeTextureUnit = 0;
+            GL.ActiveTexture(0);
+        }
+
+        public void ResetTextureStates()
+        {
+            for (int i = 0; i < textureBindings.Length; i++)
+                textureBindings[i] = 0;
+            activeTextureUnit = 0;
             GL.ActiveTexture(TextureUnit.Texture0);
         }
 
@@ -295,78 +323,228 @@ namespace TrippyGL
 
         #region FramebufferBindings
 
-        private static int framebufferDrawHandle;
-        private static int framebufferReadHandle;
+        /// <summary>The handle of the framebuffer currently bound to the draw target</summary>
+        private int framebufferDrawHandle;
 
-        public static void EnsureFramebufferBound(FramebufferTarget target, FramebufferObject framebuffer)
+        /// <summary>The handle of the framebuffer currently bound to the read target</summary>
+        private int framebufferReadHandle;
+
+        /// <summary>
+        /// Ensures a framebuffer is bound to a specified target
+        /// </summary>
+        /// <param name="target">The framebuffer target</param>
+        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
+        public void EnsureFramebufferBound(FramebufferTarget target, FramebufferObject framebuffer)
         {
+            int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
             {
                 case FramebufferTarget.DrawFramebuffer:
-                    EnsureFramebufferBoundDraw(framebuffer);
+                    EnsureFramebufferBoundDraw(handle);
                     break;
                 case FramebufferTarget.ReadFramebuffer:
-                    EnsureFramebufferBoundRead(framebuffer);
+                    EnsureFramebufferBoundRead(handle);
                     break;
                 default:
-                    EnsureFramebufferBound(framebuffer);
+                    EnsureFramebufferBound(handle);
                     break;
             }
         }
 
-        public static void BindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
+        /// <summary>
+        /// Binds a framebuffer to a specified target. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="target">The framebuffer target</param>
+        /// <param name="framebuffer">The framebuffer bind</param>
+        public void BindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
         {
+            int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
             {
                 case FramebufferTarget.DrawFramebuffer:
-                    BindFramebufferDraw(framebuffer);
+                    BindFramebufferDraw(handle);
                     break;
                 case FramebufferTarget.ReadFramebuffer:
-                    BindFramebufferRead(framebuffer);
+                    BindFramebufferRead(handle);
                     break;
                 default:
-                    BindFramebuffer(framebuffer);
+                    BindFramebuffer(handle);
                     break;
             }
         }
 
-        public static void EnsureFramebufferBound(FramebufferObject framebuffer)
+        /// <summary>
+        /// Ensures a framebuffer is bound to the draw and read targets
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
+        public void EnsureFramebufferBound(FramebufferObject framebuffer)
         {
-
+            EnsureFramebufferBound(framebuffer == null ? 0 : framebuffer.Handle);
         }
 
-        public static void BindFramebuffer(FramebufferObject framebuffer)
+        /// <summary>
+        /// Binds a framebuffer to both draw and read targets. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to bind</param>
+        public void BindFramebuffer(FramebufferObject framebuffer)
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
-            framebufferDrawHandle = framebuffer.Handle;
-            framebufferReadHandle = framebuffer.Handle;
+            BindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
         }
 
-        public static void EnsureFramebufferBoundDraw(FramebufferObject framebuffer)
+        /// <summary>
+        /// Ensures a framebuffer is bound to the draw target
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
+        public void EnsureFramebufferBoundDraw(FramebufferObject framebuffer)
         {
-
+            EnsureFramebufferBoundDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
 
-        public static void BindFramebufferDraw(FramebufferObject framebuffer)
+        /// <summary>
+        /// Binds a framebuffer to the draw target. Prefer using EnsureFramebufferBoundDraw() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to bind</param>
+        public void BindFramebufferDraw(FramebufferObject framebuffer)
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer.Handle);
-            framebufferDrawHandle = framebuffer.Handle;
+            BindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
 
-        public static void EnsureFramebufferBoundRead(FramebufferObject framebuffer)
+        /// <summary>
+        /// Ensures a framebuffer is bound to the read target
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
+        public void EnsureFramebufferBoundRead(FramebufferObject framebuffer)
         {
-
+            EnsureFramebufferBoundRead(framebuffer == null ? 0 : framebuffer.Handle);
         }
 
-        public static void BindFramebufferRead(FramebufferObject framebuffer)
+        /// <summary>
+        /// Binds a framebuffer to the read target. Prefer using EnsureFramebufferBoundRead() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="framebuffer">The framebuffer to bind</param>
+        public void BindFramebufferRead(FramebufferObject framebuffer)
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer.Handle);
-            framebufferReadHandle = framebuffer.Handle;
+            BindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
+        }
+
+        /// <summary>
+        /// Ensures a framebuffer is bound to a specified target
+        /// </summary>
+        /// <param name="target">The framebuffer target</param>
+        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
+        public void EnsureFramebufferBound(FramebufferTarget target, int handle)
+        {
+            switch (target)
+            {
+                case FramebufferTarget.DrawFramebuffer:
+                    EnsureFramebufferBoundDraw(handle);
+                    break;
+                case FramebufferTarget.ReadFramebuffer:
+                    EnsureFramebufferBoundRead(handle);
+                    break;
+                default:
+                    EnsureFramebufferBound(handle);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Binds a framebuffer to a specified target. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="target">The framebuffer target</param>
+        /// <param name="handle">The framebuffer's handle bind</param>
+        public void BindFramebuffer(FramebufferTarget target, int handle)
+        {
+            switch (target)
+            {
+                case FramebufferTarget.DrawFramebuffer:
+                    BindFramebufferDraw(handle);
+                    break;
+                case FramebufferTarget.ReadFramebuffer:
+                    BindFramebufferRead(handle);
+                    break;
+                default:
+                    BindFramebuffer(handle);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Ensures a framebuffer is bound to the draw and read targets
+        /// </summary>
+        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
+        public void EnsureFramebufferBound(int handle)
+        {
+            if (framebufferDrawHandle != handle || framebufferReadHandle != handle)
+                BindFramebuffer(handle);
+        }
+
+        /// <summary>
+        /// Binds a framebuffer to a specified target. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="target">The framebuffer target</param>
+        /// <param name="handle">The framebuffer's handle bind</param>
+        public void BindFramebuffer(int handle)
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, handle);
+            framebufferDrawHandle = handle;
+            framebufferReadHandle = handle;
+        }
+
+        /// <summary>
+        /// Ensures a framebuffer is bound to the draw target
+        /// </summary>
+        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
+        public void EnsureFramebufferBoundDraw(int handle)
+        {
+            if (framebufferDrawHandle != handle)
+                BindFramebufferDraw(handle);
+        }
+
+        /// <summary>
+        /// Binds a framebuffer to the draw target. Prefer using EnsureFramebufferBoundDraw() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="handle">The framebuffer's handle bind</param>
+        public void BindFramebufferDraw(int handle)
+        {
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, handle);
+            framebufferDrawHandle = handle;
+        }
+
+        /// <summary>
+        /// Ensures a framebuffer is bound to the read target
+        /// </summary>
+        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
+        public void EnsureFramebufferBoundRead(int handle)
+        {
+            if (framebufferReadHandle != handle)
+                BindFramebufferRead(handle);
+        }
+
+        /// <summary>
+        /// Binds a framebuffer to the read target. Prefer using EnsureFramebufferBoundRead() instead to prevent unnecessary binds
+        /// </summary>
+        /// <param name="handle">The framebuffer's handle bind</param>
+        public void BindFramebufferRead(int handle)
+        {
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, handle);
+            framebufferReadHandle = handle;
+        }
+
+        /// <summary>
+        /// Resets all saved states for FramebufferObjects. This is, the variables used to check whether to use a shader program or not.
+        /// You should only need to call this when itneroperating with other libraries or using your own GL functions
+        /// </summary>
+        public void ResetFramebufferStates()
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            framebufferDrawHandle = 0;
+            framebufferReadHandle = 0;
         }
 
         #endregion
 
-        //TODO: Pass absolutely ALL BINDING THINGS to here. Textures are missing!
+        //TODO: Pass absolutely ALL BINDING THINGS to here
 
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.
@@ -378,6 +556,13 @@ namespace TrippyGL
             public int BufferHandle;
             public int Offset;
             public int Size;
+
+            public void Reset()
+            {
+                this.BufferHandle = 0;
+                this.Offset = 0;
+                this.Size = 0;
+            }
 
             /// <summary>
             /// Set the values of this BufferRangeBinding as for when glBindBufferBase was called

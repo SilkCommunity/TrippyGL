@@ -15,6 +15,8 @@ namespace TrippyTesting.Tests
         System.Diagnostics.Stopwatch stopwatch;
         float time;
 
+        GraphicsDevice graphicsDevice;
+
         ShaderProgram program;
         VertexBuffer<VertexColorTexture> buffer;
         Texture2D tex1, tex2;
@@ -23,6 +25,7 @@ namespace TrippyTesting.Tests
         {
             VSync = VSyncMode.On;
             TrippyLib.Init();
+            graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
             Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
@@ -46,17 +49,17 @@ namespace TrippyTesting.Tests
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0f), new Color4b(255, 255, 255, 255), new Vector2(1, 1)),
             };
 
-            buffer = new VertexBuffer<VertexColorTexture>(data.Length, data, BufferUsageHint.DynamicDraw);
+            buffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, data.Length, data, BufferUsageHint.DynamicDraw);
 
-            program = new ShaderProgram();
+            program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader("#version 400\r\nuniform mat4 w, v, p; in vec3 vP; in vec4 vC; in vec2 vT; out vec4 fC; out vec2 fT; void main() { fC = vC; fT = vT; gl_Position = p * v * w * vec4(vP, 1.0); }");
             program.AddFragmentShader("#version 400\r\nuniform sampler2D tex; uniform float t; in vec4 fC; in vec2 fT; out vec4 FragColor; void main() { FragColor = (fC*fract(t) + 1.0-fract(t)) * texture(tex, fT); }");
             program.SpecifyVertexAttribs<VertexColorTexture>(new string[] {"vP", "vC", "vT" });
             program.LinkProgram();
             Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
 
-            tex1 = new Texture2D("data/jeru.png");
-            tex2 = new Texture2D("data/texture.png");
+            tex1 = new Texture2D(graphicsDevice, "data/jeru.png");
+            tex2 = new Texture2D(graphicsDevice, "data/texture.png");
 
             tex1.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             tex2.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);

@@ -18,6 +18,8 @@ namespace TrippyGL
             isLibActive = true;
             GL.Enable(EnableCap.Multisample);
 
+            Console.WriteLine(GL.GetError());
+
             UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
 
             States.Init();

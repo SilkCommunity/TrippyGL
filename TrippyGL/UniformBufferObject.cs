@@ -29,7 +29,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="initialValue">The initial value of the uniform</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public UniformBufferObject(T initialValue, BufferUsageHint usageHint) : base(BufferTarget.UniformBuffer)
+        public UniformBufferObject(GraphicsDevice graphicsDevice, T initialValue, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.UniformBuffer)
         {
             this.storageLength = 1;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>(initialValue);
@@ -46,7 +47,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="storageLength">The amount of elements the buffer will be able to hold</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public UniformBufferObject(int storageLength, BufferUsageHint usageHint) : base(BufferTarget.UniformBuffer)
+        public UniformBufferObject(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.UniformBuffer)
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
@@ -65,7 +67,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The offset into the array where the first element is found</param>
         /// <param name="data">The array where the initial values are found</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public UniformBufferObject(int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint) : base(BufferTarget.UniformBuffer)
+        public UniformBufferObject(GraphicsDevice graphicsDevice, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.UniformBuffer)
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
@@ -88,8 +91,8 @@ namespace TrippyGL
         /// <param name="storageLength">The amount of elements the buffer will be able to hold</param>
         /// <param name="data">The array where the initial values are found</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public UniformBufferObject(int storageLenth, T[] data, BufferUsageHint usageHint)
-            : this(storageLenth, 0, data, usageHint)
+        public UniformBufferObject(GraphicsDevice graphicsDevice, int storageLenth, T[] data, BufferUsageHint usageHint)
+            : this(graphicsDevice, storageLenth, 0, data, usageHint)
         {
 
         }

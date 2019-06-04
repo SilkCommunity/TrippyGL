@@ -3,6 +3,8 @@
 uniform sampler2D samp2d;
 uniform sampler1D samp1d;
 
+uniform float time;
+
 in VertexData {
 	vec4 Color;
 	vec2 TexCoords;
@@ -11,5 +13,5 @@ in VertexData {
 out vec4 FragColor;
 
 void main() {
-	FragColor = (texture(samp2d, input.TexCoords)) * texture(samp1d, input.TexCoords.x);
+	FragColor = (textureLod(samp2d, input.TexCoords, fract(time/7.0)*7.0)) * texture(samp1d, input.TexCoords.x);
 }

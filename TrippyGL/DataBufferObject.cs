@@ -37,7 +37,8 @@ namespace TrippyGL
         /// <param name="dataOffset">The first element of the given data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public DataBufferObject(BufferTarget bufferTarget, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint) : base(BufferTarget.ArrayBuffer)
+        public DataBufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget, int storageLength, int dataOffset, T[] data, BufferUsageHint usageHint)
+            : base(graphicsDevice, BufferTarget.ArrayBuffer)
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
@@ -54,8 +55,8 @@ namespace TrippyGL
         /// <param name="storageLength">The length of the buffer storage measured in elements</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public DataBufferObject(BufferTarget bufferTarget, int storageLength, T[] data, BufferUsageHint usageHint)
-            : this(bufferTarget, storageLength, 0, data, usageHint)
+        public DataBufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget, int storageLength, T[] data, BufferUsageHint usageHint)
+            : this(graphicsDevice, bufferTarget, storageLength, 0, data, usageHint)
         {
 
         }
@@ -66,8 +67,8 @@ namespace TrippyGL
         /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
         /// <param name="data">The data with which to initialize the buffer's storage. This also marks the storage's length</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public DataBufferObject(BufferTarget bufferTarget, T[] data, BufferUsageHint usageHint)
-            : this(bufferTarget, data.Length, 0, data, usageHint)
+        public DataBufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget, T[] data, BufferUsageHint usageHint)
+            : this(graphicsDevice, bufferTarget, data.Length, 0, data, usageHint)
         {
 
         }
@@ -78,7 +79,8 @@ namespace TrippyGL
         /// <param name="bufferTarget">The buffer target this buffer will always bind to</param>
         /// <param name="storageLength">The length of the buffer storage measured in elements</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
-        public DataBufferObject(BufferTarget bufferTarget, int storageLength, BufferUsageHint usageHint) : base(bufferTarget)
+        public DataBufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget, int storageLength, BufferUsageHint usageHint)
+            : base(graphicsDevice, bufferTarget)
         {
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
             this.storageLength = storageLength;
