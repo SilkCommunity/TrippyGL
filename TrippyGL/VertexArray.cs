@@ -14,6 +14,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexArray with the specified attribute sources
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true)
@@ -34,6 +35,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexArray in which all the vertex attributes come from the same data buffer
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
@@ -66,7 +68,7 @@ namespace TrippyGL
         /// <param name="packValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int packValue = 4)
         {
-            States.EnsureVertexArrayBound(this);
+            GraphicsDevice.EnsureVertexArrayBound(this);
 
             AttribCallDesc[] calls = new AttribCallDesc[AttribSources.Length];
 
@@ -142,7 +144,10 @@ namespace TrippyGL
             }
 
             for (int i = 0; i < calls.Length; i++)
+            {
+                GraphicsDevice.EnsureBufferBound(calls[i].source.DataBuffer);
                 calls[i].CallGlVertexAttribPointer();
+            }
 
             /*int attribIndex = 0;
             for (int i = 0; i < AttribSources.Length; i++)
@@ -206,7 +211,7 @@ namespace TrippyGL
             public void CallGlVertexAttribPointer()
             {
                 int offs = offset;
-                States.EnsureBufferBound(source.DataBuffer);
+                //GraphicsDevice.EnsureBufferBound(source.DataBuffer);
                 for (int i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)

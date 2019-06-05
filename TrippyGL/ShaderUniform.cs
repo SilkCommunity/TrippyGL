@@ -20,12 +20,12 @@ namespace TrippyGL
         public readonly ShaderProgram OwnerProgram;
 
         /// <summary>The location of the uniform on the program. Used for setting the value</summary>
-        private protected readonly int location;
+        public readonly int UniformLocation;
 
         internal ShaderUniform(ShaderProgram owner, int uniformLoc, string name, ActiveUniformType type)
         {
             this.OwnerProgram = owner;
-            this.location = uniformLoc;
+            this.UniformLocation = uniformLoc;
             this.Name = name;
             this.UniformType = type;
         }
@@ -33,33 +33,33 @@ namespace TrippyGL
         #region SetValue1
         public void SetValue1(float value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation, value);
         }
 
         public void SetValue1(double value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation, value);
         }
 
         public void SetValue1(int value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation, value);
         }
         public void SetValue1(uint value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation, value);
         }
         #endregion
 
         #region SetValue2
         public void SetValue2(ref Vector2 value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, ref value);
         }
         public void SetValue2(Vector2 value)
         {
@@ -67,14 +67,14 @@ namespace TrippyGL
         }
         public void SetValue2(float x, float y)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, x, y);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, x, y);
         }
 
         public void SetValue2(ref Vector2d value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, value.X, value.Y);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, value.X, value.Y);
         }
         public void SetValue2(Vector2d value)
         {
@@ -82,27 +82,27 @@ namespace TrippyGL
         }
         public void SetValue2(double x, double y)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, x, y);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, x, y);
         }
         
         public void SetValue2(int x, int y)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, x, y);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, x, y);
         }
         public void SetValue2(uint x, uint y)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location, x, y);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation, x, y);
         }
         #endregion
 
         #region SetValue3
         public void SetValue3(ref Vector3 value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation, ref value);
         }
         public void SetValue3(Vector3 value)
         {
@@ -110,8 +110,8 @@ namespace TrippyGL
         }
         public void SetValue3(float x, float y, float z)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location, x, y, z);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation, x, y, z);
         }
 
         public void SetValue3(ref Vector3d value)
@@ -124,26 +124,26 @@ namespace TrippyGL
         }
         public void SetValue3(double x, double y, double z)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location, x, y, z);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation, x, y, z);
         }
         
         public void SetValue3(int x, int y, int z)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location, x, y, z);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation, x, y, z);
         }
         public void SetValue3(uint x, uint y, uint z)
         {
-            GL.Uniform3(location, x, y, z);
+            GL.Uniform3(UniformLocation, x, y, z);
         }
         #endregion
 
         #region SetValue4
         public void SetValue4(ref Vector4 value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, ref value);
         }
         public void SetValue4(Vector4 value)
         {
@@ -151,8 +151,8 @@ namespace TrippyGL
         }
         public void SetValue4(ref Color4 value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, value);
         }
         public void SetValue4(Color4 value)
         {
@@ -160,24 +160,24 @@ namespace TrippyGL
         }
         public void SetValue4(Color4b value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f);
         }
         public void SetValue4(Quaternion value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, value);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, value);
         }
         public void SetValue4(float x, float y, float z, float w)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, x, y, z, w);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, x, y, z, w);
         }
 
         public void SetValue4(ref Vector4d value)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, value.X, value.Y, value.Z, value.W);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, value.X, value.Y, value.Z, value.W);
         }
         public void SetValue4(Vector4d value)
         {
@@ -185,19 +185,19 @@ namespace TrippyGL
         }
         public void SetValue4(double x, double y, double z, double w)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, x, y, z, w);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, x, y, z, w);
         }
 
         public void SetValue4(int x, int y, int z, int w)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, x, y, z, w);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, x, y, z, w);
         }
         public void SetValue4(uint x, uint y, uint z, uint w)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location, x, y, z, w);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation, x, y, z, w);
         }
         #endregion
 
@@ -209,170 +209,170 @@ namespace TrippyGL
         #region SetValueMat2
         public void SetValueMat2(ref Matrix2 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2(location, transpose, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2(UniformLocation, transpose, ref value);
         }
         public void SetValueMat2(ref Matrix2x3 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2x3(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2x3(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat2(ref Matrix2x4 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2x4(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2x4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
 
         public void SetValueMat2(ref Matrix2d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat2(ref Matrix2x3d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2x3(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2x3(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat2(ref Matrix2x4d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix2x4(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix2x4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         #endregion
 
         #region SetValueMat3
         public void SetValueMat3(ref Matrix3 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3(location, transpose, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3(UniformLocation, transpose, ref value);
         }
         public void SetValueMat3(ref Matrix3x2 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3x2(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3x2(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat3(ref Matrix3x4 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3x4(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3x4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
 
         public void SetValueMat3(ref Matrix3d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat3(ref Matrix3x2d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3x2(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3x2(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat3(ref Matrix3x4d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix3x4(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix3x4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         #endregion
 
         #region SetValueMat4
         public void SetValueMat4(ref Matrix4 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4(location, transpose, ref value);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4(UniformLocation, transpose, ref value);
         }
         public void SetValueMat4(ref Matrix4x2 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4x2(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4x2(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat4(ref Matrix4x3 value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4x3(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4x3(UniformLocation, 1, transpose, ref value.Row0.X);
         }
 
         public void SetValueMat4(ref Matrix4d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat4(ref Matrix4x2d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4x2(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4x2(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         public void SetValueMat4(ref Matrix4x3d value, bool transpose = false)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.UniformMatrix4x3(location, 1, transpose, ref value.Row0.X);
+            OwnerProgram.EnsureInUse();
+            GL.UniformMatrix4x3(UniformLocation, 1, transpose, ref value.Row0.X);
         }
         #endregion
 
         #region SetValue1Array
         public void SetValue1Array(float[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location + startUniformIndex, count, ref value[startValueIndex]);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
         }
 
         public void SetValue1Array(double[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location + startUniformIndex, count, ref value[startValueIndex]);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
         }
 
         public void SetValue1Array(int[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location + startUniformIndex, count, ref value[startValueIndex]);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
         }
 
         public void SetValue1Array(uint[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location + startUniformIndex, count, ref value[startValueIndex]);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
         }
         #endregion
 
         #region SetValue2Array
         public void SetValue2Array(Vector2[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
 
         public void SetValue2Array(Vector2d[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform2(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform2(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
         #endregion
 
         #region SetValue3Array
         public void SetValue3Array(Vector3[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
 
         public void SetValue3Array(Vector3d[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform3(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform3(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
         #endregion
 
         #region SetValue4Array
         public void SetValue4Array(Vector4[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
 
         public void SetValue4Array(Vector4d[] value, int startValueIndex, int startUniformIndex, int count)
         {
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform4(location + startUniformIndex, count, ref value[startValueIndex].X);
+            OwnerProgram.EnsureInUse();
+            GL.Uniform4(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
         }
         #endregion
 

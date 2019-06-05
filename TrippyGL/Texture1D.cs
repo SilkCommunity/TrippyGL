@@ -6,39 +6,69 @@ using System.Drawing.Imaging;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A 1D OpenGL texture
+    /// </summary>
     public class Texture1D : Texture
     {
-        public readonly int Width;
+        /// <summary>The width of the texture</summary>
+        public int Width { get; private set; }
 
-        public Texture1D(GraphicsDevice graphicsDevice, int width, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
+        /// <summary>
+        /// Creates a Texture1D with the desired parameters
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="width"></param>
+        /// <param name="pixelFormat"></param>
+        /// <param name="pixelType"></param>
+        public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
             : base(graphicsDevice, TextureTarget.Texture1D, pixelFormat, pixelType)
         {
-            //texture is already bound by base constructor
-
             this.Width = width;
             ValidateTextureSize(width);
 
-            GL.TexImage1D(this.TextureType, 0, this.PixelFormat, this.Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, IntPtr.Zero);
+            RecreateImage(width);
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            if (generateMipmaps)
+            {
+                IsMipmapped = true;
+                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
+            }
+            else
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
-        public Texture1D(GraphicsDevice graphicsDevice, string file) : base(graphicsDevice, TextureTarget.Texture1D, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
+        /// <summary>
+        /// Creates a Texture1D from an image from a file
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="file">The file containing the texture pixels data</param>
+        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false) : base(graphicsDevice, TextureTarget.Texture1D, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
         {
-            //texture is already bound by base constructor
             using (Bitmap bitmap = new Bitmap(file))
             {
                 this.Width = bitmap.Width * bitmap.Height;
                 ValidateTextureSize(Width);
 
                 BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                graphicsDevice.EnsureTextureBoundAndActive(this);
                 GL.TexImage1D(this.TextureType, 0, this.PixelFormat, this.Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
             }
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            if (generateMipmaps)
+            {
+                IsMipmapped = true;
+                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
+            }
+            else
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         /// <summary>
@@ -53,6 +83,7 @@ namespace TrippyGL
         {
             ValidateRectOperation(x, width);
 
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
             GL.TexSubImage1D(this.TextureType, 0, x, width, pixelDataFormat, this.PixelType, data);
         }
 
@@ -68,7 +99,7 @@ namespace TrippyGL
         {
             ValidateSetOperation(data, dataOffset, x, width);
 
-            EnsureBoundAndActive();
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
             GL.TexSubImage1D(this.TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
 
@@ -91,7 +122,7 @@ namespace TrippyGL
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
         public void GetData<T>(IntPtr data, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
         {
-            EnsureBoundAndActive();
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
             GL.GetTexImage(this.TextureType, 0, pixelDataFormat, this.PixelType, data);
         }
 
@@ -104,13 +135,37 @@ namespace TrippyGL
         public void GetData<T>(T[] data, int dataOffset = 0) where T : struct
         {
             ValidateGetOperation(data, dataOffset);
-            EnsureBoundAndActive();
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
             GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
+        }
+
+        /// <summary>
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// </summary>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
+        public void SetWrapMode(TextureWrapMode sWrapMode)
+        {
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
+        }
+
+        /// <summary>
+        /// Recreates this texture's image with a new size, resizing the texture but losing the image data
+        /// </summary>
+        /// <param name="width">The new width for the texture</param>
+        public void RecreateImage(int width)
+        {
+            ValidateTextureSize(width);
+
+            this.Width = width;
+
+            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GL.TexImage1D(this.TextureType, 0, this.PixelFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
         }
 
         private protected void ValidateTextureSize(int width)
         {
-            if (width <= 0 || width > maxTextureSize)
+            if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
                 throw new ArgumentOutOfRangeException("width", width, "Texture width must be in the range (0, MAX_TEXTURE_SIZE]");
         }
 

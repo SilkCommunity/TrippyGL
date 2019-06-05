@@ -3,10 +3,19 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A list of ShaderUniformBlock variables.
+    /// This class also does some controlling over these uniforms to make everything run nicely
+    /// </summary>
     public class ShaderBlockUniformList
     {
+        /// <summary>All of the block uniforms in the ShaderProgram</summary>
         private ShaderBlockUniform[] uniforms;
 
+        /// <summary>
+        /// Gets a ShaderBlockUniform by name. If there's no such name, returns null
+        /// </summary>
+        /// <param name="name">The name (declared in the shaders) of the uniform block to get</param>
         public ShaderBlockUniform this[string name]
         {
             get
@@ -18,11 +27,13 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>The amount of block uniforms in the shader program</summary>
         public int Count { get { return uniforms.Length; } }
 
+        /// <summary>The total amount of uniforms from all the block. If a block has two values, these are two uniforms</summary>
         public int TotalUniformCount { get; private set; }
 
-        public ShaderBlockUniformList(ShaderProgram program)
+        internal ShaderBlockUniformList(ShaderProgram program)
         {
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniformBlocks, out int length);
             uniforms = new ShaderBlockUniform[length];
@@ -40,7 +51,11 @@ namespace TrippyGL
             }
         }
 
-        public void EnsureAllSet()
+        /// <summary>
+        /// Ensures the buffer bindings for the blocks is correct.
+        /// This is called by ShaderProgram.EnsurePreDrawStates()
+        /// </summary>
+        internal void EnsureAllSet()
         {
             for (int i = 0; i < uniforms.Length; i++)
                 uniforms[i].EnsureValueApplied();

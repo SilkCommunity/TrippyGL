@@ -33,14 +33,14 @@ namespace TrippyTesting
             TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
-            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
-            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
-            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
+            Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
+            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
+            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -141,7 +141,7 @@ namespace TrippyTesting
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Enable(EnableCap.RasterizerDiscard);
-            States.EnsureVertexArrayBound(vaoRead);
+            graphicsDevice.EnsureVertexArrayBound(vaoRead);
             GL.UseProgram(transProgram);
             if (timeLoc != -1)
                 GL.Uniform1(timeLoc, time);
@@ -163,7 +163,7 @@ namespace TrippyTesting
 
             GL.UseProgram(drawProgram);
 
-            States.EnsureVertexArrayBound(vaoWrite);
+            graphicsDevice.EnsureVertexArrayBound(vaoWrite);
             GL.DrawArrays(PrimitiveType.Points, 0, bufferRead.StorageLength);
 
             VertexDataBufferObject<ParticleVertex> tmpvbo = bufferRead;

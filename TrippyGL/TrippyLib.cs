@@ -13,20 +13,8 @@ namespace TrippyGL
         {
             if (isLibActive)
                 throw new InvalidOperationException("The library is already active!");
-            RecheckGLVersion();
 
             isLibActive = true;
-            GL.Enable(EnableCap.Multisample);
-
-            Console.WriteLine(GL.GetError());
-
-            UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
-
-            States.Init();
-
-            Texture.Init();
-
-            ResetGLBindStates();
         }
 
         /// <summary>
@@ -40,54 +28,6 @@ namespace TrippyGL
             isLibActive = false;
         }
 
-        /// <summary>
-        /// Checks the OpenGL versions for the library. You shouldn't need to call this though
-        /// </summary>
-        public static void RecheckGLVersion()
-        {
-            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
-            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
-            
-            if (GLMajorVersion < 3)
-                throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
-        }
-
         internal static bool isLibActive;
-
-        /// <summary>
-        /// Resets any internal library variable storing OpenGL states. These variables are used to, for example, dont bind the same texture twice if it's already bound.
-        /// Calling this method calls any other reset states method
-        /// You might want to reset this when interoperating with other libraries
-        /// </summary>
-        public static void ResetGLBindStates()
-        {
-            States.ResetStates();
-
-            Texture.ResetBindStates();
-        }
-
-        public static int MaxTextureImageUnits { get { return GL.GetInteger(GetPName.MaxTextureImageUnits); } }
-
-        public static int UniformBufferOffsetAlignment { get; private set; }
-
-        public static int MaxUniformBufferBindings { get { return GL.GetInteger(GetPName.MaxUniformBufferBindings); } }
-
-        public static int MaxUniformBlockSize { get { return GL.GetInteger(GetPName.MaxUniformBlockSize); } }
-
-        public static int MaxSamples { get { return GL.GetInteger(GetPName.MaxSamples); } }
-
-        public static int MaxTextureSize { get { return GL.GetInteger(GetPName.MaxTextureSize); } }
-
-        public static int GLMajorVersion { get; private set; }
-
-        public static int GLMinorVersion { get; private set; }
-
-        public static string GLVersion { get { return GL.GetString(StringName.Version); } }
-
-        public static string GLVendor { get { return GL.GetString(StringName.Vendor); } }
-
-        public static string GLRenderer { get { return GL.GetString(StringName.Renderer); } }
-
-        public static string GLShadingLanguageVersion { get { return GL.GetString(StringName.ShadingLanguageVersion); } }
     }
 }

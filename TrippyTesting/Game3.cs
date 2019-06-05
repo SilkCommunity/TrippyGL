@@ -37,14 +37,14 @@ namespace TrippyTesting
             TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
-            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
-            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
-            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
+            Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
+            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
+            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -90,7 +90,7 @@ namespace TrippyTesting
             program3d.Uniforms["View"].SetValueMat4(ref mat);
             program3d.Uniforms["Projection"].SetValueMat4(ref mat);
 
-            fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height, 0);
+            fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height);
             fbo = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexture.TextureType, fboTexture.Handle, 0);

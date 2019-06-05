@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// Provides some general help math-related functions and values
     /// </summary>
-    public static class MathHelper2
+    public static class TrippyMath
     {
         public static int IntegerPow(int a, int b)
         {

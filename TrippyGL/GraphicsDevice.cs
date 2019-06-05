@@ -10,9 +10,12 @@ namespace TrippyGL
     {
         public IGraphicsContext Context { get; private set; }
 
+
         public GraphicsDevice(IGraphicsContext context)
         {
             this.Context = context;
+
+            InitGLGetVariables();
 
             InitBufferObjectStates();
             vertexArrayBinding = 0;
@@ -21,6 +24,52 @@ namespace TrippyGL
             framebufferDrawHandle = 0;
             framebufferReadHandle = 0;
         }
+
+        #region GLGet
+
+        private void InitGLGetVariables()
+        {
+            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
+            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
+
+            if (GLMajorVersion < 3)
+                throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
+
+            UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
+            MaxUniformBufferBindings = GL.GetInteger(GetPName.MaxUniformBufferBindings);
+            MaxUniformBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
+            MaxSamples = GL.GetInteger(GetPName.MaxSamples);
+            MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
+            MaxTextureImageUnits = GL.GetInteger(GetPName.MaxTextureImageUnits);
+        }
+
+        public int GLMajorVersion { get; private set; }
+
+        public int GLMinorVersion { get; private set; }
+
+        public int UniformBufferOffsetAlignment { get; private set; }
+
+        public int MaxUniformBufferBindings { get; private set; }
+
+        public int MaxUniformBlockSize { get; private set; }
+
+        public int MaxSamples { get; private set; }
+
+        public int MaxTextureSize { get; private set; }
+
+        public int MaxTextureImageUnits { get; private set; }
+
+        public string GLVersion { get { return GL.GetString(StringName.Version); } }
+
+        public string GLVendor { get { return GL.GetString(StringName.Vendor); } }
+
+        public string GLRenderer { get { return GL.GetString(StringName.Renderer); } }
+
+        public string GLShadingLanguageVersion { get { return GL.GetString(StringName.ShadingLanguageVersion); } }
+
+        #endregion GLGet
+
+        #region BindingStates
 
         /// <summary>
         /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
@@ -35,22 +84,21 @@ namespace TrippyGL
             ResetFramebufferStates();
         }
 
-
         #region BufferObjectBindingStates
 
         /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
         private const int BufferTargetCount = 14;
 
         /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array</summary>
-        private static int[] bufferBindings;
+        private int[] bufferBindings;
 
         /// <summary>The BufferTargets for the handles found on the bufferBindings array</summary>
-        private static BufferTarget[] bufferBindingTargets;
+        private BufferTarget[] bufferBindingTargets;
 
         /// <summary>TODO: add summary and explanation</summary>
-        private static BufferRangeBinding[][] bufferRangeBindings;
+        private BufferRangeBinding[][] bufferRangeBindings;
 
-        private static void InitBufferObjectStates()
+        private void InitBufferObjectStates()
         {
             bufferBindingTargets = new BufferTarget[BufferTargetCount]
             {
@@ -88,7 +136,7 @@ namespace TrippyGL
         /// Ensures a buffer is bound to it's BufferTarget by binding it if it's not
         /// </summary>
         /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
-        public static void EnsureBufferBound(BufferObject buffer)
+        public void EnsureBufferBound(BufferObject buffer)
         {
             if (bufferBindings[buffer.bufferBindingTargetIndex] != buffer.Handle)
                 BindBuffer(buffer);
@@ -98,10 +146,10 @@ namespace TrippyGL
         /// Binds a buffer to it's BufferTarget. Prefer using EnsureBufferBound() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        public static void BindBuffer(BufferObject buffer)
+        public void BindBuffer(BufferObject buffer)
         {
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
             GL.BindBuffer(buffer.BufferTarget, buffer.Handle);
+            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
         }
 
         /// <summary>
@@ -110,7 +158,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer should be bound</param>
-        public static void EnsureBufferBoundBase(BufferObject buffer, int bindingIndex)
+        public void EnsureBufferBoundBase(BufferObject buffer, int bindingIndex)
         {
             BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
             if (b.BufferHandle != buffer.Handle || b.Size != buffer.StorageLengthInBytes || b.Offset != 0)
@@ -123,11 +171,11 @@ namespace TrippyGL
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        public static void BindBufferBase(BufferObject buffer, int bindingIndex)
+        public void BindBufferBase(BufferObject buffer, int bindingIndex)
         {
+            GL.BindBufferBase((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle);
             bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
             bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetBase(buffer);
-            GL.BindBufferBase((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle);
         }
 
         /// <summary>
@@ -138,7 +186,7 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        public static void EnsureBufferBoundRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        public void EnsureBufferBoundRange(BufferObject buffer, int bindingIndex, int offset, int size)
         {
             BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
             if (b.BufferHandle != buffer.Handle || b.Size != size || b.Offset != offset)
@@ -153,18 +201,18 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        public static void BindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        public void BindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
         {
+            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle, (IntPtr)offset, size);
             bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
             bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetRange(buffer, offset, size);
-            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle, (IntPtr)offset, size);
         }
 
         /// <summary>
         /// Returns whether the given buffer is the currently bound one for it's BufferTarget
         /// </summary>
         /// <param name="buffer">The buffer to check. This value is assumed not to be null</param>
-        public static bool IsBufferCurrentlyBound(BufferObject buffer)
+        public bool IsBufferCurrentlyBound(BufferObject buffer)
         {
             return bufferBindings[buffer.bufferBindingTargetIndex] == buffer.Handle;
         }
@@ -174,7 +222,7 @@ namespace TrippyGL
         /// If there's no such index, it returns -1, though this won't happen as long as you only use proper BufferTarget enum values
         /// </summary>
         /// <param name="bufferTarget">The BufferTarget to get the binds list index for</param>
-        internal static int GetBindingTargetIndex(BufferTarget bufferTarget)
+        internal int GetBindingTargetIndex(BufferTarget bufferTarget)
         {
             for (int i = 0; i < BufferTargetCount; i++)
                 if (bufferBindingTargets[i] == bufferTarget)
@@ -186,7 +234,7 @@ namespace TrippyGL
         /// Resets all saved states for buffer objects. This is, the variables used to check whether to bind a buffer or not.
         /// You should only need to call this when interoperating with other libraries or using your own GL functions
         /// </summary>
-        public static void ResetBufferStates()
+        public void ResetBufferStates()
         {
             for (int i = 0; i < BufferTargetCount; i++)
                 bufferBindings[i] = 0;
@@ -203,13 +251,13 @@ namespace TrippyGL
         #region VertexArrayBindingStates
 
         /// <summary>The currently bound VertexArray's handle</summary>
-        private static int vertexArrayBinding;
+        private int vertexArrayBinding;
 
         /// <summary>
         /// Ensures a vertex array is bound by binding it if it's not
         /// </summary>
         /// <param name="array">The array to ensure is bound. This value is assumed not to be null</param>
-        public static void EnsureVertexArrayBound(VertexArray array)
+        public void EnsureVertexArrayBound(VertexArray array)
         {
             if (vertexArrayBinding != array.Handle)
                 BindVertexArray(array);
@@ -219,7 +267,7 @@ namespace TrippyGL
         /// Binds a vertex array. Prefer using EnsureVertexArrayBound() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="array">The array to ensure is bound. This value is assumed not to be null</param>
-        public static void BindVertexArray(VertexArray array)
+        public void BindVertexArray(VertexArray array)
         {
             GL.BindVertexArray(array.Handle);
             vertexArrayBinding = array.Handle;
@@ -229,7 +277,7 @@ namespace TrippyGL
         /// Resets all saved states for vertex arrays This is, the variables used to check whether to bind a vertex array or not.
         /// You should only need to call this when interoperating with other libraries or using your own GL functions
         /// </summary>
-        public static void ResetVertexArrayStates()
+        public void ResetVertexArrayStates()
         {
             vertexArrayBinding = 0;
         }
@@ -237,7 +285,7 @@ namespace TrippyGL
         /// <summary>
         /// Unbinds the currently active vertex array by binding to array 0
         /// </summary>
-        public static void UnbindVertexArray()
+        public void UnbindVertexArray()
         {
             GL.BindVertexArray(0);
             vertexArrayBinding = 0;
@@ -248,13 +296,13 @@ namespace TrippyGL
         #region ShaderProgramBindingStates
 
         /// <summary>The currently bound ShaderProgram's handle</summary>
-        private static int shaderProgramBinding;
+        private int shaderProgramBinding;
 
         /// <summary>
         /// Returns whether the given shader program is the one currently in use
         /// </summary>
         /// <param name="program">The program to check, This value is assumed to not be null</param>
-        public static bool IsShaderProgramInUse(ShaderProgram program)
+        public bool IsShaderProgramInUse(ShaderProgram program)
         {
             return shaderProgramBinding == program.Handle;
         }
@@ -263,7 +311,7 @@ namespace TrippyGL
         /// Ensures the given ShaderProgram is the one currently in use
         /// </summary>
         /// <param name="program">The shader program to use. This value is assumed not to be null</param>
-        public static void EnsureShaderProgramInUse(ShaderProgram program)
+        public void EnsureShaderProgramInUse(ShaderProgram program)
         {
             if (shaderProgramBinding != program.Handle)
                 UseShaderProgram(program);
@@ -273,26 +321,26 @@ namespace TrippyGL
         /// Installs the given program into the rendering pipeline. Prefer using EnsureShaderProgramInUse() to avoid unnecessary uses
         /// </summary>
         /// <param name="program">The shader program to use. This value is assumed not to be null</param>
-        public static void UseShaderProgram(ShaderProgram program)
+        public void UseShaderProgram(ShaderProgram program)
         {
-            shaderProgramBinding = program.Handle;
             GL.UseProgram(program.Handle);
+            shaderProgramBinding = program.Handle;
         }
 
         /// <summary>
         /// Uninstalls the current shader program from the pipeline by using program 0
         /// </summary>
-        public static void UninstallCurrentShaderProgram()
+        public void UninstallCurrentShaderProgram()
         {
-            shaderProgramBinding = 0;
             GL.UseProgram(0);
+            shaderProgramBinding = 0;
         }
 
         /// <summary>
         /// Resets all saved states for shader programs. This is, the variables used to check whether to use a shader program or not.
         /// You should only need to call this when itneroperating with other libraries or using your own GL functions
         /// </summary>
-        public static void ResetShaderProgramStates()
+        public void ResetShaderProgramStates()
         {
             shaderProgramBinding = 0;
         }
@@ -301,22 +349,160 @@ namespace TrippyGL
 
         #region TextureBindingStates
 
-        private static int[] textureBindings;
-        private static int activeTextureUnit;
+        /// <summary>The array containing for each texture unit (that is, the index of the array) which texture handle is bound to it</summary>
+        private int[] textureBindings;
 
-        private static void InitTextureStates()
+        /// <summary>This variable counts which texture unit will be used the next time a texture needs binding</summary>
+        private int nextBindUnit;
+
+        /// <summary>The currently active texture unit</summary>
+        public int ActiveTextureUnit { get; private set; }
+
+        /// <summary>The total amount of texture units. This is the maximum amount of textures that can be bound at the same time</summary>
+        public int TotalTextureUnits { get { return textureBindings.Length; } }
+
+        /// <summary>
+        /// When a texture needs a new binding, it requests a texture unit from this method
+        /// </summary>
+        private int GetNextBindTextureUnit()
         {
-            textureBindings = new int[GL.GetInteger(GetPName.MaxTextureImageUnits)];
-            activeTextureUnit = 0;
-            GL.ActiveTexture(0);
+            // Originally, when a texture needed a new binding, we'd just bind it to the current active texture unit.
+            // However, It's probably more efficient to get different texture units each time.
+            // Why? Say you have 10 textures (and more texture units), then you can bind each one to a single
+            // texture unit and you'll never need to change the bindings, only the active texture if you want
+            // to make a modification such as setting a texture parameter.
+            // If you just bound it to the currently active texture, you'd be changing the binds over and over
+            // in the same texture unit.
+
+            nextBindUnit = (nextBindUnit + 1) % textureBindings.Length;
+            return nextBindUnit;
         }
 
+        /// <summary>
+        /// Ensures a texture unit is the currently active one
+        /// </summary>
+        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, TotalTextureUnits)</param>
+        public void EnsureActiveTextureUnit(int textureUnit)
+        {
+            if (ActiveTextureUnit != textureUnit)
+                SetActiveTextureUnit(textureUnit);
+        }
+
+        /// <summary>
+        /// Sets the active texture unit. Prefer using EnsureActiveTextureUnit() instead to avoid unnecessary changes
+        /// </summary>
+        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, TotalTextureUnits)</param>
+        public void SetActiveTextureUnit(int textureUnit)
+        {
+            if (textureUnit < 0 || textureUnit >= TotalTextureUnits)
+                throw new ArgumentOutOfRangeException("textureUnit", textureUnit, "textureUnit must be in the range [0, TotalTextureUnits)");
+
+            GL.ActiveTexture(TextureUnit.Texture0 + textureUnit);
+            ActiveTextureUnit = textureUnit;
+        }
+
+        /// <summary>
+        /// Ensures a texture is bound to any texture unit, but doesn't ensure that texture unit is the currently active one.
+        /// Returns the texture unit to which the texture is bound
+        /// </summary>
+        /// <param name="texture">The texture to ensure is bound</param>
+        public int EnsureTextureBound(Texture texture)
+        {
+            if (textureBindings[texture.lastBindUnit] != texture.Handle)
+                return BindTexture(texture);
+            return texture.lastBindUnit;
+        }
+
+        /// <summary>
+        /// Ensures a texture is bound to any texture unit, and that the texture unit to which the texture is bound is the currently active one.
+        /// Returns the texture unit to which the texture is bound
+        /// </summary>
+        /// <param name="texture">The texture to ensure is bound and active</param>
+        public int EnsureTextureBoundAndActive(Texture texture)
+        {
+            if (texture.Handle == textureBindings[texture.lastBindUnit])
+                EnsureActiveTextureUnit(texture.lastBindUnit);
+            else
+                return BindTexture(texture);
+            return texture.lastBindUnit;
+        }
+
+        /// <summary>
+        /// Binds a texture to any texture unit. Returns the texture unit to which the texture is now bound to.
+        /// The returned texture unit will also always be the currently active one.
+        /// </summary>
+        /// <param name="texture">The texture to bind</param>
+        public int BindTexture(Texture texture)
+        {
+            EnsureActiveTextureUnit(GetNextBindTextureUnit());
+            GL.BindTexture(texture.TextureType, texture.Handle);
+            texture.lastBindUnit = ActiveTextureUnit;
+            textureBindings[ActiveTextureUnit] = texture.Handle;
+            return texture.lastBindUnit;
+        }
+
+        /// <summary>
+        /// Binds a texture to the current texture unit
+        /// </summary>
+        /// <param name="texture">The texture to bind</param>
+        public void BindTextureToCurrentUnit(Texture texture)
+        {
+            GL.BindTexture(texture.TextureType, texture.Handle);
+            texture.lastBindUnit = ActiveTextureUnit;
+            textureBindings[ActiveTextureUnit] = texture.Handle;
+        }
+
+        public int[] EnsureAllBound(Texture[] textures)
+        {
+            if (textures.Length > textureBindings.Length)
+                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
+
+            int[] units = new int[textures.Length];
+            for (int i = 0; i < textures.Length; i++)
+            {
+                SetActiveTextureUnit(i);
+                BindTextureToCurrentUnit(textures[i]);
+                units[i] = i;
+            }
+            return units;
+        }
+
+        public int[] EnsureAllBound(List<Texture> textures)
+        {
+            if (textures.Count > textureBindings.Length)
+                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
+
+            int[] units = new int[textures.Count];
+            for (int i = 0; i < textures.Count; i++)
+            {
+                SetActiveTextureUnit(i);
+                BindTextureToCurrentUnit(textures[i]);
+                units[i] = i;
+            }
+            return units;
+        }
+
+        /// <summary>
+        /// Initiates all variables that track texture binding states
+        /// </summary>
+        private void InitTextureStates()
+        {
+            textureBindings = new int[GL.GetInteger(GetPName.MaxTextureImageUnits)];
+            ActiveTextureUnit = 0;
+            GL.ActiveTexture(TextureUnit.Texture0);
+            nextBindUnit = 0;
+        }
+
+        /// <summary>
+        /// Resets all saved states for textures
+        /// </summary>
         public void ResetTextureStates()
         {
             for (int i = 0; i < textureBindings.Length; i++)
                 textureBindings[i] = 0;
-            activeTextureUnit = 0;
+            ActiveTextureUnit = 0;
             GL.ActiveTexture(TextureUnit.Texture0);
+            nextBindUnit = 0;
         }
 
         #endregion TextureBindingStates
@@ -428,52 +614,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a framebuffer is bound to a specified target
-        /// </summary>
-        /// <param name="target">The framebuffer target</param>
-        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        public void EnsureFramebufferBound(FramebufferTarget target, int handle)
-        {
-            switch (target)
-            {
-                case FramebufferTarget.DrawFramebuffer:
-                    EnsureFramebufferBoundDraw(handle);
-                    break;
-                case FramebufferTarget.ReadFramebuffer:
-                    EnsureFramebufferBoundRead(handle);
-                    break;
-                default:
-                    EnsureFramebufferBound(handle);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to a specified target. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
-        /// </summary>
-        /// <param name="target">The framebuffer target</param>
-        /// <param name="handle">The framebuffer's handle bind</param>
-        public void BindFramebuffer(FramebufferTarget target, int handle)
-        {
-            switch (target)
-            {
-                case FramebufferTarget.DrawFramebuffer:
-                    BindFramebufferDraw(handle);
-                    break;
-                case FramebufferTarget.ReadFramebuffer:
-                    BindFramebufferRead(handle);
-                    break;
-                default:
-                    BindFramebuffer(handle);
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Ensures a framebuffer is bound to the draw and read targets
         /// </summary>
         /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        public void EnsureFramebufferBound(int handle)
+        internal void EnsureFramebufferBound(int handle)
         {
             if (framebufferDrawHandle != handle || framebufferReadHandle != handle)
                 BindFramebuffer(handle);
@@ -484,7 +628,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="target">The framebuffer target</param>
         /// <param name="handle">The framebuffer's handle bind</param>
-        public void BindFramebuffer(int handle)
+        internal void BindFramebuffer(int handle)
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, handle);
             framebufferDrawHandle = handle;
@@ -495,7 +639,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the draw target
         /// </summary>
         /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        public void EnsureFramebufferBoundDraw(int handle)
+        internal void EnsureFramebufferBoundDraw(int handle)
         {
             if (framebufferDrawHandle != handle)
                 BindFramebufferDraw(handle);
@@ -505,7 +649,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the draw target. Prefer using EnsureFramebufferBoundDraw() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="handle">The framebuffer's handle bind</param>
-        public void BindFramebufferDraw(int handle)
+        internal void BindFramebufferDraw(int handle)
         {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, handle);
             framebufferDrawHandle = handle;
@@ -515,7 +659,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the read target
         /// </summary>
         /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        public void EnsureFramebufferBoundRead(int handle)
+        internal void EnsureFramebufferBoundRead(int handle)
         {
             if (framebufferReadHandle != handle)
                 BindFramebufferRead(handle);
@@ -525,7 +669,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the read target. Prefer using EnsureFramebufferBoundRead() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="handle">The framebuffer's handle bind</param>
-        public void BindFramebufferRead(int handle)
+        internal void BindFramebufferRead(int handle)
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, handle);
             framebufferReadHandle = handle;
@@ -543,9 +687,7 @@ namespace TrippyGL
         }
 
         #endregion
-
-        //TODO: Pass absolutely ALL BINDING THINGS to here
-
+        
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.
         /// Each BufferRangeBinding represents one of these binding points in a BufferTarget. Of course, this must be in a BufferTarget
@@ -583,6 +725,15 @@ namespace TrippyGL
                 this.Offset = offset;
                 this.Size = size;
             }
+        }
+
+        #endregion BindingStates
+
+
+
+        public void MakeMine(GraphicsResource resource)
+        {
+            resource.GraphicsDevice = this;
         }
     }
 }

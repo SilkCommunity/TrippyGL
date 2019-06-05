@@ -40,6 +40,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates an IndexBufferObject with the specified storage length. The storage is created but the data has no specified initial value
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="elementType">The type of elements the index buffer will use</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
@@ -57,6 +58,7 @@ namespace TrippyGL
         /// Creates an IndexBufferObject with the specified storage length and type UnsignedInt. Then initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="dataOffset">The index of the first uint in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
@@ -75,6 +77,7 @@ namespace TrippyGL
         /// Creates an IndexBufferObject with the specified storage length and type UnsignedShort. Then initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="dataOffset">The index of the first ushort in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
@@ -93,6 +96,7 @@ namespace TrippyGL
         /// Creates an IndexBufferObject with the specified storage length and type UnsignedByte. Then initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in bytes) of the buffer storage</param>
         /// <param name="dataOffset">The index of the first byte in the data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
@@ -119,7 +123,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
         }
 
@@ -135,7 +139,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
         }
 
@@ -151,7 +155,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
         }
 
@@ -167,7 +171,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
         }
 
@@ -183,7 +187,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
         }
 
@@ -199,7 +203,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
         }
 

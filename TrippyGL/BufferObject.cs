@@ -33,7 +33,7 @@ namespace TrippyGL
         public abstract int ElementSize { get; }
 
         /// <summary>Whether this buffer object is the currently bound one on it's BufferTarget</summary>
-        public bool IsCurrentlyBound { get { return States.IsBufferCurrentlyBound(this); } }
+        public bool IsCurrentlyBound { get { return GraphicsDevice.IsBufferCurrentlyBound(this); } }
 
         /// <summary>The target this BufferObject will always bind to</summary>
         public readonly BufferTarget BufferTarget;
@@ -50,7 +50,7 @@ namespace TrippyGL
         {
             Handle = GL.GenBuffer();
             this.BufferTarget = bufferTarget;
-            bufferBindingTargetIndex = States.GetBindingTargetIndex(bufferTarget);
+            bufferBindingTargetIndex = GraphicsDevice.GetBindingTargetIndex(bufferTarget);
         }
         
         /// <summary>
@@ -68,7 +68,7 @@ namespace TrippyGL
         {
             ValidateInitWithDataParams(storageLength, dataOffset, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLength * elementSize, ref data[dataOffset], usageHint);
         }
 
@@ -83,7 +83,7 @@ namespace TrippyGL
         {
             ValidateInitWithoutDataParams(storageLengthInBytes);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLengthInBytes, IntPtr.Zero, usageHint);
         }
 

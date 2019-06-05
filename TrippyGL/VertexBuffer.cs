@@ -22,11 +22,12 @@ namespace TrippyGL
 
         /// <summary>The size of each element measured in bytes</summary>
         public int ElementSize { get { return DataBuffer.ElementSize; } }
-        
+
         /// <summary>
         /// Creates a VertexBuffer with the specified storage length and initializes the storage data by copying it from a specified index of a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="dataOffset">The first element of the given data array to start reading from</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
@@ -42,6 +43,7 @@ namespace TrippyGL
         /// Creates a VertexBuffer with the specified storage length and initializes the storage data by copying it from a given array.
         /// The entire storage must be filled with data, it cannot be only partly written by this constructor
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="data">An array containing the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
@@ -55,6 +57,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexBuffer and initializes the storage data by copying it from a given array.
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="data">An array with the data to be uploaded to the buffer's storage. Can't be null</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, T[] data, BufferUsageHint usageHint) : this(graphicsDevice, data.Length, data, usageHint)
@@ -65,6 +68,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexBuffer with the specified storage length. The storage is created but the data has no specified initial value
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The length (measured in elements) of the buffer storage</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
@@ -79,7 +83,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureBufferBound()
         {
-            States.EnsureBufferBound(DataBuffer);
+            GraphicsDevice.EnsureBufferBound(DataBuffer);
         }
 
         /// <summary>
@@ -87,7 +91,7 @@ namespace TrippyGL
         /// </summary>
         public void BindBuffer()
         {
-            States.EnsureBufferBound(DataBuffer);
+            GraphicsDevice.EnsureBufferBound(DataBuffer);
         }
 
         /// <summary>
@@ -95,7 +99,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureArrayBound()
         {
-            States.EnsureVertexArrayBound(VertexArray);
+            GraphicsDevice.EnsureVertexArrayBound(VertexArray);
         }
 
         /// <summary>
@@ -103,7 +107,7 @@ namespace TrippyGL
         /// </summary>
         public void BindArray()
         {
-            States.BindVertexArray(VertexArray);
+            GraphicsDevice.BindVertexArray(VertexArray);
         }
 
         /// <summary>

@@ -65,7 +65,7 @@
     <Compile Include="IBufferRangeBindable.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertex.cs" />
-    <Compile Include="MathHelper2.cs" />
+    <Compile Include="TrippyMath.cs" />
     <Compile Include="PrimitiveBatcher.cs" />
     <Compile Include="ShaderBlockUniform.cs" />
     <Compile Include="ShaderBlockUniformList.cs" />
@@ -73,7 +73,6 @@
     <Compile Include="ShaderSamplerUniform.cs" />
     <Compile Include="ShaderUniform.cs" />
     <Compile Include="ShaderUniformList.cs" />
-    <Compile Include="States.cs" />
     <Compile Include="Texture1D.cs" />
     <Compile Include="TextureRectangle.cs" />
     <Compile Include="TrippyLib.cs" />

@@ -23,7 +23,9 @@ namespace TrippyTesting
 
         VertexBuffer<VertexColorTexture> buffer;
         ShaderProgram program;
-        public Texture2D tex;
+
+        Texture2D tex2d;
+        Texture1D tex1d;
 
         public bool isDoneLoading = false;
         public bool markDoneLoading = false;
@@ -35,14 +37,14 @@ namespace TrippyTesting
             TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
-            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
-            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
-            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
+            Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
+            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
+            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -50,13 +52,6 @@ namespace TrippyTesting
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader("#version 400\r\nuniform mat4 Proj; in vec3 vP; in vec4 vC; in vec2 vT; out vec4 fC; out vec2 fT; void main() { gl_Position = Proj * vec4(vP, 1.0); fC = vC; fT = vT; }");
-            program.AddFragmentShader("#version 400\r\nuniform sampler2D samp; in vec4 fC; in vec2 fT; out vec4 FragColor; void main() { FragColor = fC * texture(samp, fT); }");
-            program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vP", "vC", "vT" });
-            program.LinkProgram();
-
-            Console.WriteLine(GL.GetError());
             VertexColorTexture[] vboData = new VertexColorTexture[]
             {
                 new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 0)),
@@ -65,19 +60,21 @@ namespace TrippyTesting
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 1))
             };
             buffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, vboData, BufferUsageHint.StaticDraw);
-            //tex = new Texture2D("data/YARN.png");
 
             GL.Finish();
+
             this.Context.MakeCurrent(null);
 
             thread = new Thread(LoadThread);
             thread.Start();
-            
+
             while (!markDoneLoading) ;
             this.Context.MakeCurrent(this.WindowInfo);
             GL.Finish();
-            States.ResetStates();
-            Texture.ResetBindStates();
+            graphicsDevice.MakeMine(tex2d);
+            graphicsDevice.MakeMine(tex1d);
+            graphicsDevice.MakeMine(program);
+            graphicsDevice.ResetStates();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -102,7 +99,9 @@ namespace TrippyTesting
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             buffer.EnsureArrayBound();
-            program.Uniforms["samp"].SetValueTexture(tex);
+
+            program.Uniforms["samp"].SetValueTexture(tex2d);
+            program.Uniforms["samp1d"].SetValueTexture(tex1d);
             program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
 
@@ -120,23 +119,32 @@ namespace TrippyTesting
         {
             buffer.Dispose();
             program.Dispose();
-            tex.Dispose();
+            tex2d.Dispose();
 
             TrippyLib.Quit();
         }
 
         private void LoadThread()
         {
-            GLControl control = new GLControl(new GraphicsMode(ColorFormat.Empty, 0, 0, 0, ColorFormat.Empty, 0), TrippyLib.GLMajorVersion, TrippyLib.GLMinorVersion, GraphicsContextFlags.Offscreen);
+            GLControl control = new GLControl(new GraphicsMode(ColorFormat.Empty, 0, 0, 0, ColorFormat.Empty, 0), graphicsDevice.GLMajorVersion, graphicsDevice.GLMinorVersion, GraphicsContextFlags.Offscreen);
             control.Context.MakeCurrent(control.WindowInfo);
-            States.ResetStates();
+            GraphicsDevice loadingDevice = new GraphicsDevice(control.Context);
+
             Console.WriteLine("thread before " + GL.GetError());
-            tex = new Texture2D(graphicsDevice, "data/YARN.png");
+            tex2d = new Texture2D(loadingDevice, "data/YARN.png");
+            tex1d = new Texture1D(loadingDevice, "dataa3/tex1d.png");
             //Thread.Sleep(5000);
+            program = new ShaderProgram(loadingDevice);
+            program.AddVertexShader("#version 400\r\nuniform mat4 Proj; in vec3 vP; in vec4 vC; in vec2 vT; out vec4 fC; out vec2 fT; void main() { gl_Position = Proj * vec4(vP, 1.0); fC = vC; fT = vT; }");
+            program.AddFragmentShader("#version 400\r\nuniform sampler2D samp; uniform sampler1D samp1d; in vec4 fC; in vec2 fT; out vec4 FragColor; void main() { FragColor = fC * texture(samp, fT) * texture(samp1d, fT.x); }");
+            program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vP", "vC", "vT" });
+            program.LinkProgram();
+
             Console.WriteLine("thread after " + GL.GetError());
 
             control.Context.MakeCurrent(null);
             control.Context.Dispose();
+
             markDoneLoading = true;
         }
     }

@@ -8,7 +8,6 @@ namespace TrippyGL
 {
     public class FramebufferObject : GraphicsResource
     {
-
         public readonly int Handle;
 
         public readonly Texture2D Texture;
@@ -17,17 +16,20 @@ namespace TrippyGL
         public int Height { get { return Texture.Height; } }
         public int Samples { get { return Texture.Samples; } }
 
-        public FramebufferObject(GraphicsDevice graphicsDevice, int width, int height, int samples, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="samples"></param>
+        /// <param name="pixelFormat"></param>
+        /// <param name="pixelType"></param>
+        public FramebufferObject(GraphicsDevice graphicsDevice, int width, int height, int samples = 0, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
             : base(graphicsDevice)
         {
-            Texture = new Texture2D(graphicsDevice, width, height, samples, pixelFormat, pixelType);
+            Texture = new Texture2D(graphicsDevice, width, height, false, samples, pixelFormat, pixelType);
             Handle = GL.GenFramebuffer();
-        }
-
-        public FramebufferObject(GraphicsDevice graphicsDevice, int width, int height)
-            : this(graphicsDevice, width, height, 0, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
-        {
-            
         }
 
         protected override void Dispose(bool isManualDispose)

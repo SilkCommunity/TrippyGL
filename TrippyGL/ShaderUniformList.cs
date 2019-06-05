@@ -10,7 +10,7 @@ namespace TrippyGL
     /// </summary>
     public class ShaderUniformList
     {
-        /// <summary>All of the uniforms from the ShaderProgram</summary>
+        /// <summary>All of the (non-block) uniforms from the ShaderProgram</summary>
         private readonly ShaderUniform[] uniforms;
 
         /// <summary>This array contains only the sampler uniforms</summary>
@@ -19,7 +19,11 @@ namespace TrippyGL
         /// <summary>This array contains only the sampler array uniforms</summary>
         private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
 
-        /// <summary>Gets a uniform by name</summary>
+        public readonly ShaderProgram Program;
+
+        /// <summary>
+        /// Gets a ShaderUniform by name. If there's no such name, returns null
+        /// </summary>
         /// <param name="name">The name (declared in the shaders) of the uniform to get</param>
         public ShaderUniform this[string name]
         {
@@ -32,11 +36,12 @@ namespace TrippyGL
             }
         }
         
-        /// <summary>The amount of uniforms in this shader program</summary>
+        /// <summary>The amount of uniforms in the shader program</summary>
         public int Count { get { return uniforms.Length; } }
 
         internal ShaderUniformList(ShaderProgram program)
         {
+            this.Program = program;
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalCount);
 
             uniforms = new ShaderUniform[totalCount - program.BlockUniforms.TotalUniformCount];
@@ -85,10 +90,9 @@ namespace TrippyGL
 
         /// <summary>
         /// When using sampler uniforms, this will make sure they all work together properly.
-        /// This is called automatically when the program is used.
-        /// You should call this if you have multiple sampler uniforms (or an array of samplers) after modifying the uniforms but before drawing
+        /// This is called by ShaderProgram.EnsurePreDrawStates()
         /// </summary>
-        public void EnsureSamplerUniformsSet()
+        internal void EnsureSamplerUniformsSet()
         {
             // Quick explanation of this method:
             // This method binds all the textures needed for the ShaderProgram's sampler-type uniforms to different texture units.
@@ -113,7 +117,7 @@ namespace TrippyGL
                 }
             }
 
-            Texture.EnsureAllBound(textures);
+            Program.GraphicsDevice.EnsureAllBound(textures);
 
             for (int i = 0; i < samplerUniforms.Length; i++)
                 samplerUniforms[i].ApplyUniformValue();
@@ -128,6 +132,11 @@ namespace TrippyGL
             return String.Concat("ShaderUniformList with ", uniforms.Length, " uniforms");
         }
 
+        /// <summary>
+        /// Returns whether the given ActiveUniformType is a sampler type.
+        /// Sampler array's don't count (return false)
+        /// </summary>
+        /// <param name="type"></param>
         public static bool IsSamplerUniformType(ActiveUniformType type)
         {
             return (type >= ActiveUniformType.Sampler1D && type <= ActiveUniformType.Sampler2DRectShadow)

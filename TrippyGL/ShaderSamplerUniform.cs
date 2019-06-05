@@ -27,7 +27,7 @@ namespace TrippyGL
 
             this.TextureValue = value;
             if (OwnerProgram.IsCurrentlyInUse)
-                ApplyUniformValue(value.EnsureBound() - TextureUnit.Texture0);
+                ApplyUniformValue(value.GraphicsDevice.EnsureTextureBound(value));
         }
 
         public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
@@ -53,7 +53,7 @@ namespace TrippyGL
             if (lastTextureUnitApplied != unit)
             {
                 lastTextureUnitApplied = unit;
-                GL.Uniform1(location, unit);
+                GL.Uniform1(UniformLocation, unit);
             }
         }
 
@@ -65,8 +65,8 @@ namespace TrippyGL
         {
             if (TextureValue != null)
             {
-                States.EnsureShaderProgramInUse(OwnerProgram);
-                ApplyUniformValue(TextureValue.LastBindUnit);
+                OwnerProgram.EnsureInUse();
+                ApplyUniformValue(TextureValue.lastBindUnit);
             }
         }
     }
@@ -121,9 +121,9 @@ namespace TrippyGL
             int[] units = new int[texValues.Length];
             for (int i = 0; i < texValues.Length; i++)
                 if (texValues[i] != null)
-                    units[i] = texValues[i].LastBindUnit;
-            States.EnsureShaderProgramInUse(OwnerProgram);
-            GL.Uniform1(location, texValues.Length, units);
+                    units[i] = texValues[i].lastBindUnit;
+            OwnerProgram.EnsureInUse();
+            GL.Uniform1(UniformLocation, texValues.Length, units);
         }
 
         internal void ValidateSetParams(Texture[] values, int startValueIndex, int startUniformIndex, int count)

@@ -27,6 +27,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a UniformBufferObject with a storage length of 1, able to hold one uniform
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="initialValue">The initial value of the uniform</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public UniformBufferObject(GraphicsDevice graphicsDevice, T initialValue, BufferUsageHint usageHint)
@@ -35,16 +36,17 @@ namespace TrippyGL
             this.storageLength = 1;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>(initialValue);
             this.storageLengthBytes = this.elementSize;
-            int uniformOffsetAlignment = TrippyLib.UniformBufferOffsetAlignment;
+            int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
             this.elementStride = (this.elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, ref initialValue, usageHint);
         }
 
         /// <summary>
         /// Creates a UniformBufferObject with the specified storage length, but the storage is not initialized to any value
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The amount of elements the buffer will be able to hold</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public UniformBufferObject(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
@@ -53,16 +55,17 @@ namespace TrippyGL
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
             this.storageLengthBytes = this.elementSize;
-            int uniformOffsetAlignment = TrippyLib.UniformBufferOffsetAlignment;
+            int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
             this.elementStride = (this.elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, IntPtr.Zero, usageHint);
         }
 
         /// <summary>
         /// Creates a UniformBufferObject with the specified storage length and initial values given from a specified index from an array
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The amount of elements the buffer will be able to hold</param>
         /// <param name="dataOffset">The offset into the array where the first element is found</param>
         /// <param name="data">The array where the initial values are found</param>
@@ -72,13 +75,13 @@ namespace TrippyGL
         {
             this.storageLength = storageLength;
             this.elementSize = System.Runtime.InteropServices.Marshal.SizeOf<T>();
-            int uniformOffsetAlignment = TrippyLib.UniformBufferOffsetAlignment;
+            int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
             this.elementStride = (this.elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
             this.storageLengthBytes = (storageLength - 1) * this.elementStride + this.elementSize;
 
             ValidateInitWithDataParams(storageLength, dataOffset, data);
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, IntPtr.Zero, usageHint);
 
             for (int i = 0; i < storageLength; i++)
@@ -88,6 +91,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a UniformBufferObject with the specified storage length and initial values given from an array
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="storageLength">The amount of elements the buffer will be able to hold</param>
         /// <param name="data">The array where the initial values are found</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
@@ -107,7 +111,7 @@ namespace TrippyGL
             if (index < 0 || index > storageLength)
                 throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, StorageLength)");
 
-            States.EnsureBufferBound(this);
+            GraphicsDevice.EnsureBufferBound(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(index * this.elementStride), this.elementSize, ref value);
         }
 
@@ -122,7 +126,7 @@ namespace TrippyGL
             // We do this because offset must be a multiple of GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, so that's also why
             // you can't just simply set this buffer object's value as an array. It would have to be formatted to fit
 
-            States.EnsureBufferBoundRange(this, bindingIndex, elementIndex * this.ElementStride, this.elementSize);
+            GraphicsDevice.EnsureBufferBoundRange(this, bindingIndex, elementIndex * this.ElementStride, this.elementSize);
         }
     }
 }

@@ -358,7 +358,7 @@ namespace TrippyGL
 
                 const double log2 = 0.30102999566398119521373889472449;
                 int power = (int)Math.Ceiling(Math.Log(requiredVertexCount) / log2 - Math.Log(triangles.Length) / log2);
-                ResizeTriangles(triangles.Length * MathHelper2.IntegerPow(2, power));
+                ResizeTriangles(triangles.Length * TrippyMath.IntegerPow(2, power));
             }
         }
 
@@ -376,7 +376,7 @@ namespace TrippyGL
 
                 const double log2 = 0.30102999566398119521373889472449;
                 int power = (int)Math.Ceiling(Math.Log(requiredVertexCount) / log2 - Math.Log(lines.Length) / log2);
-                ResizeLines(lines.Length * MathHelper2.IntegerPow(2, power));
+                ResizeLines(lines.Length * TrippyMath.IntegerPow(2, power));
             }
         }
 

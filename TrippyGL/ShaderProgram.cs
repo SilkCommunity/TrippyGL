@@ -29,7 +29,7 @@ namespace TrippyGL
         public bool IsLinked { get; private set; } = false;
 
         /// <summary>Whether this ShaderProgram is the one currently in use</summary>
-        public bool IsCurrentlyInUse { get { return States.IsShaderProgramInUse(this); } }
+        public bool IsCurrentlyInUse { get { return GraphicsDevice.IsShaderProgramInUse(this); } }
 
         public bool HasVertexShader { get { return vsHandle != -1; } }
 
@@ -42,6 +42,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a ShaderProgram
         /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         public ShaderProgram(GraphicsDevice graphicsDevice) : base(graphicsDevice)
         {
             Handle = GL.CreateProgram();
@@ -217,15 +218,25 @@ namespace TrippyGL
             Uniforms = new ShaderUniformList(this);
         }
 
+        public void Use()
+        {
+            GraphicsDevice.UseShaderProgram(this);
+        }
+
+        public void EnsureInUse()
+        {
+            GraphicsDevice.EnsureShaderProgramInUse(this);
+        }
+
         /// <summary>
         /// Ensures all necessary states are set for a draw command to use this program.
         /// This includes making sure sampler or block uniforms are properly set and the program is currently in use
         /// </summary>
         public void EnsurePreDrawStates()
         {
+            GraphicsDevice.EnsureShaderProgramInUse(this);
             Uniforms.EnsureSamplerUniformsSet();
             BlockUniforms.EnsureAllSet();
-            States.EnsureShaderProgramInUse(this);
         }
 
         /// <summary>

@@ -45,14 +45,14 @@ namespace TrippyTesting.Tests
             TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
-            Console.WriteLine(String.Concat("GL Version: ", TrippyLib.GLMajorVersion, ".", TrippyLib.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + TrippyLib.GLVersion);
-            Console.WriteLine("GL Vendor: " + TrippyLib.GLVendor);
-            Console.WriteLine("GL Renderer: " + TrippyLib.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + TrippyLib.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + TrippyLib.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + TrippyLib.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + TrippyLib.MaxSamples);
+            Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
+            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
+            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
+            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
+            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
+            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
+            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
+            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -291,15 +291,15 @@ namespace TrippyTesting.Tests
             batcher.WriteLinesTo(lineBuffer);
             ubo.SetValue(uniformVal);
             program.BlockUniforms["MatrixBlock"].SetValue(ubo);
-            States.EnsureShaderProgramInUse(program);
+            graphicsDevice.EnsureShaderProgramInUse(program);
 
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);
 
-            States.EnsureVertexArrayBound(lineArray);
+            graphicsDevice.EnsureVertexArrayBound(lineArray);
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
 
-            States.EnsureVertexArrayBound(triangleArray);
+            graphicsDevice.EnsureVertexArrayBound(triangleArray);
             GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
 
             batcher.ClearTriangles();
