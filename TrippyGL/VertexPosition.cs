@@ -13,6 +13,10 @@ namespace TrippyGL
 
         public Vector3 Position;
 
+        public override string ToString()
+        {
+            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, ")");
+        }
         public VertexPosition(Vector3 position)
         {
             this.Position = position;

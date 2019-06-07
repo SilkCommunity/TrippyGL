@@ -90,7 +90,7 @@ namespace TrippyGL
 
         /// <summary>
         /// When using sampler uniforms, this will make sure they all work together properly.
-        /// This is called by ShaderProgram.EnsurePreDrawStates()
+        /// This is called by ShaderProgram.EnsurePreDrawStates() after the program is ensured to be in use
         /// </summary>
         internal void EnsureSamplerUniformsSet()
         {

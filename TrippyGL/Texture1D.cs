@@ -18,11 +18,11 @@ namespace TrippyGL
         /// Creates a Texture1D with the desired parameters
         /// </summary>
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="width"></param>
-        /// <param name="pixelFormat"></param>
-        /// <param name="pixelType"></param>
-        public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
-            : base(graphicsDevice, TextureTarget.Texture1D, pixelFormat, pixelType)
+        /// <param name="width">The width of the texture</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture</param>
+        /// <param name="imageFormat">The image format for this texture</param>
+        public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+            : base(graphicsDevice, TextureTarget.Texture1D, imageFormat)
         {
             this.Width = width;
             ValidateTextureSize(width);
@@ -46,7 +46,8 @@ namespace TrippyGL
         /// </summary>
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="file">The file containing the texture pixels data</param>
-        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false) : base(graphicsDevice, TextureTarget.Texture1D, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture</param>
+        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false) : base(graphicsDevice, TextureTarget.Texture1D, TextureImageFormat.Color4b)
         {
             using (Bitmap bitmap = new Bitmap(file))
             {

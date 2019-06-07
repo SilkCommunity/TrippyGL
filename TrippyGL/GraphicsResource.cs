@@ -33,7 +33,6 @@ namespace TrippyGL
 
         protected virtual void Dispose(bool isManualDispose)
         {
-            IsDisposed = true;
         }
 
         /// <summary>
@@ -44,6 +43,7 @@ namespace TrippyGL
             if (!IsDisposed)
             {
                 Dispose(true);
+                IsDisposed = true;
                 GC.SuppressFinalize(this);
             }
         }

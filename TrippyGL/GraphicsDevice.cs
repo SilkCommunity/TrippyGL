@@ -41,6 +41,11 @@ namespace TrippyGL
             MaxSamples = GL.GetInteger(GetPName.MaxSamples);
             MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
             MaxTextureImageUnits = GL.GetInteger(GetPName.MaxTextureImageUnits);
+            MaxTextureBufferSize = GL.GetInteger(GetPName.MaxTextureBufferSize);
+            Max3DTextureSize = GL.GetInteger(GetPName.Max3DTextureSize);
+            MaxCubeMapTextureSize = GL.GetInteger(GetPName.MaxCubeMapTextureSize);
+            MaxRectangleTextureSize = GL.GetInteger(GetPName.MaxRectangleTextureSize);
+            MaxRenderbufferSize = GL.GetInteger(GetPName.MaxRenderbufferSize);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -57,7 +62,17 @@ namespace TrippyGL
 
         public int MaxTextureSize { get; private set; }
 
+        public int Max3DTextureSize { get; private set; }
+
+        public int MaxCubeMapTextureSize { get; private set; }
+
+        public int MaxRectangleTextureSize { get; private set; }
+
+        public int MaxTextureBufferSize { get; private set; }
+
         public int MaxTextureImageUnits { get; private set; }
+
+        public int MaxRenderbufferSize { get; private set; }
 
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
@@ -728,8 +743,6 @@ namespace TrippyGL
         }
 
         #endregion BindingStates
-
-
 
         public void MakeMine(GraphicsResource resource)
         {

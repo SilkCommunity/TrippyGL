@@ -24,6 +24,11 @@ namespace TrippyGL
             this.Color = new Color4b(255, 255, 255, 255);
         }
 
+        public override string ToString()
+        {
+            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, "), (", Color.R, ", ", Color.G, ", ", Color.B, ", ", Color.A, ")");
+        }
+
         public VertexAttribDescription[] AttribDescriptions
         {
             get

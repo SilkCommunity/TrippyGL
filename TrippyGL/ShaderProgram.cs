@@ -54,6 +54,17 @@ namespace TrippyGL
         /// <param name="code">The GLSL code for the vertex shader</param>
         public void AddVertexShader(string code)
         {
+            if (!TryAddVertexShader(code, out string log))
+                throw new ShaderCompilationException(log);
+        }
+
+        /// <summary>
+        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The vertex shader's code</param>
+        /// <param name="code">The GLSL code for the vertex shader</param>
+        public bool TryAddVertexShader(string code, out string shaderLog)
+        {
             ValidateUnlinked();
 
             if (String.IsNullOrEmpty(code))
@@ -62,12 +73,45 @@ namespace TrippyGL
             if (vsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
 
-            vsHandle = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vsHandle, code);
-            GL.CompileShader(vsHandle);
-            ValidateShaderCompiledProperly(vsHandle);
+            int vs = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vs, code);
+            GL.CompileShader(vs);
+            GL.GetShader(vs, ShaderParameter.CompileStatus, out int status);
+            shaderLog = GL.GetShaderInfoLog(vs);
+            
+            if (status == (int)All.False)
+                return false;
 
-            GL.AttachShader(Handle, vsHandle);
+            vsHandle = vs;
+            GL.AttachShader(this.Handle, vsHandle);
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The GLSL code for the vertex shader</param>
+        public bool TryAddVertexShader(string code)
+        {
+            ValidateUnlinked();
+
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
+
+            if (vsHandle != -1)
+                throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
+
+            int vs = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(vs, code);
+            GL.CompileShader(vs);
+            GL.GetShader(vs, ShaderParameter.CompileStatus, out int status);
+
+            if (status == (int)All.False)
+                return false;
+
+            vsHandle = vs;
+            GL.AttachShader(this.Handle, vsHandle);
+            return true;
         }
 
         /// <summary>
@@ -75,6 +119,17 @@ namespace TrippyGL
         /// </summary>
         /// <param name="code">The GLSL code for the geometry shader</param>
         public void AddGeometryShader(string code)
+        {
+            if (!TryAddGeometryShader(code, out string log))
+                throw new ShaderCompilationException(log);
+        }
+
+        /// <summary>
+        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The GLSL code for the geometry shader</param>
+        /// <param name="shaderLog">The compilation log from the shader</param>
+        public bool TryAddGeometryShader(string code, out string shaderLog)
         {
             ValidateUnlinked();
 
@@ -84,12 +139,45 @@ namespace TrippyGL
             if (gsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
 
-            gsHandle = GL.CreateShader(ShaderType.GeometryShader);
-            GL.ShaderSource(gsHandle, code);
-            GL.CompileShader(gsHandle);
-            ValidateShaderCompiledProperly(gsHandle);
+            int gs = GL.CreateShader(ShaderType.GeometryShader);
+            GL.ShaderSource(gs, code);
+            GL.CompileShader(gs);
+            GL.GetShader(gs, ShaderParameter.CompileStatus, out int status);
+            shaderLog = GL.GetShaderInfoLog(gs);
 
-            GL.AttachShader(Handle, gsHandle);
+            if (status == (int)All.False)
+                return false;
+
+            gsHandle = gs;
+            GL.AttachShader(this.Handle, gsHandle);
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The GLSL code for the geometry shader</param>
+        public bool TryAddGeometryShader(string code)
+        {
+            ValidateUnlinked();
+
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
+
+            if (gsHandle != -1)
+                throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
+
+            int gs = GL.CreateShader(ShaderType.GeometryShader);
+            GL.ShaderSource(gs, code);
+            GL.CompileShader(gs);
+            GL.GetShader(gs, ShaderParameter.CompileStatus, out int status);
+
+            if (status == (int)All.False)
+                return false;
+
+            gsHandle = gs;
+            GL.AttachShader(this.Handle, gsHandle);
+            return true;
         }
 
         /// <summary>
@@ -97,6 +185,17 @@ namespace TrippyGL
         /// </summary>
         /// <param name="code">The GLSL code for the fragment shader</param>
         public void AddFragmentShader(string code)
+        {
+            if (!TryAddFragmentShader(code, out string log))
+                throw new ShaderCompilationException(log);
+        }
+
+        /// <summary>
+        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The GLSL code for the fragment shader</param>
+        /// <param name="shaderLog">The compilation log from the shader</param>
+        public bool TryAddFragmentShader(string code, out string shaderLog)
         {
             ValidateUnlinked();
 
@@ -106,12 +205,45 @@ namespace TrippyGL
             if (fsHandle != -1)
                 throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
 
-            fsHandle = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fsHandle, code);
-            GL.CompileShader(fsHandle);
-            ValidateShaderCompiledProperly(fsHandle);
+            int fs = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fs, code);
+            GL.CompileShader(fs);
+            GL.GetShader(fs, ShaderParameter.CompileStatus, out int status);
+            shaderLog = GL.GetShaderInfoLog(fs);
 
-            GL.AttachShader(Handle, fsHandle);
+            if (status == (int)All.False)
+                return false;
+
+            fsHandle = fs;
+            GL.AttachShader(this.Handle, fsHandle);
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful
+        /// </summary>
+        /// <param name="code">The GLSL code for the fragment shader</param>
+        public bool TryAddFragmentShader(string code)
+        {
+            ValidateUnlinked();
+
+            if (String.IsNullOrEmpty(code))
+                throw new ArgumentException("You must specify shader code", "code");
+
+            if (fsHandle != -1)
+                throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
+
+            int fs = GL.CreateShader(ShaderType.FragmentShader);
+            GL.ShaderSource(fs, code);
+            GL.CompileShader(fs);
+            GL.GetShader(fs, ShaderParameter.CompileStatus, out int status);
+
+            if (status == (int)All.False)
+                return false;
+
+            fsHandle = fs;
+            GL.AttachShader(this.Handle, fsHandle);
+            return true;
         }
 
         /// <summary>
@@ -186,7 +318,7 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (vsHandle == -1)
-                throw new InvalidOperationException("Shader program must have a vertex shader");
+                throw new InvalidOperationException("Shader program must have a vertex shader before linking!");
             
             if (!areAttribsBound)
                 throw new InvalidOperationException("The vertex attributes's indices have never been specified");
@@ -218,12 +350,10 @@ namespace TrippyGL
             Uniforms = new ShaderUniformList(this);
         }
 
-        public void Use()
-        {
-            GraphicsDevice.UseShaderProgram(this);
-        }
-
-        public void EnsureInUse()
+        /// <summary>
+        /// Ensures this program is the one currently in use for it's GraphicsDevice
+        /// </summary>
+        internal void EnsureInUse()
         {
             GraphicsDevice.EnsureShaderProgramInUse(this);
         }
@@ -261,17 +391,6 @@ namespace TrippyGL
         {
             GL.DeleteProgram(Handle);
             base.Dispose(isManualDispose);
-        }
-
-        /// <summary>
-        /// Checks that the given shader has compiled properly and throw an appropiate exception otherwise
-        /// </summary>
-        /// <param name="shader"></param>
-        private static void ValidateShaderCompiledProperly(int shader)
-        {
-            GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
-            if (status == (int)All.False)
-                throw new ShaderCompilationException(GL.GetShaderInfoLog(shader));
         }
 
 

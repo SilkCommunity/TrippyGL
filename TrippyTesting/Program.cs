@@ -10,16 +10,43 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
+            /*TextureImageFormat[] arr = new TextureImageFormat[]
+            {
+                TextureImageFormat.Color4b,
+                TextureImageFormat.Float,
+                TextureImageFormat.Int,
+                TextureImageFormat.UnsignedInt,
+                TextureImageFormat.UVector2i,
+                TextureImageFormat.UVector3i,
+                TextureImageFormat.UVector4i,
+                TextureImageFormat.Vector2,
+                TextureImageFormat.Vector2i,
+                TextureImageFormat.Vector3,
+                TextureImageFormat.Vector3i,
+                TextureImageFormat.Vector4,
+                TextureImageFormat.Vector4i,
+            };
 
-            using(GameWindow w = new MultithreadTest1())
+            for(int i=0; i<arr.Length; i++)
+            {
+                PixelType type;
+                PixelInternalFormat format;
+                Texture.GetTextureFormatEnums(arr[i], out format, out type);
+                Console.WriteLine(arr[i] + ": " + format + "; " + type);
+            }
+            Console.WriteLine("END");
+            Console.ReadLine();*/
+
+            using(GameWindow w = new Game3())
             {
                 w.Run(60, 60);
             }
             return;
 
-#pragma warning disable 0162
+#pragma warning disable 0162 // disable "unreachable code" warning
             while (true)
             {
+                GC.Collect();
                 Console.WriteLine("Ready. ");
                 GameWindow w = null;
                 do
@@ -43,6 +70,15 @@ namespace TrippyTesting
                             break;
                         case 5:
                             w = new TransformGame();
+                            break;
+                        case 6:
+                            w = new Tests.Test3DBatcher();
+                            break;
+                        case 7:
+                            w = new Game3();
+                            break;
+                        case 8:
+                            w = new MultithreadTest1();
                             break;
                         case -1:
                             return;

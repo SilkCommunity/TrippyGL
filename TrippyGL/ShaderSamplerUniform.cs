@@ -26,8 +26,6 @@ namespace TrippyGL
                 throw new ArgumentNullException("texture");
 
             this.TextureValue = value;
-            if (OwnerProgram.IsCurrentlyInUse)
-                ApplyUniformValue(value.GraphicsDevice.EnsureTextureBound(value));
         }
 
         public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
@@ -59,15 +57,13 @@ namespace TrippyGL
 
         /// <summary>
         /// This is called by ShaderUniformList.EnsureSamplerUniformsSet() after all the required sampler uniform textures have been bound to different units
-        /// This method supposes that all the "value" texture is bound to a texture unit, so it is ready to be used
+        /// This method supposes that all the "value" texture is bound to a texture unit, so it is ready to be used.
+        /// This method also assumes that the ShaderProgram is the one currently in use.
         /// </summary>
         internal void ApplyUniformValue()
         {
             if (TextureValue != null)
-            {
-                OwnerProgram.EnsureInUse();
                 ApplyUniformValue(TextureValue.lastBindUnit);
-            }
         }
     }
 
@@ -114,7 +110,8 @@ namespace TrippyGL
 
         /// <summary>
         /// This is called by ShaderUniformList.EnsureSamplerUniformsSet() after all the required sampler uniform textures have been bound to different units.
-        /// This method supposes that all the textures in the "values" array are bound to texture units, so they are all ready to be used together
+        /// This method supposes that all the textures in the "values" array are bound to texture units, so they are all ready to be used together.
+        /// This method also assumes the uniform's ShaderProgram is the one currently in use
         /// </summary>
         internal void ApplyUniformValues()
         {
@@ -122,11 +119,10 @@ namespace TrippyGL
             for (int i = 0; i < texValues.Length; i++)
                 if (texValues[i] != null)
                     units[i] = texValues[i].lastBindUnit;
-            OwnerProgram.EnsureInUse();
             GL.Uniform1(UniformLocation, texValues.Length, units);
         }
 
-        internal void ValidateSetParams(Texture[] values, int startValueIndex, int startUniformIndex, int count)
+        private protected void ValidateSetParams(Texture[] values, int startValueIndex, int startUniformIndex, int count)
         {
             if (values == null)
                 throw new ArgumentNullException("values");

@@ -28,9 +28,8 @@ namespace TrippyGL
         /// <param name="height">The height of the texture</param>
         /// <param name="generateMipmaps">Whether to generate mipmaps for this texture</param>
         /// <param name="samples">The amount of samples for this texture. Default is 0</param>
-        /// <param name="pixelFormat">The texture's pixel format</param>
-        /// <param name="pixelType">The texture's pixel type</param>
-        public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool generateMipmaps = false, int samples = 0, PixelInternalFormat pixelFormat = PixelInternalFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte) : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, pixelFormat, pixelType)
+        /// <param name="imageFormat">The image format for this texture</param>
+        public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool generateMipmaps = false, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b) : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, imageFormat)
         {
             if (samples < 0)
                 throw new ArgumentOutOfRangeException("multisample", samples, "Multisample must be greater than or equal to 0");
@@ -51,7 +50,7 @@ namespace TrippyGL
             GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
-        internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget) : base(graphicsDevice, textureTarget, PixelInternalFormat.Rgba, PixelType.UnsignedByte)
+        internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget) : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
         {
             this.Samples = 0;
             using (Bitmap bitmap = new Bitmap(file))
@@ -181,19 +180,19 @@ namespace TrippyGL
             switch (imageFormat)
             {
                 case SaveImageFormat.Png:
-                    format = ImageFormat.Png;
+                    format = System.Drawing.Imaging.ImageFormat.Png;
                     break;
                 case SaveImageFormat.Jpeg:
-                    format = ImageFormat.Jpeg;
+                    format = System.Drawing.Imaging.ImageFormat.Jpeg;
                     break;
                 case SaveImageFormat.Bmp:
-                    format = ImageFormat.Bmp;
+                    format = System.Drawing.Imaging.ImageFormat.Bmp;
                     break;
                 case SaveImageFormat.Tiff:
-                    format = ImageFormat.Tiff;
+                    format = System.Drawing.Imaging.ImageFormat.Tiff;
                     break;
                 default:
-                    throw new ArgumentException("Please use a proper value from SaveImageFormat", "imageFormat");
+                    throw new ArgumentException("You must use a proper value from SaveImageFormat", "imageFormat");
             }
 
             using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
@@ -203,7 +202,7 @@ namespace TrippyGL
                 GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
 
-                b.Save(file, ImageFormat.Png);
+                b.Save(file, System.Drawing.Imaging.ImageFormat.Png);
             }
         }
 

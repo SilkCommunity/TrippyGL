@@ -52,9 +52,7 @@ namespace TrippyTesting
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
-            tex2d = new Texture2D(graphicsDevice, "data/YARN.png");
-            GL.GenerateMipmap((GenerateMipmapTarget)tex2d.TextureType);
-            tex2d.SetTextureFilters(TextureMinFilter.NearestMipmapLinear, TextureMagFilter.Nearest);
+            tex2d = new Texture2D(graphicsDevice, "data/YARN.png", true);
 
             tex1d = new Texture1D(graphicsDevice, "dataa3/tex1d.png");
             otherTex1d = new Texture1D(graphicsDevice, 1);
@@ -113,13 +111,13 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.Enable(EnableCap.DepthTest);
 
             BlendMode.AlphaBlend.Apply();
             Matrix4 mat;
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.ClearDepth(1f);
 
+            GL.Enable(EnableCap.DepthTest);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
@@ -136,14 +134,14 @@ namespace TrippyTesting
             mat = Matrix4.CreateRotationY(time) * Matrix4.CreateScale(0.9f, 2.2f, 0.9f);
             batcher.AddTriangleStrip(MultiplyAllToNew(cone, ref mat));
             batcher.WriteTrianglesTo(batchBuffer.DataBuffer);
-            batcher.ClearTriangles();
 
             batchBuffer.EnsureArrayBound();
             program3d.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, batchBuffer.StorageLength);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, batcher.TriangleVertexCount);
+            batcher.ClearTriangles();
 
 
-
+            GL.Disable(EnableCap.DepthTest);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -163,6 +161,9 @@ namespace TrippyTesting
             program.EnsurePreDrawStates();
 
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
+
+            VertexColor[] arr = new VertexColor[batchBuffer.StorageLength];
+            batchBuffer.GetData(0, 0, arr.Length, arr);
 
             SwapBuffers();
         }

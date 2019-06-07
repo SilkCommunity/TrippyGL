@@ -20,6 +20,11 @@ namespace TrippyGL
             this.TexCoords = texCoords;
         }
 
+        public override string ToString()
+        {
+            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, ") (", TexCoords.X, ", ", TexCoords.Y, ")");
+        }
+
         public VertexAttribDescription[] AttribDescriptions
         {
             get

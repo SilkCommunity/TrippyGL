@@ -8,10 +8,10 @@ uniform float time;
 in VertexData {
 	vec4 Color;
 	vec2 TexCoords;
-} input;
+} vsOutput;
 
 out vec4 FragColor;
 
 void main() {
-	FragColor = (textureLod(samp2d, input.TexCoords, fract(time/7.0)*7.0)) * texture(samp1d, input.TexCoords.x);
+	FragColor = (vsOutput.Color*0.7+0.3) * (textureLod(samp2d, vsOutput.TexCoords, fract(time/7.0)*7.0)) * texture(samp1d, vsOutput.TexCoords.x);
 }
