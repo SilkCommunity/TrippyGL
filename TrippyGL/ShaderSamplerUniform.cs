@@ -114,8 +114,8 @@ namespace TrippyGL
 
             for (int i = 0; i < count; i++)
             {
-                int uniformindex = startUniformIndex + 1;
-                int valueindex = startValueIndex + 1;
+                int uniformindex = startUniformIndex + i;
+                int valueindex = startValueIndex + i;
                 if (this.texValues[uniformindex] != values[valueindex])
                 {
                     this.texValues[uniformindex] = values[valueindex];
