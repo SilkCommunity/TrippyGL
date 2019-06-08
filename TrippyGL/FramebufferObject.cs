@@ -24,9 +24,9 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <param name="samples"></param>
         /// <param name="imageFormat">The image format for this framebuffer's texture</param>
-        public FramebufferObject(GraphicsDevice graphicsDevice, int width, int height, DepthStencilFormat depthStencilFormat, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+        /// <param name="samples"></param>
+        public FramebufferObject(GraphicsDevice graphicsDevice, int width, int height, DepthStencilFormat depthStencilFormat, TextureImageFormat imageFormat = TextureImageFormat.Color4b, int samples = 0)
             : base(graphicsDevice)
         {
             Texture = new Texture2D(graphicsDevice, width, height, false, samples, imageFormat);
@@ -34,6 +34,7 @@ namespace TrippyGL
             Handle = GL.GenFramebuffer();
             graphicsDevice.BindFramebuffer(Handle);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, Texture.TextureType, Texture.Handle, 0);
+            
         }
 
         public void ReacreateFramebuffer()

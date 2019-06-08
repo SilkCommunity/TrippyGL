@@ -17,6 +17,7 @@ namespace TrippyGL
         private int fsHandle = -1;
         private bool areAttribsBound = false;
 
+        /// <summary>Gets data about the geometry shader in this program, if there is one</summary>
         public GeometryShaderData GeometryShader { get; private set; }
 
         /// <summary>The list of uniforms in this program</summary>
@@ -31,6 +32,7 @@ namespace TrippyGL
         /// <summary>Whether this ShaderProgram is the one currently in use</summary>
         public bool IsCurrentlyInUse { get { return GraphicsDevice.IsShaderProgramInUse(this); } }
 
+        /// <summary>Whether this ShaderProgram has a vertex shader attached</summary>
         public bool HasVertexShader { get { return vsHandle != -1; } }
 
         /// <summary>Whether this ShaderProgram has a geometry shader attached</summary>

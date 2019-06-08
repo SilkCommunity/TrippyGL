@@ -25,7 +25,11 @@ namespace TrippyGL
             if (value == null)
                 throw new ArgumentNullException("texture");
 
-            this.TextureValue = value;
+            if (this.TextureValue != value)
+            {
+                this.TextureValue = value;
+                OwnerProgram.Uniforms.isTextureListDirty = true;
+            }
         }
 
         public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
@@ -97,7 +101,11 @@ namespace TrippyGL
             if (value == null)
                 throw new ArgumentNullException("texture");
 
-            texValues[0] = value;
+            if (texValues[0] != value)
+            {
+                texValues[0] = value;
+                OwnerProgram.Uniforms.isTextureListDirty = true;
+            }
         }
 
         public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
@@ -105,7 +113,15 @@ namespace TrippyGL
             ValidateSetParams(values, startValueIndex, startUniformIndex, count);
 
             for (int i = 0; i < count; i++)
-                this.texValues[startUniformIndex + i] = values[startValueIndex + i];
+            {
+                int uniformindex = startUniformIndex + 1;
+                int valueindex = startValueIndex + 1;
+                if (this.texValues[uniformindex] != values[valueindex])
+                {
+                    this.texValues[uniformindex] = values[valueindex];
+                    OwnerProgram.Uniforms.isTextureListDirty = true;
+                }
+            }
         }
 
         /// <summary>

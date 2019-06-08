@@ -24,7 +24,6 @@ namespace TrippyTesting.Tests
         public StructPaddingTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "struct padding", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -46,7 +45,7 @@ namespace TrippyTesting.Tests
             program.AddFragmentShader(File.ReadAllText("spad/fs.glsl"));
             program.SpecifyVertexAttribs<WeirdAssVertex>(new string[]
             {
-                "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
+                "x", "y", "z", "x2", "y2", "z2", "mat", "w", "cx", "cy"
             });
             program.LinkProgram();
             Console.WriteLine("Program info log: \n" + GL.GetProgramInfoLog(program.Handle) + "\n[END OF LOG]");
@@ -105,7 +104,7 @@ namespace TrippyTesting.Tests
             texture.Dispose();
             buffer.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         protected override void OnResize(EventArgs e)
@@ -114,63 +113,67 @@ namespace TrippyTesting.Tests
             Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
             program.Uniforms["Projection"].SetValueMat4(ref mat);
         }
-    }
 
-    [StructLayout(LayoutKind.Sequential)]
-    struct WeirdAssVertex : IVertex
-    {
-        public byte x;
-        public ushort y;
-        public byte z;
 
-        public ushort x2;
-        public byte y2;
-        public byte z2;
-
-        public short w;
-
-        public byte cx;
-        public ushort cy;
-
-        // "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
-
-        public WeirdAssVertex(Vector3 pos, Vector2 tc)
+        [StructLayout(LayoutKind.Sequential)]
+        private struct WeirdAssVertex : IVertex
         {
-            this.x = tobyte(pos.X - 0.1f);
-            this.y = toushort(pos.Y - 0.1f);
-            this.z = tobyte(0);
+            public byte x;
+            public ushort y;
+            public byte z;
 
-            this.x2 = toushort(0.1f);
-            this.y2 = tobyte(0.1f);
-            this.z2 = tobyte(0);
+            public ushort x2;
+            public byte y2;
+            public byte z2;
 
-            this.w = 1;
+            public Matrix4 mat4;
 
-            this.cx = tobyte(tc.X);
-            this.cy = toushort(tc.Y);
-        }
+            public short w;
 
-        static byte tobyte(float v)
-        {
-            return (byte)(v * byte.MaxValue);
-        }
+            public byte cx;
+            public ushort cy;
 
-        static ushort toushort(float v)
-        {
-            return (ushort)(v * ushort.MaxValue);
-        }
+            // "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
 
-        static int toint(float v)
-        {
-            return (int)(v * int.MaxValue);
-        }
-        
-        public VertexAttribDescription[] AttribDescriptions
-        {
-            get
+            public WeirdAssVertex(Vector3 pos, Vector2 tc)
             {
-                return new VertexAttribDescription[]
+                this.x = tobyte(pos.X - 0.1f);
+                this.y = toushort(pos.Y - 0.1f);
+                this.z = tobyte(0);
+
+                this.x2 = toushort(0.1f);
+                this.y2 = tobyte(0.1f);
+                this.z2 = tobyte(0);
+
+                this.mat4 = Matrix4.Identity;
+
+                this.w = 1;
+
+                this.cx = tobyte(tc.X);
+                this.cy = toushort(tc.Y);
+            }
+
+            static byte tobyte(float v)
+            {
+                return (byte)(v * byte.MaxValue);
+            }
+
+            static ushort toushort(float v)
+            {
+                return (ushort)(v * ushort.MaxValue);
+            }
+
+            static int toint(float v)
+            {
+                return (int)(v * int.MaxValue);
+            }
+
+            public VertexAttribDescription[] AttribDescriptions
+            {
+                get
                 {
+                    return new VertexAttribDescription[]
+                    {
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //x
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //y
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z
@@ -178,13 +181,18 @@ namespace TrippyTesting.Tests
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //x2
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //y2
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z2
+                    
+                    new VertexAttribDescription(ActiveAttribType.FloatMat4), //mat4
 
                     new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short), //w
                     
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //cx
                     new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort)  //cy
-                };
+                    };
+                }
             }
         }
+
+
     }
 }

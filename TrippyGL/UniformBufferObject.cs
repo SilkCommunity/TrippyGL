@@ -5,6 +5,10 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A BufferObject whose purpose is to store shader uniform block data
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class UniformBufferObject<T> : BufferObject, IBufferRangeBindable where T : struct
     {
         private int elementSize;

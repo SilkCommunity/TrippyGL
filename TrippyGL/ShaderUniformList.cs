@@ -19,6 +19,7 @@ namespace TrippyGL
         /// <summary>This array contains only the sampler array uniforms</summary>
         private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
 
+        /// <summary>The ShaderProgram these uniforms belong to</summary>
         public readonly ShaderProgram Program;
 
         /// <summary>
@@ -38,6 +39,12 @@ namespace TrippyGL
         
         /// <summary>The amount of uniforms in the shader program</summary>
         public int Count { get { return uniforms.Length; } }
+
+        /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms</summary>
+        private List<Texture> textureList;
+
+        /// <summary>Whether the textureList is correct or not. ShaderSamplerUniforms set this to true when a value has changed</summary>
+        internal bool isTextureListDirty = true;
 
         internal ShaderUniformList(ShaderProgram program)
         {
@@ -86,6 +93,11 @@ namespace TrippyGL
 
             samplerUniforms = su.ToArray();
             samplerArrayUniforms = suarr.ToArray();
+
+            int maxTextures = samplerUniforms.Length;
+            for (int i = 0; i < samplerArrayUniforms.Length; i++)
+                maxTextures += samplerArrayUniforms[i].ArrayLength;
+            textureList = new List<Texture>(maxTextures);
         }
 
         /// <summary>
@@ -99,32 +111,42 @@ namespace TrippyGL
             // Then, it tells each ShaderSamplerUniform to ensure the texture unit it's sampler is using is the correct one for their texture
             // This is necessary because else, when using multiple samplers, you can't ensure they will all be using the correct texture
 
-            List<Texture> textures = new List<Texture>(samplerUniforms.Length);
-            for (int i = 0; i < samplerUniforms.Length; i++)
-            {
-                Texture t = samplerUniforms[i].TextureValue;
-                if (t != null && !textures.Contains(t))
-                    textures.Add(t);
-            }
-            for(int i=0; i<samplerArrayUniforms.Length; i++)
-            {
-                Texture[] tarr = samplerArrayUniforms[i].texValues;
-                for(int c=0; c<tarr.Length; c++)
-                {
-                    Texture t = tarr[c];
-                    if (t != null && !textures.Contains(t))
-                        textures.Add(t);
-                }
-            }
+            if (isTextureListDirty)
+                RemakeTextureList();
 
-            Program.GraphicsDevice.EnsureAllBound(textures);
+            Program.GraphicsDevice.EnsureAllBound(textureList);
 
             for (int i = 0; i < samplerUniforms.Length; i++)
                 samplerUniforms[i].ApplyUniformValue();
             for (int i = 0; i < samplerArrayUniforms.Length; i++)
                 samplerArrayUniforms[i].ApplyUniformValues();
+        }
 
-            //TODO: Sampler uniform arrays
+        /// <summary>
+        /// Recreates the textureList list. This is, clears it and then adds all the sampler uniform's texture values.
+        /// Then marks the list as not dirty
+        /// </summary>
+        private void RemakeTextureList()
+        {
+            textureList.Clear();
+            for (int i = 0; i < samplerUniforms.Length; i++)
+            {
+                Texture t = samplerUniforms[i].TextureValue;
+                if (t != null && !textureList.Contains(t))
+                    textureList.Add(t);
+            }
+            for (int i = 0; i < samplerArrayUniforms.Length; i++)
+            {
+                Texture[] tarr = samplerArrayUniforms[i].texValues;
+                for (int c = 0; c < tarr.Length; c++)
+                {
+                    Texture t = tarr[c];
+                    if (t != null && !textureList.Contains(t))
+                        textureList.Add(t);
+                }
+            }
+
+            isTextureListDirty = false;
         }
 
         public override string ToString()

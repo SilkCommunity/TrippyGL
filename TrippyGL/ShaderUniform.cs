@@ -381,6 +381,7 @@ namespace TrippyGL
         //TODO: SetValues for ivecX-s and uvecX-s somehow? We don't have such structs from OpenTK...
         //Note from the future: methods can have multiple parameters you malnourished rat
         //now implement these god fucking SetValue methods haha yes I will, one day.
+        //i'm reading this again and still not about to implement it because alta paja gil
 
         public override string ToString()
         {

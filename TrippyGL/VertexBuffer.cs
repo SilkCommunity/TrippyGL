@@ -6,7 +6,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     /// <summary>
-    /// Encapsulates a simple way to store vertex data in a single buffer without needing to care abount a vertex array.
+    /// Encapsulates a simple way to store vertex data in a single buffer without needing to care abount a VertexArray
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement IVertex</typeparam>
     public class VertexBuffer<T> : GraphicsResource where T : struct, IVertex

@@ -13,9 +13,8 @@ namespace TrippyGL
         // The BufferObject class takes care of handling the object. This includes binding (to the correct target), creating the
         // object (storing the handle) and disposing (destroying the buffer object)
         
-        // For binding, most of the lifting is done by the States static class, with the BufferObject storing some variables it
-        // will need for binding like the BufferTarget and the bufferBindingTargetIndex, which is used internally by States to
-        // get better performance when checking whether to bind
+        // For binding, most of the work is done by the GraphicsDevice's binding functions. But the BufferObject stores a
+        // "bufferBindingTargetIndex" integer which is used internally by the GraphicsDevice for better performance when binding
 
         // BufferObject also provides private protected methods for initializing the buffer's storage and different check parameter
         // functions to be consisten across all BufferObjects when throwing exceptions on methods like SetData() and GetData()
@@ -38,7 +37,7 @@ namespace TrippyGL
         /// <summary>The target this BufferObject will always bind to</summary>
         public readonly BufferTarget BufferTarget;
 
-        /// <summary>The index on the static 'binds' array where this BufferObject's BufferTarget last bound handle is stored</summary>
+        /// <summary>The index on the GraphicsDevice.bufferBindings array where this BufferObject's BufferTarget last bound handle is stored</summary>
         internal readonly int bufferBindingTargetIndex;
 
         /// <summary>

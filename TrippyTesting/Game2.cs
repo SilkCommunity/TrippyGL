@@ -26,7 +26,6 @@ namespace TrippyTesting
         public Game2() : base(1280, 720, new GraphicsMode(new ColorFormat(8,8,8,8), 24, 0, 8, ColorFormat.Empty, 2), "T R I P P Y", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -129,7 +128,7 @@ namespace TrippyTesting
             invernadero.Dispose();
             fondo.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         protected override void OnResize(EventArgs e)

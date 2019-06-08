@@ -6,11 +6,21 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
-    public class GraphicsDevice
+    /// <summary>
+    /// The GraphicsDevice manages an OpenGL Context and it's GraphicsResources (everything from BufferObjects to Textures to ShaderPrograms)
+    /// </summary>
+    public class GraphicsDevice : IDisposable
     {
+        /// <summary>The OpenGL Context for this GraphicDevice</summary>
         public IGraphicsContext Context { get; private set; }
 
+        /// <summary>Whether this GraphicsDevice has been disposed</summary>
+        public bool IsDisposed { get; private set; }
 
+        /// <summary>
+        /// Creates a GraphicsDevice to manage the given graphics context
+        /// </summary>
+        /// <param name="context">The OpenGL Context for this GraphicsDevice</param>
         public GraphicsDevice(IGraphicsContext context)
         {
             this.Context = context;
@@ -744,9 +754,27 @@ namespace TrippyGL
 
         #endregion BindingStates
 
+        /// <summary>
+        /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
+        /// </summary>
+        /// <param name="resource">The resource to pass over</param>
         public void MakeMine(GraphicsResource resource)
         {
             resource.GraphicsDevice = this;
+        }
+
+        /// <summary>
+        /// Disposes this GraphicsDevice, it's GraphicsResource and it's context.
+        /// The GraphicsDevice nor it's resources can be used once it's been disposed
+        /// </summary>
+        public void Dispose()
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                Context.Dispose();
+                //TODO: dispose the GraphicResource-s. This is gonna need a list somewhere and it might be a bit ugly
+            }
         }
     }
 }

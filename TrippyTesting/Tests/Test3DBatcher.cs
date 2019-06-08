@@ -42,7 +42,6 @@ namespace TrippyTesting.Tests
         public Test3DBatcher() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 0, 0, ColorFormat.Empty, 2), "3D FUCKSAAA LO PIBE", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -291,15 +290,16 @@ namespace TrippyTesting.Tests
             batcher.WriteLinesTo(lineBuffer);
             ubo.SetValue(uniformVal);
             program.BlockUniforms["MatrixBlock"].SetValue(ubo);
-            graphicsDevice.EnsureShaderProgramInUse(program);
 
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);
 
             graphicsDevice.EnsureVertexArrayBound(lineArray);
+            program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
 
             graphicsDevice.EnsureVertexArrayBound(triangleArray);
+            program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
 
             batcher.ClearTriangles();
@@ -320,7 +320,7 @@ namespace TrippyTesting.Tests
             triangleBuffer.Dispose();
             lineBuffer.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         protected override void OnResize(EventArgs e)

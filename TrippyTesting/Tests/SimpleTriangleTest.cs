@@ -23,7 +23,6 @@ namespace TrippyTesting.Tests
         public SimpleTriangleTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "Simple Triangle", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -88,7 +87,7 @@ namespace TrippyTesting.Tests
             buffer.Dispose();
             program.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         protected override void OnResize(EventArgs e)

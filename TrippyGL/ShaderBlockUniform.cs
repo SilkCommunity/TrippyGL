@@ -34,9 +34,6 @@ namespace TrippyGL
 
             this.uniformSource = value;
             this.uniformSourceElementIndex = elementIndex;
-
-            if (OwnerProgram.IsCurrentlyInUse)
-                EnsureValueApplied();
         }
 
         public void EnsureValueApplied()

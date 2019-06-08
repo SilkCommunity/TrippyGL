@@ -34,7 +34,6 @@ namespace TrippyTesting
         public Game3() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -55,8 +54,13 @@ namespace TrippyTesting
             tex2d = new Texture2D(graphicsDevice, "data/YARN.png", true);
 
             tex1d = new Texture1D(graphicsDevice, "dataa3/tex1d.png");
-            otherTex1d = new Texture1D(graphicsDevice, 1);
-            otherTex1d.SetData(new Color4b[] { Color4b.White });
+            otherTex1d = new Texture1D(graphicsDevice, 5, false, TextureImageFormat.Vector4);
+            otherTex1d.SetData(new Vector4[] { new Vector4(0, 0, 0, 1), new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 1, 1) });
+            otherTex1d.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            otherTex1d.SetWrapMode(TextureWrapMode.Repeat);
+
+            Vector4[] jeje = new Vector4[otherTex1d.Width];
+            otherTex1d.GetData(jeje);
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("dataa3/vs.glsl"));
@@ -175,7 +179,7 @@ namespace TrippyTesting
             tex1d.Dispose();
             buffer.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         protected override void OnResize(EventArgs e)

@@ -34,7 +34,6 @@ namespace TrippyTesting
         {
             this.Title = "Loading...";
             VSync = VSyncMode.On;
-            TrippyLib.Init();
             graphicsDevice = new GraphicsDevice(this.Context);
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
@@ -121,7 +120,7 @@ namespace TrippyTesting
             program.Dispose();
             tex2d.Dispose();
 
-            TrippyLib.Quit();
+            graphicsDevice.Dispose();
         }
 
         private void LoadThread()
@@ -133,6 +132,7 @@ namespace TrippyTesting
             Console.WriteLine("thread before " + GL.GetError());
             tex2d = new Texture2D(loadingDevice, "data/YARN.png");
             tex1d = new Texture1D(loadingDevice, "dataa3/tex1d.png");
+            tex1d.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             //Thread.Sleep(5000);
             program = new ShaderProgram(loadingDevice);
             program.AddVertexShader("#version 400\r\nuniform mat4 Proj; in vec3 vP; in vec4 vC; in vec2 vT; out vec4 fC; out vec2 fT; void main() { gl_Position = Proj * vec4(vP, 1.0); fC = vC; fT = vT; }");

@@ -3,6 +3,9 @@ using System;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Vertex arrays are used for specifying the way vertex attributes are laid out in memory and from which buffer object each data attribute comes from.
+    /// </summary>
     public class VertexArray : GraphicsResource
     {
         /// <summary>The GL VertexArrayObject's name</summary>
@@ -17,7 +20,8 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true)
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
             if (attribSources == null)
@@ -29,7 +33,7 @@ namespace TrippyGL
             Handle = GL.GenVertexArray();
             this.AttribSources = attribSources;
 
-            MakeVertexAttribPointerCalls(compensateStructPadding);
+            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
         }
 
         /// <summary>
@@ -39,7 +43,8 @@ namespace TrippyGL
         /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true)
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        public VertexArray(GraphicsDevice graphicsDevice, BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
             if (dataBuffer == null)
@@ -57,7 +62,7 @@ namespace TrippyGL
             for (int i = 0; i < AttribSources.Length; i++)
                 AttribSources[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
 
-            MakeVertexAttribPointerCalls(compensateStructPadding);
+            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
         }
 
         /// <summary>
@@ -65,8 +70,8 @@ namespace TrippyGL
         /// The parameters of glVertexAttribPointer are calculated based on the VertexAttribSource-s from AttribSources
         /// </summary>
         /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs</param>
-        /// <param name="packValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int packValue = 4)
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int paddingPackValue = 4)
         {
             GraphicsDevice.EnsureVertexArrayBound(this);
 
@@ -104,7 +109,7 @@ namespace TrippyGL
                         baseTypeCount = 0;
                         prevBufferHandle = calls[i].source.DataBuffer.Handle;
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
-                        baseTypeByteSize = VertexAttribDescription.GetSizeInBytesOfAttribType(currentBaseType);
+                        baseTypeByteSize = TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType);
                         calls[i].offset = 0;
                     }
                     else if (currentBaseType != calls[i].source.AttribDescription.AttribBaseType)
@@ -112,8 +117,8 @@ namespace TrippyGL
                         // the base type has changed, let's ensure padding is applied to offset
                         baseTypeCount = 0;
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
-                        baseTypeByteSize = VertexAttribDescription.GetSizeInBytesOfAttribType(currentBaseType);
-                        int p = Math.Min(baseTypeByteSize, packValue);
+                        baseTypeByteSize = TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType);
+                        int p = Math.Min(baseTypeByteSize, paddingPackValue);
                         offset = (offset + p - 1) / p * p;
                     }
                     baseTypeCount += calls[i].source.AttribDescription.Size * calls[i].source.AttribDescription.AttribIndicesUseCount;
@@ -148,40 +153,6 @@ namespace TrippyGL
                 GraphicsDevice.EnsureBufferBound(calls[i].source.DataBuffer);
                 calls[i].CallGlVertexAttribPointer();
             }
-
-            /*int attribIndex = 0;
-            for (int i = 0; i < AttribSources.Length; i++)
-            {
-                VertexAttribSource vas = AttribSources[i];
-                
-                int offset = 0;
-                for (int c = 0; c < i; c++)
-                {
-                    // Calculate the offset value for this attribute.
-                    // To to this, we go through all previous vertex attributes and find those with the same BufferObject
-                    // When we find an attribute that is before this one that shares BufferObject, we add it's size in bytes to the offset
-                    // We might want to compensate for the struct padding, so if compensateStructPadding is true we fix up the value.
-
-                    VertexAttribSource vas2 = AttribSources[c];
-                    if (vas2.DataBuffer == vas.DataBuffer)
-                        offset += vas2.AttribDescription.SizeInBytes;
-                }
-
-                vas.DataBuffer.EnsureBound(); // WE DON'T NEED TO CALCULATE STRIDE, JUST USE vas.DataBuffer.ElementSize
-                for (int c = 0; c < vas.AttribDescription.AttribIndicesUseCount; c++)
-                {
-                    if (!vas.AttribDescription.Normalized && vas.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
-                        GL.VertexAttribLPointer(attribIndex, vas.AttribDescription.Size, VertexAttribDoubleType.Double, vas.DataBuffer.ElementSize, (IntPtr)offset);
-                    else if (!vas.AttribDescription.Normalized && VertexAttribDescription.IsIntegerType(vas.AttribDescription.AttribBaseType))
-                        GL.VertexAttribIPointer(attribIndex, vas.AttribDescription.Size, (VertexAttribIntegerType)vas.AttribDescription.AttribBaseType, vas.DataBuffer.ElementSize, (IntPtr)offset);
-                    else
-                        GL.VertexAttribPointer(attribIndex, vas.AttribDescription.Size, vas.AttribDescription.AttribBaseType, vas.AttribDescription.Normalized, vas.DataBuffer.ElementSize, offset);
-
-                    GL.EnableVertexAttribArray(attribIndex);
-                    attribIndex++;
-                    offset += vas.AttribDescription.SizeInBytes / vas.AttribDescription.AttribIndicesUseCount;
-                }
-            }*/
         }
 
         protected override void Dispose(bool isManualDispose)
@@ -216,7 +187,7 @@ namespace TrippyGL
                 {
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
                         GL.VertexAttribLPointer(index + i, source.AttribDescription.Size, VertexAttribDoubleType.Double, source.DataBuffer.ElementSize, (IntPtr)offs);
-                    else if (!source.AttribDescription.Normalized && VertexAttribDescription.IsIntegerType(source.AttribDescription.AttribType))
+                    else if (!source.AttribDescription.Normalized && TrippyUtils.IsVertexAttribIntegerType(source.AttribDescription.AttribType))
                         GL.VertexAttribIPointer(index + i, source.AttribDescription.Size, (VertexAttribIntegerType)source.AttribDescription.AttribBaseType, source.DataBuffer.ElementSize, (IntPtr)offs);
                     else
                         GL.VertexAttribPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, source.DataBuffer.ElementSize, offs);

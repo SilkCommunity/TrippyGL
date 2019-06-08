@@ -27,12 +27,13 @@ namespace TrippyGL
 
         ~GraphicsResource()
         {
-            if (TrippyLib.isLibActive)
+            if (!GraphicsDevice.IsDisposed)
                 Dispose(false);
         }
 
         protected virtual void Dispose(bool isManualDispose)
         {
+
         }
 
         /// <summary>
