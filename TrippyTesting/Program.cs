@@ -37,7 +37,7 @@ namespace TrippyTesting
             Console.WriteLine("END");
             Console.ReadLine();*/
 
-            using(GameWindow w = new MultithreadTest1())
+            using(GameWindow w = new Game2())
             {
                 w.Run(60, 60);
             }

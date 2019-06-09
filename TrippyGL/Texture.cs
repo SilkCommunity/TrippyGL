@@ -27,8 +27,17 @@ namespace TrippyGL
         /// <summary>The format for this texture's image</summary>
         public readonly TextureImageFormat ImageFormat;
 
-        /// <summary>Whether this texture is mipmapped</summary>
+        /// <summary>Gets whether this texture is mipmapped</summary>
         public bool IsMipmapped { get; protected set; }
+
+        /// <summary>Gets whether this texture is currently bound to a unit</summary>
+        public bool IsBound { get { return GraphicsDevice.IsTextureBound(this); } }
+
+        /// <summary>Gets whether this texture is currently bound to the currently active texture unit</summary>
+        public bool IsBoundAndActive { get { return GraphicsDevice.IsTextureBound(this) && lastBindUnit == GraphicsDevice.ActiveTextureUnit; } }
+
+        /// <summary>Gets the texture unit to which this texture is currently bound, or -1 if it's not bound anywhere</summary>
+        public int GetCurrentlyBoundUnit { get { return IsBound ? lastBindUnit : -1; } }
 
         /// <summary>The last texture unit to which this texture was bound. This value is used by binding functions</summary>
         internal int lastBindUnit;
@@ -157,6 +166,11 @@ namespace TrippyGL
         {
             GL.DeleteTexture(this.Handle);
             base.Dispose(isManualDispose);
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("Handle=", Handle, ", Type=", TextureType, ", ImageFormat=", ImageFormat, "Mipmapped=", IsMipmapped, ", Bound=", IsBound, "BoundAndActive=", IsBoundAndActive);
         }
     }
 }

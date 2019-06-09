@@ -477,34 +477,95 @@ namespace TrippyGL
             textureBindings[ActiveTextureUnit] = texture.Handle;
         }
 
-        public int[] EnsureAllBound(Texture[] textures)
+        /// <summary>
+        /// Ensures all of the given textures are bound to a texture unit
+        /// </summary>
+        /// <param name="textures">The textures to ensure are bound</param>
+        public void EnsureAllBound(Texture[] textures)
         {
             if (textures.Length > textureBindings.Length)
                 throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
 
-            int[] units = new int[textures.Length];
             for (int i = 0; i < textures.Length; i++)
             {
-                SetActiveTextureUnit(i);
-                BindTextureToCurrentUnit(textures[i]);
-                units[i] = i;
+                Texture t = textures[i];
+                if (textureBindings[t.lastBindUnit] != t.Handle)
+                {
+                    EnsureActiveTextureUnit(FindUnusedTextureUnit(textures));
+                    BindTextureToCurrentUnit(t);
+                }
             }
-            return units;
+
+            // Find a texture unit that's not in use by any of the given textures
+            int FindUnusedTextureUnit(Texture[] texturesToBind)
+            {
+                int unit;
+                do
+                {
+                    unit = GetNextBindTextureUnit();
+                } while (IsTextureUnitInUse(unit, texturesToBind));
+                return unit;
+            }
+
+            // Whether a texture unit is currently in use by any of the specified textures
+            bool IsTextureUnitInUse(int unit, Texture[] texturesToBind)
+            {
+                for (int i = 0; i < texturesToBind.Length; i++)
+                {
+                    Texture t = texturesToBind[i];
+                    if (t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
+                        return true;
+                }
+                return false;
+            }
         }
 
-        public int[] EnsureAllBound(List<Texture> textures)
+        /// <summary>
+        /// Ensures all of the given textures are bound to a texture unit
+        /// </summary>
+        /// <param name="textures">The textures to ensure are bound</param>
+        public void EnsureAllBound(List<Texture> textures)
         {
             if (textures.Count > textureBindings.Length)
                 throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
 
-            int[] units = new int[textures.Count];
             for (int i = 0; i < textures.Count; i++)
             {
-                SetActiveTextureUnit(i);
-                BindTextureToCurrentUnit(textures[i]);
-                units[i] = i;
+                Texture t = textures[i];
+                if (textureBindings[t.lastBindUnit] != t.Handle)
+                {
+                    EnsureActiveTextureUnit(FindUnusedTextureUnit(textures));
+                    BindTextureToCurrentUnit(t);
+                }
             }
-            return units;
+
+            // Find a texture unit that's not in use by any of the given textures
+            int FindUnusedTextureUnit(List<Texture> texturesToBind)
+            {
+                int unit;
+                do
+                {
+                    unit = GetNextBindTextureUnit();
+                } while (IsTextureUnitInUse(unit, texturesToBind));
+                return unit;
+            }
+
+            // Whether a texture unit is currently in use by any of the specified textures
+            bool IsTextureUnitInUse(int unit, List<Texture> texturesToBind)
+            {
+                for (int i = 0; i < texturesToBind.Count; i++)
+                {
+                    Texture t = texturesToBind[i];
+                    if (t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public bool IsTextureBound(Texture texture)
+        {
+            return textureBindings[texture.lastBindUnit] == texture.Handle;
         }
 
         /// <summary>
