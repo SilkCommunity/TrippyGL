@@ -23,13 +23,14 @@ namespace TrippyTesting
         Texture2D tex2d;
         Texture1D tex1d, otherTex1d;
 
-        Texture2D fboTexture;
-
         ShaderProgram program3d;
         VertexBuffer<VertexColor> batchBuffer;
         PrimitiveBatcher<VertexColor> batcher;
 
-        int fbo, rbo;
+        Framebuffer2D framebuffer;
+
+        //Texture2D fboTexture;
+        //int fbo, rbo;
 
         public Game3() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
@@ -92,15 +93,16 @@ namespace TrippyTesting
             program3d.Uniforms["View"].SetValueMat4(ref mat);
             program3d.Uniforms["Projection"].SetValueMat4(ref mat);
 
-            fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height);
-            fbo = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexture.TextureType, fboTexture.Handle, 0);
+            framebuffer = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
+            //fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height);
+            //fbo = GL.GenFramebuffer();
+            //GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fboTexture.TextureType, fboTexture.Handle, 0);
 
-            rbo = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
+            //rbo = GL.GenRenderbuffer();
+            //GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+            //GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
+            //GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -115,16 +117,16 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-
             BlendMode.AlphaBlend.Apply();
             Matrix4 mat;
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.ClearDepth(1f);
 
             GL.Enable(EnableCap.DepthTest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+            graphicsDevice.BindFramebuffer(framebuffer);
+            //GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            
+
             VertexColor[] cone = new VertexColor[]
             {
                 new VertexColor(new Vector3(-1, 0, -1), new Color4b(255, 0, 0, 255)),
@@ -161,7 +163,8 @@ namespace TrippyTesting
 
             mat = Matrix4.CreateScale(0.7f) * Matrix4.CreateTranslation(0.5f, 0f, 0f);
             program.Uniforms["World"].SetValueMat4(ref mat);
-            program.Uniforms["samp2d"].SetValueTexture(fboTexture);
+            program.Uniforms["samp2d"].SetValueTexture(framebuffer.Texture);
+            //program.Uniforms["samp2d"].SetValueTexture(fboTexture);
             program.EnsurePreDrawStates();
 
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
@@ -195,9 +198,10 @@ namespace TrippyTesting
             mat = Matrix4.LookAt(new Vector3(0.5f, -0.5f, 0.5f), Vector3.Zero, -Vector3.UnitY);
             program3d.Uniforms["View"].SetValueMat4(ref mat);
 
-            fboTexture.RecreateImage(this.Width, this.Height);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
+            framebuffer.ReacreateFramebuffer(this.Width, this.Height);
+            //fboTexture.RecreateImage(this.Width, this.Height);
+            //GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+            //GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);
         }
 
 

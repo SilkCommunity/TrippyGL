@@ -30,14 +30,14 @@ namespace TrippyGL
 
     public enum DepthStencilFormat
     {
+        None = 0,
         Depth24Stencil8 = RenderbufferStorage.Depth24Stencil8,
         Depth32fStencil8 = RenderbufferStorage.Depth32fStencil8,
         Depth16 = RenderbufferStorage.DepthComponent16,
         Depth24 = RenderbufferStorage.DepthComponent24,
-        Depth32 = RenderbufferStorage.DepthComponent32,
+        Depth32 = RenderbufferStorage.DepthComponent32, //support for this is not required by OpenGL
         Depth32f = RenderbufferStorage.DepthComponent32f,
         Stencil8 = RenderbufferStorage.StencilIndex8,
-        Stencil16 = RenderbufferStorage.StencilIndex16
     }
 
     public enum SaveImageFormat

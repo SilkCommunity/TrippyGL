@@ -37,7 +37,7 @@ namespace TrippyTesting
             Console.WriteLine("END");
             Console.ReadLine();*/
 
-            using(GameWindow w = new Game2())
+            using(GameWindow w = new Tests.FramebufferTest())
             {
                 w.Run(60, 60);
             }

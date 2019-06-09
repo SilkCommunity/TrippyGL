@@ -33,6 +33,7 @@ namespace TrippyGL
             InitTextureStates();
             framebufferDrawHandle = 0;
             framebufferReadHandle = 0;
+            renderbufferHandle = 0;
         }
 
         #region GLGet
@@ -601,12 +602,15 @@ namespace TrippyGL
         /// <summary>The handle of the framebuffer currently bound to the read target</summary>
         private int framebufferReadHandle;
 
+        /// <summary>The handle of the currently bound renderbuffer</summary>
+        private int renderbufferHandle;
+
         /// <summary>
         /// Ensures a framebuffer is bound to a specified target
         /// </summary>
         /// <param name="target">The framebuffer target</param>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void EnsureFramebufferBound(FramebufferTarget target, FramebufferObject framebuffer)
+        public void EnsureFramebufferBound(FramebufferTarget target, Framebuffer2D framebuffer)
         {
             int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
@@ -628,7 +632,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="target">The framebuffer target</param>
         /// <param name="framebuffer">The framebuffer bind</param>
-        public void BindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
+        public void BindFramebuffer(FramebufferTarget target, Framebuffer2D framebuffer)
         {
             int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
@@ -649,7 +653,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the draw and read targets
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void EnsureFramebufferBound(FramebufferObject framebuffer)
+        public void EnsureFramebufferBound(Framebuffer2D framebuffer)
         {
             EnsureFramebufferBound(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -658,7 +662,7 @@ namespace TrippyGL
         /// Binds a framebuffer to both draw and read targets. Prefer using EnsureFramebufferBound() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void BindFramebuffer(FramebufferObject framebuffer)
+        public void BindFramebuffer(Framebuffer2D framebuffer)
         {
             BindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -667,7 +671,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the draw target
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void EnsureFramebufferBoundDraw(FramebufferObject framebuffer)
+        public void EnsureFramebufferBoundDraw(Framebuffer2D framebuffer)
         {
             EnsureFramebufferBoundDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -676,7 +680,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the draw target. Prefer using EnsureFramebufferBoundDraw() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void BindFramebufferDraw(FramebufferObject framebuffer)
+        public void BindFramebufferDraw(Framebuffer2D framebuffer)
         {
             BindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -685,7 +689,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the read target
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void EnsureFramebufferBoundRead(FramebufferObject framebuffer)
+        public void EnsureFramebufferBoundRead(Framebuffer2D framebuffer)
         {
             EnsureFramebufferBoundRead(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -694,7 +698,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the read target. Prefer using EnsureFramebufferBoundRead() instead to prevent unnecessary binds
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void BindFramebufferRead(FramebufferObject framebuffer)
+        public void BindFramebufferRead(Framebuffer2D framebuffer)
         {
             BindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -762,6 +766,27 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Ensures a renderbuffer's handle is the currently bound renderbuffer
+        /// </summary>
+        /// <param name="handle">The renderbuffer's handle to ensure is bound</param>
+        internal void EnsureRenderbufferBound(int handle)
+        {
+            if (renderbufferHandle != handle)
+                BindRenderbuffer(handle);
+        }
+
+
+        /// <summary>
+        /// Binds a renderbuffer's handle to GL_RENDERBUFFER. Prefer using EnsureRenderbufferbound() to avoid unnecessary binds
+        /// </summary>
+        /// <param name="handle">The renderbuffer's handle to bind</param>
+        internal void BindRenderbuffer(int handle)
+        {
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
+            renderbufferHandle = handle;
+        }
+
+        /// <summary>
         /// Resets all saved states for FramebufferObjects. This is, the variables used to check whether to use a shader program or not.
         /// You should only need to call this when itneroperating with other libraries or using your own GL functions
         /// </summary>
@@ -770,6 +795,7 @@ namespace TrippyGL
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             framebufferDrawHandle = 0;
             framebufferReadHandle = 0;
+            renderbufferHandle = 0;
         }
 
         #endregion

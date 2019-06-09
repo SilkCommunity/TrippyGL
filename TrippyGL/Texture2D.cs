@@ -162,8 +162,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Saves this texture as an image file.
-        /// You can't save multisampled textures
+        /// Saves this texture as an image file. You can't save multisampled textures
         /// </summary>
         /// <param name="file">The location in which to store the file</param>
         /// <param name="imageFormat">The format</param>
@@ -174,6 +173,9 @@ namespace TrippyGL
 
             if (String.IsNullOrEmpty(file))
                 throw new ArgumentException("You must specify a file name", "file");
+
+            if (this.ImageFormat != TextureImageFormat.Color4b)
+                throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
 
             ImageFormat format;
 
@@ -201,7 +203,6 @@ namespace TrippyGL
                 GraphicsDevice.EnsureTextureBoundAndActive(this);
                 GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
-
                 b.Save(file, System.Drawing.Imaging.ImageFormat.Png);
             }
         }

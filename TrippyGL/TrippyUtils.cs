@@ -208,5 +208,32 @@ namespace TrippyGL
 
             }
         }
+
+        /// <summary>
+        /// Returns whether a DepthStencilFormat is a depth-only format
+        /// </summary>
+        /// <param name="format">The DepthStencilFormat value to check</param>
+        public static bool IsDepthStencilFormatDepthOnly(DepthStencilFormat format)
+        {
+            return (format >= DepthStencilFormat.Depth16 && format <= DepthStencilFormat.Depth32) || format == DepthStencilFormat.Depth32f;
+        }
+
+        /// <summary>
+        /// Returns whether a DepthStencilFormat is a depth-and-stencil format
+        /// </summary>
+        /// <param name="format">The DepthStencilFormat value to check</param>
+        public static bool IsDepthStencilFormatDepthAndStencil(DepthStencilFormat format)
+        {
+            return format == DepthStencilFormat.Depth24Stencil8 || format == DepthStencilFormat.Depth32fStencil8;
+        }
+
+        /// <summary>
+        /// Returns whether a DepthStencilFormat is a stencil-only format
+        /// </summary>
+        /// <param name="format">The DepthStencilFormat value to check</param>
+        public static bool IsDepthStencilFormatStencilOnly(DepthStencilFormat format)
+        {
+            return format == DepthStencilFormat.Stencil8;
+        }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
@@ -20,5 +17,16 @@ namespace TrippyGL
     public class ProgramLinkException : Exception
     {
         internal ProgramLinkException(string infoLog) : base(String.Concat("Program didn't link properly: ", Environment.NewLine, infoLog)) { }
+    }
+
+    /// <summary>
+    /// An exception thrown when a Framebuffer fails to be created
+    /// </summary>
+    public class FramebufferCreationException : Exception
+    {
+        internal FramebufferCreationException(FramebufferErrorCode c) : base("The framebuffer couldn't be created: " + c)
+        {
+
+        }
     }
 }
