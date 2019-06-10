@@ -59,7 +59,7 @@ namespace TrippyGL
         /// <param name="magFilter">The texture's magnifying filter</param>
         public void SetTextureFilters(TextureMinFilter minFilter, TextureMagFilter magFilter)
         {
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)minFilter);
             GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
@@ -73,7 +73,7 @@ namespace TrippyGL
         /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
         {
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);

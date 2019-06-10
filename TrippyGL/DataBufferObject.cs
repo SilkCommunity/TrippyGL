@@ -104,7 +104,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLength, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * this.elementSize), dataLength * this.elementSize, ref data[dataOffset]);
         }
 
@@ -119,7 +119,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLength, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * this.elementSize), dataLength * this.elementSize, ref data[dataOffset]);
         }
 

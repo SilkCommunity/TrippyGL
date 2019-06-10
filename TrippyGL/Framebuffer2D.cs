@@ -7,7 +7,7 @@ using System.Drawing.Imaging;
 namespace TrippyGL
 {
     /// <summary>
-    /// 
+    /// A configurable 2D framebuffer you can perform offscreen rendering operations to
     /// </summary>
     public class Framebuffer2D : GraphicsResource
     {
@@ -39,7 +39,7 @@ namespace TrippyGL
         public int Samples { get { return Texture.Samples; } }
 
         /// <summary>
-        /// Creates a FramebufferObject
+        /// Creates a Framebuffer2D with the specified parameters
         /// </summary>
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="width"></param>
@@ -52,7 +52,7 @@ namespace TrippyGL
             Texture = new Texture2D(graphicsDevice, width, height, false, samples, imageFormat);
             this.DepthStencil = depthStencilFormat;
             Handle = GL.GenFramebuffer();
-            graphicsDevice.BindFramebuffer(Handle);
+            graphicsDevice.ForceBindFramebuffer(Handle);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, Texture.TextureType, Texture.Handle, 0);
 
             if (this.DepthStencil == DepthStencilFormat.None)
@@ -60,7 +60,7 @@ namespace TrippyGL
             else
             {
                 rbo = GL.GenRenderbuffer();
-                graphicsDevice.BindRenderbuffer(rbo);
+                graphicsDevice.ForceBindRenderbuffer(rbo);
                 GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)this.DepthStencil, this.Width, this.Height);
 
                 FramebufferAttachment rboAttachmentType;
@@ -106,7 +106,7 @@ namespace TrippyGL
             Texture.RecreateImage(width, height);
             if (rbo != 0)
             {
-                GraphicsDevice.EnsureRenderbufferBound(rbo);
+                GraphicsDevice.BindRenderbuffer(rbo);
                 GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)this.DepthStencil, width, height);
             }
         }
@@ -147,7 +147,7 @@ namespace TrippyGL
             using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
                 BitmapData data = b.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GraphicsDevice.EnsureFramebufferBoundRead(this);
+                GraphicsDevice.BindFramebufferRead(this);
                 GL.ReadPixels(0, 0, this.Width, this.Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 //GraphicsDevice.EnsureTextureBoundAndActive(this);
                 //GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);

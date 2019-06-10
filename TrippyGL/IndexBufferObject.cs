@@ -123,7 +123,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
         }
 
@@ -139,7 +139,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
         }
 
@@ -155,7 +155,7 @@ namespace TrippyGL
         {
             ValidateSetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
         }
 
@@ -171,7 +171,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 4, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 4), dataLength * 4, ref data[dataOffset]);
         }
 
@@ -187,7 +187,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes / 2, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)(storageOffset * 2), dataLength * 2, ref data[dataOffset]);
         }
 
@@ -203,7 +203,7 @@ namespace TrippyGL
         {
             ValidateGetParams(storageOffset, dataOffset, dataLength, storageLengthInBytes, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(this.BufferTarget, (IntPtr)storageOffset, dataLength, ref data[dataOffset]);
         }
 

@@ -357,7 +357,7 @@ namespace TrippyGL
         /// </summary>
         internal void EnsureInUse()
         {
-            GraphicsDevice.EnsureShaderProgramInUse(this);
+            GraphicsDevice.UseShaderProgram(this);
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsurePreDrawStates()
         {
-            GraphicsDevice.EnsureShaderProgramInUse(this);
+            GraphicsDevice.UseShaderProgram(this);
             Uniforms.EnsureSamplerUniformsSet();
             BlockUniforms.EnsureAllSet();
         }

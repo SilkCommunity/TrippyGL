@@ -43,7 +43,7 @@ namespace TrippyGL
             int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
             this.elementStride = (this.elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, ref initialValue, usageHint);
         }
 
@@ -62,7 +62,7 @@ namespace TrippyGL
             int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
             this.elementStride = (this.elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, IntPtr.Zero, usageHint);
         }
 
@@ -85,7 +85,7 @@ namespace TrippyGL
 
             ValidateInitWithDataParams(storageLength, dataOffset, data);
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferData(this.BufferTarget, storageLengthBytes, IntPtr.Zero, usageHint);
 
             for (int i = 0; i < storageLength; i++)
@@ -115,7 +115,7 @@ namespace TrippyGL
             if (index < 0 || index > storageLength)
                 throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, StorageLength)");
 
-            GraphicsDevice.EnsureBufferBound(this);
+            GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(this.BufferTarget, (IntPtr)(index * this.elementStride), this.elementSize, ref value);
         }
 
@@ -130,7 +130,7 @@ namespace TrippyGL
             // We do this because offset must be a multiple of GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, so that's also why
             // you can't just simply set this buffer object's value as an array. It would have to be formatted to fit
 
-            GraphicsDevice.EnsureBufferBoundRange(this, bindingIndex, elementIndex * this.ElementStride, this.elementSize);
+            GraphicsDevice.BindBufferRange(this, bindingIndex, elementIndex * this.ElementStride, this.elementSize);
         }
     }
 }

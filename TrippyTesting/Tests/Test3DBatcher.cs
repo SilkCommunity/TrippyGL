@@ -294,11 +294,11 @@ namespace TrippyTesting.Tests
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);
 
-            graphicsDevice.EnsureVertexArrayBound(lineArray);
+            graphicsDevice.BindVertexArray(lineArray);
             program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
 
-            graphicsDevice.EnsureVertexArrayBound(triangleArray);
+            graphicsDevice.BindVertexArray(triangleArray);
             program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
 

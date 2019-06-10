@@ -80,7 +80,7 @@ namespace TrippyTesting.Tests
             
 
             buffer.EnsureArrayBound();
-            graphicsDevice.EnsureShaderProgramInUse(program);
+            graphicsDevice.UseShaderProgram(program);
             program.Uniforms["t"].SetValue1(time);
             program.Uniforms["tex"].SetValueTexture(tex1);
 

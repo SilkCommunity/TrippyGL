@@ -97,9 +97,9 @@ namespace TrippyTesting.Tests
             fb2 = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
 
             GL.ClearColor(0f, 0f, 0f, 1f);
-            graphicsDevice.EnsureFramebufferBound(fb1);
+            graphicsDevice.BindFramebuffer(fb1);
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            graphicsDevice.EnsureFramebufferBound(fb2);
+            graphicsDevice.BindFramebuffer(fb2);
             GL.Clear(ClearBufferMask.ColorBufferBit);
         }
 
@@ -121,7 +121,7 @@ namespace TrippyTesting.Tests
             GL.Enable(EnableCap.DepthTest);
             Matrix4 mat;
 
-            graphicsDevice.EnsureFramebufferBound(fb1);
+            graphicsDevice.BindFramebuffer(fb1);
             GL.ClearColor(0.1f + (time % 0.2f), 0.2f, 0.2f, 1f);
             GL.ClearDepth(1f);
             //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -133,7 +133,7 @@ namespace TrippyTesting.Tests
             program.Uniforms["View"].SetValueMat4(ref mat);
             program.Uniforms["samp"].SetValueTexture(tex1);
             program.EnsurePreDrawStates();
-            graphicsDevice.EnsureVertexArrayBound(array);
+            graphicsDevice.BindVertexArray(array);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
             VertexColor[] cone = new VertexColor[]
             {
@@ -153,7 +153,7 @@ namespace TrippyTesting.Tests
             mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, (float)this.Width / this.Height, 0.001f, 10f);
             program3d.Uniforms["Projection"].SetValueMat4(ref mat);
             batcher3d.WriteTrianglesTo(buffer3d.DataBuffer);
-            graphicsDevice.EnsureVertexArrayBound(buffer3d.VertexArray);
+            graphicsDevice.BindVertexArray(buffer3d.VertexArray);
             program3d.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, batcher3d.TriangleVertexCount);
             batcher3d.ClearTriangles();
@@ -162,11 +162,11 @@ namespace TrippyTesting.Tests
             program.Uniforms["World"].SetValueMat4(ref mat);
             program.Uniforms["samp"].SetValueTexture(fb2.Texture);
             program.EnsurePreDrawStates();
-            graphicsDevice.EnsureVertexArrayBound(array);
+            graphicsDevice.BindVertexArray(array);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            graphicsDevice.EnsureFramebufferBoundDraw(null);
-            graphicsDevice.EnsureFramebufferBoundRead(fb1);
+            graphicsDevice.BindFramebufferDraw(null);
+            graphicsDevice.BindFramebufferRead(fb1);
             GL.BlitFramebuffer(0, 0, this.Width, this.Height, 0, 0, this.Width, this.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
             Framebuffer2D tmp = fb1;

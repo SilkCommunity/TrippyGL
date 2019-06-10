@@ -60,7 +60,7 @@ namespace TrippyGL
                 ValidateTextureSize(this.Width, this.Height);
 
                 BitmapData data = bitmap.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                graphicsDevice.EnsureTextureBoundAndActive(this);
+                graphicsDevice.BindTextureSetActive(this);
                 GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
             }
@@ -102,7 +102,7 @@ namespace TrippyGL
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelDataFormat, this.PixelType, dataPtr);
         }
 
@@ -120,7 +120,7 @@ namespace TrippyGL
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
 
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
 
@@ -143,7 +143,7 @@ namespace TrippyGL
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
         public void GetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
         {
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(this.TextureType, 0, pixelDataFormat, this.PixelType, dataPtr);
         }
 
@@ -157,7 +157,7 @@ namespace TrippyGL
         {
             ValidateGetOperation(data, dataOffset);
 
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
 
@@ -200,7 +200,7 @@ namespace TrippyGL
             using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
                 BitmapData data = b.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GraphicsDevice.EnsureTextureBoundAndActive(this);
+                GraphicsDevice.BindTextureSetActive(this);
                 GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
                 b.Save(file, System.Drawing.Imaging.ImageFormat.Png);
@@ -214,7 +214,7 @@ namespace TrippyGL
         /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode)
         {
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
         }
@@ -231,7 +231,7 @@ namespace TrippyGL
             this.Width = width;
             this.Height = height;
 
-            GraphicsDevice.EnsureTextureBoundAndActive(this);
+            GraphicsDevice.BindTextureSetActive(this);
             if (this.Samples == 0)
                 GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
             else

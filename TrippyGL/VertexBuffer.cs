@@ -83,7 +83,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureBufferBound()
         {
-            GraphicsDevice.EnsureBufferBound(DataBuffer);
+            GraphicsDevice.BindBuffer(DataBuffer);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace TrippyGL
         /// </summary>
         public void BindBuffer()
         {
-            GraphicsDevice.EnsureBufferBound(DataBuffer);
+            GraphicsDevice.BindBuffer(DataBuffer);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsureArrayBound()
         {
-            GraphicsDevice.EnsureVertexArrayBound(VertexArray);
+            GraphicsDevice.BindVertexArray(VertexArray);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace TrippyGL
         /// </summary>
         public void BindArray()
         {
-            GraphicsDevice.BindVertexArray(VertexArray);
+            GraphicsDevice.ForceBindVertexArray(VertexArray);
         }
 
         /// <summary>

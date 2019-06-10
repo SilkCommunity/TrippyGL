@@ -240,13 +240,13 @@ namespace TrippyTesting
 
         private void drawTexture(Texture2D texture, Vector2 center, Vector2 scale, float rotation)
         {
-            graphicsDevice.EnsureVertexArrayBound(vertexArray);
+            graphicsDevice.BindVertexArray(vertexArray);
 
             Matrix4 mat = Matrix4.CreateScale(scale.X * texture.Width, scale.Y * texture.Height, 1f) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(center.X, center.Y, 0);
             world.SetValueMat4(ref mat);
             tex.SetValueTexture(texture);
 
-            graphicsDevice.EnsureBufferBound(indexBuffer);
+            graphicsDevice.BindBuffer(indexBuffer);
 
             program.EnsurePreDrawStates();
             GL.DrawElements(PrimitiveType.TriangleStrip, 4, indexBuffer.ElementType, 0);

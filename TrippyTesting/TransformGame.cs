@@ -140,7 +140,7 @@ namespace TrippyTesting
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Enable(EnableCap.RasterizerDiscard);
-            graphicsDevice.EnsureVertexArrayBound(vaoRead);
+            graphicsDevice.BindVertexArray(vaoRead);
             GL.UseProgram(transProgram);
             if (timeLoc != -1)
                 GL.Uniform1(timeLoc, time);
@@ -162,7 +162,7 @@ namespace TrippyTesting
 
             GL.UseProgram(drawProgram);
 
-            graphicsDevice.EnsureVertexArrayBound(vaoWrite);
+            graphicsDevice.BindVertexArray(vaoWrite);
             GL.DrawArrays(PrimitiveType.Points, 0, bufferRead.StorageLength);
 
             VertexDataBufferObject<ParticleVertex> tmpvbo = bufferRead;

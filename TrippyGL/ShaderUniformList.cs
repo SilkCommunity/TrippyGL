@@ -114,7 +114,7 @@ namespace TrippyGL
             if (isTextureListDirty)
                 RemakeTextureList();
 
-            Program.GraphicsDevice.EnsureAllBound(textureList);
+            Program.GraphicsDevice.BindAllTextures(textureList);
 
             for (int i = 0; i < samplerUniforms.Length; i++)
                 samplerUniforms[i].ApplyUniformValue();
