@@ -37,7 +37,7 @@ namespace TrippyTesting
             Console.WriteLine("END");
             Console.ReadLine();*/
 
-            using(GameWindow w = new Tests.FramebufferTest())
+            using(GameWindow w = new Tests.FramebufferTest2())
             {
                 w.Run(60, 60);
             }
@@ -98,6 +98,24 @@ namespace TrippyTesting
                 }
                 Console.WriteLine("[TEST ENDED]\n\n\n");
             }
+        }
+
+        public static void OnDebugMessage(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
+        {
+            Console.WriteLine("Debug message: src=" + src + " type=" + type + " id=" + id + " sev=" + sev + " msg=" + ReadThatFuck(msg));
+        }
+
+        public unsafe static string ReadThatFuck(IntPtr ptr)
+        {
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+
+            byte* c = (byte*)ptr;
+            while(*c != 0)
+            {
+                builder.Append((char)*c);
+                c++;
+            }
+            return builder.ToString();
         }
 
         static int ReadInt()

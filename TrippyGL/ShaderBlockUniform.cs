@@ -44,7 +44,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Name=", Name);
+            return String.Concat("Name=", Name, " UniformCount=", ActiveUniformCount.ToString());
         }
     }
 }

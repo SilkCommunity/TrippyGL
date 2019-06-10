@@ -76,8 +76,9 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            BlendMode.AlphaBlend.Apply();
-            
+            BlendState.AlphaBlend.Apply();
+            GL.ClearColor(0f, 0f, 0f, 1f);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
             buffer.EnsureArrayBound();
             graphicsDevice.UseShaderProgram(program);

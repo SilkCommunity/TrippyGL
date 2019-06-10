@@ -8,7 +8,7 @@ namespace TrippyGL
         // These are organized in such away so the base type (float, int, uint)
         // is differentiable by dividing by 32 and the remainder indicates the amount of components
         // (amount of components: Color4b has 4, Vector2 has 2, Vector3i has 3, etc)
-        // This is done in Texture.GetTextureFormatEnums()
+        // This is done in TrippyUtils.GetTextureFormatEnums()
 
         Color4b = 5,
 

@@ -16,7 +16,7 @@ namespace TrippyGL
 
         /// <summary>
         /// The type of element this IndexBufferObject stores.
-        /// Changing this will change the meaning of the current data in the buffer's storage and the length of the storage measured in elements
+        /// Changing this will change the meaning of the current data in the buffer's storage and the length of the storage when measured in elements
         /// </summary>
         public DrawElementsType ElementType
         {
@@ -24,7 +24,7 @@ namespace TrippyGL
             set
             {
                 this.elementType = value;
-                this.elementSizeInBytes = GetSizeInBytesOfType(value);
+                this.elementSizeInBytes = TrippyUtils.GetSizeInBytesOfType(value);
             }
         }
 
@@ -48,7 +48,7 @@ namespace TrippyGL
             : base(graphicsDevice, BufferTarget.ElementArrayBuffer)
         {
             this.elementType = elementType;
-            this.elementSizeInBytes = GetSizeInBytesOfType(elementType);
+            this.elementSizeInBytes = TrippyUtils.GetSizeInBytesOfType(elementType);
             this.storageLengthInBytes = storageLength * this.elementSizeInBytes;
 
             InitializeStorage(storageLengthInBytes, usageHint);
@@ -209,27 +209,8 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Handle=", Handle, "; StorageLength=", StorageLength, "; ElementType=", elementType, "; ElementSizeInBytes=", elementSizeInBytes, "; IsCurrentlyBound=", IsCurrentlyBound);
+            return String.Concat("Handle=", Handle.ToString(), "; StorageLength=", StorageLength.ToString(), "; ElementType=", elementType.ToString(), "; ElementSizeInBytes=", elementSizeInBytes.ToString(), "; IsCurrentlyBound=", IsCurrentlyBound.ToString());
         }
 
-        /// <summary>
-        /// Gets the size in bytes for one element of the specified type.
-        /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception
-        /// </summary>
-        /// <param name="type">The type of element</param>
-        public static int GetSizeInBytesOfType(DrawElementsType type)
-        {
-            switch (type)
-            {
-                case DrawElementsType.UnsignedByte:
-                    return 1;
-                case DrawElementsType.UnsignedShort:
-                    return 2;
-                case DrawElementsType.UnsignedInt:
-                    return 4;
-            }
-
-            throw new ArgumentException("That's not a valid DrawElementsType value");
-        }
     }
 }

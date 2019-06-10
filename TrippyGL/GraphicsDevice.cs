@@ -844,6 +844,102 @@ namespace TrippyGL
 
         #endregion BindingStates
 
+        #region DrawingStates
+
+        #region Viewport
+        /// <summary>The current drawing viewport</summary>
+        private Rectangle viewport;
+
+        /// <summary>Gets or sets the viewport for drawing</summary>
+        public Rectangle Viewport
+        {
+            get { return viewport; }
+            set
+            {
+                if (value.X != viewport.X || value.Y != viewport.Y || value.Width != viewport.Width || value.Height != viewport.Height)
+                {
+                    viewport = value;
+                    GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the current viewport for drawing
+        /// </summary>
+        /// <param name="x">The viewport's X</param>
+        /// <param name="y">The viewport's Y</param>
+        /// <param name="width">The viewport's width</param>
+        /// <param name="height">The viewport's height</param>
+        public void SetViewport(int x, int y, int width, int height)
+        {
+            if (viewport.X != x || viewport.Y != y || viewport.Width != width || viewport.Height != height)
+            {
+                viewport.X = x;
+                viewport.Y = y;
+                viewport.Width = width;
+                viewport.Height = height;
+                GL.Viewport(x, y, width, height);
+            }
+        }
+
+        #endregion Viewport
+
+        #region BlendState
+
+        /// <summary>The current blend state</summary>
+        private BlendState blendState;
+
+        /// <summary>Gets or sets the blend state for drawing</summary>
+        public BlendState BlendState
+        {
+            get { return blendState; }
+            set
+            {
+                if (blendState.IsOpaque && value.IsOpaque) //Both are opaque? Then setting it again makes no difference...
+                    blendState = value; //But we'll still store the value in case somebody wants to read it back I guess
+                else
+                {
+                    if (blendState != value)
+                    {
+                        if (value.IsOpaque)
+                        { 
+                            // Is the new state opaque? Then, if the old state wasn't opaque too let's disable blending.
+                            if (!blendState.IsOpaque) // If the old state was opaque, then blending is already disabled
+                                GL.Disable(EnableCap.Blend);
+                        }
+                        else
+                        {
+                            if (blendState.IsOpaque) // If the previous blend state was opaque, then blending is disabled.
+                                GL.Enable(EnableCap.Blend); // So we're enable it for the new blend state
+
+                            // We'll ignore comparing these ones... We know there's at least one difference anyway so let's not waste so much time
+                            GL.BlendColor(blendState.BlendColor);
+                            GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
+                            GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
+                        }
+                        blendState = value;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the current blend state as opaque
+        /// </summary>
+        public void SetBlendStateOpaque()
+        {
+            if (!blendState.IsOpaque)
+            {
+                blendState.IsOpaque = true;
+                GL.Disable(EnableCap.Blend);
+            }
+        }
+
+        #endregion BlendState
+
+        #endregion DrawingStates
+
         /// <summary>
         /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
         /// </summary>

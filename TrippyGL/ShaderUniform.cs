@@ -385,7 +385,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Name=\"", Name, "\" Type=", UniformType);
+            return String.Concat("Name=\"", Name, "\" Type=", UniformType.ToString());
         }
     }
 }

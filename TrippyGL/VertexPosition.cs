@@ -29,7 +29,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, ")");
+            return String.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ")");
         }
 
         /// <summary>

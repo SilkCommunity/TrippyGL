@@ -50,7 +50,7 @@ namespace TrippyTesting
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            BlendMode.AlphaBlend.Apply();
+            BlendState.AlphaBlend.Apply();
             
             #region LoadVBO
 

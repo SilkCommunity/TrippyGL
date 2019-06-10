@@ -117,7 +117,7 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            BlendMode.AlphaBlend.Apply();
+            BlendState.AlphaBlend.Apply();
             Matrix4 mat;
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.ClearDepth(1f);
@@ -170,7 +170,7 @@ namespace TrippyTesting
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, buffer.StorageLength);
 
             VertexColor[] arr = new VertexColor[batchBuffer.StorageLength];
-            batchBuffer.GetData(0, 0, arr.Length, arr);
+            batchBuffer.DataBuffer.GetData(0, 0, arr.Length, arr);
 
             SwapBuffers();
         }

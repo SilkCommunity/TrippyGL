@@ -51,7 +51,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("(", Position.X, ", ", Position.Y, ", ", Position.Z, ") (", Color.R, ", ", Color.G, ", ", Color.B, ", ", Color.A, ") (", TexCoords.X, ", ", TexCoords.Y, ")");
+            return String.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
         }
 
         /// <summary>

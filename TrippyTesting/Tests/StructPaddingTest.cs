@@ -80,7 +80,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            BlendMode.Opaque.Apply();
+            BlendState.Opaque.Apply();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, this.Width, this.Height);
             GL.ClearColor(0f, 0f, 0f, 1f);

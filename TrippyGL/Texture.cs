@@ -47,7 +47,7 @@ namespace TrippyGL
             this.Handle = GL.GenTexture();
             this.TextureType = type;
             this.ImageFormat = imageFormat;
-            GetTextureFormatEnums(imageFormat, out PixelFormat, out PixelType);
+            TrippyUtils.GetTextureFormatEnums(imageFormat, out PixelFormat, out PixelType);
             this.lastBindUnit = 0;
             this.IsMipmapped = false;
         }
@@ -79,89 +79,6 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
         }
 
-        /// <summary>
-        /// Turns a value from the TextureImageFormat enum into the necessary enums to create an OpenGL texture's image storage
-        /// </summary>
-        /// <param name="imageFormat">The requested image format</param>
-        /// <param name="pixelInternalFormat">The pixel's internal format</param>
-        /// <param name="pixelType">The pixel's type</param>
-        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType)
-        {
-            // The workings of this function are related to the numbers assigned to each enum value
-            int b = (int)imageFormat / 32;
-
-            switch (b)
-            {
-                case 0: //this works because the only unsigned byte type is Color4b
-                    #region UnsignedByteTypes
-                    pixelType = PixelType.UnsignedByte;
-                    pixelInternalFormat = PixelInternalFormat.Rgba8;
-                    return;
-                    #endregion
-                case 1:
-                    #region FloatTypes
-                    pixelType = PixelType.Float;
-                    switch ((int)imageFormat - b * 32)
-                    {
-                        case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32f;
-                            return;
-                        case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32f;
-                            return;
-                        case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32f;
-                            return;
-                        case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32f;
-                            return;
-                    }
-                    break;
-                    #endregion
-                case 2:
-                    #region IntTypes
-                    pixelType = PixelType.Int;
-                    switch ((int)imageFormat - b * 32)
-                    {
-                        case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32i;
-                            return;
-                        case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32i;
-                            return;
-                        case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32i;
-                            return;
-                        case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32i;
-                            return;
-                    }
-                    break;
-                    #endregion
-                case 3:
-                    #region UnsignedIntTypes
-                    pixelType = PixelType.UnsignedInt;
-                    switch ((int)imageFormat - b * 32)
-                    {
-                        case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32ui;
-                            return;
-                        case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32ui;
-                            return;
-                        case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32ui;
-                            return;
-                        case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32ui;
-                            return;
-                    }
-                    break;
-                    #endregion
-            }
-            throw new ArgumentException("Image format is not a valid TextureImageFormat value", "imageFormat");
-        }
-
         protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteTexture(this.Handle);
@@ -170,7 +87,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Handle=", Handle, ", Type=", TextureType, ", ImageFormat=", ImageFormat, "Mipmapped=", IsMipmapped, ", Bound=", IsBound, "BoundAndActive=", IsBoundAndActive);
+            return String.Concat("Handle=", Handle.ToString(), ", Type=", TextureType.ToString(), ", ImageFormat=", ImageFormat.ToString(), "Mipmapped=", IsMipmapped.ToString(), ", Bound=", IsBound.ToString(), "BoundAndActive=", IsBoundAndActive.ToString());
         }
     }
 }

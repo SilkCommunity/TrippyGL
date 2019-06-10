@@ -151,7 +151,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("ShaderUniformList with ", uniforms.Length, " uniforms");
+            return String.Concat("ShaderUniformList with ", uniforms.Length.ToString(), " uniforms");
         }
 
         /// <summary>

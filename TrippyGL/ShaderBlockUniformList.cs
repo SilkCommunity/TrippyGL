@@ -63,7 +63,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("ShaderBlockUniformList with ", uniforms.Length, " uniform blocks");
+            return String.Concat("ShaderBlockUniformList with ", uniforms.Length.ToString(), " uniform blocks");
         }
 
     }

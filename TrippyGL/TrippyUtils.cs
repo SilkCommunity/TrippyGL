@@ -235,5 +235,110 @@ namespace TrippyGL
         {
             return format == DepthStencilFormat.Stencil8;
         }
+
+
+        /// <summary>
+        /// Turns a value from the TextureImageFormat enum into the necessary enums to create an OpenGL texture's image storage
+        /// </summary>
+        /// <param name="imageFormat">The requested image format</param>
+        /// <param name="pixelInternalFormat">The pixel's internal format</param>
+        /// <param name="pixelType">The pixel's type</param>
+        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType)
+        {
+            // The workings of this function are related to the numbers assigned to each enum value
+            int b = (int)imageFormat / 32;
+
+            switch (b)
+            {
+                case 0: 
+                    #region UnsignedByteTypes
+                    pixelType = PixelType.UnsignedByte;
+                    pixelInternalFormat = PixelInternalFormat.Rgba8;
+                    //this works because the only unsigned byte type is Color4b
+                    return;
+                #endregion
+                case 1:
+                    #region FloatTypes
+                    pixelType = PixelType.Float;
+                    switch ((int)imageFormat - b * 32)
+                    {
+                        case 1:
+                            pixelInternalFormat = PixelInternalFormat.R32f;
+                            return;
+                        case 2:
+                            pixelInternalFormat = PixelInternalFormat.Rg32f;
+                            return;
+                        case 3:
+                            pixelInternalFormat = PixelInternalFormat.Rgb32f;
+                            return;
+                        case 4:
+                            pixelInternalFormat = PixelInternalFormat.Rgba32f;
+                            return;
+                    }
+                    break;
+                #endregion
+                case 2:
+                    #region IntTypes
+                    pixelType = PixelType.Int;
+                    switch ((int)imageFormat - b * 32)
+                    {
+                        case 1:
+                            pixelInternalFormat = PixelInternalFormat.R32i;
+                            return;
+                        case 2:
+                            pixelInternalFormat = PixelInternalFormat.Rg32i;
+                            return;
+                        case 3:
+                            pixelInternalFormat = PixelInternalFormat.Rgb32i;
+                            return;
+                        case 4:
+                            pixelInternalFormat = PixelInternalFormat.Rgba32i;
+                            return;
+                    }
+                    break;
+                #endregion
+                case 3:
+                    #region UnsignedIntTypes
+                    pixelType = PixelType.UnsignedInt;
+                    switch ((int)imageFormat - b * 32)
+                    {
+                        case 1:
+                            pixelInternalFormat = PixelInternalFormat.R32ui;
+                            return;
+                        case 2:
+                            pixelInternalFormat = PixelInternalFormat.Rg32ui;
+                            return;
+                        case 3:
+                            pixelInternalFormat = PixelInternalFormat.Rgb32ui;
+                            return;
+                        case 4:
+                            pixelInternalFormat = PixelInternalFormat.Rgba32ui;
+                            return;
+                    }
+                    break;
+                    #endregion
+            }
+            throw new ArgumentException("Image format is not a valid TextureImageFormat value", "imageFormat");
+        }
+
+        /// <summary>
+        /// Gets the size in bytes for one element of the specified type.
+        /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception
+        /// </summary>
+        /// <param name="type">The type of element</param>
+        public static int GetSizeInBytesOfType(DrawElementsType type)
+        {
+            switch (type)
+            {
+                case DrawElementsType.UnsignedByte:
+                    return 1;
+                case DrawElementsType.UnsignedShort:
+                    return 2;
+                case DrawElementsType.UnsignedInt:
+                    return 4;
+            }
+
+            throw new ArgumentException("That's not a valid DrawElementsType value");
+        }
     }
 }

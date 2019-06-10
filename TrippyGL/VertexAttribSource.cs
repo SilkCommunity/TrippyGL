@@ -57,7 +57,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat(AttribDescription.ToString(), " bufferHandle=", DataBuffer.Handle);
+            return String.Concat(AttribDescription.ToString(), " bufferHandle=", DataBuffer.Handle.ToString());
         }
     }
 
@@ -118,7 +118,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return Normalized ? String.Concat("Normalized ", AttribType, " baseType ", AttribBaseType) : String.Concat("Unnormalized ", AttribType);
+            return String.Concat(Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(), " baseType ", AttribBaseType.ToString());
         }
     }
 }

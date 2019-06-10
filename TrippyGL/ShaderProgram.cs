@@ -304,6 +304,16 @@ namespace TrippyGL
         /// <summary>
         /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
         /// </summary>
+        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index</param>
+        /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
+        public void SpecifyVertexAttribs(VertexAttribSourceList attribSources, string[] attribNames)
+        {
+            SpecifyVertexAttribs(attribSources.sources, attribNames);
+        }
+
+        /// <summary>
+        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
+        /// </summary>
         /// <typeparam name="T">The type of vertex this ShaderProgram will use as input</typeparam>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
         public void SpecifyVertexAttribs<T>(string[] attribNames) where T : struct, IVertex

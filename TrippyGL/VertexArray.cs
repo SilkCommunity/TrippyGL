@@ -11,8 +11,8 @@ namespace TrippyGL
         /// <summary>The GL VertexArrayObject's name</summary>
         public readonly int Handle;
 
-        /// <summary>The sources that will feed the vertex attribute's data on draw calls</summary>
-        public readonly VertexAttribSource[] AttribSources;
+        /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls</summary>
+        public readonly VertexAttribSourceList AttribSources;
 
         /// <summary>
         /// Creates a VertexArray with the specified attribute sources
@@ -31,7 +31,7 @@ namespace TrippyGL
                 throw new ArgumentException("You can't create a VertexArray with no attributes", "attribSources");
 
             Handle = GL.GenVertexArray();
-            this.AttribSources = attribSources;
+            this.AttribSources = new VertexAttribSourceList(attribSources);
 
             MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
         }
@@ -58,9 +58,10 @@ namespace TrippyGL
 
             Handle = GL.GenVertexArray();
 
-            AttribSources = new VertexAttribSource[attribDescriptions.Length];
-            for (int i = 0; i < AttribSources.Length; i++)
-                AttribSources[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
+            VertexAttribSource[] s = new VertexAttribSource[attribDescriptions.Length];
+            for (int i = 0; i < s.Length; i++)
+                s[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
+            AttribSources = new VertexAttribSourceList(s);
 
             MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
         }
@@ -159,6 +160,11 @@ namespace TrippyGL
         {
             GL.DeleteVertexArray(this.Handle);
             base.Dispose(isManualDispose);
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("AttribSources: {", AttribSources.ToString(), "}");
         }
 
         /// <summary>

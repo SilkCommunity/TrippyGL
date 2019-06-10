@@ -59,7 +59,8 @@
     <Compile Include="Game2.cs" />
     <Compile Include="Game3.cs" />
     <Compile Include="MultithreadTest1.cs" />
-    <Compile Include="Tests\FramebufferTest.cs" />
+    <Compile Include="Tests\FramebufferTest1.cs" />
+    <Compile Include="Tests\FramebufferTest2.cs" />
     <Compile Include="Tests\Test3DBatcher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -110,28 +110,9 @@ namespace TrippyGL
             GraphicsDevice.ForceBindVertexArray(VertexArray);
         }
 
-        /// <summary>
-        /// Writes part or all of the buffer object's storage
-        /// </summary>
-        /// <param name="storageOffset">The index of the first element in the buffer's storage to write</param>
-        /// <param name="dataOffset">The index of the first element from the specified data array to start reading from</param>
-        /// <param name="dataLength">The amount of elements to copy from the data array to the buffer</param>
-        /// <param name="data">The array containing the data to upload</param>
-        public void SetData(int storageOffset, int dataOffset, int dataLength, T[] data)
+        public override string ToString()
         {
-            DataBuffer.SetData(storageOffset, dataOffset, dataLength, data);
-        }
-
-        /// <summary>
-        /// Gets part or all of the data stored in this buffer object's storage
-        /// </summary>
-        /// <param name="storageOffset">The index of the first element in the buffer's storage to read</param>
-        /// <param name="dataOffset">The index of the first element from the specified data array to writting to</param>
-        /// <param name="dataLength">The amount of elements to copy from the buffer's storage to the data array</param>
-        /// <param name="data">The array in which to write the recieved data</param>
-        public void GetData(int storageOffset, int dataOffset, int dataLength, T[] data)
-        {
-            DataBuffer.GetData(storageOffset, dataOffset, dataLength, data);
+            return String.Concat("DataBuffer: { ", DataBuffer.ToString(), " }, VertexArray={ ", VertexArray.ToString(), " }");
         }
 
         protected override void Dispose(bool isManualDispose)

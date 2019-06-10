@@ -42,12 +42,14 @@ namespace TrippyGL
             {
                 IsMipmapped = true;
                 GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
+                if (samples == 0)
+                    GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
             }
-            else
+            else if (samples == 0)
                 GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            if (samples == 0)
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget) : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
@@ -59,7 +61,7 @@ namespace TrippyGL
                 this.Height = bitmap.Height;
                 ValidateTextureSize(this.Width, this.Height);
 
-                BitmapData data = bitmap.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, this.Width, this.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
                 GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
@@ -199,7 +201,7 @@ namespace TrippyGL
 
             using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
-                BitmapData data = b.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.BindTextureSetActive(this);
                 GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
@@ -214,6 +216,9 @@ namespace TrippyGL
         /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode)
         {
+            if (this.Samples != 0)
+                throw new InvalidOperationException("You can't change a multisampled texture's sampler states");
+
             GraphicsDevice.BindTextureSetActive(this);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
@@ -236,6 +241,7 @@ namespace TrippyGL
                 GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
             else
                 GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, this.Samples, this.PixelFormat, this.Width, this.Height, true);
+
         }
 
         private protected void ValidateTextureSize(int width, int height)

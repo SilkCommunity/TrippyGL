@@ -10,7 +10,7 @@ using TrippyGL;
 
 namespace TrippyTesting.Tests
 {
-    class FramebufferTest : GameWindow
+    class FramebufferTest1 : GameWindow
     {
         Random r = new Random();
         System.Diagnostics.Stopwatch stopwatch;
@@ -33,7 +33,7 @@ namespace TrippyTesting.Tests
 
         MouseState ms, oldms;
 
-        public FramebufferTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        public FramebufferTest1() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
             graphicsDevice = new GraphicsDevice(this.Context);
@@ -52,8 +52,6 @@ namespace TrippyTesting.Tests
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
-
-            graphicsDevice = new GraphicsDevice(this.Context);
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("fbotest/simplevs.glsl"));
@@ -184,7 +182,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            GL.Viewport(0, 0, this.Width, this.Height);
+            graphicsDevice.SetViewport(0, 0, this.Width, this.Height);
             Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
             program.Uniforms["Projection"].SetValueMat4(ref mat);
             mat = Matrix4.Identity;

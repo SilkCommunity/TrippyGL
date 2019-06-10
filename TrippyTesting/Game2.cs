@@ -102,7 +102,7 @@ namespace TrippyTesting
             GL.ClearDepth(1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            BlendMode.AlphaBlend.Apply();
+            BlendState.AlphaBlend.Apply();
             
             vertexBuffer.EnsureArrayBound();
 

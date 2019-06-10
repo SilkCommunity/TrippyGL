@@ -55,6 +55,7 @@ namespace TrippyGL
             graphicsDevice.ForceBindFramebuffer(Handle);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, Texture.TextureType, Texture.Handle, 0);
 
+            Console.WriteLine(GL.GetError());
             if (this.DepthStencil == DepthStencilFormat.None)
                 rbo = 0;
             else
@@ -118,6 +119,9 @@ namespace TrippyGL
         /// <param name="imageFormat">The format</param>
         public void SaveAsImage(string file, SaveImageFormat imageFormat)
         {
+            if (Samples != 0)
+                throw new InvalidOperationException("You can't save a multisampled Framebuffer. Try blitting it to a same-size non-multisampled framebuffer and saving that one");
+
             if (String.IsNullOrEmpty(file))
                 throw new ArgumentException("You must specify a file name", "file");
 
@@ -146,12 +150,11 @@ namespace TrippyGL
 
             using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
-                BitmapData data = b.LockBits(new Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.BindFramebufferRead(this);
                 GL.ReadPixels(0, 0, this.Width, this.Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-                //GraphicsDevice.EnsureTextureBoundAndActive(this);
-                //GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
+                b.RotateFlip(RotateFlipType.RotateNoneFlipY);
                 b.Save(file, ImageFormat.Png);
             }
         }
