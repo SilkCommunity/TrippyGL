@@ -941,6 +941,105 @@ namespace TrippyGL
         #endregion DrawingStates
 
         /// <summary>
+        /// Copies content from one framebuffer to another
+        /// </summary>
+        /// <param name="src">The framebuffer to copy from</param>
+        /// <param name="dst">The framebuffer to copy to</param>
+        /// <param name="srcX">The X location of the first pixel to read</param>
+        /// <param name="srcY">The Y location of the first pixel to read</param>
+        /// <param name="srcWidth">The width of the read rectangle</param>
+        /// <param name="srcHeight">The height of the read rectangle</param>
+        /// <param name="dstX">The X location of the first pixel to write</param>
+        /// <param name="dstY">The Y location of the first pixel to write</param>
+        /// <param name="dstWidth">The width of the write rectangle</param>
+        /// <param name="dstHeight">The height of the draw rectangle</param>
+        /// <param name="mask">What data to copy from the framebuffers</param>
+        /// <param name="filter">Whether to use nearest or linear filtering</param>
+        public void BlitFramebuffer(Framebuffer2D src, Framebuffer2D dst, int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
+        {
+            // Blit rules:
+            // General rectangle correctness rules (src and dst rectangles must be inside the framebuffers' size rectangles)
+            // If mask contains Depth or Stencil, filter must be Nearest.
+            // Buffers must have same image format?
+            // If the framebuffers contain integer format, filter must be Nearest.
+            // The blit fails if any of the following conditions about samples is true:
+            //    1. Both framebuffers have different amount of samples and one of them isn't 0
+            //    2. Condition 1 is true and the width and height of the src and dst rectangles don't match
+
+            if (srcWidth <= 0 || srcWidth > src.Width)
+                throw new ArgumentOutOfRangeException("srcWidth", srcWidth, "srcWidth must be in the range (0, src.Width]");
+
+            if (srcHeight <= 0 || srcHeight > src.Height)
+                throw new ArgumentOutOfRangeException("srcHeight", srcHeight, "srcHeight must be in the range (0, src.Height]");
+
+            if (srcX < 0 || srcX > src.Width - srcWidth)
+                throw new ArgumentOutOfRangeException("srcX", srcX, "srcX must be in the range [0, src.Width-srcWidth)");
+
+            if (srcY < 0 || srcY > src.Height - srcHeight)
+                throw new ArgumentOutOfRangeException("srcY", srcY, "srcY must be in the range [0, src.Height-srcHeight)");
+
+            if (dstWidth <= 0 || dstWidth > dst.Width)
+                throw new ArgumentOutOfRangeException("dstWidth", dstWidth, "dstWidth must be in the range (0, dst.Width]");
+
+            if (dstHeight <= 0 || dstHeight > dst.Height)
+                throw new ArgumentOutOfRangeException("dstHeight", dstHeight, "dstHeight must be in the range (0, dst.Height]");
+
+            if (dstX < 0 || dstX > dst.Width - dstWidth)
+                throw new ArgumentOutOfRangeException("dstX", dstX, "dstX must be in the range [0, dst.Width-dstWidth)");
+
+            if (dstY < 0 || dstY > dst.Height - dstHeight)
+                throw new ArgumentOutOfRangeException("dstY", dstY, "dstY must be in the range [0, dst.Height-dstHeight)");
+
+            if (src.Texture.ImageFormat != dst.Texture.ImageFormat)
+                throw new InvalidBlitException("You can't blit between framebuffers with different image formats");
+
+            if ((mask & ClearBufferMask.ColorBufferBit) == ClearBufferMask.ColorBufferBit && (TrippyUtils.IsImageFormatIntegerType(src.Texture.ImageFormat) && filter != BlitFramebufferFilter.Nearest))
+                throw new InvalidBlitException("When blitting with color with integer formats, you must use a nearest filter");
+
+            if (((mask & ClearBufferMask.DepthBufferBit) | (mask & ClearBufferMask.StencilBufferBit)) != 0 && filter != BlitFramebufferFilter.Nearest)
+                throw new InvalidBlitException("When using depth or stencil, the filter must be Nearest");
+
+            //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
+            
+            bool areSameSize = srcWidth == dstWidth && srcHeight == dstHeight;
+            
+            if (src.Samples == dst.Samples)
+            {
+                if (src.Samples != 0 && !areSameSize)
+                    throw new InvalidBlitException("When blitting between multisampled framebuffers, the src and dst rectangle sizes must match");
+            }
+            else //then src.Samples != dst.Samples
+            {
+                // We're blitting framebuffers with different amounts of samples, this can be problematic
+                if (src.Samples * dst.Samples != 0) // None of the samples are 0 yet they aren't equal. This is invalid
+                    throw new InvalidBlitException("You can't blit between framebuffers with different sample counts");
+
+                if (!areSameSize)
+                    throw new InvalidBlitException("The sizes of both framebuffers must be the same when using different sample counts");
+            }
+
+            // Holy unbelievable fuck those were A LOT of checks for a godfucken blit
+
+            BindFramebufferRead(src);
+            BindFramebufferDraw(dst);
+            GL.BlitFramebuffer(srcX, srcY, srcWidth, srcHeight, dstX, dstY, dstWidth, dstHeight, mask, filter);
+        }
+
+        /// <summary>
+        /// Copies content from one framebuffer to another
+        /// </summary>
+        /// <param name="src">The framebuffer to copy from</param>
+        /// <param name="dst">The framebuffer to copy to</param>
+        /// <param name="srcRect">The source rectangle to copy from</param>
+        /// <param name="dstRect">The destination rectangle to write to</param>
+        /// <param name="mask">What data to copy from the framebuffers</param>
+        /// <param name="filter">Whether to use nearest or linear filtering</param>
+        public void BlitFramebuffer(Framebuffer2D src, Framebuffer2D dst, Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
+        {
+            BlitFramebuffer(src, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
+        }
+
+        /// <summary>
         /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
         /// </summary>
         /// <param name="resource">The resource to pass over</param>

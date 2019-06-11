@@ -32,6 +32,7 @@ namespace TrippyTesting.Tests
         public FramebufferTest2() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Debug)
         {
             GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
             GL.DebugMessageCallback(Program.OnDebugMessage, IntPtr.Zero);
             
             VSync = VSyncMode.On;
@@ -107,7 +108,7 @@ namespace TrippyTesting.Tests
 
             float tx = (mouseX / (float)this.Width) * 2 - 1;
             float ty = (1f - mouseY / (float)this.Height) * 2 - 1;
-            mat = Matrix4.CreateRotationZ(time) * Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(tx, ty, 0);
+            mat = Matrix4.CreateRotationZ(time * 3.14f) * Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(tx, ty, 0);
             program.Uniforms["World"].SetValueMat4(ref mat);
             mat = Matrix4.Identity;
             program.Uniforms["View"].SetValueMat4(ref mat);
@@ -182,6 +183,9 @@ namespace TrippyTesting.Tests
 
                     GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
+                    // Blitting with multisampled framebuffers only works if the src and dst rectangles have the same size
+                    //graphicsDevice.BlitFramebuffer(framebuffer, fb, 0, 0, framebuffer.Width, framebuffer.Height, 0, 0, fb.Width, fb.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+                    
                     fb.SaveAsImage(String.Concat("save", time.ToString(), ".png"), SaveImageFormat.Png);
                 }
             }

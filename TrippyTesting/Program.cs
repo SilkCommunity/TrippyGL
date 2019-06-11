@@ -102,20 +102,7 @@ namespace TrippyTesting
 
         public static void OnDebugMessage(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
         {
-            Console.WriteLine("Debug message: src=" + src + " type=" + type + " id=" + id + " sev=" + sev + " msg=" + ReadThatFuck(msg));
-        }
-
-        public unsafe static string ReadThatFuck(IntPtr ptr)
-        {
-            System.Text.StringBuilder builder = new System.Text.StringBuilder();
-
-            byte* c = (byte*)ptr;
-            while(*c != 0)
-            {
-                builder.Append((char)*c);
-                c++;
-            }
-            return builder.ToString();
+            Console.WriteLine("Debug message: src=" + src + " type=" + type + " id=" + id + " sev=" + sev + " msg=" + System.Runtime.InteropServices.Marshal.PtrToStringAnsi(msg));
         }
 
         static int ReadInt()

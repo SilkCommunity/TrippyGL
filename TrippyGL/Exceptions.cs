@@ -29,4 +29,12 @@ namespace TrippyGL
 
         }
     }
+
+    public class InvalidBlitException : Exception
+    {
+        internal InvalidBlitException(string message) : base(message)
+        {
+
+        }
+    }
 }

@@ -62,7 +62,7 @@ namespace TrippyGL
             {
                 rbo = GL.GenRenderbuffer();
                 graphicsDevice.ForceBindRenderbuffer(rbo);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)this.DepthStencil, this.Width, this.Height);
+                GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, this.Samples, (RenderbufferStorage)this.DepthStencil, this.Width, this.Height);
 
                 FramebufferAttachment rboAttachmentType;
                 if (TrippyUtils.IsDepthStencilFormatDepthAndStencil(this.DepthStencil))

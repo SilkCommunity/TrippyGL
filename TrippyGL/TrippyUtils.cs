@@ -340,5 +340,16 @@ namespace TrippyGL
 
             throw new ArgumentException("That's not a valid DrawElementsType value");
         }
+
+        /// <summary>
+        /// Returns whether the given TextureImageFormat represents a format with integer base type
+        /// </summary>
+        /// <param name="imageFormat">The image format to check</param>
+        public static bool IsImageFormatIntegerType(TextureImageFormat imageFormat)
+        {
+            return (imageFormat >= TextureImageFormat.Int && imageFormat <= TextureImageFormat.Vector4i)
+                || (imageFormat >= TextureImageFormat.UnsignedInt && imageFormat <= TextureImageFormat.UVector4i);
+
+        }
     }
 }

@@ -285,7 +285,7 @@ namespace TrippyGL
                 throw new ArgumentException("The provided data array isn't big enough for the texture starting from dataOffset", "data");
         }
 
-        private protected void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        internal void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
             if (rectX < 0 || rectY >= this.Height)
                 throw new ArgumentOutOfRangeException("rectX", rectX, "rectX must be in the range [0, this.Width)");
