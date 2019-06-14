@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -57,6 +58,7 @@ namespace TrippyGL
                         GL.Enable(EnableCap.DebugOutput);
                         GL.Enable(EnableCap.DebugOutputSynchronous);
                         debugProcDelegate = OnDebugMessageRecieved;
+                        debugProcDelegateHandle = GCHandle.Alloc(debugProcDelegate);
                         GL.DebugMessageCallback(debugProcDelegate, IntPtr.Zero);
                         debugMessagingEnabled = true;
                     }
@@ -67,6 +69,7 @@ namespace TrippyGL
                     GL.Disable(EnableCap.DebugOutputSynchronous);
                     debugMessagingEnabled = false;
                     debugProcDelegate = null;
+                    debugProcDelegateHandle.Free();
                 }
             }
         }
@@ -76,10 +79,11 @@ namespace TrippyGL
 
         /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito</summary>
         private DebugProc debugProcDelegate;
+        private GCHandle debugProcDelegateHandle;
 
         private void OnDebugMessageRecieved(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
         {
-            DebugMessage?.Invoke(src, type, id, sev, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(msg));
+            DebugMessage?.Invoke(src, type, id, sev, Marshal.PtrToStringAnsi(msg));
         }
 
         #endregion DebugMessaging
