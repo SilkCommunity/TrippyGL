@@ -34,6 +34,8 @@ namespace TrippyGL
             framebufferDrawHandle = 0;
             framebufferReadHandle = 0;
             renderbufferHandle = 0;
+
+            blendState = BlendState.Opaque;
         }
 
         #region GLGet
@@ -57,6 +59,8 @@ namespace TrippyGL
             MaxCubeMapTextureSize = GL.GetInteger(GetPName.MaxCubeMapTextureSize);
             MaxRectangleTextureSize = GL.GetInteger(GetPName.MaxRectangleTextureSize);
             MaxRenderbufferSize = GL.GetInteger(GetPName.MaxRenderbufferSize);
+            MaxVertexAttribs = GL.GetInteger(GetPName.MaxVertexAttribs);
+            MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -84,6 +88,10 @@ namespace TrippyGL
         public int MaxTextureImageUnits { get; private set; }
 
         public int MaxRenderbufferSize { get; private set; }
+        
+        public int MaxVertexAttribs { get; private set; }
+
+        public int MaxArrayTextureLayers { get; private set; }
 
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
@@ -1046,6 +1054,15 @@ namespace TrippyGL
         public void MakeMine(GraphicsResource resource)
         {
             resource.GraphicsDevice = this;
+        }
+
+        /// <summary>
+        /// This is called by GraphicsResource-s on Dispose()
+        /// </summary>
+        /// <param name="disposedResource">The graphics resource that was just disposed</param>
+        internal void OnResourceDisposed(GraphicsResource disposedResource)
+        {
+
         }
 
         /// <summary>

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TrippyGL
 {
@@ -45,6 +41,8 @@ namespace TrippyGL
             {
                 Dispose(true);
                 IsDisposed = true;
+                GraphicsDevice.OnResourceDisposed(this);
+                GraphicsDevice = null;
                 GC.SuppressFinalize(this);
             }
         }

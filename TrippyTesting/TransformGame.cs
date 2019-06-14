@@ -154,7 +154,7 @@ namespace TrippyTesting
             GL.EndTransformFeedback();
 
             GL.Disable(EnableCap.RasterizerDiscard);
-            BlendState.AlphaBlend.Apply();
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, this.Width, this.Height);
             GL.ClearColor(0f, 0f, 0f, 1f);

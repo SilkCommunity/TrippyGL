@@ -28,7 +28,8 @@ namespace TrippyGL
         public readonly TextureImageFormat ImageFormat;
 
         /// <summary>Gets whether this texture is mipmapped</summary>
-        public bool IsMipmapped { get; protected set; }
+        public bool IsMipmapped { get; private set; }
+        private bool isNotMipmappable;
 
         /// <summary>Gets whether this texture is currently bound to a unit</summary>
         public bool IsBound { get { return GraphicsDevice.IsTextureBound(this); } }
@@ -47,9 +48,10 @@ namespace TrippyGL
             this.Handle = GL.GenTexture();
             this.TextureType = type;
             this.ImageFormat = imageFormat;
-            TrippyUtils.GetTextureFormatEnums(imageFormat, out PixelFormat, out PixelType);
+            TrippyUtils.GetTextureFormatEnums(imageFormat, out this.PixelFormat, out this.PixelType);
             this.lastBindUnit = 0;
             this.IsMipmapped = false;
+            this.isNotMipmappable = !TrippyUtils.IsTextureTypeMipmappable(type);
         }
 
         /// <summary>
@@ -77,6 +79,16 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
             GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
+        }
+
+        public void GenerateMipmaps()
+        {
+            if (this.isNotMipmappable)
+                throw new InvalidOperationException(String.Concat("This texture type is not mipmappable! Type: ", this.TextureType.ToString()));
+
+            GraphicsDevice.BindTextureSetActive(this);
+            GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
+            this.IsMipmapped = true;
         }
 
         protected override void Dispose(bool isManualDispose)

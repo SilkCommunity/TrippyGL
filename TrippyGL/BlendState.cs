@@ -84,19 +84,6 @@ namespace TrippyGL
             this.BlendColor = blendColor;
         }
 
-        public void Apply()
-        {
-            if (IsOpaque)
-                GL.Disable(EnableCap.Blend);
-            else
-            {
-                GL.Enable(EnableCap.Blend);
-                GL.BlendColor(BlendColor);
-                GL.BlendEquationSeparate(EquationModeRGB, EquationModeAlpha);
-                GL.BlendFuncSeparate(SourceFactorRGB, DestFactorRGB, SourceFactorAlpha, DestFactorAlpha);
-            }
-        }
-
         /// <summary>
         /// Sets the current blending mode to Opaque. This acts the same as BlendMode.Opaque.Apply(); (just faster)
         /// </summary>

@@ -57,7 +57,7 @@ namespace TrippyTesting.Tests
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("dataa3/vs3d.glsl"));
             program.AddFragmentShader(File.ReadAllText("dataa3/fs3d.glsl"));
-            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition" ,"vColor" });
             program.LinkProgram();
 
             buffer = new VertexDataBufferObject<VertexColor>(graphicsDevice, new VertexColor[]
@@ -98,6 +98,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
             Matrix4 mat = Matrix4.Identity;
             GL.ClearColor(0f, 0f, 0f, 1f);
 
@@ -129,12 +130,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.BindVertexArray(fuckbuffer.VertexArray);
 
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-            //GL.Finish();
-            //graphicsDevice.BindFramebufferRead(framebuffer);
-            //GL.BlitFramebuffer(0, 0, framebuffer.Width, framebuffer.Height, 0, 0, this.Width, this.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-            // we can't blit a multisampled framebuffer to the default framebuffer if they dont have the same size :(
 
-            GL.Finish();
             SwapBuffers();
         }
 

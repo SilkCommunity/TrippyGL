@@ -81,6 +81,7 @@ namespace TrippyTesting.Tests
             uniformVal.Projection = mat;
 
             ubo = new UniformBufferObject<ThreeMat4>(graphicsDevice, uniformVal, BufferUsageHint.StreamDraw);
+            program.BlockUniforms["MatrixBlock"].SetValue(ubo);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
         }
@@ -289,7 +290,6 @@ namespace TrippyTesting.Tests
             batcher.WriteTrianglesTo(triangleBuffer);
             batcher.WriteLinesTo(lineBuffer);
             ubo.SetValue(uniformVal);
-            program.BlockUniforms["MatrixBlock"].SetValue(ubo);
 
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);

@@ -30,14 +30,9 @@ namespace TrippyGL
             RecreateImage(width);
 
             if (generateMipmaps)
-            {
-                IsMipmapped = true;
-                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
-            }
-            else
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GenerateMipmaps();
 
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
             GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
@@ -61,14 +56,9 @@ namespace TrippyGL
             }
 
             if (generateMipmaps)
-            {
-                IsMipmapped = true;
-                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
-            }
-            else
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GenerateMipmaps();
 
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
             GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 

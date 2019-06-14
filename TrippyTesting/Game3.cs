@@ -117,7 +117,7 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            BlendState.AlphaBlend.Apply();
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
             Matrix4 mat;
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.ClearDepth(1f);

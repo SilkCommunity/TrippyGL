@@ -39,17 +39,10 @@ namespace TrippyGL
             RecreateImage(width, height); //This also binds the texture
 
             if (generateMipmaps)
-            {
-                IsMipmapped = true;
-                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-                if (samples == 0)
-                    GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
-            }
-            else if (samples == 0)
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GenerateMipmaps();
 
-            if (samples == 0)
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget) : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
@@ -68,14 +61,9 @@ namespace TrippyGL
             }
 
             if (generateMipmaps)
-            {
-                IsMipmapped = true;
-                GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMipmapMinFilter);
-            }
-            else
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GenerateMipmaps();
 
+            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
             GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
@@ -244,6 +232,7 @@ namespace TrippyGL
 
         }
 
+
         private protected void ValidateTextureSize(int width, int height)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
@@ -255,19 +244,19 @@ namespace TrippyGL
 
         private protected void ValidateSetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
         {
-            if (Samples != 0)
+            if (this.Samples != 0)
                 throw new InvalidOperationException("You can't write the data of a multisampled texture");
 
-            if (data == null)
-                throw new ArgumentNullException("data", "Data array can't be null");
+            //if (data == null) //it's gonna throw null reference anyway
+            //    throw new ArgumentNullException("data", "Data array can't be null");
 
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
-            if (data.Length - dataOffset > rectWidth * rectHeight)
-                throw new ArgumentException("Too much data was specified for the texture area to write", "data");
+            if (data.Length - dataOffset < rectWidth * rectHeight)
+                throw new ArgumentException("The data array isn't big enough to read the specified amount of data", "data");
         }
 
         private protected void ValidateGetOperation<T>(T[] data, int dataOffset) where T : struct
@@ -275,8 +264,8 @@ namespace TrippyGL
             if (Samples != 0)
                 throw new InvalidOperationException("You can't read the data of a multisampled texture");
 
-            if (data == null)
-                throw new ArgumentNullException("data", "Data array can't be null");
+            //if (data == null) //it's gonna throw null reference anyway
+            //    throw new ArgumentNullException("data", "Data array can't be null");
 
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");

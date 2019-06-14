@@ -15,7 +15,9 @@ namespace TrippyGL
         private int vsHandle = -1;
         private int gsHandle = -1;
         private int fsHandle = -1;
-        private bool areAttribsBound = false;
+
+        /// <summary>This stores the names of the attributes provided via SpecifyVertexAttribs() to compare that they actually exist after linking</summary>
+        private string[] givenAttribNames = null;
 
         /// <summary>Gets data about the geometry shader in this program, if there is one</summary>
         public GeometryShaderData GeometryShader { get; private set; }
@@ -25,6 +27,9 @@ namespace TrippyGL
 
         /// <summary>The list of block uniforms in this program</summary>
         public ShaderBlockUniformList BlockUniforms { get; private set; }
+
+        /// <summary>Get the attributes</summary>
+        public ActiveAttribList ActiveAttribs;
 
         /// <summary>Whether this ShaderProgram has been linked</summary>
         public bool IsLinked { get; private set; } = false;
@@ -260,7 +265,7 @@ namespace TrippyGL
             //if (vsHandle == -1) //this order is actually not a requirement on OpenGL...
             //    throw new InvalidOperationException("You must add a vertex shader before specifying vertex attributes");
 
-            if (areAttribsBound)
+            if (givenAttribNames != null)
                 throw new InvalidOperationException("Attributes have already been bound for this program");
 
             if (attribData == null)
@@ -285,7 +290,7 @@ namespace TrippyGL
                 index += attribData[i].AttribIndicesUseCount;
             }
 
-            areAttribsBound = true;
+            givenAttribNames = attribNames;
         }
 
         /// <summary>
@@ -331,8 +336,8 @@ namespace TrippyGL
 
             if (vsHandle == -1)
                 throw new InvalidOperationException("Shader program must have a vertex shader before linking!");
-            
-            if (!areAttribsBound)
+
+            if (givenAttribNames == null)
                 throw new InvalidOperationException("The vertex attributes's indices have never been specified");
 
             GL.LinkProgram(Handle);
@@ -358,8 +363,13 @@ namespace TrippyGL
                 this.GeometryShader = new GeometryShaderData(this.Handle);
             }
 
-            BlockUniforms = new ShaderBlockUniformList(this);
-            Uniforms = new ShaderUniformList(this);
+            this.ActiveAttribs = new ActiveAttribList(this);
+            this.BlockUniforms = new ShaderBlockUniformList(this);
+            this.Uniforms = new ShaderUniformList(this);
+
+            if (!this.ActiveAttribs.CheckThatAttributeNamesMatch(givenAttribNames))
+                throw new InvalidOperationException("The vertex attrib names specified on SpecifyVertexAttribs() don't match the attributes");
+            givenAttribNames = null;
         }
 
         /// <summary>

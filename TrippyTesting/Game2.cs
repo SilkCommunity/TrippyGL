@@ -102,8 +102,8 @@ namespace TrippyTesting
             GL.ClearDepth(1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            BlendState.AlphaBlend.Apply();
-            
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
+
             vertexBuffer.EnsureArrayBound();
 
             program.EnsurePreDrawStates();

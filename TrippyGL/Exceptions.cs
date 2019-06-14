@@ -30,6 +30,9 @@ namespace TrippyGL
         }
     }
 
+    /// <summary>
+    /// An exception thrown when a blit operation between two framebuffers is invalid
+    /// </summary>
     public class InvalidBlitException : Exception
     {
         internal InvalidBlitException(string message) : base(message)

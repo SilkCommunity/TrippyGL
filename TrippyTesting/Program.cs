@@ -10,38 +10,11 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            /*TextureImageFormat[] arr = new TextureImageFormat[]
-            {
-                TextureImageFormat.Color4b,
-                TextureImageFormat.Float,
-                TextureImageFormat.Int,
-                TextureImageFormat.UnsignedInt,
-                TextureImageFormat.UVector2i,
-                TextureImageFormat.UVector3i,
-                TextureImageFormat.UVector4i,
-                TextureImageFormat.Vector2,
-                TextureImageFormat.Vector2i,
-                TextureImageFormat.Vector3,
-                TextureImageFormat.Vector3i,
-                TextureImageFormat.Vector4,
-                TextureImageFormat.Vector4i,
-            };
-
-            for(int i=0; i<arr.Length; i++)
-            {
-                PixelType type;
-                PixelInternalFormat format;
-                Texture.GetTextureFormatEnums(arr[i], out format, out type);
-                Console.WriteLine(arr[i] + ": " + format + "; " + type);
-            }
-            Console.WriteLine("END");
-            Console.ReadLine();*/
-
-            using(GameWindow w = new Tests.FramebufferTest2())
+            /*using(GameWindow w = new Tests.FramebufferTest2())
             {
                 w.Run(60, 60);
             }
-            return;
+            return;*/
 
 #pragma warning disable 0162 // disable "unreachable code" warning
             while (true)
@@ -79,6 +52,12 @@ namespace TrippyTesting
                             break;
                         case 8:
                             w = new MultithreadTest1();
+                            break;
+                        case 9:
+                            w = new Tests.FramebufferTest1();
+                            break;
+                        case 10:
+                            w = new Tests.FramebufferTest2();
                             break;
                         case -1:
                             return;

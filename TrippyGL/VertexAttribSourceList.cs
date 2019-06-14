@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
@@ -11,14 +9,19 @@ namespace TrippyGL
     /// </summary>
     public class VertexAttribSourceList
     {
-        /// <summary>The VertexAttribSource-s</summary>
-        internal readonly VertexAttribSource[] sources; //marked internal for convenience, this should only be read.
+        /// <summary>The internal VertexAttribSource array</summary>
+        internal readonly VertexAttribSource[] sources; //marked internal for convenience, this should only be read
 
+        /// <summary>
+        /// Gets a VertexAttribSource from the list
+        /// </summary>
+        /// <param name="index">The list index of the VertexAttribSource</param>
         public VertexAttribSource this[int index] { get { return sources[index]; } }
 
+        /// <summary>The amount of VertexAttribSource-s in this list</summary>
         public int Length { get { return sources.Length; } }
 
-        public VertexAttribSourceList(VertexAttribSource[] sources)
+        internal VertexAttribSourceList(VertexAttribSource[] sources)
         {
             this.sources = sources;
         }

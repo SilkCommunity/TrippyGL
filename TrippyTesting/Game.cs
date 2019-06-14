@@ -50,7 +50,7 @@ namespace TrippyTesting
         {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            BlendState.AlphaBlend.Apply();
+            graphicsDevice.BlendState = BlendState.AlphaBlend;
             
             #region LoadVBO
 
@@ -132,8 +132,6 @@ namespace TrippyTesting
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            //TrippyLib.ResetGLBindStates();
-
             byte[] iboData = new byte[16];
             indexBuffer.GetData(0, 0, 16, iboData);
             indexBuffer.SetData(0, 0, 16, new byte[]
@@ -150,12 +148,18 @@ namespace TrippyTesting
                 new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD)
             }, 0, 0, 4);
 
-            posTexBuffer.SetData(0, 0, 4, new PositionTexCoord[]
+            posTexBuffer.SetData(0, 2, 4, new PositionTexCoord[]
             {
+                new PositionTexCoord(),
+                new PositionTexCoord(),
+
                 new PositionTexCoord(new Vector3(-0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(0, 0), MakeVec4i()),
                 new PositionTexCoord(new Vector3(0.5f, -0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(1, 0), MakeVec4i()),
                 new PositionTexCoord(new Vector3(-0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(0, 1), MakeVec4i()),
-                new PositionTexCoord(new Vector3(0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(1, 1), MakeVec4i())
+                new PositionTexCoord(new Vector3(0.5f, 0.5f, 0), MakeMat3(), MakeVec4d(), new Vector2(1, 1), MakeVec4i()),
+
+                new PositionTexCoord(),
+                new PositionTexCoord(),
             });
 
             byte intensity = (byte)((wave(0.5f, time, 3f, 0f) + 0.5f) * 255);
@@ -173,13 +177,17 @@ namespace TrippyTesting
 
             Color4b[] xdxd = new Color4b[]
             {
+                Color4b.White,Color4b.White,Color4b.White,
+
                 randomColor(), randomColor(), randomColor(), randomColor(),
                 randomColor(), randomColor(), randomColor(), randomColor(),
                 randomColor(), randomColor(), randomColor(), randomColor(),
-                randomColor(), randomColor(), randomColor(), randomColor()
+                randomColor(), randomColor(), randomColor(), randomColor(),
+
+                Color.White,Color.White,Color.White
             };
-            fondo.SetData(xdxd, 0, r.Next(fondo.Width - 4), r.Next(fondo.Height - 4), 4, 4);
-            jeru.SetData(xdxd, 0, r.Next(jeru.Width - 4), r.Next(jeru.Height - 4), 4, 4);
+            fondo.SetData(xdxd, 3, r.Next(fondo.Width - 4), r.Next(fondo.Height - 4), 4, 4);
+            jeru.SetData(xdxd, 3, r.Next(jeru.Width - 4), r.Next(jeru.Height - 4), 4, 4);
 
             drawTexture(fondo, new Vector2(fondo.Width / 2f, fondo.Height / 2f), new Vector2(1f), 0f);
             drawTexture(texture, new Vector2(500, 300), new Vector2(0.35f), time * 0.1f);

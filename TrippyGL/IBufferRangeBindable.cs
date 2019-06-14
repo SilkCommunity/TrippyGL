@@ -3,7 +3,7 @@
     /// <summary>
     /// This interface is implemented by BufferObjects that can be bound to a ranged target (such as UniformBufferObject)
     /// </summary>
-    public interface IBufferRangeBindable
+    internal interface IBufferRangeBindable
     {
         /// <summary>
         /// Ensure a specified element of the buffer is bound to the specified binding index

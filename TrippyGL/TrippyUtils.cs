@@ -238,6 +238,19 @@ namespace TrippyGL
 
 
         /// <summary>
+        /// Returns whether the given ActiveUniformType is a sampler type
+        /// </summary>
+        /// <param name="type">The type of uniform to compare</param>
+        public static bool IsUniformSamplerType(ActiveUniformType type)
+        {
+            return (type >= ActiveUniformType.Sampler1D && type <= ActiveUniformType.Sampler2DRectShadow)
+                || (type >= ActiveUniformType.Sampler1DArray && type <= ActiveUniformType.SamplerCubeShadow)
+                || (type >= ActiveUniformType.IntSampler1D && type <= ActiveUniformType.UnsignedIntSamplerBuffer)
+                || (type >= ActiveUniformType.SamplerCubeMapArray && type <= ActiveUniformType.UnsignedIntSamplerCubeMapArray)
+                || (type >= ActiveUniformType.Sampler2DMultisample && type <= ActiveUniformType.UnsignedIntSampler2DMultisampleArray);
+        }
+
+        /// <summary>
         /// Turns a value from the TextureImageFormat enum into the necessary enums to create an OpenGL texture's image storage
         /// </summary>
         /// <param name="imageFormat">The requested image format</param>
@@ -319,6 +332,17 @@ namespace TrippyGL
                     #endregion
             }
             throw new ArgumentException("Image format is not a valid TextureImageFormat value", "imageFormat");
+        }
+
+        /// <summary>
+        /// Gets whether the specified texture type is mipmappable
+        /// </summary>
+        /// <param name="textureType">The texture type to check</param>
+        public static bool IsTextureTypeMipmappable(TextureTarget textureType)
+        {
+            return textureType == TextureTarget.Texture1D || textureType == TextureTarget.Texture2D || textureType == TextureTarget.Texture3D
+                || textureType == TextureTarget.Texture1DArray || textureType == TextureTarget.Texture2DArray
+                || textureType == TextureTarget.TextureCubeMap || textureType == TextureTarget.TextureCubeMapArray;
         }
 
         /// <summary>

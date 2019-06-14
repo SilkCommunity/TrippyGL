@@ -58,7 +58,7 @@ namespace TrippyGL
         internal void EnsureAllSet()
         {
             for (int i = 0; i < uniforms.Length; i++)
-                uniforms[i].EnsureValueApplied();
+                uniforms[i].ApplyUniformValue();
         }
 
         public override string ToString()

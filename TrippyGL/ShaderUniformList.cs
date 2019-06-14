@@ -67,28 +67,27 @@ namespace TrippyGL
                 {
                     if (size == 1) // if size is 1, it's not an array uniform
                     {
-                        if (IsSamplerUniformType(type))
+                        if (TrippyUtils.IsUniformSamplerType(type))
                         { // sampler uniforms are treated differently, they are called on use to ensure the proper texture value is applied
-                            ShaderSamplerUniform s = new ShaderSamplerUniform(program, location, name, type);
+                            ShaderSamplerUniform s = new ShaderSamplerUniform(program, location, name, size, type);
                             uniforms[arrIndex++] = s;
                             su.Add(s);
                         }
                         else
-                            uniforms[arrIndex++] = new ShaderUniform(program, location, name, type);
+                            uniforms[arrIndex++] = new ShaderUniform(program, location, name, size, type);
                     }
                     else // size is > 1, this is an array
                     {
-                        if (IsSamplerUniformType(type))
+                        if (TrippyUtils.IsUniformSamplerType(type))
                         { // sampler uniform arrays, like sampler uniforms, also treated differently for the same reason
                             ShaderSamplerArrayUniform s = new ShaderSamplerArrayUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), size, type);
                             uniforms[arrIndex++] = s;
                             suarr.Add(s);
                         }
                         else
-                            uniforms[arrIndex++] = new ShaderUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), type);
+                            uniforms[arrIndex++] = new ShaderUniform(program, location, name.Substring(0, name.Length - name.LastIndexOf('[') + 1), size, type);
                     }
                 }
-
             }
 
             samplerUniforms = su.ToArray();
@@ -152,20 +151,6 @@ namespace TrippyGL
         public override string ToString()
         {
             return String.Concat("ShaderUniformList with ", uniforms.Length.ToString(), " uniforms");
-        }
-
-        /// <summary>
-        /// Returns whether the given ActiveUniformType is a sampler type.
-        /// Sampler array's don't count (return false)
-        /// </summary>
-        /// <param name="type"></param>
-        public static bool IsSamplerUniformType(ActiveUniformType type)
-        {
-            return (type >= ActiveUniformType.Sampler1D && type <= ActiveUniformType.Sampler2DRectShadow)
-                || (type >= ActiveUniformType.Sampler2DMultisample && type <= ActiveUniformType.UnsignedIntSampler2DMultisample)
-                || (type >= ActiveUniformType.IntSampler1D && type <= ActiveUniformType.IntSampler2DRect)
-                || (type >= ActiveUniformType.UnsignedIntSampler1D && type <= ActiveUniformType.UnsignedIntSampler2DRect)
-                || type == ActiveUniformType.SamplerBuffer || type == ActiveUniformType.SamplerCubeShadow;
         }
     }
 }
