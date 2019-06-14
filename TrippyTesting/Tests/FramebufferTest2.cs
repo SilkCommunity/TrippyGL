@@ -31,12 +31,10 @@ namespace TrippyTesting.Tests
 
         public FramebufferTest2() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Debug)
         {
-            GL.Enable(EnableCap.DebugOutput);
-            GL.Enable(EnableCap.DebugOutputSynchronous);
-            GL.DebugMessageCallback(Program.OnDebugMessage, IntPtr.Zero);
-            
             VSync = VSyncMode.On;
             graphicsDevice = new GraphicsDevice(this.Context);
+            graphicsDevice.DebugMessagingEnabled = true;
+            graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
             Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);

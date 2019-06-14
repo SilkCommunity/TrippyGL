@@ -35,6 +35,8 @@ namespace TrippyTesting
             this.Title = "Loading...";
             VSync = VSyncMode.On;
             graphicsDevice = new GraphicsDevice(this.Context);
+            graphicsDevice.DebugMessagingEnabled = true;
+            graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
             Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
             Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);

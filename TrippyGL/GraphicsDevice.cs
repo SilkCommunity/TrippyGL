@@ -6,6 +6,8 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
+    public delegate void GLDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
+
     /// <summary>
     /// The GraphicsDevice manages an OpenGL Context and it's GraphicsResources (everything from BufferObjects to Textures to ShaderPrograms)
     /// </summary>
@@ -37,6 +39,50 @@ namespace TrippyGL
 
             blendState = BlendState.Opaque;
         }
+
+        #region DebugMessaging
+
+        private bool debugMessagingEnabled = false;
+
+        /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3)</summary>
+        public bool DebugMessagingEnabled
+        {
+            get { return debugMessagingEnabled; }
+            set
+            {
+                if (value)
+                {
+                    if (!debugMessagingEnabled)
+                    {
+                        GL.Enable(EnableCap.DebugOutput);
+                        GL.Enable(EnableCap.DebugOutputSynchronous);
+                        debugProcDelegate = OnDebugMessageRecieved;
+                        GL.DebugMessageCallback(debugProcDelegate, IntPtr.Zero);
+                        debugMessagingEnabled = true;
+                    }
+                }
+                else if (debugMessagingEnabled)
+                {
+                    GL.Disable(EnableCap.DebugOutput);
+                    GL.Disable(EnableCap.DebugOutputSynchronous);
+                    debugMessagingEnabled = false;
+                    debugProcDelegate = null;
+                }
+            }
+        }
+
+        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work</summary>
+        public event GLDebugMessage DebugMessage;
+
+        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito</summary>
+        private DebugProc debugProcDelegate;
+
+        private void OnDebugMessageRecieved(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
+        {
+            DebugMessage?.Invoke(src, type, id, sev, System.Runtime.InteropServices.Marshal.PtrToStringAnsi(msg));
+        }
+
+        #endregion DebugMessaging
 
         #region GLGet
 
@@ -948,6 +994,8 @@ namespace TrippyGL
 
         #endregion DrawingStates
 
+        #region DrawingFunctions
+
         /// <summary>
         /// Copies content from one framebuffer to another
         /// </summary>
@@ -1046,6 +1094,8 @@ namespace TrippyGL
         {
             BlitFramebuffer(src, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
         }
+
+        #endregion DrawingFunctions
 
         /// <summary>
         /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.

@@ -79,9 +79,9 @@ namespace TrippyTesting
             }
         }
 
-        public static void OnDebugMessage(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
+        public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)
         {
-            Console.WriteLine("Debug message: src=" + src + " type=" + type + " id=" + id + " sev=" + sev + " msg=" + System.Runtime.InteropServices.Marshal.PtrToStringAnsi(msg));
+            Console.WriteLine(String.Concat("Debug message: source=", debugSource.ToString(), " type=", debugType.ToString(), " id=", messageId.ToString(), " severity=", debugSeverity.ToString(), " message=\"", message, "\""));
         }
 
         static int ReadInt()

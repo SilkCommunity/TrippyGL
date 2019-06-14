@@ -41,8 +41,11 @@ namespace TrippyGL
             if (generateMipmaps)
                 GenerateMipmaps();
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            if (this.Samples == 0)
+            {
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            }
         }
 
         internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget) : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
@@ -63,8 +66,11 @@ namespace TrippyGL
             if (generateMipmaps)
                 GenerateMipmaps();
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            if (this.Samples == 0)
+            {
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            }
         }
 
         /// <summary>

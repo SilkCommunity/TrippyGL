@@ -29,8 +29,11 @@ namespace TrippyGL
             this.Samples = samples;
             RecreateImage(width, height, depth); //this also binds the texture
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            if (samples == 0)
+            {
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            }
         }
 
         public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth) where T : struct
