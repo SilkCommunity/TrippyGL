@@ -67,10 +67,17 @@
     <Compile Include="Tests\SimpleTextureTest.cs" />
     <Compile Include="Tests\StructPaddingTest.cs" />
     <Compile Include="Tests\SimpleTriangleTest.cs" />
+    <Compile Include="Tests\ArrayTextureTest.cs" />
     <Compile Include="TransformGame.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="arrtest\fs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="arrtest\vs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="data2\fs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -130,6 +137,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="arrtest\t1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="arrtest\t2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="arrtest\t3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="dataa3\tex1d.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

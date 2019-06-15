@@ -39,7 +39,7 @@ namespace TrippyGL
         /// Checks that the names given for some vertex attributes match the names found for the actual vertex attributes
         /// </summary>
         /// <param name="providedNames"></param>
-        internal bool CheckThatAttributeNamesMatch(string[] providedNames)
+        internal bool CheckThatAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
         {
             // While all of the attribute names are provided by the user, that doesn't mean all of them are in here.
             // The GLSL compiler may not make an attribute ACTIVE if, for example, it is never used.
@@ -57,7 +57,7 @@ namespace TrippyGL
                 if (nameIndex == providedNames.Length)
                     return false;
 
-                while (attributes[i].Name != providedNames[nameIndex++])
+                while (providedDesc[nameIndex].AttribType != attributes[i].AttribType && attributes[i].Name != providedNames[nameIndex++])
                 {
                     if (nameIndex == providedNames.Length)
                         return false;

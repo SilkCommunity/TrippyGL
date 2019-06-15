@@ -36,12 +36,56 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Sets the data of a specified area of the texture, copying the new data from a given pointer.
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// </summary>
+        /// <param name="dataPtr">The pointer for reading the data</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
+        /// <param name="rectZ">The Z coordinate of the first pixel to write</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
+        /// <param name="rectDepth">The depth of the rectangle of pixels to write</param>
+        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth, SetDataPixelFormat pixelDataFormat)
+        {
+            ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
+
+            GraphicsDevice.BindTexture(this);
+            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, (OpenTK.Graphics.OpenGL4.PixelFormat)pixelDataFormat, this.PixelType, dataPtr);
+        }
+
+        /// <summary>
+        /// Sets the data of a specified area of the texture, copying the new data from a specified array
+        /// </summary>
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="data">The array containing the new texture data</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
+        /// <param name="rectZ">The Z coordinate of the first pixel to write</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
+        /// <param name="rectDepth">The depth of the rectangle of pixels to write</param>
         public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth) where T : struct
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
             GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
+        }
+
+        /// <summary>
+        /// Sets the data of an entire array layer of the texture
+        /// </summary>
+        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
+        /// <param name="data">The array containing the new texture data</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
+        /// <param name="depthLevel">The array layer to set the data for</param>
+        public void SetData<T>(T[] data, int dataOffset, int depthLevel) where T : struct
+        {
+            SetData(data, dataOffset, 0, 0, depthLevel, this.Width, this.Height, 1);
         }
 
         /// <summary>

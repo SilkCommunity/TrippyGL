@@ -70,12 +70,12 @@ namespace TrippyGL
         /// <param name="x">The X coordinate of the first pixel to write</param>
         /// <param name="width">The width of the rectangle of pixels to write</param>
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void SetData<T>(IntPtr data, int x, int width, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        public void SetData<T>(IntPtr data, int x, int width, SetDataPixelFormat pixelDataFormat)
         {
             ValidateRectOperation(x, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(this.TextureType, 0, x, width, pixelDataFormat, this.PixelType, data);
+            GL.TexSubImage1D(this.TextureType, 0, x, width, (OpenTK.Graphics.OpenGL4.PixelFormat)pixelDataFormat, this.PixelType, data);
         }
 
         /// <summary>

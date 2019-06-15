@@ -44,4 +44,10 @@ namespace TrippyGL
     {
         Png, Jpeg, Tiff, Bmp
     }
+
+    public enum SetDataPixelFormat
+    {
+        Rgba = PixelFormat.Rgba,
+        Bgra = PixelFormat.Bgra
+    }
 }

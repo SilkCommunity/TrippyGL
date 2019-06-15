@@ -85,7 +85,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of part of the texture by copying it from the specified pointer.
+        /// Sets the data of a specified area of the texture, copying it from the specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
         /// </summary>
         /// <param name="dataPtr">The pointer for reading the data</param>
@@ -94,12 +94,12 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, SetDataPixelFormat pixelDataFormat)
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelDataFormat, this.PixelType, dataPtr);
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, (OpenTK.Graphics.OpenGL4.PixelFormat)pixelDataFormat, this.PixelType, dataPtr);
         }
 
         /// <summary>

@@ -16,8 +16,9 @@ namespace TrippyGL
         private int gsHandle = -1;
         private int fsHandle = -1;
 
-        /// <summary>This stores the names of the attributes provided via SpecifyVertexAttribs() to compare that they actually exist after linking</summary>
+        // These stores the data of the attributes provided via SpecifyVertexAttribs() to compare that they actually exist and match after linking
         private string[] givenAttribNames = null;
+        private VertexAttribDescription[] givenAttribDescriptions = null;
 
         /// <summary>Gets data about the geometry shader in this program, if there is one</summary>
         public GeometryShaderData GeometryShader { get; private set; }
@@ -262,9 +263,6 @@ namespace TrippyGL
         {
             ValidateUnlinked();
 
-            //if (vsHandle == -1) //this order is actually not a requirement on OpenGL...
-            //    throw new InvalidOperationException("You must add a vertex shader before specifying vertex attributes");
-
             if (givenAttribNames != null)
                 throw new InvalidOperationException("Attributes have already been bound for this program");
 
@@ -290,6 +288,7 @@ namespace TrippyGL
                 index += attribData[i].AttribIndicesUseCount;
             }
 
+            givenAttribDescriptions = attribData;
             givenAttribNames = attribNames;
         }
 
@@ -367,9 +366,10 @@ namespace TrippyGL
             this.BlockUniforms = new ShaderBlockUniformList(this);
             this.Uniforms = new ShaderUniformList(this);
 
-            if (!this.ActiveAttribs.CheckThatAttributeNamesMatch(givenAttribNames))
-                throw new InvalidOperationException("The vertex attrib names specified on SpecifyVertexAttribs() don't match the attributes");
+            if (!this.ActiveAttribs.CheckThatAttributesMatch(givenAttribDescriptions, givenAttribNames))
+                throw new InvalidOperationException("The vertex attributes specified on SpecifyVertexAttribs() don't match the shader-defined attributes either in name or type");
             givenAttribNames = null;
+            givenAttribDescriptions = null;
         }
 
         /// <summary>
