@@ -41,25 +41,28 @@ namespace TrippyGL
         /// <param name="providedNames"></param>
         internal bool CheckThatAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
         {
+            // This function assumes the length of the two given arrays match
+
             // While all of the attribute names are provided by the user, that doesn't mean all of them are in here.
             // The GLSL compiler may not make an attribute ACTIVE if, for example, it is never used.
             // So, if we see a provided name doesn't match, maybe it isn't active, so let's skip that name and check the next.
             // That said, both arrays are indexed in the same way. So if all attributes are active, we'll basically just
             // check one-by-one, index-by-index that the names on attributes[i] match providedNames[i]
 
-            int nameIndex = 0;
+            int nameIndex = -1;
 
             if (providedNames.Length == 0)
                 return attributes.Length == 0;
 
             for (int i = 0; i < attributes.Length; i++)
             {
+                nameIndex++;
                 if (nameIndex == providedNames.Length)
                     return false;
 
-                while (providedDesc[nameIndex].AttribType != attributes[i].AttribType && attributes[i].Name != providedNames[nameIndex++])
+                while (providedDesc[nameIndex].AttribType != attributes[i].AttribType || attributes[i].Name != providedNames[nameIndex])
                 {
-                    if (nameIndex == providedNames.Length)
+                    if (++nameIndex == providedNames.Length)
                         return false;
                 }
             }
