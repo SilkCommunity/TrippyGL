@@ -39,6 +39,9 @@ namespace TrippyTesting.Tests
         MouseState ms, oldMs;
         KeyboardState ks, oldKs;
 
+        FramebufferObject framebuffer;
+        Texture2D framebufferTexture;
+
         public Test3DBatcher() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 0, 0, ColorFormat.Empty, 2), "3D FUCKSAAA LO PIBE", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
             VSync = VSyncMode.On;
@@ -86,6 +89,8 @@ namespace TrippyTesting.Tests
             program.BlockUniforms["MatrixBlock"].SetValue(ubo);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
+
+            framebuffer = FramebufferObject.Create2D(ref framebufferTexture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -153,6 +158,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            graphicsDevice.BindFramebuffer(framebuffer);
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0f, 0f, 0f, 1f);
             GL.ClearDepth(1f);
@@ -307,6 +313,10 @@ namespace TrippyTesting.Tests
             batcher.ClearTriangles();
             batcher.ClearLines();
 
+            graphicsDevice.BindFramebufferRead(framebuffer);
+            graphicsDevice.BindFramebufferDraw(null);
+            GL.BlitFramebuffer(0, 0, framebuffer.Width, framebuffer.Height, 0, 0, this.Width, this.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+
             SwapBuffers();
 
             int slp = (int)(15f - (stopwatch.Elapsed.TotalSeconds - time) * 1000f);
@@ -321,6 +331,7 @@ namespace TrippyTesting.Tests
             lineArray.Dispose();
             triangleBuffer.Dispose();
             lineBuffer.Dispose();
+            framebuffer.Dispose();
 
             graphicsDevice.Dispose();
         }
@@ -335,6 +346,7 @@ namespace TrippyTesting.Tests
             Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.001f, 10f);
             //projUniform.SetValueMat4(ref mat);
             uniformVal.Projection = mat;
+            FramebufferObject.Resize2D(framebuffer, this.Width, this.Height);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -346,6 +358,26 @@ namespace TrippyTesting.Tests
                 Vector3 forward = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
                 Vector3 center = cameraPos + forward * MathHelper.Clamp(ms.Scroll.Y * 0.1f, 0.1f, 50f);
                 fuckables.Add(new Fuckable(getRandMesh(), center));
+            }
+            else if (e.Button == MouseButton.Middle)
+            {
+                /*float[] data = new float[framebuffer.DepthTexture.Width * framebuffer.DepthTexture.Height];
+                graphicsDevice.BindFramebuffer(framebuffer);
+                //GL.ReadPixels(0, 0, framebuffer.Width, framebuffer.Height, OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent, PixelType.Float, data);
+                graphicsDevice.BindTexture(framebuffer.DepthTexture);
+                GL.GetTexImage(framebuffer.DepthTexture.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent, PixelType.Float, data);
+                using (Bitmap b = new Bitmap(framebuffer.Width, framebuffer.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+                {
+                    int i = 0;
+                    for (int y = 0; y < b.Height; y++)
+                        for (int x = 0; x < b.Width; x++)
+                        {
+                            int px = (int)(Math.Pow(data[i++], 100) * 255);
+                            b.SetPixel(x, y, Color.FromArgb(255, px, px, px));
+                        }
+                    b.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    b.Save("depthmap" + time + ".png", ImageFormat.Png);
+                }*/
             }
         }
 

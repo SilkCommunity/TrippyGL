@@ -111,6 +111,8 @@ namespace TrippyGL
             MaxRenderbufferSize = GL.GetInteger(GetPName.MaxRenderbufferSize);
             MaxVertexAttribs = GL.GetInteger(GetPName.MaxVertexAttribs);
             MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
+            MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
+            MaxDrawBuffers = GL.GetInteger(GetPName.MaxDrawBuffers);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -142,6 +144,10 @@ namespace TrippyGL
         public int MaxVertexAttribs { get; private set; }
 
         public int MaxArrayTextureLayers { get; private set; }
+
+        public int MaxFramebufferColorAttachments { get; private set; }
+
+        public int MaxDrawBuffers { get; private set; }
 
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
@@ -671,7 +677,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="target">The framebuffer target</param>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebuffer(FramebufferTarget target, Framebuffer2D framebuffer)
+        public void BindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
         {
             int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
@@ -693,7 +699,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="target">The framebuffer target</param>
         /// <param name="framebuffer">The framebuffer bind</param>
-        internal void ForceBindFramebuffer(FramebufferTarget target, Framebuffer2D framebuffer)
+        internal void ForceBindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
         {
             int handle = framebuffer == null ? 0 : framebuffer.Handle;
             switch (target)
@@ -714,7 +720,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the draw and read targets
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebuffer(Framebuffer2D framebuffer)
+        public void BindFramebuffer(FramebufferObject framebuffer)
         {
             BindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -723,7 +729,7 @@ namespace TrippyGL
         /// Binds a framebuffer to both draw and read targets without first checking whether it's already bound
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        internal void ForceBindFramebuffer(Framebuffer2D framebuffer)
+        internal void ForceBindFramebuffer(FramebufferObject framebuffer)
         {
             ForceBindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -732,7 +738,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the draw target
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebufferDraw(Framebuffer2D framebuffer)
+        public void BindFramebufferDraw(FramebufferObject framebuffer)
         {
             BindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -741,7 +747,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the draw target without first checking whether it's already bound
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void ForceBindFramebufferDraw(Framebuffer2D framebuffer)
+        public void ForceBindFramebufferDraw(FramebufferObject framebuffer)
         {
             ForceBindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -750,7 +756,7 @@ namespace TrippyGL
         /// Ensures a framebuffer is bound to the read target
         /// </summary>
         /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebufferRead(Framebuffer2D framebuffer)
+        public void BindFramebufferRead(FramebufferObject framebuffer)
         {
             BindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -759,7 +765,7 @@ namespace TrippyGL
         /// Binds a framebuffer to the read target without first checking whether it's already bound
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void ForceBindFramebufferRead(Framebuffer2D framebuffer)
+        public void ForceBindFramebufferRead(FramebufferObject framebuffer)
         {
             ForceBindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
         }
@@ -1000,6 +1006,8 @@ namespace TrippyGL
 
         #region DrawingFunctions
 
+        
+
         /// <summary>
         /// Copies content from one framebuffer to another
         /// </summary>
@@ -1015,7 +1023,7 @@ namespace TrippyGL
         /// <param name="dstHeight">The height of the draw rectangle</param>
         /// <param name="mask">What data to copy from the framebuffers</param>
         /// <param name="filter">Whether to use nearest or linear filtering</param>
-        public void BlitFramebuffer(Framebuffer2D src, Framebuffer2D dst, int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(FramebufferObject src, FramebufferObject dst, int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
             // Blit rules:
             // General rectangle correctness rules (src and dst rectangles must be inside the framebuffers' size rectangles)
@@ -1050,11 +1058,11 @@ namespace TrippyGL
             if (dstY < 0 || dstY > dst.Height - dstHeight)
                 throw new ArgumentOutOfRangeException("dstY", dstY, "dstY must be in the range [0, dst.Height-dstHeight)");
 
-            if (src.Texture.ImageFormat != dst.Texture.ImageFormat)
-                throw new InvalidBlitException("You can't blit between framebuffers with different image formats");
+            //if (src.Texture.ImageFormat != dst.Texture.ImageFormat)
+            //    throw new InvalidBlitException("You can't blit between framebuffers with different image formats");
 
-            if ((mask & ClearBufferMask.ColorBufferBit) == ClearBufferMask.ColorBufferBit && (TrippyUtils.IsImageFormatIntegerType(src.Texture.ImageFormat) && filter != BlitFramebufferFilter.Nearest))
-                throw new InvalidBlitException("When blitting with color with integer formats, you must use a nearest filter");
+            //if ((mask & ClearBufferMask.ColorBufferBit) == ClearBufferMask.ColorBufferBit && (TrippyUtils.IsImageFormatIntegerType(src.Texture.ImageFormat) && filter != BlitFramebufferFilter.Nearest))
+            //    throw new InvalidBlitException("When blitting with color with integer formats, you must use a nearest filter");
 
             if (((mask & ClearBufferMask.DepthBufferBit) | (mask & ClearBufferMask.StencilBufferBit)) != 0 && filter != BlitFramebufferFilter.Nearest)
                 throw new InvalidBlitException("When using depth or stencil, the filter must be Nearest");
@@ -1094,7 +1102,7 @@ namespace TrippyGL
         /// <param name="dstRect">The destination rectangle to write to</param>
         /// <param name="mask">What data to copy from the framebuffers</param>
         /// <param name="filter">Whether to use nearest or linear filtering</param>
-        public void BlitFramebuffer(Framebuffer2D src, Framebuffer2D dst, Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(FramebufferObject src, FramebufferObject dst, Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
             BlitFramebuffer(src, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
         }

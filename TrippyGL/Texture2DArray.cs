@@ -9,7 +9,7 @@ namespace TrippyGL
     /// <summary>
     /// An OpenGL array of 2D textures
     /// </summary>
-    public class Texture2DArray : Texture
+    public class Texture2DArray : Texture, IMultisamplableTexture
     {
         /// <summary>The width of this texture</summary>
         public int Width { get; private set; }

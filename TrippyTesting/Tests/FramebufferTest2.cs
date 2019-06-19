@@ -22,7 +22,8 @@ namespace TrippyTesting.Tests
         VertexArray array;
         VertexDataBufferObject<VertexColor> buffer;
 
-        Framebuffer2D framebuffer;
+        FramebufferObject framebuffer;
+        Texture2D framebufferTexture;
 
         ShaderProgram fuckprogram;
         VertexBuffer<VertexTexture> fuckbuffer;
@@ -81,7 +82,7 @@ namespace TrippyTesting.Tests
                 new VertexTexture(new Vector3(1, 1, 0), new Vector2(1, 1)),
             }, BufferUsageHint.StaticDraw);
 
-            framebuffer = new Framebuffer2D(graphicsDevice, this.Width / 2, this.Height / 2, DepthStencilFormat.None, TextureImageFormat.Color4b, 8);
+            framebuffer = FramebufferObject.Create2D(ref framebufferTexture, graphicsDevice, this.Width / 2, this.Height / 2, DepthStencilFormat.None, 8, TextureImageFormat.Color4b);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -120,7 +121,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.SetViewport(0, 0, this.Width, this.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            fuckprogram.Uniforms["samp"].SetValueTexture(framebuffer.Texture);
+            fuckprogram.Uniforms["samp"].SetValueTexture(framebufferTexture);
             fuckprogram.Uniforms["res"].SetValue2(new Vector2(framebuffer.Width, framebuffer.Height));
             fuckprogram.Uniforms["s"].SetValue1(framebuffer.Samples);
             fuckprogram.EnsurePreDrawStates();
@@ -136,7 +137,9 @@ namespace TrippyTesting.Tests
         {
             GL.Viewport(0, 0, this.Width, this.Height);
             const int jaja = 8;
-            framebuffer.ReacreateFramebuffer(this.Width / jaja, this.Height / jaja);
+            FramebufferObject.Resize2D(framebuffer, this.Width / jaja, this.Height / jaja);
+            //framebufferTexture.RecreateImage(this.Width / jaja, this.Height / jaja);
+            //framebuffer.UpdateFramebufferData();
         }
 
         protected override void OnUnload(EventArgs e)
@@ -159,7 +162,8 @@ namespace TrippyTesting.Tests
         {
             if (e.Button == MouseButton.Middle)
             {
-                using (Framebuffer2D fb = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.None))
+                Texture2D tex = null;
+                using (FramebufferObject fb = FramebufferObject.Create2D(ref tex, graphicsDevice, this.Width, this.Height, DepthStencilFormat.None))
                 {
                     graphicsDevice.BindFramebufferRead(framebuffer);
                     graphicsDevice.BindFramebufferDraw(fb);
@@ -168,7 +172,7 @@ namespace TrippyTesting.Tests
                     GL.ClearColor(0f, 0f, 0f, 0f);
                     GL.Clear(ClearBufferMask.ColorBufferBit);
 
-                    fuckprogram.Uniforms["samp"].SetValueTexture(framebuffer.Texture);
+                    fuckprogram.Uniforms["samp"].SetValueTexture(framebufferTexture);
                     fuckprogram.Uniforms["res"].SetValue2(new Vector2(framebuffer.Width, framebuffer.Height));
                     fuckprogram.Uniforms["s"].SetValue1(framebuffer.Samples);
                     fuckprogram.EnsurePreDrawStates();
@@ -182,6 +186,7 @@ namespace TrippyTesting.Tests
                     
                     fb.SaveAsImage(String.Concat("save", time.ToString(), ".png"), SaveImageFormat.Png);
                 }
+                tex.Dispose();
             }
         }
     }

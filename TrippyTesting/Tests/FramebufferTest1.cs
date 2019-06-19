@@ -29,7 +29,8 @@ namespace TrippyTesting.Tests
         VertexBuffer<VertexColor> buffer3d;
         PrimitiveBatcher<VertexColor> batcher3d;
 
-        Framebuffer2D fb1, fb2;
+        FramebufferObject fb1, fb2;
+        Texture2D fb1Texture, fb2Texture;
 
         MouseState ms, oldms;
 
@@ -93,14 +94,15 @@ namespace TrippyTesting.Tests
             tex1 = new Texture2D(graphicsDevice, "data/texture.png");
             program.Uniforms["samp"].SetValueTexture(tex1);
 
-            fb1 = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
-            fb2 = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
+            fb1 = FramebufferObject.Create2D(ref fb1Texture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
+            fb2 = FramebufferObject.Create2D(ref fb2Texture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
 
             GL.ClearColor(0f, 0f, 0f, 1f);
+            GL.ClearDepth(1f);
             graphicsDevice.BindFramebuffer(fb1);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             graphicsDevice.BindFramebuffer(fb2);
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -160,7 +162,7 @@ namespace TrippyTesting.Tests
 
             mat = Matrix4.CreateScale(0.8f, 0.4f, 0.8f) * Matrix4.CreateRotationZ(MathHelper.PiOver2) * Matrix4.CreateTranslation(0.75f, 0.5f, 0);
             program.Uniforms["World"].SetValueMat4(ref mat);
-            program.Uniforms["samp"].SetValueTexture(fb2.Texture);
+            program.Uniforms["samp"].SetValueTexture(fb2Texture);
             program.EnsurePreDrawStates();
             graphicsDevice.BindVertexArray(array);
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
@@ -169,14 +171,14 @@ namespace TrippyTesting.Tests
             graphicsDevice.BindFramebufferRead(fb1);
             GL.BlitFramebuffer(0, 0, this.Width, this.Height, 0, 0, this.Width, this.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-            Framebuffer2D tmp = fb1;
+            FramebufferObject tmp = fb1;
             fb1 = fb2;
             fb2 = tmp;
 
             if(ms.MiddleButton == ButtonState.Pressed && oldms.MiddleButton == ButtonState.Released)
             {
                 fb2.SaveAsImage("xdxd" + time + ".png", SaveImageFormat.Png);
-                fb2.Texture.SaveAsImage("xdxd" + time + "TEX.png", SaveImageFormat.Png);
+                ((Texture2D)fb2.GetTextureAttachment(0).Texture).SaveAsImage("xdxd" + time + "TEX.png", SaveImageFormat.Png);
             }
 
             SwapBuffers();
@@ -191,8 +193,30 @@ namespace TrippyTesting.Tests
             program.Uniforms["View"].SetValueMat4(ref mat);
             program.Uniforms["World"].SetValueMat4(ref mat);
 
-            fb1.ReacreateFramebuffer(this.Width, this.Height);
-            fb2.ReacreateFramebuffer(this.Width, this.Height);
+
+            //fb1.RecreateFramebuffer(this.Width, this.Height);
+            //fb2.RecreateFramebuffer(this.Width, this.Height);
+            FramebufferObject.Resize2D(fb1, this.Width, this.Height);
+            FramebufferObject.Resize2D(fb2, this.Width, this.Height);
+            /*fb1Texture.RecreateImage(this.Width, this.Height);
+            if (fb1.RenderbufferAttachmentCount == 1)
+            {
+                FramebufferRenderbufferAttachment rend = fb1.GetRenderbufferAttachment(0);
+                fb1.TryDetachRenderbuffer(rend.AttachmentPoint, out rend);
+                rend.Renderbuffer.Dispose();
+                fb1.Attach(new RenderbufferObject(graphicsDevice, this.Width, this.Height, rend.Renderbuffer.Format, rend.Renderbuffer.Samples), rend.AttachmentPoint);
+            }
+            fb1.UpdateFramebufferData();
+
+            fb2Texture.RecreateImage(this.Width, this.Height);
+            if (fb2.RenderbufferAttachmentCount == 1)
+            {
+                FramebufferRenderbufferAttachment rend = fb2.GetRenderbufferAttachment(0);
+                fb2.TryDetachRenderbuffer(rend.AttachmentPoint, out rend);
+                rend.Renderbuffer.Dispose();
+                fb2.Attach(new RenderbufferObject(graphicsDevice, this.Width, this.Height, rend.Renderbuffer.Format, rend.Renderbuffer.Samples), rend.AttachmentPoint);
+            }
+            fb2.UpdateFramebufferData();*/
         }
 
         protected override void OnUnload(EventArgs e)

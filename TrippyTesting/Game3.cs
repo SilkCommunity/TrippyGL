@@ -27,7 +27,8 @@ namespace TrippyTesting
         VertexBuffer<VertexColor> batchBuffer;
         PrimitiveBatcher<VertexColor> batcher;
 
-        Framebuffer2D framebuffer;
+        FramebufferObject framebuffer;
+        Texture2D framebufferTexture;
 
         //Texture2D fboTexture;
         //int fbo, rbo;
@@ -57,7 +58,7 @@ namespace TrippyTesting
             tex2d = new Texture2D(graphicsDevice, "data/YARN.png", true);
 
             tex1d = new Texture1D(graphicsDevice, "dataa3/tex1d.png");
-            otherTex1d = new Texture1D(graphicsDevice, 5, false, TextureImageFormat.Vector4);
+            otherTex1d = new Texture1D(graphicsDevice, 5, false, TextureImageFormat.Float4);
             otherTex1d.SetData(new Vector4[] { new Vector4(0, 0, 0, 1), new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1), new Vector4(1, 1, 1, 1) });
             otherTex1d.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             otherTex1d.SetWrapMode(TextureWrapMode.Repeat);
@@ -95,7 +96,7 @@ namespace TrippyTesting
             program3d.Uniforms["View"].SetValueMat4(ref mat);
             program3d.Uniforms["Projection"].SetValueMat4(ref mat);
 
-            framebuffer = new Framebuffer2D(graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
+            framebuffer = FramebufferObject.Create2D(ref framebufferTexture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
             //fboTexture = new Texture2D(graphicsDevice, this.Width, this.Height);
             //fbo = GL.GenFramebuffer();
             //GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
@@ -150,7 +151,7 @@ namespace TrippyTesting
 
 
             GL.Disable(EnableCap.DepthTest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            graphicsDevice.BindFramebuffer(null);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             buffer.EnsureArrayBound();
@@ -165,7 +166,7 @@ namespace TrippyTesting
 
             mat = Matrix4.CreateScale(0.7f) * Matrix4.CreateTranslation(0.5f, 0f, 0f);
             program.Uniforms["World"].SetValueMat4(ref mat);
-            program.Uniforms["samp2d"].SetValueTexture(framebuffer.Texture);
+            program.Uniforms["samp2d"].SetValueTexture(framebufferTexture);
             //program.Uniforms["samp2d"].SetValueTexture(fboTexture);
             program.EnsurePreDrawStates();
 
@@ -200,7 +201,8 @@ namespace TrippyTesting
             mat = Matrix4.LookAt(new Vector3(0.5f, -0.5f, 0.5f), Vector3.Zero, -Vector3.UnitY);
             program3d.Uniforms["View"].SetValueMat4(ref mat);
 
-            framebuffer.ReacreateFramebuffer(this.Width, this.Height);
+            FramebufferObject.Resize2D(framebuffer, this.Width, this.Height);
+            //framebuffer.RecreateFramebuffer(this.Width, this.Height);
             //fboTexture.RecreateImage(this.Width, this.Height);
             //GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
             //GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, this.Width, this.Height);

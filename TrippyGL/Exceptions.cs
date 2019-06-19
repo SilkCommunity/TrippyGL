@@ -20,11 +20,11 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a Framebuffer fails to be created
+    /// An exception thrown when a Framebuffer fails to be updated
     /// </summary>
-    public class FramebufferCreationException : Exception
+    public class FramebufferException : Exception
     {
-        internal FramebufferCreationException(FramebufferErrorCode c) : base("The framebuffer couldn't be created: " + c)
+        internal FramebufferException(string message) : base(message)
         {
 
         }
@@ -36,6 +36,17 @@ namespace TrippyGL
     public class InvalidBlitException : Exception
     {
         internal InvalidBlitException(string message) : base(message)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// An exception thrown when a framebuffer can't attach a resource to an attachment point
+    /// </summary>
+    public class InvalidFramebufferAttachmentException : Exception
+    {
+        public InvalidFramebufferAttachmentException(string message) : base(message)
         {
 
         }

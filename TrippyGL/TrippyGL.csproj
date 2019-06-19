@@ -61,13 +61,14 @@
     <Compile Include="DataBufferObject.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Framebuffer2D.cs" />
+    <Compile Include="FramebufferObject.cs" />
     <Compile Include="GraphicsDevice.cs" />
     <Compile Include="GraphicsResource.cs" />
     <Compile Include="IBufferRangeBindable.cs" />
     <Compile Include="IndexBufferObject.cs" />
     <Compile Include="IVertex.cs" />
     <Compile Include="Rectangle.cs" />
+    <Compile Include="RenderbufferObject.cs" />
     <Compile Include="ShaderSamplerArrayUniform.cs" />
     <Compile Include="Texture2DArray.cs" />
     <Compile Include="TrippyMath.cs" />

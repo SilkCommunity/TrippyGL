@@ -9,7 +9,7 @@ namespace TrippyGL
     /// <summary>
     /// A 2D OpenGL texture
     /// </summary>
-    public class Texture2D : Texture
+    public class Texture2D : Texture, IMultisamplableTexture
     {
         /// <summary>The width of this texture</summary>
         public int Width { get; private set; }
@@ -31,9 +31,7 @@ namespace TrippyGL
         /// <param name="imageFormat">The image format for this texture</param>
         public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool generateMipmaps = false, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b) : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, imageFormat)
         {
-            if (samples < 0)
-                throw new ArgumentOutOfRangeException("multisample", samples, "Multisample must be greater than or equal to 0");
-
+            ValidateSampleCount(samples);
             this.Samples = samples;
 
             RecreateImage(width, height); //This also binds the texture
@@ -94,12 +92,12 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, SetDataPixelFormat pixelDataFormat)
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight)
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, (OpenTK.Graphics.OpenGL4.PixelFormat)pixelDataFormat, this.PixelType, dataPtr);
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, dataPtr);
         }
 
         /// <summary>
@@ -137,10 +135,10 @@ namespace TrippyGL
         /// </summary>
         /// <param name="dataPtr">The pointer for writting the data</param>
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void GetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelDataFormat)
+        public void GetData(IntPtr dataPtr)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(this.TextureType, 0, pixelDataFormat, this.PixelType, dataPtr);
+            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, dataPtr);
         }
 
         /// <summary>
@@ -152,7 +150,7 @@ namespace TrippyGL
         public void GetData<T>(T[] data, int dataOffset = 0) where T : struct
         {
             ValidateGetOperation(data, dataOffset);
-
+            
             GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
         }
@@ -232,7 +230,7 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             if (this.Samples == 0)
-                GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
+                GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, TrippyUtils.IsImageFormatDepthType(this.ImageFormat) ? OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent : OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
             else
                 GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, this.Samples, this.PixelFormat, this.Width, this.Height, true);
 
@@ -296,6 +294,12 @@ namespace TrippyGL
 
             if (rectHeight > this.Height - rectY)
                 throw new ArgumentOutOfRangeException("rectHeight", rectHeight, "rectHeight is too large");
+        }
+
+        internal void ValidateSampleCount(int samples)
+        {
+            if (samples < 0 || samples > GraphicsDevice.MaxSamples)
+                throw new ArgumentOutOfRangeException("samples", samples, "The sample count must be in the range [0, MAX_SAMPLES]");
         }
     }
 }

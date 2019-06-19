@@ -45,6 +45,12 @@ namespace TrippyGL
 
         internal Texture(GraphicsDevice graphicsDevice, TextureTarget type, TextureImageFormat imageFormat) : base (graphicsDevice)
         {
+            if (!Enum.IsDefined(typeof(TextureTarget), type))
+                throw new FormatException("Invalid texture target");
+
+            if (!Enum.IsDefined(typeof(TextureImageFormat), imageFormat))
+                throw new FormatException("Invalid texture image format");
+
             this.Handle = GL.GenTexture();
             this.TextureType = type;
             this.ImageFormat = imageFormat;
@@ -99,7 +105,12 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Handle=", Handle.ToString(), ", Type=", TextureType.ToString(), ", ImageFormat=", ImageFormat.ToString(), "Mipmapped=", IsMipmapped.ToString(), ", Bound=", IsBound.ToString(), "BoundAndActive=", IsBoundAndActive.ToString());
+            return String.Concat("Handle=", Handle.ToString(), ", Type=", TextureType.ToString(), ", ImageFormat=", ImageFormat.ToString(), ", Mipmapped=", IsMipmapped.ToString(), ", Bound=", IsBound.ToString(), ", BoundAndActive=", IsBoundAndActive.ToString());
         }
+    }
+
+    internal interface IMultisamplableTexture
+    {
+        int Samples { get; }
     }
 }

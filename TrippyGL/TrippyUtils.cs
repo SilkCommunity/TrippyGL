@@ -215,7 +215,7 @@ namespace TrippyGL
         /// <param name="format">The DepthStencilFormat value to check</param>
         public static bool IsDepthStencilFormatDepthOnly(DepthStencilFormat format)
         {
-            return (format >= DepthStencilFormat.Depth16 && format <= DepthStencilFormat.Depth32) || format == DepthStencilFormat.Depth32f;
+            return format == DepthStencilFormat.Depth16 || format == DepthStencilFormat.Depth24 || format == DepthStencilFormat.Depth32f;
         }
 
         /// <summary>
@@ -256,19 +256,23 @@ namespace TrippyGL
         /// <param name="imageFormat">The requested image format</param>
         /// <param name="pixelInternalFormat">The pixel's internal format</param>
         /// <param name="pixelType">The pixel's type</param>
-        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType)
+        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType) //PixelFormat and PixelType for get (or set?) operations
         {
             // The workings of this function are related to the numbers assigned to each enum value
             int b = (int)imageFormat / 32;
 
             switch (b)
             {
-                case 0: 
+                case 0:
                     #region UnsignedByteTypes
                     pixelType = PixelType.UnsignedByte;
-                    pixelInternalFormat = PixelInternalFormat.Rgba8;
-                    //this works because the only unsigned byte type is Color4b
-                    return;
+                    switch ((int)imageFormat - b * 32)
+                    {
+                        case 5:
+                            pixelInternalFormat = PixelInternalFormat.Rgba8;
+                            return;
+                    }
+                    break;
                 #endregion
                 case 1:
                     #region FloatTypes
@@ -286,6 +290,15 @@ namespace TrippyGL
                             return;
                         case 4:
                             pixelInternalFormat = PixelInternalFormat.Rgba32f;
+                            return;
+                        case 5:
+                            pixelInternalFormat = PixelInternalFormat.DepthComponent16;
+                            return;
+                        case 6:
+                            pixelInternalFormat = PixelInternalFormat.DepthComponent24;
+                            return;
+                        case 7:
+                            pixelInternalFormat = PixelInternalFormat.DepthComponent32f;
                             return;
                     }
                     break;
@@ -329,8 +342,20 @@ namespace TrippyGL
                             return;
                     }
                     break;
+                #endregion
+                case 4:
+                    #region Depth24Stencil8
+                    switch ((int)imageFormat - b * 32)
+                    {
+                        case 1:
+                            pixelType = PixelType.UnsignedInt248;
+                            pixelInternalFormat = PixelInternalFormat.Depth24Stencil8;
+                            return;
+                    }
+                    break;
                     #endregion
             }
+
             throw new ArgumentException("Image format is not a valid TextureImageFormat value", "imageFormat");
         }
 
@@ -371,9 +396,57 @@ namespace TrippyGL
         /// <param name="imageFormat">The image format to check</param>
         public static bool IsImageFormatIntegerType(TextureImageFormat imageFormat)
         {
-            return (imageFormat >= TextureImageFormat.Int && imageFormat <= TextureImageFormat.Vector4i)
-                || (imageFormat >= TextureImageFormat.UnsignedInt && imageFormat <= TextureImageFormat.UVector4i);
+            return (imageFormat >= TextureImageFormat.Int && imageFormat <= TextureImageFormat.Int4)
+                || (imageFormat >= TextureImageFormat.UnsignedInt && imageFormat <= TextureImageFormat.UnsignedInt4);
+        }
 
+        /// <summary>
+        /// Returns whether the given TextureImageFromat represents a depth format
+        /// </summary>
+        /// <param name="imageFormat">The image format to check</param>
+        public static bool IsImageFormatDepthType(TextureImageFormat imageFormat)
+        {
+            return imageFormat >= TextureImageFormat.Depth16 && imageFormat <= TextureImageFormat.Depth32f;
+        }
+
+        /// <summary>
+        /// Returns whether the given TextureImageFromat represents a stencil format
+        /// </summary>
+        /// <param name="imageFormat">The image format to check</param>
+        public static bool IsImageFormatStencilType(TextureImageFormat imageFormat)
+        {
+            return false; //there are no stencil-only image formats haha yes
+        }
+
+        /// <summary>
+        /// Returns whether the given TextureImageFromat represents a depth-stencil format
+        /// </summary>
+        /// <param name="imageFormat">The image format to check</param>
+        public static bool IsImageFormatDepthStencilType(TextureImageFormat imageFormat)
+        {
+            return imageFormat == TextureImageFormat.Depth24Stencil8;
+        }
+
+        /// <summary>
+        /// Returns whether the given TextureImageFromat is color-renderable
+        /// </summary>
+        /// <param name="imageFormat">The image format to check</param>
+        public static bool IsImageFormatColorRenderable(TextureImageFormat imageFormat)
+        {
+            return imageFormat == TextureImageFormat.Color4b
+                || (imageFormat >= TextureImageFormat.Float && imageFormat <= TextureImageFormat.Float4)
+                || (imageFormat >= TextureImageFormat.Int && imageFormat <= TextureImageFormat.Int4)
+                || (imageFormat >= TextureImageFormat.UnsignedInt && imageFormat <= TextureImageFormat.UnsignedInt4);
+        }
+
+        /// <summary>
+        /// Returns whether the specified FramebufferAttachmentPoint represents a color[i] attachment
+        /// </summary>
+        /// <param name="attachment">The FramebufferAttachmentPoint value to check</param>
+        public static bool IsFramebufferAttachmentPointColor(FramebufferAttachmentPoint attachment)
+        {
+            int i = attachment - FramebufferAttachmentPoint.Color0;
+            return i >= 0 && i < 32;
         }
     }
 }
