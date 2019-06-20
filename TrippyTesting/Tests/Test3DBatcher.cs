@@ -159,9 +159,11 @@ namespace TrippyTesting.Tests
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             graphicsDevice.BindFramebuffer(framebuffer);
-            GL.Enable(EnableCap.DepthTest);
+            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.SetBlendStateOpaque();
+
+
             GL.ClearColor(0f, 0f, 0f, 1f);
-            GL.ClearDepth(1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             uniformVal.View = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);

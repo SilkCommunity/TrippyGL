@@ -3,39 +3,42 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
-
-#pragma warning disable 0660 // Disable the warnings to override Equals() and GetHashCode()
-#pragma warning disable 0661 // These appear because I overrided the == and != operators
-
+    /// <summary>
+    /// Represents a way to blend colors together when rendering. The blending function uses various parameters
+    /// such as the output fragment color and the current pixel color, allowing you to define your own way to blend.
+    /// </summary>
     public class BlendState
     {
         /// <summary>Whether the blend mode is opaque. If this is true, all other BlendMode members are irrelevant</summary>
         public bool IsOpaque;
 
-        public BlendEquationMode EquationModeRGB, EquationModeAlpha;
-        public BlendingFactorSrc SourceFactorRGB, SourceFactorAlpha;
-        public BlendingFactorDest DestFactorRGB, DestFactorAlpha;
+        /// <summary>The equation mode for the RGB color components</summary>
+        public BlendEquationMode EquationModeRGB;
+        /// <summary>The equation mode for the Alpha color component</summary>
+        public BlendEquationMode EquationModeAlpha;
+
+        /// <summary>The source factor for the RGB color components</summary>
+        public BlendingFactorSrc SourceFactorRGB;
+        /// <summary>The source factor for the Alpha color component</summary>
+        public BlendingFactorSrc SourceFactorAlpha;
+
+        /// <summary>The destination factor for the RGB color components</summary>
+        public BlendingFactorDest DestFactorRGB;
+        /// <summary>The destination factor for the Alpha color components</summary>
+        public BlendingFactorDest DestFactorAlpha;
 
         /// <summary>This color can be used for blending calculations with the blending factors for constant color</summary>
         public Color4 BlendColor;
 
-        public static bool operator ==(BlendState x, BlendState y)
-        {
-            return x.IsOpaque == y.IsOpaque && x.EquationModeRGB == y.EquationModeRGB && x.EquationModeAlpha == y.EquationModeAlpha
-                && x.SourceFactorRGB == y.SourceFactorRGB && x.SourceFactorAlpha == y.SourceFactorAlpha
-                && x.DestFactorRGB == y.DestFactorRGB && x.DestFactorAlpha == y.DestFactorAlpha && x.BlendColor == y.BlendColor;
-        }
-
-        public static bool operator !=(BlendState x, BlendState y)
-        {
-            return x.IsOpaque != y.IsOpaque || x.EquationModeRGB != y.EquationModeRGB || x.EquationModeAlpha != y.EquationModeAlpha
-                || x.SourceFactorRGB != y.SourceFactorRGB || x.SourceFactorAlpha != y.SourceFactorAlpha
-                || x.DestFactorRGB != y.DestFactorRGB || x.DestFactorAlpha != y.DestFactorAlpha || x.BlendColor != y.BlendColor;
-        }
-
         public BlendState(bool isOpaque)
         {
             this.IsOpaque = isOpaque;
+            EquationModeRGB = BlendEquationMode.FuncAdd;
+            EquationModeAlpha = BlendEquationMode.FuncAdd;
+            SourceFactorRGB = BlendingFactorSrc.Zero;
+            SourceFactorAlpha = BlendingFactorSrc.Zero;
+            DestFactorRGB = BlendingFactorDest.Zero;
+            DestFactorAlpha = BlendingFactorDest.Zero;
         }
 
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba)
@@ -84,14 +87,6 @@ namespace TrippyGL
             this.BlendColor = blendColor;
         }
 
-        /// <summary>
-        /// Sets the current blending mode to Opaque. This acts the same as BlendMode.Opaque.Apply(); (just faster)
-        /// </summary>
-        public static void SetOpaque()
-        {
-            GL.Disable(EnableCap.Blend);
-        }
-
         #region Static Members
 
         public static BlendState Opaque { get { return new BlendState(true); } }
@@ -99,6 +94,8 @@ namespace TrippyGL
         public static BlendState AlphaBlend { get { return new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One); } }
 
         public static BlendState Additive { get { return new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One); } }
+
+        public static BlendState Substractive { get { return new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One); } }
 
         #endregion
     }

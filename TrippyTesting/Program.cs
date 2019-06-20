@@ -10,11 +10,11 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            /*using(GameWindow w = new Tests.ArrayTextureTest())
+            using(GameWindow w = new Tests.Test3DBatcher())
             {
                 w.Run(60, 60);
             }
-            return;*/
+            return;
 
 #pragma warning disable 0162 // disable "unreachable code" warning
             while (true)

@@ -917,7 +917,7 @@ namespace TrippyGL
         /// <summary>Gets or sets the viewport for drawing</summary>
         public Rectangle Viewport
         {
-            get { return viewport; }
+            get { return viewport; } //The get is OK because Rectangle is a struct so no worries here
             set
             {
                 if (value.X != viewport.X || value.Y != viewport.Y || value.Width != viewport.Width || value.Height != viewport.Height)
@@ -952,25 +952,66 @@ namespace TrippyGL
         #region BlendState
 
         /// <summary>The current blend state</summary>
-        private BlendState blendState;
+        private BlendState blendState = BlendState.Opaque;
 
-        /// <summary>Gets or sets the blend state for drawing</summary>
+        /// <summary>Sets the blend state for drawing</summary>
         public BlendState BlendState
         {
-            get { return blendState; }
             set
             {
-                if (blendState.IsOpaque && value.IsOpaque) //Both are opaque? Then setting it again makes no difference...
-                    blendState = value; //But we'll still store the value in case somebody wants to read it back I guess
-                else
+                if (!(blendState.IsOpaque && value.IsOpaque)) //if the current and the new blend state are both opaque... Do nothing
+                {
+                    // Either the current or new blend state is not opaque
+                    if (value.IsOpaque) //blendState.IsOpaque must therefore be false
+                    {
+                        GL.Disable(EnableCap.Blend);
+                        blendState.IsOpaque = true;
+                        // If blending is opaque, all other blending parameters don't matter.
+                    }
+                    else //blendState.IsOpaque must therefore be true
+                    {
+                        if (blendState.IsOpaque)
+                        {
+                            GL.Enable(EnableCap.Blend);
+                            blendState.IsOpaque = false;
+                        }
+
+                        if (blendState.EquationModeRGB != value.EquationModeRGB || blendState.EquationModeAlpha != value.EquationModeAlpha)
+                        {
+                            GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
+                            blendState.EquationModeRGB = value.EquationModeRGB;
+                            blendState.EquationModeAlpha = value.EquationModeAlpha;
+                        }
+
+                        if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
+                        {
+                            GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
+                            blendState.SourceFactorRGB = value.SourceFactorRGB;
+                            blendState.SourceFactorAlpha = value.SourceFactorAlpha;
+                            blendState.DestFactorRGB = value.DestFactorRGB;
+                            blendState.DestFactorAlpha = value.DestFactorAlpha;
+                        }
+
+                        if (blendState.BlendColor != value.BlendColor)
+                        {
+                            GL.BlendColor(value.BlendColor);
+                            blendState.BlendColor = value.BlendColor;
+                        }
+                    }
+                }
+
+                /*if (!(blendState.IsOpaque && value.IsOpaque)) //if the current and new blend state are both opaque... Do nothing
                 {
                     if (blendState != value)
                     {
                         if (value.IsOpaque)
-                        { 
+                        {
                             // Is the new state opaque? Then, if the old state wasn't opaque too let's disable blending.
-                            if (!blendState.IsOpaque) // If the old state was opaque, then blending is already disabled
+                            if (!blendState.IsOpaque)
+                            { // If the old state was opaque, then blending is already disabled
                                 GL.Disable(EnableCap.Blend);
+                                blendState.IsOpaque = true;
+                            }
                         }
                         else
                         {
@@ -981,10 +1022,10 @@ namespace TrippyGL
                             GL.BlendColor(blendState.BlendColor);
                             GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
                             GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
+                            blendState.CopyValuesFrom(value);
                         }
-                        blendState = value;
                     }
-                }
+                }*/
             }
         }
 
@@ -1002,11 +1043,78 @@ namespace TrippyGL
 
         #endregion BlendState
 
+        #region DepthTestingState
+
+        /// <summary>The current depth state</summary>
+        private DepthTestingState depthState = new DepthTestingState(false);
+
+        /// <summary>
+        /// Sets the current depth testing state
+        /// </summary>
+        public DepthTestingState DepthState
+        {
+            set
+            {
+                if (value.DepthTestingEnabled)
+                {
+                    if (!depthState.DepthTestingEnabled)
+                    {
+                        GL.Enable(EnableCap.DepthTest);
+                        depthState.DepthTestingEnabled = true;
+                    }
+
+                    if (depthState.DepthComparison != value.DepthComparison)
+                    {
+                        GL.DepthFunc(value.DepthComparison);
+                        depthState.DepthComparison = value.DepthComparison;
+                    }
+
+                    if(depthState.ClearDepth != value.ClearDepth)
+                    {
+                        GL.ClearDepth(value.ClearDepth);
+                        depthState.ClearDepth = value.ClearDepth;
+                    }
+
+                    if(depthState.depthNear != value.depthNear || depthState.depthFar != value.depthFar)
+                    {
+                        GL.DepthRange(value.depthNear, value.depthFar);
+                        depthState.depthNear = value.depthNear;
+                        depthState.depthFar = value.depthFar;
+                    }
+
+                    if (depthState.IsDepthBufferWrittingEnabled != value.IsDepthBufferWrittingEnabled)
+                    {
+                        GL.DepthMask(value.IsDepthBufferWrittingEnabled);
+                        depthState.IsDepthBufferWrittingEnabled = value.IsDepthBufferWrittingEnabled;
+                    }
+                }
+                else if (depthState.DepthTestingEnabled) // value.DepthTestingEnabled is false
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                    depthState.DepthTestingEnabled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Disables depth testing
+        /// </summary>
+        public void DisableDepthTesting()
+        {
+            if (depthState.DepthTestingEnabled)
+            {
+                depthState.DepthTestingEnabled = false;
+                GL.Disable(EnableCap.DepthTest);
+            }
+        }
+
+        #endregion
+
         #endregion DrawingStates
 
         #region DrawingFunctions
 
-        
+
 
         /// <summary>
         /// Copies content from one framebuffer to another
@@ -1034,29 +1142,35 @@ namespace TrippyGL
             //    1. Both framebuffers have different amount of samples and one of them isn't 0
             //    2. Condition 1 is true and the width and height of the src and dst rectangles don't match
 
-            if (srcWidth <= 0 || srcWidth > src.Width)
-                throw new ArgumentOutOfRangeException("srcWidth", srcWidth, "srcWidth must be in the range (0, src.Width]");
+            if (src != null)
+            {
+                if (srcWidth <= 0 || srcWidth > src.Width)
+                    throw new ArgumentOutOfRangeException("srcWidth", srcWidth, "srcWidth must be in the range (0, src.Width]");
 
-            if (srcHeight <= 0 || srcHeight > src.Height)
-                throw new ArgumentOutOfRangeException("srcHeight", srcHeight, "srcHeight must be in the range (0, src.Height]");
+                if (srcHeight <= 0 || srcHeight > src.Height)
+                    throw new ArgumentOutOfRangeException("srcHeight", srcHeight, "srcHeight must be in the range (0, src.Height]");
 
-            if (srcX < 0 || srcX > src.Width - srcWidth)
-                throw new ArgumentOutOfRangeException("srcX", srcX, "srcX must be in the range [0, src.Width-srcWidth)");
+                if (srcX < 0 || srcX > src.Width - srcWidth)
+                    throw new ArgumentOutOfRangeException("srcX", srcX, "srcX must be in the range [0, src.Width-srcWidth)");
 
-            if (srcY < 0 || srcY > src.Height - srcHeight)
-                throw new ArgumentOutOfRangeException("srcY", srcY, "srcY must be in the range [0, src.Height-srcHeight)");
+                if (srcY < 0 || srcY > src.Height - srcHeight)
+                    throw new ArgumentOutOfRangeException("srcY", srcY, "srcY must be in the range [0, src.Height-srcHeight)");
+            }
 
-            if (dstWidth <= 0 || dstWidth > dst.Width)
-                throw new ArgumentOutOfRangeException("dstWidth", dstWidth, "dstWidth must be in the range (0, dst.Width]");
+            if (dst != null)
+            {
+                if (dstWidth <= 0 || dstWidth > dst.Width)
+                    throw new ArgumentOutOfRangeException("dstWidth", dstWidth, "dstWidth must be in the range (0, dst.Width]");
 
-            if (dstHeight <= 0 || dstHeight > dst.Height)
-                throw new ArgumentOutOfRangeException("dstHeight", dstHeight, "dstHeight must be in the range (0, dst.Height]");
+                if (dstHeight <= 0 || dstHeight > dst.Height)
+                    throw new ArgumentOutOfRangeException("dstHeight", dstHeight, "dstHeight must be in the range (0, dst.Height]");
 
-            if (dstX < 0 || dstX > dst.Width - dstWidth)
-                throw new ArgumentOutOfRangeException("dstX", dstX, "dstX must be in the range [0, dst.Width-dstWidth)");
+                if (dstX < 0 || dstX > dst.Width - dstWidth)
+                    throw new ArgumentOutOfRangeException("dstX", dstX, "dstX must be in the range [0, dst.Width-dstWidth)");
 
-            if (dstY < 0 || dstY > dst.Height - dstHeight)
-                throw new ArgumentOutOfRangeException("dstY", dstY, "dstY must be in the range [0, dst.Height-dstHeight)");
+                if (dstY < 0 || dstY > dst.Height - dstHeight)
+                    throw new ArgumentOutOfRangeException("dstY", dstY, "dstY must be in the range [0, dst.Height-dstHeight)");
+            }
 
             //if (src.Texture.ImageFormat != dst.Texture.ImageFormat)
             //    throw new InvalidBlitException("You can't blit between framebuffers with different image formats");
@@ -1069,7 +1183,7 @@ namespace TrippyGL
 
             //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
             
-            bool areSameSize = srcWidth == dstWidth && srcHeight == dstHeight;
+            /*bool areSameSize = srcWidth == dstWidth && srcHeight == dstHeight;
             
             if (src.Samples == dst.Samples)
             {
@@ -1084,7 +1198,7 @@ namespace TrippyGL
 
                 if (!areSameSize)
                     throw new InvalidBlitException("The sizes of both framebuffers must be the same when using different sample counts");
-            }
+            }*/ //alright this needs rewritting
 
             // Holy unbelievable fuck those were A LOT of checks for a godfucken blit
 
