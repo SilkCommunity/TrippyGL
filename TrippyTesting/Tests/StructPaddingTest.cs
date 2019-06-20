@@ -82,7 +82,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            graphicsDevice.SetBlendStateOpaque();
+            graphicsDevice.BlendingEnabled = false;
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, this.Width, this.Height);
             GL.ClearColor(0f, 0f, 0f, 1f);

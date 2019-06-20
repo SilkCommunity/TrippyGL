@@ -47,13 +47,13 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth, SetDataPixelFormat pixelDataFormat)
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, (OpenTK.Graphics.OpenGL4.PixelFormat)pixelDataFormat, this.PixelType, dataPtr);
+            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
         }
 
         /// <summary>
@@ -68,12 +68,13 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write</param>
-        public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth) where T : struct
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
+            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -83,9 +84,10 @@ namespace TrippyGL
         /// <param name="data">The array containing the new texture data</param>
         /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
         /// <param name="depthLevel">The array layer to set the data for</param>
-        public void SetData<T>(T[] data, int dataOffset, int depthLevel) where T : struct
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData<T>(T[] data, int dataOffset, int depthLevel, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
-            SetData(data, dataOffset, 0, 0, depthLevel, this.Width, this.Height, 1);
+            SetData(data, dataOffset, 0, 0, depthLevel, this.Width, this.Height, 1, pixelFormat);
         }
 
         /// <summary>
@@ -119,9 +121,9 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             if (this.Samples == 0)
-                GL.TexImage3D(this.TextureType, 0, this.PixelFormat, width, height, depth, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
+                GL.TexImage3D(this.TextureType, 0, this.PixelInternalFormat, width, height, depth, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
             else
-                GL.TexImage3DMultisample((TextureTargetMultisample)this.TextureType, this.Samples, this.PixelFormat, width, height, depth, true);
+                GL.TexImage3DMultisample((TextureTargetMultisample)this.TextureType, this.Samples, this.PixelInternalFormat, width, height, depth, true);
         }
 
 

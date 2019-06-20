@@ -362,80 +362,80 @@ namespace TrippyGL
         #endregion
 
         #region SetValue1Array
-        public void SetValue1Array(float[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue1Array(float[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.Float);
+            ValidateArrayAndType(ActiveUniformType.Float, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
+            GL.Uniform1(UniformLocation, count, ref value[startValueIndex]);
         }
 
-        public void SetValue1Array(double[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue1Array(double[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.Double);
+            ValidateArrayAndType(ActiveUniformType.Double, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
+            GL.Uniform1(UniformLocation, count, ref value[startValueIndex]);
         }
 
-        public void SetValue1Array(int[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue1Array(int[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.Int);
+            ValidateArrayAndType(ActiveUniformType.Int, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
+            GL.Uniform1(UniformLocation, count, ref value[startValueIndex]);
         }
 
-        public void SetValue1Array(uint[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue1Array(uint[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.UnsignedInt);
+            ValidateArrayAndType(ActiveUniformType.UnsignedInt, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform1(UniformLocation + startUniformIndex, count, ref value[startValueIndex]);
+            GL.Uniform1(UniformLocation, count, ref value[startValueIndex]);
         }
         #endregion
 
         #region SetValue2Array
-        public void SetValue2Array(Vector2[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue2Array(Vector2[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.FloatVec2);
+            ValidateArrayAndType(ActiveUniformType.FloatVec2, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform2(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform2(UniformLocation, count, ref value[startValueIndex].X);
         }
 
-        public void SetValue2Array(Vector2d[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue2Array(Vector2d[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.DoubleVec2);
+            ValidateArrayAndType(ActiveUniformType.DoubleVec2, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform2(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform2(UniformLocation, count, ref value[startValueIndex].X);
         }
         #endregion
 
         #region SetValue3Array
-        public void SetValue3Array(Vector3[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue3Array(Vector3[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.FloatVec3);
+            ValidateArrayAndType(ActiveUniformType.FloatVec3, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform3(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform3(UniformLocation, count, ref value[startValueIndex].X);
         }
 
-        public void SetValue3Array(Vector3d[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue3Array(Vector3d[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.DoubleVec3);
+            ValidateArrayAndType(ActiveUniformType.DoubleVec3, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform3(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform3(UniformLocation, count, ref value[startValueIndex].X);
         }
         #endregion
 
         #region SetValue4Array
-        public void SetValue4Array(Vector4[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue4Array(Vector4[] value, int startValueIndex, int count)
         {
-            ValidateType(ActiveUniformType.FloatVec4);
+            ValidateArrayAndType(ActiveUniformType.FloatVec4, value.Length, startValueIndex, count);
             OwnerProgram.EnsureInUse();
-            GL.Uniform4(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform4(UniformLocation, count, ref value[startValueIndex].X);
         }
 
-        public void SetValue4Array(Vector4d[] value, int startValueIndex, int startUniformIndex, int count)
+        public void SetValue4Array(Vector4d[] value, int startValueIndex, int count)
         {
             ValidateType(ActiveUniformType.DoubleVec4);
             OwnerProgram.EnsureInUse();
-            GL.Uniform4(UniformLocation + startUniformIndex, count, ref value[startValueIndex].X);
+            GL.Uniform4(UniformLocation, count, ref value[startValueIndex].X);
         }
         #endregion
 
@@ -446,6 +446,7 @@ namespace TrippyGL
         //now implement these god fucking SetValue methods haha yes I will, one day.
         //i'm reading this again and still not about to implement it because alta paja gil
         //alright you still haven't done this I'm not disappointed but... ya know
+        //dude...
 
         //TODO: Should we validate array sets to make sure the indices are OK and such?
         //Also: Should we even check that the type is OK?
@@ -458,6 +459,19 @@ namespace TrippyGL
         {
             if (this.UniformType != type)
                 throw new InvalidOperationException(String.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", this.UniformType.ToString()));
+        }
+
+        protected void ValidateArrayAndType(ActiveUniformType type, int valueLength, int startValueIndex, int count)
+        {
+            ValidateType(type);
+            if (count > this.Size)
+                throw new ArgumentOutOfRangeException("count", count, "You tried to set too many elements for this uniform");
+
+            if (startValueIndex < 0 || startValueIndex > valueLength)
+                throw new ArgumentOutOfRangeException("startValueIndex", startValueIndex, "startValueIndex must be in the range [0, value.Length)");
+
+            if (valueLength - startValueIndex < count)
+                throw new IndexOutOfRangeException("The array isn't big enough to read count values");
         }
 
         public override string ToString()

@@ -57,7 +57,7 @@ namespace TrippyGL
 
                 BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, this.Width, this.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
+                GL.TexImage2D(this.TextureType, 0, this.PixelInternalFormat, this.Width, this.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
             }
 
@@ -91,13 +91,13 @@ namespace TrippyGL
         /// <param name="rectY">The Y coordinate of the first pixel to write</param>
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight)
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, dataPtr);
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
         }
 
         /// <summary>
@@ -110,12 +110,13 @@ namespace TrippyGL
         /// <param name="rectY">The Y coordinate of the first pixel to write</param>
         /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight) where T : struct
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
+            GL.TexSubImage2D(this.TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -124,9 +125,10 @@ namespace TrippyGL
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
         /// <param name="data">The array containing the new texture data</param>
         /// <param name="dataOffset">The index of the first element in the array to start reading from</param>
-        public void SetData<T>(T[] data, int dataOffset = 0) where T : struct
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void SetData<T>(T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
-            SetData(data, dataOffset, 0, 0, this.Width, this.Height);
+            SetData(data, dataOffset, 0, 0, this.Width, this.Height, pixelFormat);
         }
 
         /// <summary>
@@ -135,10 +137,11 @@ namespace TrippyGL
         /// </summary>
         /// <param name="dataPtr">The pointer for writting the data</param>
         /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        public void GetData(IntPtr dataPtr)
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void GetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, dataPtr);
+            GL.GetTexImage(this.TextureType, 0, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
         }
 
         /// <summary>
@@ -147,12 +150,13 @@ namespace TrippyGL
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
         /// <param name="data">The array in which to write the texture data</param>
         /// <param name="dataOffset">The index of the first element in the data array to start writing from</param>
-        public void GetData<T>(T[] data, int dataOffset = 0) where T : struct
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        public void GetData<T>(T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateGetOperation(data, dataOffset);
             
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
+            GL.GetTexImage(this.TextureType, 0, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -230,9 +234,9 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             if (this.Samples == 0)
-                GL.TexImage2D(this.TextureType, 0, this.PixelFormat, this.Width, this.Height, 0, TrippyUtils.IsImageFormatDepthType(this.ImageFormat) ? OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent : OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
+                GL.TexImage2D(this.TextureType, 0, this.PixelInternalFormat, this.Width, this.Height, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
             else
-                GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, this.Samples, this.PixelFormat, this.Width, this.Height, true);
+                GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, this.Samples, this.PixelInternalFormat, this.Width, this.Height, true);
 
         }
 

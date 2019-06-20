@@ -49,19 +49,19 @@ namespace TrippyTesting.Tests
             using(Bitmap b = new Bitmap("arrtest/t1.png"))
             {
                 BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, texArr.Width, texArr.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                texArr.SetData(bits.Scan0, 0, 0, 0, texArr.Width, texArr.Height, 1, SetDataPixelFormat.Bgra);
+                texArr.SetData(bits.Scan0, 0, 0, 0, texArr.Width, texArr.Height, 1, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra);
                 b.UnlockBits(bits);
             }
             using (Bitmap b = new Bitmap("arrtest/t2.png"))
             {
                 BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, texArr.Width, texArr.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                texArr.SetData(bits.Scan0, 0, 0, 1, texArr.Width, texArr.Height, 1, SetDataPixelFormat.Bgra);
+                texArr.SetData(bits.Scan0, 0, 0, 1, texArr.Width, texArr.Height, 1, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra);
                 b.UnlockBits(bits);
             }
             using (Bitmap b = new Bitmap("arrtest/t3.png"))
             {
                 BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, texArr.Width, texArr.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                texArr.SetData(bits.Scan0, 0, 0, 2, texArr.Width, texArr.Height, 1, SetDataPixelFormat.Bgra);
+                texArr.SetData(bits.Scan0, 0, 0, 2, texArr.Width, texArr.Height, 1, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra);
                 b.UnlockBits(bits);
             }
             texArr.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);

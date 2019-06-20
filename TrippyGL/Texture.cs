@@ -19,10 +19,13 @@ namespace TrippyGL
         public readonly TextureTarget TextureType;
 
         /// <summary>The format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats (though these are unused)</summary>
-        internal readonly PixelInternalFormat PixelFormat;
+        internal readonly PixelInternalFormat PixelInternalFormat;
 
         /// <summary>The data type of the components of the texture's pixels, such as UnsignedByte (typical), Float, Int, HalfFloat, etc</summary>
         internal readonly PixelType PixelType;
+
+        /// <summary>The format of the pixel data</summary>
+        internal readonly PixelFormat PixelFormat;
 
         /// <summary>The format for this texture's image</summary>
         public readonly TextureImageFormat ImageFormat;
@@ -38,7 +41,7 @@ namespace TrippyGL
         public bool IsBoundAndActive { get { return GraphicsDevice.IsTextureBound(this) && lastBindUnit == GraphicsDevice.ActiveTextureUnit; } }
 
         /// <summary>Gets the texture unit to which this texture is currently bound, or -1 if it's not bound anywhere</summary>
-        public int GetCurrentlyBoundUnit { get { return IsBound ? lastBindUnit : -1; } }
+        public int CurrentlyBoundUnit { get { return IsBound ? lastBindUnit : -1; } }
 
         /// <summary>The last texture unit to which this texture was bound. This value is used by binding functions</summary>
         internal int lastBindUnit;
@@ -54,7 +57,7 @@ namespace TrippyGL
             this.Handle = GL.GenTexture();
             this.TextureType = type;
             this.ImageFormat = imageFormat;
-            TrippyUtils.GetTextureFormatEnums(imageFormat, out this.PixelFormat, out this.PixelType);
+            TrippyUtils.GetTextureFormatEnums(imageFormat, out this.PixelInternalFormat, out this.PixelType, out PixelFormat);
             this.lastBindUnit = 0;
             this.IsMipmapped = false;
             this.isNotMipmappable = !TrippyUtils.IsTextureTypeMipmappable(type);
@@ -73,19 +76,6 @@ namespace TrippyGL
         }
 
         //THIS FUNCTION SHOULD BE PASSED ON TO THE FUTURE TEXTURE3D CLASS
-        /// <summary>
-        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
-        /// </summary>
-        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
-        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
-        /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate</param>
-        public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
-        {
-            GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
-        }
 
         public void GenerateMipmaps()
         {

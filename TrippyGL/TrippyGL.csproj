@@ -72,6 +72,7 @@
     <Compile Include="RenderbufferObject.cs" />
     <Compile Include="ShaderSamplerArrayUniform.cs" />
     <Compile Include="Texture2DArray.cs" />
+    <Compile Include="TextureCubemap.cs" />
     <Compile Include="TrippyMath.cs" />
     <Compile Include="PrimitiveBatcher.cs" />
     <Compile Include="ShaderBlockUniform.cs" />

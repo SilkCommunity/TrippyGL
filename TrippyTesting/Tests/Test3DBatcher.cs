@@ -41,6 +41,14 @@ namespace TrippyTesting.Tests
 
         FramebufferObject framebuffer;
         Texture2D framebufferTexture;
+        Texture2D depthTex;
+
+        float nearPlane = 0.0001f, farPlane = 10f;
+        DepthTestingState depthState;
+
+        TextureCubemap cubeMap;
+        ShaderProgram cubemapProgram;
+        VertexBuffer<VertexColor> cubemapBuffer;
 
         public Test3DBatcher() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 0, 0, ColorFormat.Empty, 2), "3D FUCKSAAA LO PIBE", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
         {
@@ -64,6 +72,7 @@ namespace TrippyTesting.Tests
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             fuckables = new System.Collections.Generic.List<Fuckable>(32);
 
+            depthState = DepthTestingState.Default;
             cameraPos = new Vector3(2, 1.3f, 2);
             rotY = 0;
             rotX = 0;
@@ -90,7 +99,46 @@ namespace TrippyTesting.Tests
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 512);
 
-            framebuffer = FramebufferObject.Create2D(ref framebufferTexture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
+            cubeMap = new TextureCubemap(graphicsDevice, 800);
+            cubeMap.SetData(CubeMapFace.PositiveX, "cubemap/cubemap1_front.png");
+            cubeMap.SetData(CubeMapFace.NegativeX, "cubemap/cubemap1_back.png");
+            cubeMap.SetData(CubeMapFace.NegativeZ, "cubemap/cubemap1_left.png");
+            cubeMap.SetData(CubeMapFace.PositiveZ, "cubemap/cubemap1_right.png");
+            cubeMap.SetData(CubeMapFace.PositiveY, "cubemap/cubemap1_top.png");
+            cubeMap.SetData(CubeMapFace.NegativeY, "cubemap/cubemap1_bottom.png");
+
+            cubemapProgram = new ShaderProgram(graphicsDevice);
+            cubemapProgram.AddVertexShader(File.ReadAllText("cubemap/vs.glsl"));
+            cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
+            cubemapProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            cubemapProgram.LinkProgram();
+            cubemapProgram.Uniforms["samp"].SetValueTexture(cubeMap);
+            cubemapProgram.BlockUniforms["MatrixBlock"].SetValue(ubo);
+
+            cubemapBuffer = new VertexBuffer<VertexColor>(graphicsDevice, new VertexColor[]{
+                new VertexColor(new Vector3(-0.5f,-0.5f,-0.5f), Color4b.LightBlue),//4
+                new VertexColor(new Vector3(-0.5f,-0.5f,0.5f), Color4b.Lime),//3
+                new VertexColor(new Vector3(-0.5f,0.5f,-0.5f), Color4b.White),//7
+                new VertexColor(new Vector3(-0.5f,0.5f,0.5f), Color4b.Black),//8
+                new VertexColor(new Vector3(0.5f,0.5f,0.5f), Color4b.Blue),//5
+                new VertexColor(new Vector3(-0.5f,-0.5f,0.5f), Color4b.Lime),//3
+                new VertexColor(new Vector3(0.5f,-0.5f,0.5f), Color4b.Red),//1
+                new VertexColor(new Vector3(-0.5f,-0.5f,-0.5f), Color4b.LightBlue),//4
+                new VertexColor(new Vector3(0.5f,-0.5f,-0.5f), Color4b.Yellow),//2
+                new VertexColor(new Vector3(-0.5f,0.5f,-0.5f), Color4b.White),//7
+                new VertexColor(new Vector3(0.5f,0.5f,-0.5f), Color4b.Pink),//6
+                new VertexColor(new Vector3(0.5f,0.5f,0.5f), Color4b.Blue),//5
+                new VertexColor(new Vector3(0.5f,-0.5f,-0.5f), Color4b.Yellow),//2
+                new VertexColor(new Vector3(0.5f,-0.5f,0.5f), Color4b.Red),//1
+            }, BufferUsageHint.StaticDraw);
+
+            //framebuffer = FramebufferObject.Create2D(ref framebufferTexture, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
+            framebuffer = new FramebufferObject(graphicsDevice, 2, 2);
+            framebufferTexture = new Texture2D(graphicsDevice, this.Width, this.Height);
+            framebuffer.Attach(framebufferTexture, FramebufferAttachmentPoint.Color0);
+            depthTex = new Texture2D(graphicsDevice, this.Width, this.Height, false, framebufferTexture.Samples, TextureImageFormat.Depth24);
+            framebuffer.Attach(depthTex, FramebufferAttachmentPoint.Depth);
+            framebuffer.UpdateFramebufferData();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -158,13 +206,13 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            graphicsDevice.TextureCubemapSeamlessEnabled = true;
             graphicsDevice.BindFramebuffer(framebuffer);
-            graphicsDevice.DepthState = DepthTestingState.Default;
-            graphicsDevice.SetBlendStateOpaque();
-
+            graphicsDevice.DepthState = depthState;
+            graphicsDevice.BlendingEnabled = false;
 
             GL.ClearColor(0f, 0f, 0f, 1f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
             uniformVal.View = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             /*VertexColor[] cube = new VertexColor[]{
@@ -183,6 +231,16 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(1,0,0), Color4b.Yellow),//2
                 new VertexColor(new Vector3(1,0,1), Color4b.Red),//1
             };*/
+            ubo.SetValue(uniformVal);
+
+            graphicsDevice.BindVertexArray(cubemapBuffer.VertexArray);
+            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            cubemapProgram.EnsurePreDrawStates();
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+
+
             VertexColor[] cube = new VertexColor[]{
                 new VertexColor(new Vector3(-0.5f,-0.5f,-0.5f), Color4b.LightBlue),//4
                 new VertexColor(new Vector3(-0.5f,-0.5f,0.5f), Color4b.Lime),//3
@@ -230,9 +288,9 @@ namespace TrippyTesting.Tests
             mat = Matrix4.CreateRotationY(-time * MathHelper.PiOver2) * Matrix4.CreateScale(0.6f, 1.5f, 0.6f) * Matrix4.CreateTranslation(-1.4f, 0, 2);
             batcher.AddTriangleStrip(MultiplyAllToNew(cone, ref mat));
 
-            batcher.AddLine(new VertexColor(new Vector3(-9999, 0, 0), new Color4b(255, 0, 0, 255)), new VertexColor(new Vector3(9999, 0, 0), new Color4b(255, 0, 0, 255)));
-            batcher.AddLine(new VertexColor(new Vector3(0, -9999, 0), new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, 9999, 0), new Color4b(0, 255, 0, 255)));
-            batcher.AddLine(new VertexColor(new Vector3(0, 0, -9999), new Color4b(0, 0, 255, 255)), new VertexColor(new Vector3(0, 0, 9999), new Color4b(0, 0, 255, 255)));
+            batcher.AddLine(new VertexColor(new Vector3(-999, 0, 0), new Color4b(255, 0, 0, 255)), new VertexColor(new Vector3(999, 0, 0), new Color4b(255, 0, 0, 255)));
+            batcher.AddLine(new VertexColor(new Vector3(0, -999, 0), new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, 999, 0), new Color4b(0, 255, 0, 255)));
+            batcher.AddLine(new VertexColor(new Vector3(0, 0, -999), new Color4b(0, 0, 255, 255)), new VertexColor(new Vector3(0, 0, 999), new Color4b(0, 0, 255, 255)));
 
             for (int i = 0; i < fuckables.Count; i++)
                 fuckables[i].Draw(batcher);
@@ -241,14 +299,14 @@ namespace TrippyTesting.Tests
             {
                 bool hahayes = Math.Abs(cameraPos.X) > Math.Abs(cameraPos.Y);
                 float meh = (int)(cameraPos.Z + 0.5f) + i;
-                batcher.AddLine(new VertexColor(new Vector3(-9999, 0, meh), new Color4b(32, 0, 0, 255)), new VertexColor(new Vector3(9999, 0, meh), new Color4b(32, 0, 0, 255)));
+                batcher.AddLine(new VertexColor(new Vector3(-999, 0, meh), new Color4b(32, 0, 0, 255)), new VertexColor(new Vector3(999, 0, meh), new Color4b(32, 0, 0, 255)));
                 if (!hahayes)
-                    batcher.AddLine(new VertexColor(new Vector3(0, -9999, meh), new Color4b(0, 32, 0, 255)), new VertexColor(new Vector3(0, 9999, meh), new Color4b(0, 32, 0, 255)));
+                    batcher.AddLine(new VertexColor(new Vector3(0, -999, meh), new Color4b(0, 32, 0, 255)), new VertexColor(new Vector3(0, 999, meh), new Color4b(0, 32, 0, 255)));
 
                 meh = (int)(cameraPos.X + 0.5f) + i;
-                batcher.AddLine(new VertexColor(new Vector3(meh, 0, -9999), new Color4b(0, 0, 32, 255)), new VertexColor(new Vector3(meh, 0, 9999), new Color4b(0, 0, 32, 255)));
+                batcher.AddLine(new VertexColor(new Vector3(meh, 0, -999), new Color4b(0, 0, 32, 255)), new VertexColor(new Vector3(meh, 0, 999), new Color4b(0, 0, 32, 255)));
                 if (hahayes)
-                    batcher.AddLine(new VertexColor(new Vector3(meh, -9999, 0), new Color4b(0, 32, 0, 255)), new VertexColor(new Vector3(meh, 9999, 0), new Color4b(0, 32, 0, 255)));
+                    batcher.AddLine(new VertexColor(new Vector3(meh, -999, 0), new Color4b(0, 32, 0, 255)), new VertexColor(new Vector3(meh, 999, 0), new Color4b(0, 32, 0, 255)));
             }
 
             Vector3 forward = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
@@ -299,7 +357,6 @@ namespace TrippyTesting.Tests
 
             batcher.WriteTrianglesTo(triangleBuffer);
             batcher.WriteLinesTo(lineBuffer);
-            ubo.SetValue(uniformVal);
 
             program.Uniforms["time"].SetValue1(time * 10f);
             program.Uniforms["amp"].SetValue1(0.2f);
@@ -345,7 +402,7 @@ namespace TrippyTesting.Tests
             float wid = this.Width / (float)this.Height;
             wid *= 0.5f;
             //Matrix4 mat = Matrix4.CreateOrthographicOffCenter(-wid, wid, 0, 1, 0, 100);
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.001f, 10f);
+            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, nearPlane, farPlane);
             //projUniform.SetValueMat4(ref mat);
             uniformVal.Projection = mat;
             FramebufferObject.Resize2D(framebuffer, this.Width, this.Height);
@@ -363,23 +420,22 @@ namespace TrippyTesting.Tests
             }
             else if (e.Button == MouseButton.Middle)
             {
-                /*float[] data = new float[framebuffer.DepthTexture.Width * framebuffer.DepthTexture.Height];
-                graphicsDevice.BindFramebuffer(framebuffer);
-                //GL.ReadPixels(0, 0, framebuffer.Width, framebuffer.Height, OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent, PixelType.Float, data);
-                graphicsDevice.BindTexture(framebuffer.DepthTexture);
-                GL.GetTexImage(framebuffer.DepthTexture.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent, PixelType.Float, data);
+                float[] data = new float[depthTex.Width * depthTex.Height];
+                depthTex.GetData(data);
                 using (Bitmap b = new Bitmap(framebuffer.Width, framebuffer.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
                 {
                     int i = 0;
                     for (int y = 0; y < b.Height; y++)
                         for (int x = 0; x < b.Width; x++)
                         {
-                            int px = (int)(Math.Pow(data[i++], 100) * 255);
+                            //1/z = depth * (1/far - 1/near) + 1/near
+                            //int px = (int)(Math.Pow(data[i++], 100) * 255);
+                            int px = 255-(int)((255f/(farPlane-nearPlane))/((data[i++]) * (1f/farPlane - 1f/nearPlane) + 1f/nearPlane));
                             b.SetPixel(x, y, Color.FromArgb(255, px, px, px));
                         }
                     b.RotateFlip(RotateFlipType.RotateNoneFlipY);
                     b.Save("depthmap" + time + ".png", ImageFormat.Png);
-                }*/
+                }
             }
         }
 

@@ -236,6 +236,22 @@ namespace TrippyGL
             return format == DepthStencilFormat.Stencil8;
         }
 
+        /// <summary>
+        /// Gets the default pixel format for get data texture operations for the specified TextureImageFormat
+        /// </summary>
+        /// <param name="format">The format to check</param>
+        public static PixelFormat GetDefaultGetDataFormat(TextureImageFormat format)
+        {
+            if (TrippyUtils.IsImageFormatColorRenderable(format))
+                return PixelFormat.Rgba;
+            else if (TrippyUtils.IsImageFormatDepthType(format))
+                return PixelFormat.DepthComponent;
+            else if (TrippyUtils.IsImageFormatDepthStencilType(format))
+                return PixelFormat.DepthStencil;
+            else if (TrippyUtils.IsImageFormatStencilType(format))
+                return PixelFormat.StencilIndex;
+            throw new ArgumentException("The given TextureImageFormat isn't valid");
+        }
 
         /// <summary>
         /// Returns whether the given ActiveUniformType is a sampler type
@@ -256,7 +272,7 @@ namespace TrippyGL
         /// <param name="imageFormat">The requested image format</param>
         /// <param name="pixelInternalFormat">The pixel's internal format</param>
         /// <param name="pixelType">The pixel's type</param>
-        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType) //PixelFormat and PixelType for get (or set?) operations
+        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType, out PixelFormat pixelFormat)
         {
             // The workings of this function are related to the numbers assigned to each enum value
             int b = (int)imageFormat / 32;
@@ -270,6 +286,7 @@ namespace TrippyGL
                     {
                         case 5:
                             pixelInternalFormat = PixelInternalFormat.Rgba8;
+                            pixelFormat = PixelFormat.Rgba;
                             return;
                     }
                     break;
@@ -281,24 +298,31 @@ namespace TrippyGL
                     {
                         case 1:
                             pixelInternalFormat = PixelInternalFormat.R32f;
+                            pixelFormat = PixelFormat.Red;
                             return;
                         case 2:
                             pixelInternalFormat = PixelInternalFormat.Rg32f;
+                            pixelFormat = PixelFormat.Rg;
                             return;
                         case 3:
                             pixelInternalFormat = PixelInternalFormat.Rgb32f;
+                            pixelFormat = PixelFormat.Rgb;
                             return;
                         case 4:
                             pixelInternalFormat = PixelInternalFormat.Rgba32f;
+                            pixelFormat = PixelFormat.Rgba;
                             return;
                         case 5:
                             pixelInternalFormat = PixelInternalFormat.DepthComponent16;
+                            pixelFormat = PixelFormat.DepthComponent;
                             return;
                         case 6:
                             pixelInternalFormat = PixelInternalFormat.DepthComponent24;
+                            pixelFormat = PixelFormat.DepthComponent;
                             return;
                         case 7:
                             pixelInternalFormat = PixelInternalFormat.DepthComponent32f;
+                            pixelFormat = PixelFormat.DepthComponent;
                             return;
                     }
                     break;
@@ -310,15 +334,19 @@ namespace TrippyGL
                     {
                         case 1:
                             pixelInternalFormat = PixelInternalFormat.R32i;
+                            pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 2:
                             pixelInternalFormat = PixelInternalFormat.Rg32i;
+                            pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 3:
                             pixelInternalFormat = PixelInternalFormat.Rgb32i;
+                            pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 4:
                             pixelInternalFormat = PixelInternalFormat.Rgba32i;
+                            pixelFormat = PixelFormat.RgbaInteger;
                             return;
                     }
                     break;
@@ -330,15 +358,19 @@ namespace TrippyGL
                     {
                         case 1:
                             pixelInternalFormat = PixelInternalFormat.R32ui;
+                            pixelFormat = PixelFormat.RedInteger;
                             return;
                         case 2:
                             pixelInternalFormat = PixelInternalFormat.Rg32ui;
+                            pixelFormat = PixelFormat.RgInteger;
                             return;
                         case 3:
                             pixelInternalFormat = PixelInternalFormat.Rgb32ui;
+                            pixelFormat = PixelFormat.RgbInteger;
                             return;
                         case 4:
                             pixelInternalFormat = PixelInternalFormat.Rgba32ui;
+                            pixelFormat = PixelFormat.RgbaInteger;
                             return;
                     }
                     break;
@@ -350,6 +382,7 @@ namespace TrippyGL
                         case 1:
                             pixelType = PixelType.UnsignedInt248;
                             pixelInternalFormat = PixelInternalFormat.Depth24Stencil8;
+                            pixelFormat = PixelFormat.DepthStencil;
                             return;
                     }
                     break;
@@ -447,6 +480,47 @@ namespace TrippyGL
         {
             int i = attachment - FramebufferAttachmentPoint.Color0;
             return i >= 0 && i < 32;
+        }
+
+        public static bool IsRenderbufferFormatDepthOnly(RenderbufferFormat format)
+        {
+            return format == RenderbufferFormat.Depth16 || format  == RenderbufferFormat.Depth24|| format == RenderbufferFormat.Depth32f;
+        }
+
+        public static bool IsRenderbufferFormatStencilOnly(RenderbufferFormat format)
+        {
+            return format == RenderbufferFormat.Stencil8;
+        }
+
+        public static bool IsRenderbufferFormatDepthStencil(RenderbufferFormat format)
+        {
+            return format == RenderbufferFormat.Depth24Stencil8 || format == RenderbufferFormat.Depth32fStencil8;
+        }
+
+        public static bool IsRenderbufferFormatColorRenderable(RenderbufferFormat format)
+        {
+            return format == RenderbufferFormat.Color4b || format == RenderbufferFormat.Float
+                || format == RenderbufferFormat.Float2 || format == RenderbufferFormat.Float4
+                || format == RenderbufferFormat.Int || format == RenderbufferFormat.Int2
+                || format == RenderbufferFormat.Int4 || format == RenderbufferFormat.UnsignedInt
+                || format == RenderbufferFormat.UnsignedInt2 || format == RenderbufferFormat.UnsignedInt4;
+        }
+
+        /// <summary>
+        /// Gets the default valid framebuffer attachment point for a renderbuffer format
+        /// </summary>
+        /// <param name="format">The RenderbufferFormat to check for</param>
+        public static FramebufferAttachmentPoint GetCorrespondingRenderbufferFramebufferAttachmentPoint(RenderbufferFormat format)
+        {
+            if (IsRenderbufferFormatColorRenderable(format))
+                return FramebufferAttachmentPoint.Color0;
+            if (IsRenderbufferFormatDepthOnly(format))
+                return FramebufferAttachmentPoint.Depth;
+            if (IsRenderbufferFormatDepthStencil(format))
+                return FramebufferAttachmentPoint.DepthStencil;
+            if (IsRenderbufferFormatStencilOnly(format))
+                return FramebufferAttachmentPoint.Stencil;
+            throw new ArgumentException("The specified format appears to be invalid");
         }
     }
 }

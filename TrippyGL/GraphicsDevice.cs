@@ -140,7 +140,7 @@ namespace TrippyGL
         public int MaxTextureImageUnits { get; private set; }
 
         public int MaxRenderbufferSize { get; private set; }
-        
+
         public int MaxVertexAttribs { get; private set; }
 
         public int MaxArrayTextureLayers { get; private set; }
@@ -866,7 +866,7 @@ namespace TrippyGL
         }
 
         #endregion
-        
+
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.
         /// Each BufferRangeBinding represents one of these binding points in a BufferTarget. Of course, this must be in a BufferTarget
@@ -910,6 +910,28 @@ namespace TrippyGL
 
         #region DrawingStates
 
+        #region ClearColor
+
+        /// <summary>The current clear color</summary>
+        private Color4 clearColor;
+
+        /// <summary>
+        /// Gets or sets the current color to use on clear operations
+        /// </summary>
+        public Color4 ClearColor
+        {
+            get { return clearColor; }
+            set
+            {
+                if (clearColor != value)
+                {
+                    GL.ClearColor(value);
+                    clearColor = value;
+                }
+            }
+        }
+        #endregion
+
         #region Viewport
         /// <summary>The current drawing viewport</summary>
         private Rectangle viewport;
@@ -917,7 +939,7 @@ namespace TrippyGL
         /// <summary>Gets or sets the viewport for drawing</summary>
         public Rectangle Viewport
         {
-            get { return viewport; } //The get is OK because Rectangle is a struct so no worries here
+            get { return viewport; } //The get is OK because Rectangle is a struct so no worries about modifying it
             set
             {
                 if (value.X != viewport.X || value.Y != viewport.Y || value.Width != viewport.Width || value.Height != viewport.Height)
@@ -948,6 +970,52 @@ namespace TrippyGL
         }
 
         #endregion Viewport
+
+        #region ScissorTest
+
+        /// <summary>Whether scissor testing is currently enabled</summary>
+        private bool scissorTestEnabled = false;
+
+        /// <summary>The current scissor rectangle</summary>
+        private Rectangle scissorRect;
+
+        /// <summary>Gets or sets whether scissor testing is enable</summary>
+        public bool ScissorTestEnabled
+        {
+            get { return scissorTestEnabled; }
+            set
+            {
+                if (scissorTestEnabled != value)
+                {
+                    scissorTestEnabled = value;
+                    if (value)
+                        GL.Enable(EnableCap.ScissorTest);
+                    else
+                        GL.Disable(EnableCap.ScissorTest);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the scissor rectangle that discards fragments rendered outside it
+        /// </summary>
+        public Rectangle ScissorRectangle
+        {
+            get { return scissorRect; }
+            set
+            {
+                if (scissorRect != value)
+                {
+                    if (value.Width < 0 || value.Height < 0)
+                        throw new ArgumentOutOfRangeException("ScissorRectangle Width and Height must be greater or equal to 0");
+
+                    scissorRect = value;
+                    GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
+                }
+            }
+        }
+
+        #endregion
 
         #region BlendState
 
@@ -1029,15 +1097,20 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>
-        /// Sets the current blend state as opaque
-        /// </summary>
-        public void SetBlendStateOpaque()
+        /// <summary>Enables or disables color blending</summary>
+        public bool BlendingEnabled
         {
-            if (!blendState.IsOpaque)
+            get { return !blendState.IsOpaque; }
+            set
             {
-                blendState.IsOpaque = true;
-                GL.Disable(EnableCap.Blend);
+                if (blendState.IsOpaque == value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.Blend);
+                    else
+                        GL.Disable(EnableCap.Blend);
+                    blendState.IsOpaque = !value;
+                }
             }
         }
 
@@ -1069,13 +1142,13 @@ namespace TrippyGL
                         depthState.DepthComparison = value.DepthComparison;
                     }
 
-                    if(depthState.ClearDepth != value.ClearDepth)
+                    if (depthState.ClearDepth != value.ClearDepth)
                     {
                         GL.ClearDepth(value.ClearDepth);
                         depthState.ClearDepth = value.ClearDepth;
                     }
 
-                    if(depthState.depthNear != value.depthNear || depthState.depthFar != value.depthFar)
+                    if (depthState.depthNear != value.depthNear || depthState.depthFar != value.depthFar)
                     {
                         GL.DepthRange(value.depthNear, value.depthFar);
                         depthState.depthNear = value.depthNear;
@@ -1096,15 +1169,43 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>
-        /// Disables depth testing
-        /// </summary>
-        public void DisableDepthTesting()
+        /// <summary>Enables or disables depth testing</summary>
+        public bool DepthTestingEnabled
         {
-            if (depthState.DepthTestingEnabled)
+            get { return depthState.DepthTestingEnabled; }
+            set
             {
-                depthState.DepthTestingEnabled = false;
-                GL.Disable(EnableCap.DepthTest);
+                if (depthState.DepthTestingEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.DepthTest);
+                    else
+                        GL.Disable(EnableCap.DepthTest);
+                    depthState.DepthTestingEnabled = value;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Misc
+
+        private bool cubemapSeamlessEnabled = false;
+
+        /// <summary>Enables or disables seamless sampling across cubemap faces</summary>
+        public bool TextureCubemapSeamlessEnabled
+        {
+            get { return cubemapSeamlessEnabled; }
+            set
+            {
+                if (cubemapSeamlessEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.TextureCubeMapSeamless);
+                    else
+                        GL.Disable(EnableCap.TextureCubeMapSeamless);
+                    cubemapSeamlessEnabled = value;
+                }
             }
         }
 
@@ -1113,8 +1214,6 @@ namespace TrippyGL
         #endregion DrawingStates
 
         #region DrawingFunctions
-
-
 
         /// <summary>
         /// Copies content from one framebuffer to another
@@ -1182,7 +1281,7 @@ namespace TrippyGL
                 throw new InvalidBlitException("When using depth or stencil, the filter must be Nearest");
 
             //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
-            
+
             /*bool areSameSize = srcWidth == dstWidth && srcHeight == dstHeight;
             
             if (src.Samples == dst.Samples)

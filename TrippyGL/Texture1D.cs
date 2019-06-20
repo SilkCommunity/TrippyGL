@@ -51,7 +51,7 @@ namespace TrippyGL
 
                 BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage1D(this.TextureType, 0, this.PixelFormat, this.Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
+                GL.TexImage1D(this.TextureType, 0, this.PixelInternalFormat, this.Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
             }
 
@@ -151,7 +151,7 @@ namespace TrippyGL
             this.Width = width;
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexImage1D(this.TextureType, 0, this.PixelFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
+            GL.TexImage1D(this.TextureType, 0, this.PixelInternalFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
         }
 
         private protected void ValidateTextureSize(int width)

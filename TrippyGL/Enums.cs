@@ -49,12 +49,6 @@ namespace TrippyGL
         Png, Jpeg, Tiff, Bmp
     }
 
-    public enum SetDataPixelFormat
-    {
-        Rgba = PixelFormat.Rgba,
-        Bgra = PixelFormat.Bgra
-    }
-
     public enum FramebufferAttachmentPoint
     {
         Color0 = FramebufferAttachment.ColorAttachment0,
@@ -100,5 +94,15 @@ namespace TrippyGL
         Depth24Stencil8 = RenderbufferStorage.Depth24Stencil8,
         Depth32fStencil8 = RenderbufferStorage.Depth32fStencil8,
         Stencil8 = RenderbufferStorage.StencilIndex8,
+    }
+
+    public enum CubeMapFace
+    {
+        PositiveX = TextureTarget.TextureCubeMapPositiveX,
+        NegativeX = TextureTarget.TextureCubeMapNegativeX,
+        PositiveY = TextureTarget.TextureCubeMapPositiveY,
+        NegativeY = TextureTarget.TextureCubeMapNegativeY,
+        PositiveZ = TextureTarget.TextureCubeMapPositiveZ,
+        NegativeZ = TextureTarget.TextureCubeMapNegativeZ
     }
 }

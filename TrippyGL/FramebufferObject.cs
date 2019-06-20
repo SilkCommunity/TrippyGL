@@ -364,12 +364,11 @@ namespace TrippyGL
 
             FramebufferObject fbo = new FramebufferObject(graphicsDevice);
             fbo.Attach(texture, FramebufferAttachmentPoint.Color0);
+
             if (depthStencilFormat != DepthStencilFormat.None)
             {
                 RenderbufferObject rbo = new RenderbufferObject(graphicsDevice, width, height, (RenderbufferFormat)depthStencilFormat, samples);
-                fbo.Attach(rbo,
-                    TrippyUtils.IsDepthStencilFormatDepthAndStencil(depthStencilFormat) ? FramebufferAttachmentPoint.DepthStencil :
-                    (TrippyUtils.IsDepthStencilFormatDepthOnly(depthStencilFormat) ? FramebufferAttachmentPoint.Depth : FramebufferAttachmentPoint.Stencil));
+                fbo.Attach(rbo, TrippyUtils.GetCorrespondingRenderbufferFramebufferAttachmentPoint(rbo.Format));
             }
             fbo.UpdateFramebufferData();
             return fbo;

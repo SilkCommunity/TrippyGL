@@ -148,7 +148,7 @@ namespace TrippyTesting
             float XD = wave(0.5f, time, 3.1415f*8, 0f) + 0.5f;
             program.Uniforms["haha"].SetValue4Array(new Vector4[]{
                 new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD), new Vector4(XD)
-            }, 0, 0, 4);
+            }, 0, 4);
 
             posTexBuffer.SetData(0, 2, 4, new PositionTexCoord[]
             {
