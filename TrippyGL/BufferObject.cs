@@ -4,52 +4,22 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
-    /// <summary>
-    /// An abstract class containing code shared among all BufferObject types.
-    /// </summary>
     public abstract class BufferObject : GraphicsResource
     {
-        // Note: BufferObject contains code shared among all BufferObject types.
-        // The BufferObject class takes care of handling the object. This includes binding (to the correct target), creating the
-        // object (storing the handle) and disposing (destroying the buffer object)
-        
-        // For binding, most of the work is done by the GraphicsDevice's binding functions. But the BufferObject stores a
-        // "bufferBindingTargetIndex" integer which is used internally by the GraphicsDevice for better performance when binding
-
-        // BufferObject also provides private protected methods for initializing the buffer's storage and different check parameter
-        // functions to be consisten across all BufferObjects when throwing exceptions on methods like SetData() and GetData()
-
         /// <summary>The GL Buffer Object's name</summary>
         public readonly int Handle;
 
-        /// <summary>The length of this buffer object's storage, measured in elements</summary>
-        public abstract int StorageLength { get; }
-
         /// <summary>The length of this buffer object's storage, measured in bytes</summary>
-        public abstract int StorageLengthInBytes { get; }
-
-        /// <summary>The size of each element, measured in bytes</summary>
-        public abstract int ElementSize { get; }
-
-        /// <summary>Whether this buffer object is the currently bound one on it's BufferTarget</summary>
-        public bool IsCurrentlyBound { get { return GraphicsDevice.IsBufferCurrentlyBound(this); } }
-
-        /// <summary>The target this BufferObject will always bind to</summary>
-        public readonly BufferTarget BufferTarget;
-
-        /// <summary>The index on the GraphicsDevice.bufferBindings array where this BufferObject's BufferTarget last bound handle is stored</summary>
-        internal readonly int bufferBindingTargetIndex;
+        public int StorageLengthInBytes { get; private set; }
 
         /// <summary>
         /// Creates a BufferObject with the specified bufferTarget.
         /// The buffer object's storage isn't initialized by this constructor
         /// </summary>
         /// <param name="bufferTarget"></param>
-        private protected BufferObject(GraphicsDevice graphicsDevice, BufferTarget bufferTarget) : base(graphicsDevice)
+        private protected BufferObject(GraphicsDevice graphicsDevice, int sizeInBytes) : base(graphicsDevice)
         {
             Handle = GL.GenBuffer();
-            this.BufferTarget = bufferTarget;
-            bufferBindingTargetIndex = GraphicsDevice.GetBindingTargetIndex(bufferTarget);
         }
         
         /// <summary>
@@ -63,7 +33,7 @@ namespace TrippyGL
         /// <param name="dataOffset"></param>
         /// <param name="data"></param>
         /// <param name="usageHint"></param>
-        private protected void InitializeStorage<T>(int storageLength, int elementSize, int dataOffset, T[] data, BufferUsageHint usageHint) where T : struct
+        private void InitializeStorage<T>(int storageLength, int elementSize, int dataOffset, T[] data, BufferUsageHint usageHint) where T : struct
         {
             ValidateInitWithDataParams(storageLength, dataOffset, data);
 
@@ -78,7 +48,7 @@ namespace TrippyGL
         /// <param name="bufferTarget">The OpenGL buffer target this BufferObject binds to</param>
         /// <param name="storageLengthInBytes">The desired length for this buffer object's storage, measured in bytes</param>
         /// <param name="usageHint">The desired BufferUsageHint</param>
-        private protected void InitializeStorage(int storageLengthInBytes, BufferUsageHint usageHint)
+        private void InitializeStorage(int storageLengthInBytes, BufferUsageHint usageHint)
         {
             ValidateInitWithoutDataParams(storageLengthInBytes);
 

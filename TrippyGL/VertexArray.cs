@@ -11,60 +11,7 @@ namespace TrippyGL
         /// <summary>The GL VertexArrayObject's name</summary>
         public readonly int Handle;
 
-        /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls</summary>
-        public readonly VertexAttribSourceList AttribSources;
 
-        /// <summary>
-        /// Creates a VertexArray with the specified attribute sources
-        /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : base(graphicsDevice)
-        {
-            if (attribSources == null)
-                throw new ArgumentNullException("attribSources");
-
-            if (attribSources.Length == 0)
-                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribSources");
-
-            Handle = GL.GenVertexArray();
-            this.AttribSources = new VertexAttribSourceList(attribSources);
-
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
-        }
-
-        /// <summary>
-        /// Creates a VertexArray in which all the vertex attributes come from the same data buffer
-        /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="dataBuffer">The data buffer that stores all the vertex attributes</param>
-        /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObject dataBuffer, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : base(graphicsDevice)
-        {
-            if (dataBuffer == null)
-                throw new ArgumentNullException("dataBuffer");
-
-            if (attribDescriptions == null)
-                throw new ArgumentNullException("attribDescriptions");
-
-            if (attribDescriptions.Length == 0)
-                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
-
-            Handle = GL.GenVertexArray();
-
-            VertexAttribSource[] s = new VertexAttribSource[attribDescriptions.Length];
-            for (int i = 0; i < s.Length; i++)
-                s[i] = new VertexAttribSource(dataBuffer, attribDescriptions[i]);
-            AttribSources = new VertexAttribSourceList(s);
-
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
-        }
 
         /// <summary>
         /// Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.

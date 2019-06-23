@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     /// <summary>
-    /// Describes a vertex attribute. This is, both how it is declared in the shader and how it is stored in a buffer object.
+    /// Describes a vertex attribute. This is, both how it is declared in the shader and how it will be read from a buffer
     /// </summary>
     public struct VertexAttribDescription
     {
