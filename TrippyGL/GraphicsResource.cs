@@ -18,7 +18,7 @@ namespace TrippyGL
             if (graphicsDevice == null)
                 throw new ArgumentNullException("graphicsDevice");
 
-            this.GraphicsDevice = graphicsDevice;
+            GraphicsDevice = graphicsDevice;
         }
 
         ~GraphicsResource()

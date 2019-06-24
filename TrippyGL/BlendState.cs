@@ -32,7 +32,7 @@ namespace TrippyGL
 
         public BlendState(bool isOpaque)
         {
-            this.IsOpaque = isOpaque;
+            IsOpaque = isOpaque;
             EquationModeRGB = BlendEquationMode.FuncAdd;
             EquationModeAlpha = BlendEquationMode.FuncAdd;
             SourceFactorRGB = BlendingFactorSrc.Zero;
@@ -43,48 +43,48 @@ namespace TrippyGL
 
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgba;
-            this.EquationModeAlpha = equationModeRgba;
-            this.SourceFactorRGB = sourceFactorRgba;
-            this.SourceFactorAlpha = sourceFactorRgba;
-            this.DestFactorRGB = destFactorRgba;
-            this.DestFactorAlpha = destFactorRgba;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgba;
+            EquationModeAlpha = equationModeRgba;
+            SourceFactorRGB = sourceFactorRgba;
+            SourceFactorAlpha = sourceFactorRgba;
+            DestFactorRGB = destFactorRgba;
+            DestFactorAlpha = destFactorRgba;
         }
 
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba, Color4 blendColor)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgba;
-            this.EquationModeAlpha = equationModeRgba;
-            this.SourceFactorRGB = sourceFactorRgba;
-            this.SourceFactorAlpha = sourceFactorRgba;
-            this.DestFactorRGB = destFactorRgba;
-            this.DestFactorAlpha = destFactorRgba;
-            this.BlendColor = blendColor;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgba;
+            EquationModeAlpha = equationModeRgba;
+            SourceFactorRGB = sourceFactorRgba;
+            SourceFactorAlpha = sourceFactorRgba;
+            DestFactorRGB = destFactorRgba;
+            DestFactorAlpha = destFactorRgba;
+            BlendColor = blendColor;
         }
 
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgb;
-            this.EquationModeAlpha = equationModeAlpha;
-            this.SourceFactorRGB = sourceFactorRgb;
-            this.DestFactorRGB = destFactorRgb;
-            this.SourceFactorAlpha = sourceFactorAlpha;
-            this.DestFactorAlpha = destFactorAlpha;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgb;
+            EquationModeAlpha = equationModeAlpha;
+            SourceFactorRGB = sourceFactorRgb;
+            DestFactorRGB = destFactorRgb;
+            SourceFactorAlpha = sourceFactorAlpha;
+            DestFactorAlpha = destFactorAlpha;
         }
 
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha, Color4 blendColor)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgb;
-            this.EquationModeAlpha = equationModeAlpha;
-            this.SourceFactorRGB = sourceFactorRgb;
-            this.DestFactorRGB = destFactorRgb;
-            this.SourceFactorAlpha = sourceFactorAlpha;
-            this.DestFactorAlpha = destFactorAlpha;
-            this.BlendColor = blendColor;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgb;
+            EquationModeAlpha = equationModeAlpha;
+            SourceFactorRGB = sourceFactorRgb;
+            DestFactorRGB = destFactorRgb;
+            SourceFactorAlpha = sourceFactorAlpha;
+            DestFactorAlpha = destFactorAlpha;
+            BlendColor = blendColor;
         }
 
         #region Static Members

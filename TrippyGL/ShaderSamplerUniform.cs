@@ -25,9 +25,9 @@ namespace TrippyGL
             if (value == null)
                 throw new ArgumentNullException("texture");
 
-            if (this.TextureValue != value)
+            if (TextureValue != value)
             {
-                this.TextureValue = value;
+                TextureValue = value;
                 OwnerProgram.Uniforms.isTextureListDirty = true;
             }
         }

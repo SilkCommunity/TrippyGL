@@ -28,8 +28,8 @@ namespace TrippyGL
         /// <param name="color">The vertex Color</param>
         public VertexColor(Vector3 position, Color4b color)
         {
-            this.Position = position;
-            this.Color = color;
+            Position = position;
+            Color = color;
         }
 
         /// <summary>
@@ -38,8 +38,8 @@ namespace TrippyGL
         /// <param name="position">The vertex Position</param>
         public VertexColor(Vector3 position)
         {
-            this.Position = position;
-            this.Color = new Color4b(255, 255, 255, 255);
+            Position = position;
+            Color = new Color4b(255, 255, 255, 255);
         }
 
         public override string ToString()

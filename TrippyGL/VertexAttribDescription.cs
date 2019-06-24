@@ -33,10 +33,10 @@ namespace TrippyGL
         /// <param name="attribType">The type of attribute declared in the shader</param>
         public VertexAttribDescription(ActiveAttribType attribType)
         {
-            this.AttribType = attribType;
-            this.Normalized = false;
-            TrippyUtils.GetVertexAttribTypeData(attribType, out this.AttribIndicesUseCount, out this.Size, out this.AttribBaseType);
-            this.SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(this.AttribBaseType) * this.Size * this.AttribIndicesUseCount;
+            AttribType = attribType;
+            Normalized = false;
+            TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
         }
 
         /// <summary>
@@ -47,13 +47,13 @@ namespace TrippyGL
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer</param>
         public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType)
         {
-            this.AttribType = attribType;
-            this.Normalized = normalized;
-            this.AttribBaseType = dataBaseType;
-            this.AttribType = attribType;
-            this.Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
-            this.AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
-            this.SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * this.Size * this.AttribIndicesUseCount;
+            AttribType = attribType;
+            Normalized = normalized;
+            AttribBaseType = dataBaseType;
+            AttribType = attribType;
+            Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
+            AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * Size * AttribIndicesUseCount;
 
             if (normalized && !TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
                 throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");

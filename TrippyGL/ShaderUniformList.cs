@@ -48,7 +48,7 @@ namespace TrippyGL
 
         internal ShaderUniformList(ShaderProgram program)
         {
-            this.Program = program;
+            Program = program;
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalCount);
 
             uniforms = new ShaderUniform[totalCount - program.BlockUniforms.TotalUniformCount];

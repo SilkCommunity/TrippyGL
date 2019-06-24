@@ -1,15 +1,13 @@
-﻿namespace TrippyGL
+﻿using System;
+
+namespace TrippyGL
 {
     /// <summary>
-    /// This interface is implemented by BufferObjects that can be bound to a ranged target (such as UniformBufferObject)
+    /// As of right now the only use of this interface is for ShaderBlockUniform to be able to hold a UniformBufferSubset
+    /// without having to use a type param and also for being able to bind it to the proper uniform block buffer binding index
     /// </summary>
     internal interface IBufferRangeBindable
     {
-        /// <summary>
-        /// Ensure a specified element of the buffer is bound to the specified binding index
-        /// </summary>
-        /// <param name="bindingIndex">The target index to bind to</param>
-        /// <param name="elementIndex">The index of the element in the buffer whose range to bind</param>
-        void EnsureBoundRange(int bindingIndex, int elementIndex);
+        void BindBufferRange(int bindingIndex, int storageOffsetBytes, int storageLengthBytes);
     }
 }

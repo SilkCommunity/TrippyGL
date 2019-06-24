@@ -58,13 +58,13 @@ namespace TrippyGL
 
             ValidateSampleCount(samples);
 
-            this.Handle = GL.GenRenderbuffer();
-            this.Format = format;
-            this.Width = width;
-            this.Height = height;
-            this.Samples = samples;
+            Handle = GL.GenRenderbuffer();
+            Format = format;
+            Width = width;
+            Height = height;
+            Samples = samples;
             graphicsDevice.ForceBindRenderbuffer(Handle);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, this.Samples, (RenderbufferStorage)format, this.Width, this.Height);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Samples, (RenderbufferStorage)format, Width, Height);
         }
 
         protected override void Dispose(bool isManualDispose)

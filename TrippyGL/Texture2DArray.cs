@@ -26,13 +26,13 @@ namespace TrippyGL
         public Texture2DArray(GraphicsDevice graphicsDevice, int width, int height, int depth, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2DArray : TextureTarget.Texture2DMultisampleArray, imageFormat)
         {
-            this.Samples = samples;
+            Samples = samples;
             RecreateImage(width, height, depth); //this also binds the texture
 
             if (samples == 0)
             {
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
-                GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+                GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
             }
         }
 
@@ -53,7 +53,7 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
+            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace TrippyGL
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(this.TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
+            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace TrippyGL
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
         public void SetData<T>(T[] data, int dataOffset, int depthLevel, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
-            SetData(data, dataOffset, 0, 0, depthLevel, this.Width, this.Height, 1, pixelFormat);
+            SetData(data, dataOffset, 0, 0, depthLevel, Width, Height, 1, pixelFormat);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace TrippyGL
         /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode)
         {
-            if (this.Samples != 0)
+            if (Samples != 0)
                 throw new InvalidOperationException("You can't change a multisampled texture's sampler states");
 
             GraphicsDevice.BindTextureSetActive(this);
@@ -115,15 +115,15 @@ namespace TrippyGL
         {
             ValidateTextureSize(width, height, depth);
 
-            this.Width = width;
-            this.Height = height;
-            this.Depth = depth;
+            Width = width;
+            Height = height;
+            Depth = depth;
 
             GraphicsDevice.BindTextureSetActive(this);
-            if (this.Samples == 0)
-                GL.TexImage3D(this.TextureType, 0, this.PixelInternalFormat, width, height, depth, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
+            if (Samples == 0)
+                GL.TexImage3D(TextureType, 0, PixelInternalFormat, width, height, depth, 0, PixelFormat, PixelType, IntPtr.Zero);
             else
-                GL.TexImage3DMultisample((TextureTargetMultisample)this.TextureType, this.Samples, this.PixelInternalFormat, width, height, depth, true);
+                GL.TexImage3DMultisample((TextureTargetMultisample)TextureType, Samples, PixelInternalFormat, width, height, depth, true);
         }
 
 
@@ -141,31 +141,31 @@ namespace TrippyGL
 
         private protected void ValidateRectOperation(int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth)
         {
-            if (rectX < 0 || rectY >= this.Height)
+            if (rectX < 0 || rectY >= Height)
                 throw new ArgumentOutOfRangeException("rectX", rectX, "rectX must be in the range [0, this.Width)");
 
-            if (rectY < 0 || rectY >= this.Height)
+            if (rectY < 0 || rectY >= Height)
                 throw new ArgumentOutOfRangeException("rectY", rectY, "rectY must be in the range [0, this.Height)");
 
-            if (rectZ < 0 || rectZ >= this.Depth)
+            if (rectZ < 0 || rectZ >= Depth)
                 throw new ArgumentOutOfRangeException("rectZ", rectZ, "rectZ must be in the range [0, this.Depth)");
 
             if (rectWidth <= 0 || rectHeight <= 0 || rectDepth <= 0)
                 throw new ArgumentOutOfRangeException("rectWidth, rectHeight and rectDepth must be greater than 0");
 
-            if (rectWidth > this.Width - rectX)
+            if (rectWidth > Width - rectX)
                 throw new ArgumentOutOfRangeException("rectWidth", rectWidth, "rectWidth is too large");
 
-            if (rectHeight > this.Height - rectY)
+            if (rectHeight > Height - rectY)
                 throw new ArgumentOutOfRangeException("rectHeight", rectHeight, "rectHeight is too large");
 
-            if (rectDepth > this.Depth - rectZ)
+            if (rectDepth > Depth - rectZ)
                 throw new ArgumentOutOfRangeException("rectDepth", rectDepth, "rectDepth is too large");
         }
 
         private protected void ValidateSetOperation<T>(T[] data, int dataOffset, int rectX, int rectY, int rectZ, int rectWidth, int rectHeight, int rectDepth) where T : struct
         {
-            if (this.Samples != 0)
+            if (Samples != 0)
                 throw new InvalidOperationException("You can't write the data of a multisampled texture");
 
             //if (data == null) //it's gonna throw null reference anyway
@@ -191,7 +191,7 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
-            if (data.Length - dataOffset < this.Width * this.Height * this.Depth)
+            if (data.Length - dataOffset < Width * Height * Depth)
                 throw new ArgumentException("The provided data array isn't big enough for the texture starting from dataOffset", "data");
         }
     }

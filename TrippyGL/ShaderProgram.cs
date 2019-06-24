@@ -91,7 +91,7 @@ namespace TrippyGL
                 return false;
 
             vsHandle = vs;
-            GL.AttachShader(this.Handle, vsHandle);
+            GL.AttachShader(Handle, vsHandle);
             return true;
         }
 
@@ -118,7 +118,7 @@ namespace TrippyGL
                 return false;
 
             vsHandle = vs;
-            GL.AttachShader(this.Handle, vsHandle);
+            GL.AttachShader(Handle, vsHandle);
             return true;
         }
 
@@ -157,7 +157,7 @@ namespace TrippyGL
                 return false;
 
             gsHandle = gs;
-            GL.AttachShader(this.Handle, gsHandle);
+            GL.AttachShader(Handle, gsHandle);
             return true;
         }
 
@@ -184,7 +184,7 @@ namespace TrippyGL
                 return false;
 
             gsHandle = gs;
-            GL.AttachShader(this.Handle, gsHandle);
+            GL.AttachShader(Handle, gsHandle);
             return true;
         }
 
@@ -223,7 +223,7 @@ namespace TrippyGL
                 return false;
 
             fsHandle = fs;
-            GL.AttachShader(this.Handle, fsHandle);
+            GL.AttachShader(Handle, fsHandle);
             return true;
         }
 
@@ -250,7 +250,7 @@ namespace TrippyGL
                 return false;
 
             fsHandle = fs;
-            GL.AttachShader(this.Handle, fsHandle);
+            GL.AttachShader(Handle, fsHandle);
             return true;
         }
 
@@ -359,14 +359,14 @@ namespace TrippyGL
                 GL.DetachShader(Handle, gsHandle);
                 GL.DeleteShader(gsHandle);
 
-                this.GeometryShader = new GeometryShaderData(this.Handle);
+                GeometryShader = new GeometryShaderData(Handle);
             }
 
-            this.ActiveAttribs = new ActiveAttribList(this);
-            this.BlockUniforms = new ShaderBlockUniformList(this);
-            this.Uniforms = new ShaderUniformList(this);
+            ActiveAttribs = new ActiveAttribList(this);
+            BlockUniforms = new ShaderBlockUniformList(this);
+            Uniforms = new ShaderUniformList(this);
 
-            if (!this.ActiveAttribs.CheckThatAttributesMatch(givenAttribDescriptions, givenAttribNames))
+            if (!ActiveAttribs.CheckThatAttributesMatch(givenAttribDescriptions, givenAttribNames))
                 throw new InvalidOperationException("The vertex attributes specified on SpecifyVertexAttribs() don't match the shader-defined attributes either in name or type");
             givenAttribNames = null;
             givenAttribDescriptions = null;

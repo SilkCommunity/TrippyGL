@@ -48,9 +48,9 @@ namespace TrippyGL
             {
                 int uniformindex = startUniformIndex + i;
                 int valueindex = startValueIndex + i;
-                if (this.texValues[uniformindex] != values[valueindex])
+                if (texValues[uniformindex] != values[valueindex])
                 {
-                    this.texValues[uniformindex] = values[valueindex];
+                    texValues[uniformindex] = values[valueindex];
                     OwnerProgram.Uniforms.isTextureListDirty = true;
                 }
             }
@@ -78,7 +78,7 @@ namespace TrippyGL
             if (startValueIndex < 0 || startValueIndex >= values.Length)
                 throw new ArgumentOutOfRangeException("startValueIndex", "startValueIndex must be in the range [0, values.Length)");
 
-            if (startUniformIndex < 0 || startUniformIndex >= this.texValues.Length)
+            if (startUniformIndex < 0 || startUniformIndex >= texValues.Length)
                 throw new ArgumentOutOfRangeException("startUniformIndex", "startUniformIndex must be in the range [0, Length)");
 
             if (count > values.Length - startValueIndex)

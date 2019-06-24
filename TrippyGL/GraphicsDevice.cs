@@ -26,7 +26,7 @@ namespace TrippyGL
         /// <param name="context">The OpenGL Context for this GraphicsDevice</param>
         public GraphicsDevice(IGraphicsContext context)
         {
-            this.Context = context;
+            Context = context;
 
             InitGLGetVariables();
 
@@ -179,6 +179,9 @@ namespace TrippyGL
         /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
         private const int BufferTargetCount = 14;
 
+        internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
+        private int defaultBufferTargetBindingIndex;
+
         /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array</summary>
         private int[] bufferBindings;
 
@@ -213,6 +216,7 @@ namespace TrippyGL
                 BufferTarget.QueryBuffer
             };
             bufferBindings = new int[BufferTargetCount];
+            defaultBufferTargetBindingIndex = GetBindingTargetIndex(DefaultBufferTarget);
 
             bufferRangeBindings = new BufferRangeBinding[4][];
 
@@ -223,64 +227,84 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a buffer is bound to it's BufferTarget by binding it if it's not
+        /// Ensures a buffer is bound to the default binding location by binding it if it's not
         /// </summary>
         /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
         public void BindBuffer(BufferObject buffer)
         {
-            if (bufferBindings[buffer.bufferBindingTargetIndex] != buffer.Handle)
+            if (bufferBindings[defaultBufferTargetBindingIndex] != buffer.Handle)
                 ForceBindBuffer(buffer);
         }
-
+        
         /// <summary>
-        /// Binds a buffer to it's BufferTarget without first checking whether it's already bound.
+        /// Binds a buffer to the default binding location without first checking whether it's already bound
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        internal void ForceBindBuffer(BufferObject buffer)
+        public void ForceBindBuffer(BufferObject buffer)
         {
-            GL.BindBuffer(buffer.BufferTarget, buffer.Handle);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
+            GL.BindBuffer(DefaultBufferTarget, buffer.Handle);
+            bufferBindings[defaultBufferTargetBindingIndex] = buffer.Handle;
         }
 
         /// <summary>
-        /// Ensures a buffer is bound to a specified binding index in it's BufferTarget by binding it if it's not.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Ensures a buffer subset is bound to it's BufferTarget by binding it if it's not
         /// </summary>
-        /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to ensure is bound. This value is assumed not to be null</param>
+        public void BindBuffer(BufferObjectSubset bufferSubset)
+        {
+            if (bufferBindings[bufferSubset.bufferTargetBindingIndex] != bufferSubset.BufferHandle)
+                ForceBindBuffer(bufferSubset);
+        }
+
+        /// <summary>
+        /// Binds a buffer subset to it's BufferTarget without first checking whether it's already bound.
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
+        internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
+        {
+            GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+        }
+
+        /// <summary>
+        /// Ensures a buffer subset is bound to a specified binding index in it's BufferTarget by binding it if it's not.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset to ensure is bound. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer should be bound</param>
-        public void BindBufferBase(BufferObject buffer, int bindingIndex)
+        public void BindBufferBase(BufferObjectSubset bufferSubset, int bindingIndex)
         {
-            BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
-            if (b.BufferHandle != buffer.Handle || b.Size != buffer.StorageLengthInBytes || b.Offset != 0)
-                ForceBindBufferBase(buffer, bindingIndex);
+            BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
+            if (b.BufferHandle != bufferSubset.BufferHandle || b.Size != bufferSubset.StorageLengthInBytes || b.Offset != 0)
+                ForceBindBufferBase(bufferSubset, bindingIndex);
         }
 
         /// <summary>
-        /// Bind a buffer to a binding index on it's BufferTarget without first checking whether it's already bound.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Bind a buffer subset to a binding index on it's BufferTarget without first checking whether it's already bound.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        internal void ForceBindBufferBase(BufferObject buffer, int bindingIndex)
+        internal void ForceBindBufferBase(BufferObjectSubset bufferSubset, int bindingIndex)
         {
-            GL.BindBufferBase((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
-            bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetBase(buffer);
+            GL.BindBufferBase((BufferRangeTarget)bufferSubset.BufferTarget, bindingIndex, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+            bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex].SetBase(bufferSubset);
         }
 
         /// <summary>
-        /// Ensures a buffer's range is bound to a specified binding index in it's BufferTarget by binding it if it's not.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Ensures a buffer subset's range is bound to a specified binding index in it's BufferTarget by binding it if it's not.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
+        /// <param name="offset">The offset in bytes into the buffer subset's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        public void BindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        public void BindBufferRange(BufferObjectSubset bufferSubset, int bindingIndex, int offset, int size)
         {
-            BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
-            if (b.BufferHandle != buffer.Handle || b.Size != size || b.Offset != offset)
-                ForceBindBufferRange(buffer, bindingIndex, offset, size);
+            BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
+            if (b.BufferHandle != bufferSubset.BufferHandle || b.Size != size || b.Offset != offset + bufferSubset.StorageOffsetInBytes)
+                ForceBindBufferRange(bufferSubset, bindingIndex, offset, size);
         }
 
         /// <summary>
@@ -291,20 +315,21 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        internal void ForceBindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        internal void ForceBindBufferRange(BufferObjectSubset buffer, int bindingIndex, int offset, int size)
         {
-            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle, (IntPtr)offset, size);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
-            bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetRange(buffer, offset, size);
+            offset += buffer.StorageOffsetInBytes;
+            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.BufferHandle, (IntPtr)offset, size);
+            bufferBindings[buffer.bufferTargetBindingIndex] = buffer.BufferHandle;
+            bufferRangeBindings[buffer.bufferTargetBindingIndex][bindingIndex].SetRange(buffer, offset, size);
         }
 
         /// <summary>
-        /// Returns whether the given buffer is the currently bound one for it's BufferTarget
+        /// Returns whether the given buffer subset is the currently bound one for it's BufferTarget
         /// </summary>
-        /// <param name="buffer">The buffer to check. This value is assumed not to be null</param>
-        public bool IsBufferCurrentlyBound(BufferObject buffer)
+        /// <param name="buffer">The buffer subset to check. This value is assumed not to be null</param>
+        public bool IsBufferCurrentlyBound(BufferObjectSubset buffer)
         {
-            return bufferBindings[buffer.bufferBindingTargetIndex] == buffer.Handle;
+            return bufferBindings[buffer.bufferTargetBindingIndex] == buffer.BufferHandle;
         }
 
         /// <summary>
@@ -880,29 +905,29 @@ namespace TrippyGL
 
             public void Reset()
             {
-                this.BufferHandle = 0;
-                this.Offset = 0;
-                this.Size = 0;
+                BufferHandle = 0;
+                Offset = 0;
+                Size = 0;
             }
 
             /// <summary>
             /// Set the values of this BufferRangeBinding as for when glBindBufferBase was called
             /// </summary>
-            public void SetBase(BufferObject buffer)
+            public void SetBase(BufferObjectSubset buffer)
             {
-                this.BufferHandle = buffer.Handle;
-                this.Offset = 0;
-                this.Size = buffer.StorageLengthInBytes;
+                BufferHandle = buffer.BufferHandle;
+                Offset = 0;
+                Size = buffer.StorageLengthInBytes;
             }
 
             /// <summary>
             /// Set the values of the BufferRangeBinding
             /// </summary>
-            public void SetRange(BufferObject buffer, int offset, int size)
+            public void SetRange(BufferObjectSubset buffer, int offset, int size)
             {
-                this.BufferHandle = buffer.Handle;
-                this.Offset = offset;
-                this.Size = size;
+                BufferHandle = buffer.BufferHandle;
+                Offset = offset;
+                Size = size;
             }
         }
 

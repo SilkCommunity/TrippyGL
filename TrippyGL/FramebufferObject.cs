@@ -41,10 +41,10 @@ namespace TrippyGL
         /// <param name="initialRenderbufferAttachments">The initial length of the renderbuffer attachments list</param>
         public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 1, int initialRenderbufferAttachments = 1) : base(graphicsDevice)
         {
-            this.Handle = GL.GenFramebuffer();
-            this.Samples = 0;
-            this.Width = 0;
-            this.Height = 0;
+            Handle = GL.GenFramebuffer();
+            Samples = 0;
+            Width = 0;
+            Height = 0;
             textureAttachments = new List<FramebufferTextureAttachment>(initialTextureAttachments);
             renderbufferAttachments = new List<FramebufferRenderbufferAttachment>(initialRenderbufferAttachments);
         }
@@ -71,7 +71,7 @@ namespace TrippyGL
             if (TrippyUtils.IsFramebufferAttachmentPointColor(attachmentPoint) && !TrippyUtils.IsImageFormatColorRenderable(texture.ImageFormat))
                 throw new InvalidFramebufferAttachmentException("When attaching a texture to a color attachment point, the texture's format must be color-renderable");
 
-            GraphicsDevice.BindFramebuffer(this.Handle);
+            GraphicsDevice.BindFramebuffer(Handle);
             if (texture is Texture1D)
             {
                 GL.FramebufferTexture1D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, texture.TextureType, texture.Handle, 0);
@@ -107,7 +107,7 @@ namespace TrippyGL
             if (TrippyUtils.IsFramebufferAttachmentPointColor(attachmentPoint) && !renderbuffer.IsColorRenderableFormat)
                 throw new InvalidFramebufferAttachmentException("When attaching a renderbuffer to a color attachment point, the renderbuffer's format must be color-renderable");
 
-            GraphicsDevice.BindFramebuffer(this.Handle);
+            GraphicsDevice.BindFramebuffer(Handle);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, RenderbufferTarget.Renderbuffer, renderbuffer.Handle);
             renderbufferAttachments.Add(new FramebufferRenderbufferAttachment(renderbuffer, attachmentPoint));
         }
@@ -133,7 +133,7 @@ namespace TrippyGL
             for (int i = 0; i < textureAttachments.Count; i++)
                 if (textureAttachments[i].AttachmentPoint == point)
                 {
-                    GraphicsDevice.BindFramebuffer(this.Handle);
+                    GraphicsDevice.BindFramebuffer(Handle);
                     GL.FramebufferTexture(FramebufferTarget.Framebuffer, (FramebufferAttachment)point, 0, 0);
                     attachment = textureAttachments[i];
                     textureAttachments.RemoveAt(i);
@@ -153,7 +153,7 @@ namespace TrippyGL
             for (int i = 0; i < renderbufferAttachments.Count; i++)
                 if (renderbufferAttachments[i].AttachmentPoint == point)
                 {
-                    GraphicsDevice.BindFramebuffer(this.Handle);
+                    GraphicsDevice.BindFramebuffer(Handle);
                     GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, (FramebufferAttachment)point, RenderbufferTarget.Renderbuffer, 0);
                     attachment = renderbufferAttachments[i];
                     renderbufferAttachments.RemoveAt(i);
@@ -183,7 +183,7 @@ namespace TrippyGL
         /// </summary>
         public FramebufferErrorCode GetStatus()
         {
-            GraphicsDevice.BindFramebuffer(this.Handle);
+            GraphicsDevice.BindFramebuffer(Handle);
             return GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
         }
 
@@ -220,9 +220,9 @@ namespace TrippyGL
                 ValidateSamples(rend.Samples);
             }
 
-            this.Width = width;
-            this.Height = height;
-            this.Samples = samples;
+            Width = width;
+            Height = height;
+            Samples = samples;
 
             void ValidateSize(int w, int h)
             {
@@ -298,11 +298,11 @@ namespace TrippyGL
                     throw new ArgumentException("You must use a proper value from SaveImageFormat", "imageFormat");
             }
 
-            using (Bitmap b = new Bitmap(this.Width, this.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (Bitmap b = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
-                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, this.Width, this.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.BindFramebufferRead(this);
-                GL.ReadPixels(0, 0, this.Width, this.Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                GL.ReadPixels(0, 0, Width, Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
                 b.RotateFlip(RotateFlipType.RotateNoneFlipY);
                 b.Save(file, ImageFormat.Png);
@@ -316,7 +316,7 @@ namespace TrippyGL
 
         protected override void Dispose(bool isManualDispose)
         {
-            GL.DeleteFramebuffer(this.Handle);
+            GL.DeleteFramebuffer(Handle);
             base.Dispose(isManualDispose);
         }
 
@@ -409,8 +409,8 @@ namespace TrippyGL
 
         public FramebufferTextureAttachment(Texture texture, FramebufferAttachmentPoint attachmentPoint)
         {
-            this.Texture = texture;
-            this.AttachmentPoint = attachmentPoint;
+            Texture = texture;
+            AttachmentPoint = attachmentPoint;
         }
     }
 
@@ -421,8 +421,8 @@ namespace TrippyGL
 
         public FramebufferRenderbufferAttachment(RenderbufferObject renderbuffer, FramebufferAttachmentPoint attachmentPoint)
         {
-            this.Renderbuffer = renderbuffer;
-            this.AttachmentPoint = attachmentPoint;
+            Renderbuffer = renderbuffer;
+            AttachmentPoint = attachmentPoint;
         }
     }
 }

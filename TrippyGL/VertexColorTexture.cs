@@ -32,9 +32,9 @@ namespace TrippyGL
         /// <param name="texCoords">The vertex TexCoords</param>
         public VertexColorTexture(Vector3 position, Color4b color, Vector2 texCoords)
         {
-            this.Position = position;
-            this.Color = color;
-            this.TexCoords = texCoords;
+            Position = position;
+            Color = color;
+            TexCoords = texCoords;
         }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace TrippyGL
         /// <param name="texCoords">The vertex TexCoords</param>
         public VertexColorTexture(Vector3 position, Vector2 texCoords)
         {
-            this.Position = position;
-            this.Color = new Color4b(255, 255, 255, 255);
-            this.TexCoords = texCoords;
+            Position = position;
+            Color = new Color4b(255, 255, 255, 255);
+            TexCoords = texCoords;
         }
 
         public override string ToString()

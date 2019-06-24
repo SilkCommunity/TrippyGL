@@ -28,8 +28,8 @@ namespace TrippyGL
         /// <param name="texCoords">The vertex TexCoords</param>
         public VertexTexture(Vector3 position, Vector2 texCoords)
         {
-            this.Position = position;
-            this.TexCoords = texCoords;
+            Position = position;
+            TexCoords = texCoords;
         }
 
         public override string ToString()
