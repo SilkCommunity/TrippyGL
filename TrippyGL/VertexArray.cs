@@ -97,18 +97,18 @@ namespace TrippyGL
             {
                 #region CalculateOffsetsWithPadding
                 int offset = 0;
-                int prevBufferHandle = -1; //setting this to -1 ensures the first for loop will enter the "different struct" if and initialize these variables
+                BufferObjectSubset prevSubset = null; //setting this to null ensures the first for loop will enter the "different subset" if and initialize these variables
                 VertexAttribPointerType currentBaseType = 0;
                 int baseTypeCount = 0, baseTypeByteSize = 0;
 
                 for (int i = 0; i < calls.Length; i++)
                 {
-                    if (calls[i].source.BufferSubset.BufferHandle != prevBufferHandle)
+                    if (calls[i].source.BufferSubset != prevSubset)
                     {
-                        // it's a different buffer, so let's calculate the padding values as for a new, different struct
+                        // it's a different buffer subset, so let's calculate the padding values as for a new, different struct
                         offset = 0;
                         baseTypeCount = 0;
-                        prevBufferHandle = calls[i].source.BufferSubset.BufferHandle;
+                        prevSubset = calls[i].source.BufferSubset;
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
                         baseTypeByteSize = TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType);
                         calls[i].offset = 0;
@@ -188,9 +188,9 @@ namespace TrippyGL
             public void CallGlVertexAttribPointer()
             {
                 int offs = offset + source.BufferSubset.StorageOffsetInBytes;
+                int stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
                 for (int i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
-                    int stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
                         GL.VertexAttribLPointer(index + i, source.AttribDescription.Size, VertexAttribDoubleType.Double, stride, (IntPtr)offs);
                     else if (!source.AttribDescription.Normalized && TrippyUtils.IsVertexAttribIntegerType(source.AttribDescription.AttribType))

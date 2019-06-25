@@ -33,6 +33,8 @@ namespace TrippyGL
         /// <param name="attribType">The type of attribute declared in the shader</param>
         public VertexAttribDescription(ActiveAttribType attribType)
         {
+            EnsureDefined(attribType);
+
             AttribType = attribType;
             Normalized = false;
             TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
@@ -47,7 +49,9 @@ namespace TrippyGL
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer</param>
         public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType)
         {
-            AttribType = attribType;
+            EnsureDefined(attribType);
+            EnsureDefined(dataBaseType);
+
             Normalized = normalized;
             AttribBaseType = dataBaseType;
             AttribType = attribType;
@@ -55,13 +59,31 @@ namespace TrippyGL
             AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
             SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * Size * AttribIndicesUseCount;
 
-            if (normalized && !TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
-                throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");
+            if (normalized)
+            {
+                if (!TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
+                    throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");
+
+                if (!(TrippyUtils.IsVertexAttribFloatType(attribType) || TrippyUtils.IsVertexAttribDoubleType(attribType)))
+                    throw new ArgumentException("For normalized vertex attributes, the attribType must be a float or a double", "attribType");
+            }
         }
 
         public override string ToString()
         {
             return String.Concat(Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(), " baseType ", AttribBaseType.ToString());
+        }
+
+        private static void EnsureDefined(ActiveAttribType attribType)
+        {
+            if (!Enum.IsDefined(typeof(ActiveAttribType), attribType))
+                throw new FormatException("The specified attribType is invalid");
+        }
+
+        private static void EnsureDefined(VertexAttribPointerType dataBaseType)
+        {
+            if (!Enum.IsDefined(typeof(VertexAttribPointerType), dataBaseType))
+                throw new FormatException("The specified dataBaseType is invalid");
         }
     }
 }

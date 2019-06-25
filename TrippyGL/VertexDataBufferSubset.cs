@@ -24,11 +24,36 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Creates a VertexDataBufferSubset with the given BufferObject, offset into the buffer in bytes and storage length in elements
+        /// </summary>
+        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
+        /// <param name="data">An array containing the initial data to set to the subset</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
+        /// <param name="storageLength">The length of this subset measured in elements</param>
+        public VertexDataBufferSubset(BufferObject bufferObject, T[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+            : base(bufferObject, BufferTarget.ArrayBuffer, data, dataOffset, storageOffsetBytes, storageLength)
+        {
+
+        }
+
+        /// <summary>
         /// Creates a VertexDataBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage
         /// </summary>
         /// <param name="bufferObject">The BufferObject this subset will belong to</param>
         public VertexDataBufferSubset(BufferObject bufferObject)
             : base(bufferObject, BufferTarget.ArrayBuffer)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a VertexDataBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage
+        /// </summary>
+        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
+        /// <param name="data">An array containing the initial data to set to the subset</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
+        public VertexDataBufferSubset(BufferObject bufferObject, T[] data, int dataOffset = 0) : base(bufferObject, BufferTarget.ArrayBuffer, data, dataOffset)
         {
 
         }

@@ -25,6 +25,12 @@ namespace TrippyGL
         /// <summary>The length of this subset's storage measured in bytes</summary>
         public int StorageLengthInBytes { get; private set; }
 
+        /// <summary>The index of the next byte in the BufferObject's storage after this subset
+        /// (a byte that does NOT belong to this subset but is sequentially next to this subset's end).
+        /// This is calculated as (StorageOffsetInBytes + StorageLengthInBytes)
+        /// </summary>
+        public int StorageNextInBytes { get { return StorageOffsetInBytes + StorageLengthInBytes; } }
+
         /// <summary>The index on the GraphicsDevice.bufferBindings array where this BufferObjectSubset's BufferTarget last bound handle is stored</summary>
         internal readonly int bufferTargetBindingIndex;
 
@@ -81,6 +87,11 @@ namespace TrippyGL
 
             StorageOffsetInBytes = storageOffsetBytes;
             StorageLengthInBytes = storageLengthBytes;
+        }
+
+        public override string ToString()
+        {
+            return String.Concat("BufferHandle=", BufferHandle.ToString(), ", BufferTarget=", BufferTarget.ToString(), ", StorageOffsetInBytes=", StorageOffsetInBytes.ToString(), ", StorageLengthInBytes=", StorageLengthInBytes.ToString());
         }
     }
 }

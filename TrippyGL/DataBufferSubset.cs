@@ -29,7 +29,22 @@ namespace TrippyGL
         {
             ElementSize = Marshal.SizeOf<T>();
             InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
-            this.StorageLength = storageLength;
+            StorageLength = storageLength;
+        }
+
+        /// <summary>
+        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements
+        /// </summary>
+        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
+        /// <param name="data">An array containing the initial data to set to the subset</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
+        /// <param name="storageLength">The length of this subset measured in elements</param>
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+            : this(bufferObject, bufferTarget, storageOffsetBytes, storageLength)
+        {
+            SetData(data, dataOffset, 0, storageLength);
         }
 
         /// <summary>
@@ -41,10 +56,22 @@ namespace TrippyGL
         {
             ElementSize = Marshal.SizeOf<T>();
             InitializeStorage(0, bufferObject.StorageLengthInBytes);
-            this.StorageLength = StorageLengthInBytes / ElementSize;
+            StorageLength = StorageLengthInBytes / ElementSize;
 
             if (StorageLength * ElementSize != StorageLengthInBytes)
                 throw new ArgumentException("The provided BufferObjectSubset's StorageLengthInBytes should be a multiple of this.ElementSize");
+        }
+
+        /// <summary>
+        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage and sets initial data
+        /// </summary>
+        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
+        /// <param name="data">An array containing the initial data to set to the subset</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset) : this(bufferObject, bufferTarget)
+        {
+            SetData(data, dataOffset, 0, data.Length);
         }
 
         /// <summary>
@@ -174,6 +201,11 @@ namespace TrippyGL
 
             if (data.Length - dataOffset < elementCount)
                 throw new ArgumentOutOfRangeException("There data array ins't big enough to write dataLength elements starting from index dataOffset");
+        }
+
+        public override string ToString()
+        {
+            return String.Concat(base.ToString(), ", StorageLength=", StorageLength.ToString(), ", ElementSize=", ElementSize.ToString());
         }
     }
 
