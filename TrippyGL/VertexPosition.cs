@@ -24,7 +24,7 @@ namespace TrippyGL
         /// <param name="position">The vertex Position</param>
         public VertexPosition(Vector3 position)
         {
-            this.Position = position;
+            Position = position;
         }
 
         public override string ToString()

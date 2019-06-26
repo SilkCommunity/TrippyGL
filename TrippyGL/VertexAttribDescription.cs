@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     /// <summary>
-    /// Describes a vertex attribute. This is, both how it is declared in the shader and how it is stored in a buffer object.
+    /// Describes a vertex attribute. This is, both how it is declared in the shader and how it will be read from a buffer
     /// </summary>
     public struct VertexAttribDescription
     {
@@ -33,10 +33,12 @@ namespace TrippyGL
         /// <param name="attribType">The type of attribute declared in the shader</param>
         public VertexAttribDescription(ActiveAttribType attribType)
         {
-            this.AttribType = attribType;
-            this.Normalized = false;
-            TrippyUtils.GetVertexAttribTypeData(attribType, out this.AttribIndicesUseCount, out this.Size, out this.AttribBaseType);
-            this.SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(this.AttribBaseType) * this.Size * this.AttribIndicesUseCount;
+            EnsureDefined(attribType);
+
+            AttribType = attribType;
+            Normalized = false;
+            TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
         }
 
         /// <summary>
@@ -47,21 +49,41 @@ namespace TrippyGL
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer</param>
         public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType)
         {
-            this.AttribType = attribType;
-            this.Normalized = normalized;
-            this.AttribBaseType = dataBaseType;
-            this.AttribType = attribType;
-            this.Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
-            this.AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
-            this.SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * this.Size * this.AttribIndicesUseCount;
+            EnsureDefined(attribType);
+            EnsureDefined(dataBaseType);
 
-            if (normalized && !TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
-                throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");
+            Normalized = normalized;
+            AttribBaseType = dataBaseType;
+            AttribType = attribType;
+            Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
+            AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * Size * AttribIndicesUseCount;
+
+            if (normalized)
+            {
+                if (!TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
+                    throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");
+
+                if (!(TrippyUtils.IsVertexAttribFloatType(attribType) || TrippyUtils.IsVertexAttribDoubleType(attribType)))
+                    throw new ArgumentException("For normalized vertex attributes, the attribType must be a float or a double", "attribType");
+            }
         }
 
         public override string ToString()
         {
             return String.Concat(Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(), " baseType ", AttribBaseType.ToString());
+        }
+
+        private static void EnsureDefined(ActiveAttribType attribType)
+        {
+            if (!Enum.IsDefined(typeof(ActiveAttribType), attribType))
+                throw new FormatException("The specified attribType is invalid");
+        }
+
+        private static void EnsureDefined(VertexAttribPointerType dataBaseType)
+        {
+            if (!Enum.IsDefined(typeof(VertexAttribPointerType), dataBaseType))
+                throw new FormatException("The specified dataBaseType is invalid");
         }
     }
 }

@@ -425,25 +425,25 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Writes all the triangles to the given buffer. If there isn't enough storage space in the buffer, it's storage is recteated
+        /// Writes all the triangles to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown
         /// </summary>
         /// <param name="buffer">The buffer where the triangles will be written to</param>
-        public void WriteTrianglesTo(DataBufferObject<T> buffer)
+        public void WriteTrianglesTo(DataBufferSubset<T> buffer)
         {
             if (buffer.StorageLength < triangleVertexCount)
-                buffer.RecreateStorage(triangles.Length);
-            buffer.SetData(0, 0, triangleVertexCount, triangles);
+                throw new ArgumentException("The provided buffer subset doesn't have enough storage for this.TriangleVertexCount vertices");
+            buffer.SetData(triangles, 0, 0, triangleVertexCount);
         }
 
         /// <summary>
-        /// Writes all the lines to the given buffer. If there isn't enough storage space in the buffer, it's storage is recteated
+        /// Writes all the lines to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown
         /// </summary>
         /// <param name="buffer">The buffer where the triangles will be written to</param>
-        public void WriteLinesTo(DataBufferObject<T> buffer)
+        public void WriteLinesTo(DataBufferSubset<T> buffer)
         {
             if (buffer.StorageLength < lineVertexCount)
-                buffer.RecreateStorage(lines.Length);
-            buffer.SetData(0, 0, lineVertexCount, lines);
+                throw new ArgumentException("The provided buffer subset doesn't have enough storage for this.LineVertexCount vertices");
+            buffer.SetData(lines, 0, 0, lineVertexCount);
         }
     }
 }

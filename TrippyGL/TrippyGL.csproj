@@ -56,9 +56,10 @@
     <Compile Include="ActiveAttribList.cs" />
     <Compile Include="ActiveVertexAttrib.cs" />
     <Compile Include="BlendState.cs" />
+    <Compile Include="BufferObjectSubset.cs" />
     <Compile Include="BufferObject.cs" />
     <Compile Include="Color4b.cs" />
-    <Compile Include="DataBufferObject.cs" />
+    <Compile Include="DataBufferSubset.cs" />
     <Compile Include="DepthTestingState.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions.cs" />
@@ -66,7 +67,7 @@
     <Compile Include="GraphicsDevice.cs" />
     <Compile Include="GraphicsResource.cs" />
     <Compile Include="IBufferRangeBindable.cs" />
-    <Compile Include="IndexBufferObject.cs" />
+    <Compile Include="IndexBufferSubset.cs" />
     <Compile Include="IVertex.cs" />
     <Compile Include="Rectangle.cs" />
     <Compile Include="RenderbufferObject.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="Texture.cs" />
     <Compile Include="Texture2D.cs" />
     <Compile Include="TrippyUtils.cs" />
-    <Compile Include="UniformBufferObject.cs" />
+    <Compile Include="UniformBufferSubset.cs" />
     <Compile Include="VertexArray.cs" />
     <Compile Include="VertexAttribDescription.cs" />
     <Compile Include="VertexAttribSource.cs" />
@@ -95,7 +96,7 @@
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="VertexColor.cs" />
     <Compile Include="VertexColorTexture.cs" />
-    <Compile Include="VertexDataBufferObject.cs" />
+    <Compile Include="VertexDataBufferSubset.cs" />
     <Compile Include="VertexPosition.cs" />
     <Compile Include="VertexTexture.cs" />
   </ItemGroup>

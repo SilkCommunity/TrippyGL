@@ -24,7 +24,7 @@ namespace TrippyGL
         public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, TextureTarget.Texture1D, imageFormat)
         {
-            this.Width = width;
+            Width = width;
             ValidateTextureSize(width);
 
             RecreateImage(width);
@@ -32,8 +32,8 @@ namespace TrippyGL
             if (generateMipmaps)
                 GenerateMipmaps();
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         /// <summary>
@@ -46,20 +46,20 @@ namespace TrippyGL
         {
             using (Bitmap bitmap = new Bitmap(file))
             {
-                this.Width = bitmap.Width * bitmap.Height;
+                Width = bitmap.Width * bitmap.Height;
                 ValidateTextureSize(Width);
 
                 BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage1D(this.TextureType, 0, this.PixelInternalFormat, this.Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, data.Scan0);
+                GL.TexImage1D(TextureType, 0, PixelInternalFormat, Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, data.Scan0);
                 bitmap.UnlockBits(data);
             }
 
             if (generateMipmaps)
                 GenerateMipmaps();
 
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace TrippyGL
             ValidateRectOperation(x, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(this.TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
+            GL.TexSubImage1D(TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace TrippyGL
             ValidateSetOperation(data, dataOffset, x, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(this.TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, ref data[dataOffset]);
+            GL.TexSubImage1D(TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace TrippyGL
         /// <param name="dataOffset">The index of the first element in the array to start reading from</param>
         public void SetData<T>(T[] data, int dataOffset = 0) where T : struct
         {
-            SetData(data, dataOffset, 0, this.Width);
+            SetData(data, dataOffset, 0, Width);
         }
         
         /// <summary>
@@ -114,7 +114,7 @@ namespace TrippyGL
         public void GetData<T>(IntPtr data)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
+            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace TrippyGL
         {
             ValidateGetOperation(data, dataOffset);
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(this.TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, this.PixelType, data);
+            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
@@ -148,10 +148,10 @@ namespace TrippyGL
         {
             ValidateTextureSize(width);
 
-            this.Width = width;
+            Width = width;
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexImage1D(this.TextureType, 0, this.PixelInternalFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, IntPtr.Zero);
+            GL.TexImage1D(TextureType, 0, PixelInternalFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, IntPtr.Zero);
         }
 
         private protected void ValidateTextureSize(int width)
@@ -182,19 +182,19 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
-            if (data.Length - dataOffset < this.Width)
+            if (data.Length - dataOffset < Width)
                 throw new ArgumentException("The provided data array isn't big enough for the specified texture area starting from dataOffset", "data");
         }
 
         private protected void ValidateRectOperation(int x, int width)
         {
-            if (x < 0 || x >= this.Width)
+            if (x < 0 || x >= Width)
                 throw new ArgumentOutOfRangeException("x", x, "X must be in the range [0, this.Width)");
 
             if (width <= 0)
                 throw new ArgumentOutOfRangeException("width", width, "Width must be greater than 0");
 
-            if (width > this.Width - x)
+            if (width > Width - x)
                 throw new ArgumentOutOfRangeException("width", width, "Width is too large");
         }
     }

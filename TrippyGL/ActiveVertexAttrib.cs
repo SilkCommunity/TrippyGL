@@ -22,8 +22,8 @@ namespace TrippyGL
 
         internal ActiveVertexAttrib(ShaderProgram program, int attribIndex)
         {
-            this.Name = GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
-            this.Location = GL.GetAttribLocation(program.Handle, this.Name);
+            Name = GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
+            Location = GL.GetAttribLocation(program.Handle, Name);
         }
 
         public override string ToString()

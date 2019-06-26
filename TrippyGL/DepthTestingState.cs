@@ -40,12 +40,12 @@ namespace TrippyGL
 
         public DepthTestingState(bool testingEnabled, DepthFunction comparison = DepthFunction.Less, float clearDepth = 1, float nearRange = 0, float farRange = 1, bool depthBufferWrittingEnabled = true)
         {
-            this.DepthTestingEnabled = testingEnabled;
-            this.DepthComparison = comparison;
-            this.ClearDepth = clearDepth;
-            this.DepthRangeNear = nearRange;
-            this.DepthRangeFar = farRange;
-            this.IsDepthBufferWrittingEnabled = depthBufferWrittingEnabled;
+            DepthTestingEnabled = testingEnabled;
+            DepthComparison = comparison;
+            ClearDepth = clearDepth;
+            DepthRangeNear = nearRange;
+            DepthRangeFar = farRange;
+            IsDepthBufferWrittingEnabled = depthBufferWrittingEnabled;
         }
 
         #region Static Members

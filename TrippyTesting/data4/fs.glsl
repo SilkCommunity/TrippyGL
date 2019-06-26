@@ -1,4 +1,4 @@
-﻿#version 400
+﻿#version 400 core
 
 uniform sampler2D samp;
 
@@ -9,5 +9,4 @@ out vec4 FragColor;
 
 void main() {
 	FragColor = fColor * texture(samp, fTexCoords);
-	//FragColor = clamp(FragColor, 0, 1) * 0.5 + vec4(0.5);
 }

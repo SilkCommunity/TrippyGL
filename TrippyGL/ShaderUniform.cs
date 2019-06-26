@@ -27,11 +27,11 @@ namespace TrippyGL
 
         internal ShaderUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
         {
-            this.OwnerProgram = owner;
-            this.UniformLocation = uniformLoc;
-            this.Name = name;
-            this.Size = size;
-            this.UniformType = type;
+            OwnerProgram = owner;
+            UniformLocation = uniformLoc;
+            Name = name;
+            Size = size;
+            UniformType = type;
         }
 
         #region SetValue1
@@ -455,16 +455,16 @@ namespace TrippyGL
         /// Checks that the ShaderUniform's UniformType is the correct type and throws an exception otherwise
         /// </summary>
         /// <param name="type"></param>
-        protected void ValidateType(ActiveUniformType type)
+        private protected void ValidateType(ActiveUniformType type)
         {
-            if (this.UniformType != type)
-                throw new InvalidOperationException(String.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", this.UniformType.ToString()));
+            if (UniformType != type)
+                throw new InvalidOperationException(String.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
         }
 
-        protected void ValidateArrayAndType(ActiveUniformType type, int valueLength, int startValueIndex, int count)
+        private protected void ValidateArrayAndType(ActiveUniformType type, int valueLength, int startValueIndex, int count)
         {
             ValidateType(type);
-            if (count > this.Size)
+            if (count > Size)
                 throw new ArgumentOutOfRangeException("count", count, "You tried to set too many elements for this uniform");
 
             if (startValueIndex < 0 || startValueIndex > valueLength)

@@ -26,7 +26,7 @@ namespace TrippyGL
         /// <param name="context">The OpenGL Context for this GraphicsDevice</param>
         public GraphicsDevice(IGraphicsContext context)
         {
-            this.Context = context;
+            Context = context;
 
             InitGLGetVariables();
 
@@ -39,6 +39,49 @@ namespace TrippyGL
             renderbufferHandle = 0;
 
             blendState = BlendState.Opaque;
+        }
+
+        /// <summary>
+        /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions
+        /// </summary>
+        public void ResetStates()
+        {
+            ResetBufferStates();
+            ResetVertexArrayStates();
+            ResetShaderProgramStates();
+            ResetTextureStates();
+            ResetFramebufferStates();
+
+            GL.ClearColor(clearColor);
+
+            GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
+
+            if (blendState.IsOpaque)
+                GL.Disable(EnableCap.Blend);
+            else
+                GL.Enable(EnableCap.Blend);
+            GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
+            GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
+            GL.BlendColor(blendState.BlendColor);
+
+            if (depthState.DepthTestingEnabled)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
+
+            if (cubemapSeamlessEnabled)
+                GL.Enable(EnableCap.TextureCubeMapSeamless);
+            else
+                GL.Disable(EnableCap.TextureCubeMapSeamless);
+
+            if (faceCullingEnabled)
+                GL.Enable(EnableCap.CullFace);
+            else
+                GL.Disable(EnableCap.CullFace);
+            GL.CullFace(cullFaceMode);
+            
         }
 
         #region DebugMessaging
@@ -161,23 +204,13 @@ namespace TrippyGL
 
         #region BindingStates
 
-        /// <summary>
-        /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
-        /// You should only need to call this when interoperating with other libraries or using your own GL functions
-        /// </summary>
-        public void ResetStates()
-        {
-            ResetBufferStates();
-            ResetVertexArrayStates();
-            ResetShaderProgramStates();
-            ResetTextureStates();
-            ResetFramebufferStates();
-        }
-
         #region BufferObjectBindingStates
 
         /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
         private const int BufferTargetCount = 14;
+
+        internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
+        private int defaultBufferTargetBindingIndex;
 
         /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array</summary>
         private int[] bufferBindings;
@@ -213,6 +246,7 @@ namespace TrippyGL
                 BufferTarget.QueryBuffer
             };
             bufferBindings = new int[BufferTargetCount];
+            defaultBufferTargetBindingIndex = GetBindingTargetIndex(DefaultBufferTarget);
 
             bufferRangeBindings = new BufferRangeBinding[4][];
 
@@ -223,64 +257,100 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a buffer is bound to it's BufferTarget by binding it if it's not
+        /// Ensures a buffer is bound to the default binding location by binding it if it's not
         /// </summary>
         /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
-        public void BindBuffer(BufferObject buffer)
+        internal void BindBufferObject(BufferObject buffer)
         {
-            if (bufferBindings[buffer.bufferBindingTargetIndex] != buffer.Handle)
-                ForceBindBuffer(buffer);
+            if (bufferBindings[defaultBufferTargetBindingIndex] != buffer.Handle)
+                ForceBindBufferObject(buffer);
         }
-
+        
         /// <summary>
-        /// Binds a buffer to it's BufferTarget without first checking whether it's already bound.
+        /// Binds a buffer to the default binding location without first checking whether it's already bound
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        internal void ForceBindBuffer(BufferObject buffer)
+        internal void ForceBindBufferObject(BufferObject buffer)
         {
-            GL.BindBuffer(buffer.BufferTarget, buffer.Handle);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
+            GL.BindBuffer(DefaultBufferTarget, buffer.Handle);
+            bufferBindings[defaultBufferTargetBindingIndex] = buffer.Handle;
         }
 
         /// <summary>
-        /// Ensures a buffer is bound to a specified binding index in it's BufferTarget by binding it if it's not.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Ensures a buffer subset is bound to it's BufferTarget by binding it if it's not
         /// </summary>
-        /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to ensure is bound. This value is assumed not to be null</param>
+        public void BindBuffer(BufferObjectSubset bufferSubset)
+        {
+            if (bufferBindings[bufferSubset.bufferTargetBindingIndex] != bufferSubset.BufferHandle)
+                ForceBindBuffer(bufferSubset);
+        }
+
+        /// <summary>
+        /// Binds a buffer subset to it's BufferTarget without first checking whether it's already bound.
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
+        internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
+        {
+            if (bufferSubset.BufferTarget == BufferTarget.ElementArrayBuffer)
+                UnbindVertexArray(); //This is because if a vertex array is bound when a glBindBuffer with GL_ELEMENT_ARRAY_BUFFER occurs, the VAO stores that index buffer.
+
+            GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+        }
+
+        /// <summary>
+        /// Binds a buffer subset that is targeted to GL_ELEMENT_ARRAY_BUFFER as to bind it to the current vertex array
+        /// </summary>
+        /// <param name="bufferSubset"></param>
+        internal void ForceBindElementBufferForVertexArray(BufferObjectSubset bufferSubset)
+        {
+            if (bufferSubset.BufferTarget != BufferTarget.ElementArrayBuffer)
+                throw new ArgumentException("To bind a bufferSubset for vertex array index buffer, it must target GL_ELEMENT_ARRAY_BUFFER");
+
+            GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+        }
+
+        /// <summary>
+        /// Ensures a buffer subset is bound to a specified binding index in it's BufferTarget by binding it if it's not.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset to ensure is bound. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer should be bound</param>
-        public void BindBufferBase(BufferObject buffer, int bindingIndex)
+        public void BindBufferBase(BufferObjectSubset bufferSubset, int bindingIndex)
         {
-            BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
-            if (b.BufferHandle != buffer.Handle || b.Size != buffer.StorageLengthInBytes || b.Offset != 0)
-                ForceBindBufferBase(buffer, bindingIndex);
+            BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
+            if (b.BufferHandle != bufferSubset.BufferHandle || b.Size != bufferSubset.StorageLengthInBytes || b.Offset != 0)
+                ForceBindBufferBase(bufferSubset, bindingIndex);
         }
 
         /// <summary>
-        /// Bind a buffer to a binding index on it's BufferTarget without first checking whether it's already bound.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Bind a buffer subset to a binding index on it's BufferTarget without first checking whether it's already bound.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        internal void ForceBindBufferBase(BufferObject buffer, int bindingIndex)
+        internal void ForceBindBufferBase(BufferObjectSubset bufferSubset, int bindingIndex)
         {
-            GL.BindBufferBase((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
-            bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetBase(buffer);
+            GL.BindBufferBase((BufferRangeTarget)bufferSubset.BufferTarget, bindingIndex, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+            bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex].SetBase(bufferSubset);
         }
 
         /// <summary>
-        /// Ensures a buffer's range is bound to a specified binding index in it's BufferTarget by binding it if it's not.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// Ensures a buffer subset's range is bound to a specified binding index in it's BufferTarget by binding it if it's not.
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
+        /// <param name="offset">The offset in bytes into the buffer subset's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        public void BindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        public void BindBufferRange(BufferObjectSubset bufferSubset, int bindingIndex, int offset, int size)
         {
-            BufferRangeBinding b = bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex];
-            if (b.BufferHandle != buffer.Handle || b.Size != size || b.Offset != offset)
-                ForceBindBufferRange(buffer, bindingIndex, offset, size);
+            BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
+            if (b.BufferHandle != bufferSubset.BufferHandle || b.Size != size || b.Offset != offset + bufferSubset.StorageOffsetInBytes)
+                ForceBindBufferRange(bufferSubset, bindingIndex, offset, size);
         }
 
         /// <summary>
@@ -291,20 +361,21 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
-        internal void ForceBindBufferRange(BufferObject buffer, int bindingIndex, int offset, int size)
+        internal void ForceBindBufferRange(BufferObjectSubset buffer, int bindingIndex, int offset, int size)
         {
-            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.Handle, (IntPtr)offset, size);
-            bufferBindings[buffer.bufferBindingTargetIndex] = buffer.Handle;
-            bufferRangeBindings[buffer.bufferBindingTargetIndex][bindingIndex].SetRange(buffer, offset, size);
+            offset += buffer.StorageOffsetInBytes;
+            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.BufferHandle, (IntPtr)offset, size);
+            bufferBindings[buffer.bufferTargetBindingIndex] = buffer.BufferHandle;
+            bufferRangeBindings[buffer.bufferTargetBindingIndex][bindingIndex].SetRange(buffer, offset, size);
         }
 
         /// <summary>
-        /// Returns whether the given buffer is the currently bound one for it's BufferTarget
+        /// Returns whether the given buffer subset is the currently bound one for it's BufferTarget
         /// </summary>
-        /// <param name="buffer">The buffer to check. This value is assumed not to be null</param>
-        public bool IsBufferCurrentlyBound(BufferObject buffer)
+        /// <param name="buffer">The buffer subset to check. This value is assumed not to be null</param>
+        public bool IsBufferCurrentlyBound(BufferObjectSubset buffer)
         {
-            return bufferBindings[buffer.bufferBindingTargetIndex] == buffer.Handle;
+            return bufferBindings[buffer.bufferTargetBindingIndex] == buffer.BufferHandle;
         }
 
         /// <summary>
@@ -377,8 +448,11 @@ namespace TrippyGL
         /// </summary>
         public void UnbindVertexArray()
         {
-            GL.BindVertexArray(0);
-            vertexArrayBinding = 0;
+            if (vertexArrayBinding != 0)
+            {
+                GL.BindVertexArray(0);
+                vertexArrayBinding = 0;
+            }
         }
 
         #endregion VertexArrayBindingStates
@@ -880,29 +954,29 @@ namespace TrippyGL
 
             public void Reset()
             {
-                this.BufferHandle = 0;
-                this.Offset = 0;
-                this.Size = 0;
+                BufferHandle = 0;
+                Offset = 0;
+                Size = 0;
             }
 
             /// <summary>
             /// Set the values of this BufferRangeBinding as for when glBindBufferBase was called
             /// </summary>
-            public void SetBase(BufferObject buffer)
+            public void SetBase(BufferObjectSubset buffer)
             {
-                this.BufferHandle = buffer.Handle;
-                this.Offset = 0;
-                this.Size = buffer.StorageLengthInBytes;
+                BufferHandle = buffer.BufferHandle;
+                Offset = 0;
+                Size = buffer.StorageLengthInBytes;
             }
 
             /// <summary>
             /// Set the values of the BufferRangeBinding
             /// </summary>
-            public void SetRange(BufferObject buffer, int offset, int size)
+            public void SetRange(BufferObjectSubset buffer, int offset, int size)
             {
-                this.BufferHandle = buffer.Handle;
-                this.Offset = offset;
-                this.Size = size;
+                BufferHandle = buffer.BufferHandle;
+                Offset = offset;
+                Size = size;
             }
         }
 
@@ -942,7 +1016,7 @@ namespace TrippyGL
             get { return viewport; } //The get is OK because Rectangle is a struct so no worries about modifying it
             set
             {
-                if (value.X != viewport.X || value.Y != viewport.Y || value.Width != viewport.Width || value.Height != viewport.Height)
+                if (value != viewport)
                 {
                     viewport = value;
                     GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
@@ -1009,8 +1083,8 @@ namespace TrippyGL
                     if (value.Width < 0 || value.Height < 0)
                         throw new ArgumentOutOfRangeException("ScissorRectangle Width and Height must be greater or equal to 0");
 
+                    GL.Scissor(value.X, value.Y, value.Width, value.Height);
                     scissorRect = value;
-                    GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
                 }
             }
         }
@@ -1121,9 +1195,7 @@ namespace TrippyGL
         /// <summary>The current depth state</summary>
         private DepthTestingState depthState = new DepthTestingState(false);
 
-        /// <summary>
-        /// Sets the current depth testing state
-        /// </summary>
+        /// <summary>Sets the current depth testing state</summary>
         public DepthTestingState DepthState
         {
             set
@@ -1186,6 +1258,20 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>The current depth to set on a clear depth operation</summary>
+        public float ClearDepth
+        {
+            get { return depthState.ClearDepth; }
+            set
+            {
+                if(depthState.ClearDepth != value)
+                {
+                    GL.ClearDepth(value);
+                    depthState.ClearDepth = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Misc
@@ -1205,6 +1291,40 @@ namespace TrippyGL
                     else
                         GL.Disable(EnableCap.TextureCubeMapSeamless);
                     cubemapSeamlessEnabled = value;
+                }
+            }
+        }
+
+        private bool faceCullingEnabled = false;
+        private CullFaceMode cullFaceMode = CullFaceMode.Back;
+
+        /// <summary>Enables or disables culling polygon faces</summary>
+        public bool FaceCullingEnabled
+        {
+            get { return faceCullingEnabled; }
+            set
+            {
+                if (faceCullingEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.CullFace);
+                    else
+                        GL.Disable(EnableCap.CullFace);
+                    faceCullingEnabled = value;
+                }
+            }
+        }
+
+        /// <summary>Sets the face culling mode to use when face culling is enabled</summary>
+        public CullFaceMode CullFaceMode
+        {
+            get { return cullFaceMode; }
+            set
+            {
+                if(cullFaceMode != value)
+                {
+                    GL.CullFace(cullFaceMode);
+                    cullFaceMode = value;
                 }
             }
         }

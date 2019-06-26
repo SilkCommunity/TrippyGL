@@ -21,14 +21,14 @@ namespace TrippyGL
         public readonly int ActiveUniformCount;
 
         private IBufferRangeBindable uniformSource;
-        private int uniformSourceElementIndex;
+        private int uniformBindOffsetBytes, uniformBindLengthBytes;
 
         internal ShaderBlockUniform(ShaderProgram owner, int bindingIndex, string name, int activeUniformCount)
         {
-            this.OwnerProgram = owner;
-            this.BindingIndex = bindingIndex;
-            this.Name = name;
-            this.ActiveUniformCount = activeUniformCount;
+            OwnerProgram = owner;
+            BindingIndex = bindingIndex;
+            Name = name;
+            ActiveUniformCount = activeUniformCount;
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">A struct with the same format as the uniform</typeparam>
         /// <param name="buffer">The buffer from which the values will be read</param>
-        /// <param name="elementIndex">The index in the buffer of the element whose value should be used</param>
-        public void SetValue<T>(UniformBufferObject<T> buffer, int elementIndex = 0) where T : struct
+        /// <param name="elementIndex">The index of the element in the buffer subset whose value should be used</param>
+        public void SetValue<T>(UniformBufferSubset<T> buffer, int elementIndex = 0) where T : struct
         {
             //if (value == null) //the next check would throw the exception anyway...
             //    throw new ArgumentNullException("value");
@@ -45,8 +45,8 @@ namespace TrippyGL
             if (elementIndex < 0 || elementIndex > buffer.StorageLength)
                 throw new ArgumentOutOfRangeException("elementIndex", "Element index must be in the range [0, buffer.StorageLength)");
 
-            this.uniformSource = buffer;
-            this.uniformSourceElementIndex = elementIndex;
+            uniformSource = buffer;
+            buffer.GetOffsetAndStorageLengthForIndex(elementIndex, out uniformBindOffsetBytes, out uniformBindLengthBytes);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace TrippyGL
         internal void ApplyUniformValue()
         {
             if (uniformSource != null)
-                uniformSource.EnsureBoundRange(BindingIndex, uniformSourceElementIndex);
+                uniformSource.BindBufferRange(BindingIndex, uniformBindOffsetBytes, uniformBindLengthBytes);
         }
 
         public override string ToString()

@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics;
+﻿using System;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
@@ -30,9 +31,13 @@ namespace TrippyGL
         /// <summary>This color can be used for blending calculations with the blending factors for constant color</summary>
         public Color4 BlendColor;
 
+        /// <summary>
+        /// Creates a simple BlendState
+        /// </summary>
+        /// <param name="isOpaque">Whether this BlendState is opaque</param>
         public BlendState(bool isOpaque)
         {
-            this.IsOpaque = isOpaque;
+            IsOpaque = isOpaque;
             EquationModeRGB = BlendEquationMode.FuncAdd;
             EquationModeAlpha = BlendEquationMode.FuncAdd;
             SourceFactorRGB = BlendingFactorSrc.Zero;
@@ -41,50 +46,86 @@ namespace TrippyGL
             DestFactorAlpha = BlendingFactorDest.Zero;
         }
 
+        /// <summary>
+        /// Creates a BlendState with a simple equation
+        /// </summary>
+        /// <param name="isOpaque">Whether this BlendState is opaque</param>
+        /// <param name="equationModeRgba">The equation mode to use for the RGBA values</param>
+        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values</param>
+        /// <param name="destFactorRgba">The destination factor to use for the RGBA values</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgba;
-            this.EquationModeAlpha = equationModeRgba;
-            this.SourceFactorRGB = sourceFactorRgba;
-            this.SourceFactorAlpha = sourceFactorRgba;
-            this.DestFactorRGB = destFactorRgba;
-            this.DestFactorAlpha = destFactorRgba;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgba;
+            EquationModeAlpha = equationModeRgba;
+            SourceFactorRGB = sourceFactorRgba;
+            SourceFactorAlpha = sourceFactorRgba;
+            DestFactorRGB = destFactorRgba;
+            DestFactorAlpha = destFactorRgba;
         }
 
+        /// <summary>
+        /// Creates a BlendState with a simple equation and a blending color
+        /// </summary>
+        /// <param name="isOpaque">Whether this BlendState is opaque</param>
+        /// <param name="equationModeRgba">The equation mode to use for the RGBA values</param>
+        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values</param>
+        /// <param name="destFactorRgba">The destination factor to use for the RGBA values</param>
+        /// <param name="blendColor">The equation-constant blending color</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba, Color4 blendColor)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgba;
-            this.EquationModeAlpha = equationModeRgba;
-            this.SourceFactorRGB = sourceFactorRgba;
-            this.SourceFactorAlpha = sourceFactorRgba;
-            this.DestFactorRGB = destFactorRgba;
-            this.DestFactorAlpha = destFactorRgba;
-            this.BlendColor = blendColor;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgba;
+            EquationModeAlpha = equationModeRgba;
+            SourceFactorRGB = sourceFactorRgba;
+            SourceFactorAlpha = sourceFactorRgba;
+            DestFactorRGB = destFactorRgba;
+            DestFactorAlpha = destFactorRgba;
+            BlendColor = blendColor;
         }
 
+        /// <summary>
+        /// Creates a BlendState with specified separate equations, factors and a blend color
+        /// </summary>
+        /// <param name="isOpaque">Whether this BlendState is opaque</param>
+        /// <param name="equationModeRgb">The equation mode to use for the RGB values</param>
+        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value</param>
+        /// <param name="sourceFactorRgb">The source factor to use for the RGB values</param>
+        /// <param name="destFactorRgb">The destination factor to use for the RGB values</param>
+        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value</param>
+        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgb;
-            this.EquationModeAlpha = equationModeAlpha;
-            this.SourceFactorRGB = sourceFactorRgb;
-            this.DestFactorRGB = destFactorRgb;
-            this.SourceFactorAlpha = sourceFactorAlpha;
-            this.DestFactorAlpha = destFactorAlpha;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgb;
+            EquationModeAlpha = equationModeAlpha;
+            SourceFactorRGB = sourceFactorRgb;
+            DestFactorRGB = destFactorRgb;
+            SourceFactorAlpha = sourceFactorAlpha;
+            DestFactorAlpha = destFactorAlpha;
         }
 
+        /// <summary>
+        /// Creates a BlendState with specified separate equations, factors and a blend color
+        /// </summary>
+        /// <param name="isOpaque">Whether this BlendState is opaque</param>
+        /// <param name="equationModeRgb">The equation mode to use for the RGB values</param>
+        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value</param>
+        /// <param name="sourceFactorRgb">The source factor to use for the RGB values</param>
+        /// <param name="destFactorRgb">The destination factor to use for the RGB values</param>
+        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value</param>
+        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value</param>
+        /// <param name="blendColor">The equation-constant blending color</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha, Color4 blendColor)
         {
-            this.IsOpaque = isOpaque;
-            this.EquationModeRGB = equationModeRgb;
-            this.EquationModeAlpha = equationModeAlpha;
-            this.SourceFactorRGB = sourceFactorRgb;
-            this.DestFactorRGB = destFactorRgb;
-            this.SourceFactorAlpha = sourceFactorAlpha;
-            this.DestFactorAlpha = destFactorAlpha;
-            this.BlendColor = blendColor;
+            IsOpaque = isOpaque;
+            EquationModeRGB = equationModeRgb;
+            EquationModeAlpha = equationModeAlpha;
+            SourceFactorRGB = sourceFactorRgb;
+            DestFactorRGB = destFactorRgb;
+            SourceFactorAlpha = sourceFactorAlpha;
+            DestFactorAlpha = destFactorAlpha;
+            BlendColor = blendColor;
         }
 
         #region Static Members

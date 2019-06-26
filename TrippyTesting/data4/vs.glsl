@@ -1,6 +1,10 @@
-﻿#version 400
+﻿#version 400 core
 
-uniform mat4 World, View, Projection;
+layout(std140) uniform MatrixBlock {
+	mat4 World;
+	mat4 View;
+	mat4 Projection;
+};
 
 in vec3 vPosition;
 in vec4 vColor;

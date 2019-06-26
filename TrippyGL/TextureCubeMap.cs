@@ -15,20 +15,20 @@ namespace TrippyGL
         public TextureCubemap(GraphicsDevice graphicsDevice, int size, TextureImageFormat imageFormat = TextureImageFormat.Color4b) : base(graphicsDevice, TextureTarget.TextureCubeMap, imageFormat)
         {
             ValidateTextureSize(size);
-            this.Size = size;
+            Size = size;
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
 
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, this.PixelInternalFormat, size, size, 0, this.PixelFormat, this.PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, PixelInternalFormat, size, size, 0, PixelFormat, PixelType, IntPtr.Zero);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
+            GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace TrippyGL
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
+            GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -77,21 +77,21 @@ namespace TrippyGL
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
         public void SetData<T>(CubeMapFace face, T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
-            SetData(face, data, dataOffset, 0, 0, this.Size, this.Size, pixelFormat);
+            SetData(face, data, dataOffset, 0, 0, Size, Size, pixelFormat);
         }
 
         public void SetData(CubeMapFace face, string file)
         {
-            if (this.ImageFormat != TextureImageFormat.Color4b)
+            if (ImageFormat != TextureImageFormat.Color4b)
                 throw new InvalidOperationException("To set a cubemap's face from a file, the cubemap's format must be");
 
             using (Bitmap b = new Bitmap(file))
             {
-                if (b.Width != this.Size || b.Height != this.Size)
+                if (b.Width != Size || b.Height != Size)
                     throw new InvalidOperationException("The size of the image must match the size of the cubemap faces");
-                BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, this.Size, this.Size), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, Size, Size), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.BindTextureSetActive(this);
-                GL.TexSubImage2D((TextureTarget)face, 0, 0, 0, this.Size, this.Size, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, this.PixelType, bits.Scan0);
+                GL.TexSubImage2D((TextureTarget)face, 0, 0, 0, Size, Size, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, bits.Scan0);
                 b.UnlockBits(bits);
             }
         }
@@ -106,7 +106,7 @@ namespace TrippyGL
         public void GetData(CubeMapFace face, IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, dataPtr);
+            GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace TrippyGL
             ValidateGetOperation(data, dataOffset);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? this.PixelFormat : pixelFormat, this.PixelType, ref data[dataOffset]);
+            GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[dataOffset]);
         }
 
 
@@ -134,9 +134,9 @@ namespace TrippyGL
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
-            GL.TexParameter(this.TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
+            GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
         }
 
 
@@ -162,25 +162,25 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
 
-            if (data.Length - dataOffset < this.Size * this.Size)
+            if (data.Length - dataOffset < Size * Size)
                 throw new ArgumentException("The provided data array isn't big enough for the texture starting from dataOffset", "data");
         }
 
         internal void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
-            if (rectX < 0 || rectY >= this.Size)
+            if (rectX < 0 || rectY >= Size)
                 throw new ArgumentOutOfRangeException("rectX", rectX, "rectX must be in the range [0, this.Size)");
 
-            if (rectY < 0 || rectY >= this.Size)
+            if (rectY < 0 || rectY >= Size)
                 throw new ArgumentOutOfRangeException("rectY", rectY, "rectY must be in the range [0, this.Size)");
 
             if (rectWidth <= 0 || rectHeight <= 0)
                 throw new ArgumentOutOfRangeException("rectWidth and rectHeight must be greater than 0");
 
-            if (rectWidth > this.Size - rectX)
+            if (rectWidth > Size - rectX)
                 throw new ArgumentOutOfRangeException("rectWidth", rectWidth, "rectWidth is too large");
 
-            if (rectHeight > this.Size - rectY)
+            if (rectHeight > Size - rectY)
                 throw new ArgumentOutOfRangeException("rectHeight", rectHeight, "rectHeight is too large");
         }
     }

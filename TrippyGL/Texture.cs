@@ -54,13 +54,13 @@ namespace TrippyGL
             if (!Enum.IsDefined(typeof(TextureImageFormat), imageFormat))
                 throw new FormatException("Invalid texture image format");
 
-            this.Handle = GL.GenTexture();
-            this.TextureType = type;
-            this.ImageFormat = imageFormat;
-            TrippyUtils.GetTextureFormatEnums(imageFormat, out this.PixelInternalFormat, out this.PixelType, out PixelFormat);
-            this.lastBindUnit = 0;
-            this.IsMipmapped = false;
-            this.isNotMipmappable = !TrippyUtils.IsTextureTypeMipmappable(type);
+            Handle = GL.GenTexture();
+            TextureType = type;
+            ImageFormat = imageFormat;
+            TrippyUtils.GetTextureFormatEnums(imageFormat, out PixelInternalFormat, out PixelType, out PixelFormat);
+            lastBindUnit = 0;
+            IsMipmapped = false;
+            isNotMipmappable = !TrippyUtils.IsTextureTypeMipmappable(type);
         }
 
         /// <summary>
@@ -79,17 +79,17 @@ namespace TrippyGL
 
         public void GenerateMipmaps()
         {
-            if (this.isNotMipmappable)
-                throw new InvalidOperationException(String.Concat("This texture type is not mipmappable! Type: ", this.TextureType.ToString()));
+            if (isNotMipmappable)
+                throw new InvalidOperationException(String.Concat("This texture type is not mipmappable! Type: ", TextureType.ToString()));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GenerateMipmap((GenerateMipmapTarget)this.TextureType);
-            this.IsMipmapped = true;
+            GL.GenerateMipmap((GenerateMipmapTarget)TextureType);
+            IsMipmapped = true;
         }
 
         protected override void Dispose(bool isManualDispose)
         {
-            GL.DeleteTexture(this.Handle);
+            GL.DeleteTexture(Handle);
             base.Dispose(isManualDispose);
         }
 

@@ -9,8 +9,8 @@ namespace TrippyGL
     /// </summary>
     public class VertexAttribSourceList
     {
-        /// <summary>The internal VertexAttribSource array</summary>
-        internal readonly VertexAttribSource[] sources; //marked internal for convenience, this should only be read
+        /// <summary>The internal VertexAttribSource array. Marked internal for convenience, this should only be read</summary>
+        internal readonly VertexAttribSource[] sources;
 
         /// <summary>
         /// Gets a VertexAttribSource from the list
