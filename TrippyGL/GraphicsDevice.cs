@@ -41,6 +41,49 @@ namespace TrippyGL
             blendState = BlendState.Opaque;
         }
 
+        /// <summary>
+        /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions
+        /// </summary>
+        public void ResetStates()
+        {
+            ResetBufferStates();
+            ResetVertexArrayStates();
+            ResetShaderProgramStates();
+            ResetTextureStates();
+            ResetFramebufferStates();
+
+            GL.ClearColor(clearColor);
+
+            GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
+
+            if (blendState.IsOpaque)
+                GL.Disable(EnableCap.Blend);
+            else
+                GL.Enable(EnableCap.Blend);
+            GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
+            GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
+            GL.BlendColor(blendState.BlendColor);
+
+            if (depthState.DepthTestingEnabled)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
+
+            if (cubemapSeamlessEnabled)
+                GL.Enable(EnableCap.TextureCubeMapSeamless);
+            else
+                GL.Disable(EnableCap.TextureCubeMapSeamless);
+
+            if (faceCullingEnabled)
+                GL.Enable(EnableCap.CullFace);
+            else
+                GL.Disable(EnableCap.CullFace);
+            GL.CullFace(cullFaceMode);
+            
+        }
+
         #region DebugMessaging
 
         private bool debugMessagingEnabled = false;
@@ -160,19 +203,6 @@ namespace TrippyGL
         #endregion GLGet
 
         #region BindingStates
-
-        /// <summary>
-        /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
-        /// You should only need to call this when interoperating with other libraries or using your own GL functions
-        /// </summary>
-        public void ResetStates()
-        {
-            ResetBufferStates();
-            ResetVertexArrayStates();
-            ResetShaderProgramStates();
-            ResetTextureStates();
-            ResetFramebufferStates();
-        }
 
         #region BufferObjectBindingStates
 
@@ -967,7 +997,7 @@ namespace TrippyGL
             get { return viewport; } //The get is OK because Rectangle is a struct so no worries about modifying it
             set
             {
-                if (value.X != viewport.X || value.Y != viewport.Y || value.Width != viewport.Width || value.Height != viewport.Height)
+                if (value != viewport)
                 {
                     viewport = value;
                     GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
@@ -1034,8 +1064,8 @@ namespace TrippyGL
                     if (value.Width < 0 || value.Height < 0)
                         throw new ArgumentOutOfRangeException("ScissorRectangle Width and Height must be greater or equal to 0");
 
+                    GL.Scissor(value.X, value.Y, value.Width, value.Height);
                     scissorRect = value;
-                    GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
                 }
             }
         }
@@ -1146,9 +1176,7 @@ namespace TrippyGL
         /// <summary>The current depth state</summary>
         private DepthTestingState depthState = new DepthTestingState(false);
 
-        /// <summary>
-        /// Sets the current depth testing state
-        /// </summary>
+        /// <summary>Sets the current depth testing state</summary>
         public DepthTestingState DepthState
         {
             set
@@ -1211,6 +1239,20 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>The current depth to set on a clear depth operation</summary>
+        public float ClearDepth
+        {
+            get { return depthState.ClearDepth; }
+            set
+            {
+                if(depthState.ClearDepth != value)
+                {
+                    GL.ClearDepth(value);
+                    depthState.ClearDepth = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Misc
@@ -1230,6 +1272,40 @@ namespace TrippyGL
                     else
                         GL.Disable(EnableCap.TextureCubeMapSeamless);
                     cubemapSeamlessEnabled = value;
+                }
+            }
+        }
+
+        private bool faceCullingEnabled = false;
+        private CullFaceMode cullFaceMode = CullFaceMode.Back;
+
+        /// <summary>Enables or disables culling polygon faces</summary>
+        public bool FaceCullingEnabled
+        {
+            get { return faceCullingEnabled; }
+            set
+            {
+                if (faceCullingEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.CullFace);
+                    else
+                        GL.Disable(EnableCap.CullFace);
+                    faceCullingEnabled = value;
+                }
+            }
+        }
+
+        /// <summary>Sets the face culling mode to use when face culling is enabled</summary>
+        public CullFaceMode CullFaceMode
+        {
+            get { return cullFaceMode; }
+            set
+            {
+                if(cullFaceMode != value)
+                {
+                    GL.CullFace(cullFaceMode);
+                    cullFaceMode = value;
                 }
             }
         }

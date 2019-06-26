@@ -67,6 +67,7 @@
     <Compile Include="GraphicsDevice.cs" />
     <Compile Include="GraphicsResource.cs" />
     <Compile Include="IBufferRangeBindable.cs" />
+    <Compile Include="IndexBufferSubset.cs" />
     <Compile Include="IVertex.cs" />
     <Compile Include="Rectangle.cs" />
     <Compile Include="RenderbufferObject.cs" />

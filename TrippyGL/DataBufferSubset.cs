@@ -111,7 +111,6 @@ namespace TrippyGL
 
             Buffer.GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-
         }
 
         /// <summary>
@@ -136,7 +135,6 @@ namespace TrippyGL
 
             Buffer.GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-
         }
 
         /// <summary>
@@ -196,11 +194,11 @@ namespace TrippyGL
             if (dataOffset < 0 || dataOffset >= data.Length)
                 throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
 
-            if (elementCount > StorageLength - storageOffset)
-                throw new ArgumentOutOfRangeException("There isn't enough data in the buffer object's storage to read dataLength elements starting from index storageOffset");
-
             if (data.Length - dataOffset < elementCount)
                 throw new ArgumentOutOfRangeException("There data array ins't big enough to write dataLength elements starting from index dataOffset");
+
+            if (elementCount > StorageLength - storageOffset)
+                throw new ArgumentOutOfRangeException("There isn't enough data in the buffer object's storage to read dataLength elements starting from index storageOffset");
         }
 
         public override string ToString()

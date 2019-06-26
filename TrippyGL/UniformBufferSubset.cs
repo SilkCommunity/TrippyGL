@@ -81,6 +81,31 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Gets a value from the buffer's storage
+        /// </summary>
+        /// <param name="value">The value read from the buffer</param>
+        /// <param name="index">The array index of the value to read</param>
+        public void GetValue(ref T value, int index = 0)
+        {
+            if (index < 0 || index > StorageLength)
+                throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, this.StorageLength)");
+
+            Buffer.GraphicsDevice.BindBuffer(this);
+            GL.GetBufferSubData(BufferTarget, (IntPtr)(index * ElementStride + StorageOffsetInBytes), ElementSize, ref value);
+        }
+
+        /// <summary>
+        /// Gets a value from the buffer's storage
+        /// </summary>
+        /// <param name="index">The array index of the value to read</param>
+        public T GetValue(int index = 0)
+        {
+            T value = default;
+            GetValue(ref value, index);
+            return value;
+        }
+
+        /// <summary>
         /// Sets (and checks) the appropiate storage length and offset variables for this subset
         /// </summary>
         /// <param name="storageOffsetBytes"></param>

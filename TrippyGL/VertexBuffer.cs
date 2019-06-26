@@ -123,6 +123,33 @@ namespace TrippyGL
         {
             BufferSubset.GetData(data);
         }
+        
+        /// <summary>
+        /// Recreate this VertexBuffer's storage with a new size. The contents of the new storage are undefined after this operation
+        /// </summary>
+        /// <param name="storageLength">The desired new length for the storage</param>
+        public void RecreateStorage(int storageLength)
+        {
+            ValidateStorageLength(storageLength);
+
+            Buffer.RecreateStorage(storageLength * ElementSize);
+            BufferSubset.ResizeSubset(0, storageLength);
+            this.StorageLength = storageLength;
+        }
+
+        /// <summary>
+        /// Recreate this VertexBuffer's storage with a new size. The contents of the new storage are undefined after this operation
+        /// </summary>
+        /// <param name="storageLength">The desired new length for the storage</param>
+        /// <param name="usageHint">The new usage hint for the buffer</param>
+        public void RecreateStorage(int storageLength, BufferUsageHint usageHint)
+        {
+            ValidateStorageLength(storageLength);
+
+            Buffer.RecreateStorage(storageLength * ElementSize, usageHint);
+            BufferSubset.ResizeSubset(0, storageLength);
+            this.StorageLength = storageLength;
+        }
 
         /// <summary>
         /// Disposes the GraphicsResource-s used by this VertexBuffer

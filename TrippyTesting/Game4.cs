@@ -64,23 +64,29 @@ namespace TrippyTesting
 
             Vector3[] vertexPositions = new Vector3[]
             {
+                new Vector3(),
                 new Vector3(-0.5f, -0.5f, 0),
                 new Vector3(0, 0.5f, 0),
-                new Vector3(0.5f, -0.5f, 0)
+                new Vector3(0.5f, -0.5f, 0),
+                new Vector3()
             };
 
             Color4b[] vertexColors = new Color4b[]
             {
+                new Color4b(),
                 new Color4b(255, 0, 0, 255),
                 new Color4b(0, 255, 0, 255),
-                new Color4b(0, 0, 255, 255)
+                new Color4b(0, 0, 255, 255),
+                new Color4b()
             };
 
             Vector2[] vertexTexCoords = new Vector2[]
             {
+                new Vector2(),
                 new Vector2(0, 1),
                 new Vector2(0.5f, 0),
                 new Vector2(1, 1),
+                new Vector2()
             };
 
             int uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
@@ -146,7 +152,7 @@ namespace TrippyTesting
             graphicsDevice.BindVertexArray(array);
             program.Uniforms["samp"].SetValueTexture(texture);
             program.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, positionSubset.StorageLength);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 1, 3);
 
             SwapBuffers();
         }
