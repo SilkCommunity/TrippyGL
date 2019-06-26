@@ -260,17 +260,17 @@ namespace TrippyGL
         /// Ensures a buffer is bound to the default binding location by binding it if it's not
         /// </summary>
         /// <param name="buffer">The buffer to ensure is bound. This value is assumed not to be null</param>
-        public void BindBuffer(BufferObject buffer)
+        internal void BindBufferObject(BufferObject buffer)
         {
             if (bufferBindings[defaultBufferTargetBindingIndex] != buffer.Handle)
-                ForceBindBuffer(buffer);
+                ForceBindBufferObject(buffer);
         }
         
         /// <summary>
         /// Binds a buffer to the default binding location without first checking whether it's already bound
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        public void ForceBindBuffer(BufferObject buffer)
+        internal void ForceBindBufferObject(BufferObject buffer)
         {
             GL.BindBuffer(DefaultBufferTarget, buffer.Handle);
             bufferBindings[defaultBufferTargetBindingIndex] = buffer.Handle;
@@ -292,6 +292,22 @@ namespace TrippyGL
         /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
         {
+            if (bufferSubset.BufferTarget == BufferTarget.ElementArrayBuffer)
+                UnbindVertexArray(); //This is because if a vertex array is bound when a glBindBuffer with GL_ELEMENT_ARRAY_BUFFER occurs, the VAO stores that index buffer.
+
+            GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
+            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
+        }
+
+        /// <summary>
+        /// Binds a buffer subset that is targeted to GL_ELEMENT_ARRAY_BUFFER as to bind it to the current vertex array
+        /// </summary>
+        /// <param name="bufferSubset"></param>
+        internal void ForceBindElementBufferForVertexArray(BufferObjectSubset bufferSubset)
+        {
+            if (bufferSubset.BufferTarget != BufferTarget.ElementArrayBuffer)
+                throw new ArgumentException("To bind a bufferSubset for vertex array index buffer, it must target GL_ELEMENT_ARRAY_BUFFER");
+
             GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
             bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
         }
@@ -432,8 +448,11 @@ namespace TrippyGL
         /// </summary>
         public void UnbindVertexArray()
         {
-            GL.BindVertexArray(0);
-            vertexArrayBinding = 0;
+            if (vertexArrayBinding != 0)
+            {
+                GL.BindVertexArray(0);
+                vertexArrayBinding = 0;
+            }
         }
 
         #endregion VertexArrayBindingStates

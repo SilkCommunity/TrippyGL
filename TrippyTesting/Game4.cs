@@ -22,6 +22,9 @@ namespace TrippyTesting
         VertexDataBufferSubset<Color4b> colorSubset;
         VertexDataBufferSubset<Vector2> texcoordSubset;
 
+        BufferObject indexbuffer;
+        IndexBufferSubset indexsubset;
+
         VertexArray array;
 
         VertexBuffer<VertexColorTexture> vertexbuffer;
@@ -90,17 +93,23 @@ namespace TrippyTesting
             };
 
             int uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
-            buffer = new BufferObject(graphicsDevice, uboSizeBytes + vertexPositions.Length * VertexColorTexture.SizeInBytes, BufferUsageHint.StaticDraw);
+            buffer = new BufferObject(graphicsDevice, uboSizeBytes + vertexPositions.Length * VertexColorTexture.SizeInBytes, BufferUsageHint.DynamicDraw);
             positionSubset = new VertexDataBufferSubset<Vector3>(buffer, vertexPositions, 0, uboSizeBytes, vertexPositions.Length);
             colorSubset = new VertexDataBufferSubset<Color4b>(buffer, vertexColors, 0, positionSubset.StorageNextInBytes, vertexColors.Length);
             texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, vertexTexCoords, 0, colorSubset.StorageNextInBytes, vertexTexCoords.Length);
+
+            const int JEJJEJJEJJ = 525153152;
+
+            ushort[] indices = new ushort[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 };
+            indexbuffer = new BufferObject(graphicsDevice, indices.Length * sizeof(ushort) + JEJJEJJEJJ, BufferUsageHint.DynamicDraw);
+            indexsubset = new IndexBufferSubset(indexbuffer, indices, 0, JEJJEJJEJJ, indices.Length);
 
             array = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
                 new VertexAttribSource(positionSubset, ActiveAttribType.FloatVec3),
                 new VertexAttribSource(colorSubset, ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
                 new VertexAttribSource(texcoordSubset, ActiveAttribType.FloatVec2)
-            });
+            }, indexsubset);
 
             uniformSubset = new UniformBufferSubset<ThreeMat4>(buffer, 0, 1);
             ThreeMat4 m = new ThreeMat4();
@@ -119,11 +128,6 @@ namespace TrippyTesting
             };
 
             vertexbuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, vertex, BufferUsageHint.DynamicDraw);
-
-            VertexDataBufferSubset<float> allVertexSubset = new VertexDataBufferSubset<float>(buffer, uboSizeBytes, VertexColorTexture.SizeInBytes * vertexPositions.Length / 4);
-
-            float[] data = new float[allVertexSubset.StorageLength];
-            allVertexSubset.GetData(data);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -152,7 +156,7 @@ namespace TrippyTesting
             graphicsDevice.BindVertexArray(array);
             program.Uniforms["samp"].SetValueTexture(texture);
             program.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 1, 3);
+            GL.DrawElements(PrimitiveType.TriangleStrip, 3, indexsubset.ElementType, indexsubset.StorageOffsetInBytes);
 
             SwapBuffers();
         }
@@ -165,6 +169,7 @@ namespace TrippyTesting
             vertexbuffer.Dispose();
             texture.Dispose();
             whitepx.Dispose();
+            indexbuffer.Dispose();
 
             graphicsDevice.Dispose();
         }

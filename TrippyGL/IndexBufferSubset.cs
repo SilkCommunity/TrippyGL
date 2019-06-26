@@ -31,8 +31,7 @@ namespace TrippyGL
         {
             ElementType = elementType;
             ElementSize = TrippyUtils.GetSizeInBytesOfElementType(elementType);
-            InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
-            StorageLength = storageLength;
+            ResizeSubset(storageOffsetBytes, storageLength);
         }
 
         /// <summary>
@@ -91,7 +90,6 @@ namespace TrippyGL
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
         {
             SetData(data, dataOffset, 0, data.Length);
-            
         }
 
         /// <summary>
@@ -251,10 +249,12 @@ namespace TrippyGL
         /// <param name="storageLength">The length of this subset measured in elements</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
-            InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
-            StorageLength = StorageLengthInBytes / ElementSize;
-            if (StorageLength * ElementSize != StorageLengthInBytes)
+            if (storageOffsetBytes % ElementSize != 0)
                 throw new ArgumentException("storageOffsetBytes should be a multiple of this.ElementSize", "storageOffsetBytes");
+            //Else it's pretty much impossible to use the index buffer
+
+            InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
+            StorageLength = storageLength;
         }
 
         /// <summary>

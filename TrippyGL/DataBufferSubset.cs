@@ -154,9 +154,7 @@ namespace TrippyGL
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
             InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
-            StorageLength = StorageLengthInBytes / ElementSize;
-            if (StorageLength * ElementSize != StorageLengthInBytes)
-                throw new ArgumentException("storageOffsetBytes should be a multiple of this.ElementSize", "storageOffsetBytes");
+            StorageLength = storageLength;
         }
 
         /// <summary>

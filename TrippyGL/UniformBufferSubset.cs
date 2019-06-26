@@ -106,6 +106,16 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Changes the subset location of this UniformBufferSubset
+        /// </summary>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins. Must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment</param>
+        /// <param name="storageLength">The length of this subset measured in elements. The final length in bytes may vary between machines</param>
+        public void ResizeSubset(int storageOffsetBytes, int storageLength)
+        {
+            InitializeUniformStorage(storageOffsetBytes, storageLength);
+        }
+
+        /// <summary>
         /// Sets (and checks) the appropiate storage length and offset variables for this subset
         /// </summary>
         /// <param name="storageOffsetBytes"></param>

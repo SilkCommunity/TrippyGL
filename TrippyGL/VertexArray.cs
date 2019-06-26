@@ -4,7 +4,8 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// Vertex arrays are used for specifying the way vertex attributes are laid out in memory and from which buffer object each data attribute comes from.
+    /// Vertex arrays are used for specifying the way vertex attributes are laid out in memory and 
+    /// from which buffer object each data attribute comes from. Also stores an index buffers, if wanted
     /// </summary>
     public class VertexArray : GraphicsResource
     {
@@ -14,14 +15,17 @@ namespace TrippyGL
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls</summary>
         public readonly VertexAttribSourceList AttribSources;
 
+        public readonly IndexBufferSubset IndexBuffer;
+
         /// <summary>
         /// Creates a VertexArray with the specified attribute sources
         /// </summary>
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, bool compensateStructPadding = true, int paddingPackValue = 4)
+        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
             if (attribSources == null)
@@ -33,7 +37,11 @@ namespace TrippyGL
             Handle = GL.GenVertexArray();
             AttribSources = new VertexAttribSourceList(attribSources);
 
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
+            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue); //this also binds the vertex array
+
+            IndexBuffer = indexBuffer;
+            if (indexBuffer != null)
+                graphicsDevice.ForceBindElementBufferForVertexArray(indexBuffer);
         }
 
         /// <summary>
@@ -42,9 +50,10 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="bufferSubset">The data buffer that stores all the vertex attributes</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions, bool compensateStructPadding = true, int paddingPackValue = 4)
+        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
             if (bufferSubset == null)
@@ -63,7 +72,11 @@ namespace TrippyGL
                 s[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
             AttribSources = new VertexAttribSourceList(s);
 
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue);
+            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue); //this also binds the vertex array
+
+            IndexBuffer = indexBuffer;
+            if (indexBuffer != null)
+                graphicsDevice.ForceBindElementBufferForVertexArray(indexBuffer);
         }
 
         /// <summary>
@@ -171,12 +184,14 @@ namespace TrippyGL
         /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer
         /// </summary>
         /// <typeparam name="T">The type of vertex to use</typeparam>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
         /// <param name="dataBuffer">The buffer from which all attributes come from</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, bool compensateStructPadding = true) where T : struct, IVertex
+        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true) where T : struct, IVertex
         {
             VertexAttribDescription[] desc = new T().AttribDescriptions;
-            return new VertexArray(graphicsDevice, dataBuffer, desc, true);
+            return new VertexArray(graphicsDevice, dataBuffer, desc, indexBuffer, compensateStructPadding);
         }
 
 

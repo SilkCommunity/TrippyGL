@@ -18,6 +18,12 @@ namespace TrippyGL
         /// <summary>The length of this buffer object's storage, measured in bytes</summary>
         public int StorageLengthInBytes { get; private set; }
 
+        /// <summary>
+        /// Creates a BufferObject with a specified length and usage hint
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="sizeInBytes">The desired size of the buffer object's storage measured in bytes</param>
+        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public BufferObject(GraphicsDevice graphicsDevice, int sizeInBytes, BufferUsageHint usageHint) : base(graphicsDevice)
         {
             Handle = GL.GenBuffer();
@@ -36,7 +42,7 @@ namespace TrippyGL
 
             UsageHint = usageHint;
             StorageLengthInBytes = sizeInBytes;
-            GraphicsDevice.BindBuffer(this);
+            GraphicsDevice.BindBufferObject(this);
             GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, usageHint);
         }
 
@@ -49,7 +55,7 @@ namespace TrippyGL
             ValidateBufferSize(sizeInBytes);
 
             StorageLengthInBytes = sizeInBytes;
-            GraphicsDevice.BindBuffer(this);
+            GraphicsDevice.BindBufferObject(this);
             GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, UsageHint);
         }
 
@@ -68,17 +74,16 @@ namespace TrippyGL
             return String.Concat("Handle=", Handle.ToString(), ", StorageLengthInBytes=", StorageLengthInBytes.ToString(), ", UsageHint=", UsageHint.ToString());
         }
 
-        private protected static void ValidateBufferSize(int sizeInBytes)
+        private static void ValidateBufferSize(int sizeInBytes)
         {
             if (sizeInBytes <= 0)
                 throw new ArgumentOutOfRangeException("sizeInBytes", sizeInBytes, "sizeInBytes must be greater than 0");
         }
 
-        private protected static void ValidateBufferUsage(BufferUsageHint usageHint)
+        private static void ValidateBufferUsage(BufferUsageHint usageHint)
         {
             if (!Enum.IsDefined(typeof(BufferUsageHint), usageHint))
                 throw new FormatException("usageHint is not a valid BufferUsageHint value");
         }
-
     }
 }
