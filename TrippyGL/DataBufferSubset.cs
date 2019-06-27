@@ -203,6 +203,15 @@ namespace TrippyGL
         {
             return String.Concat(base.ToString(), ", StorageLength=", StorageLength.ToString(), ", ElementSize=", ElementSize.ToString());
         }
+
+        /// <summary>
+        /// Calculates the required storage length in bytes required for a DataBufferSubset with the specified storage length
+        /// </summary>
+        /// <param name="storageLength">The desired length for the subset measured in elements</param>
+        public static int CalculateRequiredSizeInBytes(int storageLength)
+        {
+            return Marshal.SizeOf<T>() * storageLength;
+        }
     }
 
     /// <summary>

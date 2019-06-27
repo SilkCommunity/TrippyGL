@@ -38,10 +38,10 @@ namespace TrippyGL
         public int LineCount { get { return lineVertexCount / 2; } }
 
         /// <summary>The amount of triangle vertices the primitive batcher can currently hold</summary>
-        public int CurrentTriangleCapacity { get { return triangles.Length; } }
+        public int TriangleVertexCapacity { get { return triangles.Length; } }
 
         /// <summary>The amount of line vertices the primitive batcher can currently hold</summary>
-        public int CurrentLineCapacity { get { return lines.Length; } }
+        public int LineVertexCapacity { get { return lines.Length; } }
 
         /// <summary>
         /// Creates a primitive batcher with the specified initial capacities

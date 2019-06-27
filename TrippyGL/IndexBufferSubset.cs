@@ -308,5 +308,15 @@ namespace TrippyGL
             if (elementCount > StorageLength - storageOffset)
                 throw new ArgumentOutOfRangeException("There isn't enough data in the buffer object's storage to read dataLength elements starting from index storageOffset");
         }
+
+        /// <summary>
+        /// Calculates the required storage length in bytes required for a UniformBufferSubset with the specified storage length
+        /// </summary>
+        /// <param name="elementType">The desired element type for the index buffer</param>
+        /// <param name="storageLength">The desired length for the subset measured in elements</param>
+        public static int CalculateRequiredSizeInBytes(DrawElementsType elementType, int storageLength)
+        {
+            return TrippyUtils.GetSizeInBytesOfElementType(elementType) * storageLength;
+        }
     }
 }

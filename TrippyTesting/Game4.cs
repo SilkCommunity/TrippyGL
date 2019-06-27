@@ -6,7 +6,6 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using TrippyGL;
 
-
 namespace TrippyTesting
 {
     class Game4 : GameWindow
@@ -98,7 +97,7 @@ namespace TrippyTesting
             colorSubset = new VertexDataBufferSubset<Color4b>(buffer, vertexColors, 0, positionSubset.StorageNextInBytes, vertexColors.Length);
             texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, vertexTexCoords, 0, colorSubset.StorageNextInBytes, vertexTexCoords.Length);
 
-            const int JEJJEJJEJJ = 525153152;
+            const int JEJJEJJEJJ = 523152;
 
             ushort[] indices = new ushort[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 };
             indexbuffer = new BufferObject(graphicsDevice, indices.Length * sizeof(ushort) + JEJJEJJEJJ, BufferUsageHint.DynamicDraw);
