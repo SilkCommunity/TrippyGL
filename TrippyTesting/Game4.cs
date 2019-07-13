@@ -145,17 +145,17 @@ namespace TrippyTesting
             graphicsDevice.BlendState = BlendState.AlphaBlend;
             graphicsDevice.DepthTestingEnabled = false;
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             graphicsDevice.VertexArray = vertexbuffer.VertexArray;
             program.Uniforms["samp"].SetValueTexture(whitepx);
             program.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexbuffer.StorageLength);
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexbuffer.StorageLength);
 
             graphicsDevice.VertexArray = array;
             program.Uniforms["samp"].SetValueTexture(texture);
             program.EnsurePreDrawStates();
-            GL.DrawElements(PrimitiveType.TriangleStrip, 3, indexsubset.ElementType, indexsubset.StorageOffsetInBytes);
+            graphicsDevice.DrawElements(PrimitiveType.TriangleStrip, 0, 3);
 
             SwapBuffers();
         }

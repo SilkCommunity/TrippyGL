@@ -54,9 +54,6 @@ namespace TrippyGL
         internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget)
         {
             bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
-            if (bufferTargetBindingIndex < 0)
-                throw new FormatException("The given BufferTarget for this BufferObjectSubset is invalid");
-
             Buffer = bufferObject;
             BufferHandle = Buffer.Handle;
             BufferTarget = bufferTarget;

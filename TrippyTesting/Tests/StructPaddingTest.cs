@@ -86,10 +86,10 @@ namespace TrippyTesting.Tests
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthTestingEnabled = false;
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             graphicsDevice.VertexArray = buffer.VertexArray;
             program.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             SwapBuffers();
         }

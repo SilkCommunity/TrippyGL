@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
@@ -126,6 +127,74 @@ namespace TrippyGL
             SourceFactorAlpha = sourceFactorAlpha;
             DestFactorAlpha = destFactorAlpha;
             BlendColor = blendColor;
+        }
+
+        /// <summary>
+        /// Creates a BlendState with the same values as another specified BlendState
+        /// </summary>
+        /// <param name="copy">The BlendState whose values to copy</param>
+        public BlendState(BlendState copy)
+        {
+            IsOpaque = copy.IsOpaque;
+            EquationModeRGB = copy.EquationModeRGB;
+            EquationModeAlpha = copy.EquationModeAlpha;
+            SourceFactorRGB = copy.SourceFactorRGB;
+            SourceFactorAlpha = copy.SourceFactorAlpha;
+            DestFactorRGB = copy.DestFactorRGB;
+            DestFactorAlpha = copy.DestFactorAlpha;
+            BlendColor = copy.BlendColor;
+        }
+
+        public override string ToString()
+        {
+            if (IsOpaque)
+                return "Opaque";
+
+            StringBuilder builder = new StringBuilder(300);
+
+            if (EquationModeRGB == EquationModeAlpha)
+            {
+                builder.Append("EquationModeRGBA=\"");
+                builder.Append(EquationModeRGB.ToString());
+            }
+            else
+            {
+                builder.Append("EquationModeRGB=\"");
+                builder.Append(EquationModeRGB.ToString());
+                builder.Append("\", EquationModeAlpha=\"");
+                builder.Append(EquationModeAlpha.ToString());
+            }
+
+            if(SourceFactorRGB == SourceFactorAlpha)
+            {
+                builder.Append("\", SourceFactorRGBA=\"");
+                builder.Append(SourceFactorRGB.ToString());
+            }
+            else
+            {
+                builder.Append("\", SourceFactorRGB=\"");
+                builder.Append(SourceFactorRGB.ToString());
+                builder.Append("\", SourceFactorAlpha=\"");
+                builder.Append(SourceFactorAlpha.ToString());
+            }
+
+            if(DestFactorRGB == DestFactorAlpha)
+            {
+                builder.Append("\", DestFactorRGBA=\"");
+                builder.Append(DestFactorRGB.ToString());
+            }
+            else
+            {
+                builder.Append("\", DestFactorRGB=\"");
+                builder.Append(DestFactorRGB.ToString());
+                builder.Append("\", DestFactorAlpha=\"");
+                builder.Append(DestFactorAlpha.ToString());
+            }
+
+            builder.Append("\", BlendColor=");
+            builder.Append(BlendColor.ToString());
+
+            return builder.ToString();
         }
 
         #region Static Members

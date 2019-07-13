@@ -207,7 +207,7 @@ namespace TrippyGL
         #region BufferObjectBindingStates
 
         /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
-        private const int BufferTargetCount = 14;
+        private const int BufferTargetCount = 13;
 
         internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
         private int defaultBufferTargetBindingIndex;
@@ -235,7 +235,7 @@ namespace TrippyGL
                 BufferTarget.ShaderStorageBuffer,       // implemented into the library or whatever.
                 BufferTarget.AtomicCounterBuffer,
                 BufferTarget.ArrayBuffer,
-                BufferTarget.ElementArrayBuffer,
+                //BufferTarget.ElementArrayBuffer, //This target is stored within a Vertex Array Object, so a VertexArray object takes care of binding these
                 BufferTarget.TextureBuffer,
                 BufferTarget.PixelUnpackBuffer,
                 BufferTarget.PixelPackBuffer,
@@ -292,22 +292,6 @@ namespace TrippyGL
         /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
         internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
         {
-            if (bufferSubset.BufferTarget == BufferTarget.ElementArrayBuffer)
-                VertexArray = null; //This is because if a vertex array is bound when a glBindBuffer with GL_ELEMENT_ARRAY_BUFFER occurs, the VAO stores that index buffer.
-
-            GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
-            bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
-        }
-
-        /// <summary>
-        /// Binds a buffer subset that is targeted to GL_ELEMENT_ARRAY_BUFFER as to bind it to the current vertex array
-        /// </summary>
-        /// <param name="bufferSubset"></param>
-        internal void ForceBindElementBufferForVertexArray(BufferObjectSubset bufferSubset)
-        {
-            if (bufferSubset.BufferTarget != BufferTarget.ElementArrayBuffer)
-                throw new ArgumentException("To bind a bufferSubset for vertex array index buffer, it must target GL_ELEMENT_ARRAY_BUFFER");
-
             GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
             bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
         }
@@ -1040,11 +1024,11 @@ namespace TrippyGL
             {
                 if (scissorTestEnabled != value)
                 {
-                    scissorTestEnabled = value;
                     if (value)
                         GL.Enable(EnableCap.ScissorTest);
                     else
                         GL.Disable(EnableCap.ScissorTest);
+                    scissorTestEnabled = value;
                 }
             }
         }
@@ -1075,11 +1059,14 @@ namespace TrippyGL
         /// <summary>The current blend state</summary>
         private BlendState blendState = BlendState.Opaque;
 
-        /// <summary>Sets the blend state for drawing</summary>
+        /// <summary>Gets or sets the blend state for drawing</summary>
         public BlendState BlendState
         {
             set
             {
+                // The specified BlendState's fields are copied into blendState, because we need to store all the
+                // fields of a BlendState but if we save the same BlendState class instance, the user can modify these!
+
                 if (!(blendState.IsOpaque && value.IsOpaque)) //if the current and the new blend state are both opaque... Do nothing
                 {
                     // Either the current or new blend state is not opaque
@@ -1148,6 +1135,10 @@ namespace TrippyGL
                     }
                 }*/
             }
+            get
+            {
+                return new BlendState(blendState);
+            }
         }
 
         /// <summary>Enables or disables color blending</summary>
@@ -1206,10 +1197,10 @@ namespace TrippyGL
                         depthState.depthFar = value.depthFar;
                     }
 
-                    if (depthState.IsDepthBufferWrittingEnabled != value.IsDepthBufferWrittingEnabled)
+                    if (depthState.DepthBufferWrittingEnabled != value.DepthBufferWrittingEnabled)
                     {
-                        GL.DepthMask(value.IsDepthBufferWrittingEnabled);
-                        depthState.IsDepthBufferWrittingEnabled = value.IsDepthBufferWrittingEnabled;
+                        GL.DepthMask(value.DepthBufferWrittingEnabled);
+                        depthState.DepthBufferWrittingEnabled = value.DepthBufferWrittingEnabled;
                     }
                 }
                 else if (depthState.DepthTestingEnabled) // value.DepthTestingEnabled is false
@@ -1217,6 +1208,10 @@ namespace TrippyGL
                     GL.Disable(EnableCap.DepthTest);
                     depthState.DepthTestingEnabled = false;
                 }
+            }
+            get
+            {
+                return new DepthTestingState(depthState);
             }
         }
 
@@ -1313,6 +1308,38 @@ namespace TrippyGL
         #endregion DrawingStates
 
         #region DrawingFunctions
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mask">The mask indicating the values to clear, using bitwise OR</param>
+        public void Clear(ClearBufferMask mask)
+        {
+            GL.Clear(mask);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="primitiveType">The type of primitive to render</param>
+        /// <param name="startIndex">The index of the first vertex to render</param>
+        /// <param name="count">The amount of vertices to render</param>
+        public void DrawArrays(PrimitiveType primitiveType, int startIndex, int count)
+        {
+            GL.DrawArrays(primitiveType, startIndex, count);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type">The type of primitive to render</param>
+        /// <param name="startIndex">The index of the first element to render</param>
+        /// <param name="count">The amount of elements to render</param>
+        public void DrawElements(PrimitiveType type, int startIndex, int count)
+        {
+            IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
+            GL.DrawElements(type, count, indexSubset.ElementType, indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize);
+        }
 
         /// <summary>
         /// Copies content from one framebuffer to another
@@ -1447,6 +1474,7 @@ namespace TrippyGL
         {
             if (!IsDisposed)
             {
+                DebugMessagingEnabled = false;
                 IsDisposed = true;
                 Context.Dispose();
                 //TODO: dispose the GraphicResource-s. This is gonna need a list somewhere and it might be a bit ugly

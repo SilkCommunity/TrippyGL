@@ -37,11 +37,9 @@ namespace TrippyGL
             Handle = GL.GenVertexArray();
             AttribSources = new VertexAttribSourceList(attribSources);
 
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue); //this also binds the vertex array
-
             IndexBuffer = indexBuffer;
-            if (indexBuffer != null)
-                graphicsDevice.ForceBindElementBufferForVertexArray(indexBuffer);
+
+            UpdateVertexAttributes(compensateStructPadding, paddingPackValue); //this also binds the vertex array
         }
 
         /// <summary>
@@ -72,11 +70,9 @@ namespace TrippyGL
                 s[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
             AttribSources = new VertexAttribSourceList(s);
 
-            MakeVertexAttribPointerCalls(compensateStructPadding, paddingPackValue); //this also binds the vertex array
-
             IndexBuffer = indexBuffer;
-            if (indexBuffer != null)
-                graphicsDevice.ForceBindElementBufferForVertexArray(indexBuffer);
+
+            UpdateVertexAttributes(compensateStructPadding, paddingPackValue); //this also binds the vertex array
         }
 
         /// <summary>
@@ -85,7 +81,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int paddingPackValue = 4)
+        public void UpdateVertexAttributes(bool compensateStructPadding, int paddingPackValue = 4)
         {
             GraphicsDevice.VertexArray = this;
 
@@ -167,6 +163,8 @@ namespace TrippyGL
                 GraphicsDevice.BindBuffer(calls[i].source.BufferSubset);
                 calls[i].CallGlVertexAttribPointer();
             }
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBuffer == null ? 0 : IndexBuffer.BufferHandle);
         }
 
         protected override void Dispose(bool isManualDispose)

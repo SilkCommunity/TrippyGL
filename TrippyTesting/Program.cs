@@ -12,7 +12,7 @@ namespace TrippyTesting
         {
             Console.WriteLine("Program started");
 
-            using (GameWindow w = new Tests.Test3DBatcher())
+            using (GameWindow w = new Tests.IndexBufferTest())
                 w.Run();
 
             Console.WriteLine("Program ended");

@@ -104,8 +104,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -154,8 +154,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -179,8 +179,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -204,8 +204,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>
@@ -229,8 +229,8 @@ namespace TrippyGL
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 
-            Buffer.GraphicsDevice.BindBuffer(this);
-            GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            Buffer.GraphicsDevice.BindBufferObject(Buffer);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
         }
 
         /// <summary>

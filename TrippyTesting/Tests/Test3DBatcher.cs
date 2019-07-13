@@ -175,7 +175,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.ClearColor = Color4.Black;
             graphicsDevice.TextureCubemapSeamlessEnabled = true;
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Matrix4 mat = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             program.Uniforms["View"].SetValueMat4(ref mat);
@@ -185,8 +185,8 @@ namespace TrippyTesting.Tests
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
             cubemapProgram.EnsurePreDrawStates();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
+            graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
 
             batcher.AddLine(new VertexColor(new Vector3(cameraPos.X - 100, 0, 0), new Color4b(255, 0, 0, 255)), new VertexColor(new Vector3(cameraPos.X + 100, 0, 0), new Color4b(255, 0, 0, 255)));
             batcher.AddLine(new VertexColor(new Vector3(0, cameraPos.Y - 100, 0), new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, cameraPos.Y + 100, 0), new Color4b(0, 255, 0, 255)));
@@ -301,14 +301,14 @@ namespace TrippyTesting.Tests
                 triangleBuffer.RecreateStorage(batcher.TriangleVertexCapacity);
             batcher.WriteTrianglesTo(triangleBuffer.BufferSubset);
             graphicsDevice.VertexArray = triangleBuffer.VertexArray;
-            GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
+            graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
             batcher.ClearTriangles();
 
             if (batcher.LineVertexCount > lineBuffer.StorageLength)
                 lineBuffer.RecreateStorage(batcher.LineVertexCapacity);
             batcher.WriteLinesTo(lineBuffer.BufferSubset);
             graphicsDevice.VertexArray = lineBuffer.VertexArray;
-            GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
+            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
             batcher.ClearLines();
 
             SwapBuffers();
