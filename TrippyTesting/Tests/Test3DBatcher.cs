@@ -95,13 +95,13 @@ namespace TrippyTesting.Tests
                 new VertexPosition(new Vector3(0.5f,-0.5f,0.5f)),//1
             }, BufferUsageHint.StaticDraw);
 
-            cubemap = new TextureCubemap(graphicsDevice, 200);
-            cubemap.SetData(CubeMapFace.PositiveX, "cubemap/small/cubemap1_front.png");
-            cubemap.SetData(CubeMapFace.NegativeX, "cubemap/small/cubemap1_back.png");
-            cubemap.SetData(CubeMapFace.NegativeZ, "cubemap/small/cubemap1_left.png");
-            cubemap.SetData(CubeMapFace.PositiveZ, "cubemap/small/cubemap1_right.png");
-            cubemap.SetData(CubeMapFace.PositiveY, "cubemap/small/cubemap1_top.png");
-            cubemap.SetData(CubeMapFace.NegativeY, "cubemap/small/cubemap1_bottom.png");
+            cubemap = new TextureCubemap(graphicsDevice, 800);
+            cubemap.SetData(CubeMapFace.PositiveX, "cubemap/cubemap1_front.png");
+            cubemap.SetData(CubeMapFace.NegativeX, "cubemap/cubemap1_back.png");
+            cubemap.SetData(CubeMapFace.NegativeZ, "cubemap/cubemap1_left.png");
+            cubemap.SetData(CubeMapFace.PositiveZ, "cubemap/cubemap1_right.png");
+            cubemap.SetData(CubeMapFace.PositiveY, "cubemap/cubemap1_top.png");
+            cubemap.SetData(CubeMapFace.NegativeY, "cubemap/cubemap1_bottom.png");
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
         }
@@ -180,8 +180,9 @@ namespace TrippyTesting.Tests
             Matrix4 mat = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             program.Uniforms["View"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["View"].SetValueMat4(ref mat);
+            cubemapProgram.Uniforms["time"].SetValue1(time);
 
-            graphicsDevice.BindVertexArray(cubemapBuffer.VertexArray);
+            graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
             cubemapProgram.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
@@ -190,6 +191,16 @@ namespace TrippyTesting.Tests
             batcher.AddLine(new VertexColor(new Vector3(cameraPos.X - 100, 0, 0), new Color4b(255, 0, 0, 255)), new VertexColor(new Vector3(cameraPos.X + 100, 0, 0), new Color4b(255, 0, 0, 255)));
             batcher.AddLine(new VertexColor(new Vector3(0, cameraPos.Y - 100, 0), new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, cameraPos.Y + 100, 0), new Color4b(0, 255, 0, 255)));
             batcher.AddLine(new VertexColor(new Vector3(0, 0, cameraPos.Z - 100), new Color4b(0, 0, 255, 255)), new VertexColor(new Vector3(0, 0, cameraPos.Z + 100), new Color4b(0, 0, 255, 255)));
+
+            Vector3 linecent = new Vector3((int)cameraPos.X, 0, (int)cameraPos.Z);
+            for (int i = -15; i <= 15; i++)
+            {
+                const byte col = 64;
+                if (i + linecent.Z != 0)
+                    batcher.AddLine(new VertexColor(new Vector3(-100, 0, i) + linecent, new Color4b(col, 0, 0, 255)), new VertexColor(new Vector3(100, 0, i) + linecent, new Color4b(col, 0, 0, 255)));
+                if (i + linecent.X != 0)
+                    batcher.AddLine(new VertexColor(new Vector3(i, 0, -100) + linecent, new Color4b(0, 0, col, 255)), new VertexColor(new Vector3(i, 0, 100) + linecent, new Color4b(0, 0, col, 255)));
+            }
 
             Vector3 forward = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
             Vector3 center = cameraPos + forward * (Math.Max(ms.Scroll.Y, 0f) * 0.1f + 1f);
@@ -289,14 +300,14 @@ namespace TrippyTesting.Tests
             if (batcher.TriangleVertexCount > triangleBuffer.StorageLength)
                 triangleBuffer.RecreateStorage(batcher.TriangleVertexCapacity);
             batcher.WriteTrianglesTo(triangleBuffer.BufferSubset);
-            graphicsDevice.BindVertexArray(triangleBuffer.VertexArray);
+            graphicsDevice.VertexArray = triangleBuffer.VertexArray;
             GL.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
             batcher.ClearTriangles();
 
             if (batcher.LineVertexCount > lineBuffer.StorageLength)
                 lineBuffer.RecreateStorage(batcher.LineVertexCapacity);
             batcher.WriteLinesTo(lineBuffer.BufferSubset);
-            graphicsDevice.BindVertexArray(lineBuffer.VertexArray);
+            graphicsDevice.VertexArray = lineBuffer.VertexArray;
             GL.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
             batcher.ClearLines();
 
@@ -309,7 +320,7 @@ namespace TrippyTesting.Tests
 
             float wid = this.Width / (float)this.Height;
             wid *= 0.5f;
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 10f);
+            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
             program.Uniforms["Projection"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["Projection"].SetValueMat4(ref mat);
         }

@@ -147,12 +147,12 @@ namespace TrippyTesting
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            graphicsDevice.BindVertexArray(vertexbuffer.VertexArray);
+            graphicsDevice.VertexArray = vertexbuffer.VertexArray;
             program.Uniforms["samp"].SetValueTexture(whitepx);
             program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexbuffer.StorageLength);
 
-            graphicsDevice.BindVertexArray(array);
+            graphicsDevice.VertexArray = array;
             program.Uniforms["samp"].SetValueTexture(texture);
             program.EnsurePreDrawStates();
             GL.DrawElements(PrimitiveType.TriangleStrip, 3, indexsubset.ElementType, indexsubset.StorageOffsetInBytes);

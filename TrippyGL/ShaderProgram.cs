@@ -36,7 +36,7 @@ namespace TrippyGL
         public bool IsLinked { get; private set; } = false;
 
         /// <summary>Whether this ShaderProgram is the one currently in use</summary>
-        public bool IsCurrentlyInUse { get { return GraphicsDevice.IsShaderProgramInUse(this); } }
+        public bool IsCurrentlyInUse { get { return GraphicsDevice.ShaderProgram == this; } }
 
         /// <summary>Whether this ShaderProgram has a vertex shader attached</summary>
         public bool HasVertexShader { get { return vsHandle != -1; } }
@@ -377,7 +377,7 @@ namespace TrippyGL
         /// </summary>
         internal void EnsureInUse()
         {
-            GraphicsDevice.UseShaderProgram(this);
+            GraphicsDevice.ShaderProgram = this;
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace TrippyGL
         /// </summary>
         public void EnsurePreDrawStates()
         {
-            GraphicsDevice.UseShaderProgram(this);
+            GraphicsDevice.ShaderProgram = this;
             Uniforms.EnsureSamplerUniformsSet();
             BlockUniforms.EnsureAllSet();
         }

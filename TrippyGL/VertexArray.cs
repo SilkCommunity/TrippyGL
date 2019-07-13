@@ -87,7 +87,7 @@ namespace TrippyGL
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         private void MakeVertexAttribPointerCalls(bool compensateStructPadding, int paddingPackValue = 4)
         {
-            GraphicsDevice.BindVertexArray(this);
+            GraphicsDevice.VertexArray = this;
 
             AttribCallDesc[] calls = new AttribCallDesc[AttribSources.Length];
 

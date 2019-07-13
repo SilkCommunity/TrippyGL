@@ -31,8 +31,8 @@ namespace TrippyGL
             InitGLGetVariables();
 
             InitBufferObjectStates();
-            vertexArrayBinding = 0;
-            shaderProgramBinding = 0;
+            ForceBindVertexArray(null);
+            ForceUseShaderProgram(null);
             InitTextureStates();
             framebufferDrawHandle = 0;
             framebufferReadHandle = 0;
@@ -293,7 +293,7 @@ namespace TrippyGL
         internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
         {
             if (bufferSubset.BufferTarget == BufferTarget.ElementArrayBuffer)
-                UnbindVertexArray(); //This is because if a vertex array is bound when a glBindBuffer with GL_ELEMENT_ARRAY_BUFFER occurs, the VAO stores that index buffer.
+                VertexArray = null; //This is because if a vertex array is bound when a glBindBuffer with GL_ELEMENT_ARRAY_BUFFER occurs, the VAO stores that index buffer.
 
             GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
             bufferBindings[bufferSubset.bufferTargetBindingIndex] = bufferSubset.BufferHandle;
@@ -411,27 +411,30 @@ namespace TrippyGL
 
         #region VertexArrayBindingStates
 
-        /// <summary>The currently bound VertexArray's handle</summary>
-        private int vertexArrayBinding;
+        private VertexArray vertexArray;
 
-        /// <summary>
-        /// Ensures a vertex array is bound by binding it if it's not
-        /// </summary>
-        /// <param name="array">The array to ensure is bound. This value is assumed not to be null</param>
-        public void BindVertexArray(VertexArray array)
+        /// <summary>Gets or sets (binds) the currently bound VertexArray</summary>
+        public VertexArray VertexArray
         {
-            if (vertexArrayBinding != array.Handle)
-                ForceBindVertexArray(array);
+            get { return vertexArray; }
+            set
+            {
+                if(vertexArray != value)
+                {
+                    GL.BindVertexArray(value == null ? 0 : value.Handle);
+                    vertexArray = value;
+                }
+            }
         }
 
         /// <summary>
         /// Binds a vertex array without first checking whether it's already bound
         /// </summary>
-        /// <param name="array">The array to ensure is bound. This value is assumed not to be null</param>
+        /// <param name="array">The array to bind</param>
         internal void ForceBindVertexArray(VertexArray array)
         {
-            GL.BindVertexArray(array.Handle);
-            vertexArrayBinding = array.Handle;
+            GL.BindVertexArray(array == null ? 0 : array.Handle);
+            vertexArray = array;
         }
 
         /// <summary>
@@ -440,19 +443,8 @@ namespace TrippyGL
         /// </summary>
         public void ResetVertexArrayStates()
         {
-            vertexArrayBinding = 0;
-        }
-
-        /// <summary>
-        /// Unbinds the currently active vertex array by binding to array 0
-        /// </summary>
-        public void UnbindVertexArray()
-        {
-            if (vertexArrayBinding != 0)
-            {
-                GL.BindVertexArray(0);
-                vertexArrayBinding = 0;
-            }
+            GL.BindVertexArray(0);
+            vertexArray = null;
         }
 
         #endregion VertexArrayBindingStates
@@ -460,44 +452,30 @@ namespace TrippyGL
         #region ShaderProgramBindingStates
 
         /// <summary>The currently bound ShaderProgram's handle</summary>
-        private int shaderProgramBinding;
+        private ShaderProgram shaderProgram;
 
-        /// <summary>
-        /// Returns whether the given shader program is the one currently in use
-        /// </summary>
-        /// <param name="program">The program to check, This value is assumed to not be null</param>
-        public bool IsShaderProgramInUse(ShaderProgram program)
+        /// <summary>Gets or sets (binds) the currently bound ShaderProgram</summary>
+        public ShaderProgram ShaderProgram
         {
-            return shaderProgramBinding == program.Handle;
-        }
-
-        /// <summary>
-        /// Ensures the given ShaderProgram is the one currently in use
-        /// </summary>
-        /// <param name="program">The shader program to use. This value is assumed not to be null</param>
-        public void UseShaderProgram(ShaderProgram program)
-        {
-            if (shaderProgramBinding != program.Handle)
-                ForceUseShaderProgram(program);
+            get { return shaderProgram; }
+            set
+            {
+                if(shaderProgram != value)
+                {
+                    GL.UseProgram(value == null ? 0 : value.Handle);
+                    shaderProgram = value;
+                }
+            }
         }
 
         /// <summary>
         /// Installs the given program into the rendering pipeline without first checking whether it's already in use
         /// </summary>
-        /// <param name="program">The shader program to use. This value is assumed not to be null</param>
+        /// <param name="program">The shader program to use</param>
         public void ForceUseShaderProgram(ShaderProgram program)
         {
-            GL.UseProgram(program.Handle);
-            shaderProgramBinding = program.Handle;
-        }
-
-        /// <summary>
-        /// Uninstalls the current shader program from the pipeline by using program 0
-        /// </summary>
-        public void UninstallCurrentShaderProgram()
-        {
-            GL.UseProgram(0);
-            shaderProgramBinding = 0;
+            GL.UseProgram(program == null ? 0 : program.Handle);
+            shaderProgram = program;
         }
 
         /// <summary>
@@ -506,7 +484,8 @@ namespace TrippyGL
         /// </summary>
         public void ResetShaderProgramStates()
         {
-            shaderProgramBinding = 0;
+            GL.UseProgram(0);
+            shaderProgram = null;
         }
 
         #endregion ShaderProgramBindingStates

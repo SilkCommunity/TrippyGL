@@ -87,7 +87,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.DepthTestingEnabled = false;
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            graphicsDevice.BindVertexArray(buffer.VertexArray);
+            graphicsDevice.VertexArray = buffer.VertexArray;
             program.EnsurePreDrawStates();
             GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 

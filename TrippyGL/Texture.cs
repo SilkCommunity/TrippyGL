@@ -75,8 +75,9 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
 
-        //THIS FUNCTION SHOULD BE PASSED ON TO THE FUTURE TEXTURE3D CLASS
-
+        /// <summary>
+        /// Generates mipmaps for this texture
+        /// </summary>
         public void GenerateMipmaps()
         {
             if (isNotMipmappable)
