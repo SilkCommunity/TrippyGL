@@ -63,7 +63,7 @@ namespace TrippyGL
             Width = width;
             Height = height;
             Samples = samples;
-            graphicsDevice.ForceBindRenderbuffer(Handle);
+            graphicsDevice.ForceBindRenderbuffer(this);
             GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Samples, (RenderbufferStorage)format, Width, Height);
         }
 

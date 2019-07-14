@@ -23,6 +23,12 @@ namespace TrippyTesting.Tests
         ShaderProgram cubemapProgram;
         VertexBuffer<VertexPosition> cubemapBuffer;
 
+        VertexBuffer<VertexColorTexture> texBuffer;
+        ShaderProgram texProgram;
+
+        FramebufferObject fbo1, fbo2;
+        Texture2D tex1, tex2;
+
         GraphicsDevice graphicsDevice;
 
         bool isMouseDown;
@@ -78,6 +84,7 @@ namespace TrippyTesting.Tests
             cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
             cubemapProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
             cubemapProgram.LinkProgram();
+            
             cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, new VertexPosition[]{
                 new VertexPosition(new Vector3(-0.5f,-0.5f,-0.5f)),//4
                 new VertexPosition(new Vector3(-0.5f,-0.5f,0.5f)),//3
@@ -104,6 +111,28 @@ namespace TrippyTesting.Tests
             cubemap.SetData(CubeMapFace.NegativeY, "cubemap/cubemap1_bottom.png");
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
+
+            texProgram = new ShaderProgram(graphicsDevice);
+            texProgram.AddVertexShader(File.ReadAllText("3dbatcher/simplevs.glsl"));
+            texProgram.AddFragmentShader(File.ReadAllText("3dbatcher/simplefs.glsl"));
+            texProgram.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            texProgram.LinkProgram();
+            id = Matrix4.Identity;
+            texProgram.Uniforms["World"].SetValueMat4(ref id);
+
+            texBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, new VertexColorTexture[] {
+                new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 0)),
+                new VertexColorTexture(new Vector3(-0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 1)),
+                new VertexColorTexture(new Vector3(0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
+                new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 1)),
+            }, BufferUsageHint.StaticDraw);
+
+            tex1 = null;
+            tex2 = null;
+            fbo1 = FramebufferObject.Create2D(ref tex1, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
+            fbo2 = FramebufferObject.Create2D(ref tex2, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
+            tex1.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            tex2.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -174,12 +203,14 @@ namespace TrippyTesting.Tests
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.ClearColor = Color4.Black;
             graphicsDevice.TextureCubemapSeamlessEnabled = true;
+            graphicsDevice.DrawFramebuffer = fbo1;
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Matrix4 mat = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             program.Uniforms["View"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["View"].SetValueMat4(ref mat);
+            texProgram.Uniforms["View"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["time"].SetValue1(time);
 
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
@@ -299,17 +330,34 @@ namespace TrippyTesting.Tests
             program.EnsurePreDrawStates();
             if (batcher.TriangleVertexCount > triangleBuffer.StorageLength)
                 triangleBuffer.RecreateStorage(batcher.TriangleVertexCapacity);
-            batcher.WriteTrianglesTo(triangleBuffer.BufferSubset);
+            batcher.WriteTrianglesTo(triangleBuffer.DataSubset);
             graphicsDevice.VertexArray = triangleBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, batcher.TriangleVertexCount);
             batcher.ClearTriangles();
 
             if (batcher.LineVertexCount > lineBuffer.StorageLength)
                 lineBuffer.RecreateStorage(batcher.LineVertexCapacity);
-            batcher.WriteLinesTo(lineBuffer.BufferSubset);
+            batcher.WriteLinesTo(lineBuffer.DataSubset);
             graphicsDevice.VertexArray = lineBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
             batcher.ClearLines();
+
+            float ratio = (float)this.Width / (float)this.Height;
+            mat = Matrix4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4.CreateTranslation(2.5f, 2, 12);
+            texProgram.Uniforms["World"].SetValueMat4(ref mat);
+            texProgram.Uniforms["samp"].SetValueTexture(tex2);
+            texProgram.EnsurePreDrawStates();
+            graphicsDevice.VertexArray = texBuffer.VertexArray;
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+
+            graphicsDevice.BlitFramebuffer(fbo1, null, new Rectangle(0, 0, this.Width, this.Height), new Rectangle(0, 0, this.Width, this.Height), ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+
+            FramebufferObject fbotmp = fbo1;
+            fbo1 = fbo2;
+            fbo2 = fbotmp;
+            Texture2D textmp = tex1;
+            tex1 = tex2;
+            tex2 = textmp;
 
             SwapBuffers();
         }
@@ -323,6 +371,10 @@ namespace TrippyTesting.Tests
             Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
             program.Uniforms["Projection"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["Projection"].SetValueMat4(ref mat);
+            texProgram.Uniforms["Projection"].SetValueMat4(ref mat);
+
+            FramebufferObject.Resize2D(fbo1, this.Width, this.Height);
+            FramebufferObject.Resize2D(fbo2, this.Width, this.Height);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -348,6 +400,17 @@ namespace TrippyTesting.Tests
             triangleBuffer.Dispose();
             lineBuffer.Dispose();
             program.Dispose();
+
+            cubemap.Dispose();
+            cubemapProgram.Dispose();
+            cubemapBuffer.Dispose();
+
+            texProgram.Dispose();
+            texBuffer.Dispose();
+            fbo1.DisposeAttachments();
+            fbo1.Dispose();
+            fbo2.DisposeAttachments();
+            fbo2.Dispose();
 
             graphicsDevice.Dispose();
         }

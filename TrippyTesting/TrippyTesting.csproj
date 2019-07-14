@@ -69,6 +69,12 @@
     <None Include="3dbatcher\3dvs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="3dbatcher\simplefs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="3dbatcher\simplevs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="cubemap\fs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

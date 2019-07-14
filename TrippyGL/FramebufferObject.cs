@@ -71,7 +71,7 @@ namespace TrippyGL
             if (TrippyUtils.IsFramebufferAttachmentPointColor(attachmentPoint) && !TrippyUtils.IsImageFormatColorRenderable(texture.ImageFormat))
                 throw new InvalidFramebufferAttachmentException("When attaching a texture to a color attachment point, the texture's format must be color-renderable");
 
-            GraphicsDevice.BindFramebuffer(Handle);
+            GraphicsDevice.Framebuffer = this;
             if (texture is Texture1D)
             {
                 GL.FramebufferTexture1D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, texture.TextureType, texture.Handle, 0);
@@ -107,7 +107,7 @@ namespace TrippyGL
             if (TrippyUtils.IsFramebufferAttachmentPointColor(attachmentPoint) && !renderbuffer.IsColorRenderableFormat)
                 throw new InvalidFramebufferAttachmentException("When attaching a renderbuffer to a color attachment point, the renderbuffer's format must be color-renderable");
 
-            GraphicsDevice.BindFramebuffer(Handle);
+            GraphicsDevice.Framebuffer = this;
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, RenderbufferTarget.Renderbuffer, renderbuffer.Handle);
             renderbufferAttachments.Add(new FramebufferRenderbufferAttachment(renderbuffer, attachmentPoint));
         }
@@ -133,7 +133,7 @@ namespace TrippyGL
             for (int i = 0; i < textureAttachments.Count; i++)
                 if (textureAttachments[i].AttachmentPoint == point)
                 {
-                    GraphicsDevice.BindFramebuffer(Handle);
+                    GraphicsDevice.Framebuffer = this;
                     GL.FramebufferTexture(FramebufferTarget.Framebuffer, (FramebufferAttachment)point, 0, 0);
                     attachment = textureAttachments[i];
                     textureAttachments.RemoveAt(i);
@@ -153,7 +153,7 @@ namespace TrippyGL
             for (int i = 0; i < renderbufferAttachments.Count; i++)
                 if (renderbufferAttachments[i].AttachmentPoint == point)
                 {
-                    GraphicsDevice.BindFramebuffer(Handle);
+                    GraphicsDevice.Framebuffer = this;
                     GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, (FramebufferAttachment)point, RenderbufferTarget.Renderbuffer, 0);
                     attachment = renderbufferAttachments[i];
                     renderbufferAttachments.RemoveAt(i);
@@ -183,7 +183,7 @@ namespace TrippyGL
         /// </summary>
         public FramebufferErrorCode GetStatus()
         {
-            GraphicsDevice.BindFramebuffer(Handle);
+            GraphicsDevice.Framebuffer = this;
             return GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
         }
 
@@ -301,7 +301,7 @@ namespace TrippyGL
             using (Bitmap b = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
             {
                 BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                GraphicsDevice.BindFramebufferRead(this);
+                GraphicsDevice.ReadFramebuffer = this;
                 GL.ReadPixels(0, 0, Width, Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
                 b.UnlockBits(data);
                 b.RotateFlip(RotateFlipType.RotateNoneFlipY);
@@ -325,11 +325,18 @@ namespace TrippyGL
         /// </summary>
         public void DisposeAttachments()
         {
+            GraphicsDevice.Framebuffer = this;
             for (int i = 0; i < textureAttachments.Count; i++)
+            {
+                GL.FramebufferTexture(FramebufferTarget.Framebuffer, (FramebufferAttachment)textureAttachments[i].AttachmentPoint, 0, 0);
                 textureAttachments[i].Texture.Dispose();
+            }
             textureAttachments.Clear();
             for (int i = 0; i < renderbufferAttachments.Count; i++)
+            {
+                GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, (FramebufferAttachment)renderbufferAttachments[i].AttachmentPoint, RenderbufferTarget.Renderbuffer, 0);
                 renderbufferAttachments[i].Renderbuffer.Dispose();
+            }
             renderbufferAttachments.Clear();
         }
 

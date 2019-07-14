@@ -34,9 +34,9 @@ namespace TrippyGL
             ForceBindVertexArray(null);
             ForceUseShaderProgram(null);
             InitTextureStates();
-            framebufferDrawHandle = 0;
-            framebufferReadHandle = 0;
-            renderbufferHandle = 0;
+            drawFramebuffer = null;
+            readFramebuffer = null;
+            renderbuffer = null;
 
             blendState = BlendState.Opaque;
         }
@@ -56,7 +56,12 @@ namespace TrippyGL
             GL.ClearColor(clearColor);
 
             GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+
             GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
+            if (scissorTestEnabled)
+                GL.Enable(EnableCap.ScissorTest);
+            else
+                GL.Disable(EnableCap.ScissorTest);
 
             if (blendState.IsOpaque)
                 GL.Disable(EnableCap.Blend);
@@ -81,7 +86,7 @@ namespace TrippyGL
             else
                 GL.Disable(EnableCap.CullFace);
             GL.CullFace(cullFaceMode);
-            
+
         }
 
         #region DebugMessaging
@@ -700,194 +705,94 @@ namespace TrippyGL
 
         #region FramebufferBindings
 
-        /// <summary>The handle of the framebuffer currently bound to the draw target</summary>
-        private int framebufferDrawHandle;
+        private FramebufferObject drawFramebuffer;
+        private FramebufferObject readFramebuffer;
+        private RenderbufferObject renderbuffer;
 
-        /// <summary>The handle of the framebuffer currently bound to the read target</summary>
-        private int framebufferReadHandle;
-
-        /// <summary>The handle of the currently bound renderbuffer</summary>
-        private int renderbufferHandle;
-
-        /// <summary>
-        /// Ensures a framebuffer is bound to a specified target
-        /// </summary>
-        /// <param name="target">The framebuffer target</param>
-        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
+        /// <summary>Gets or sets (binds) the framebuffer currently bound for drawing</summary>
+        public FramebufferObject DrawFramebuffer
         {
-            int handle = framebuffer == null ? 0 : framebuffer.Handle;
-            switch (target)
+            get { return drawFramebuffer; }
+            set
             {
-                case FramebufferTarget.DrawFramebuffer:
-                    BindFramebufferDraw(handle);
-                    break;
-                case FramebufferTarget.ReadFramebuffer:
-                    BindFramebufferRead(handle);
-                    break;
-                default:
-                    BindFramebuffer(handle);
-                    break;
+                if (drawFramebuffer != value)
+                {
+                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, value == null ? 0 : value.Handle);
+                    drawFramebuffer = value;
+                }
             }
         }
 
-        /// <summary>
-        /// Binds a framebuffer to a specified target without first checking whether it's already bound.
-        /// </summary>
-        /// <param name="target">The framebuffer target</param>
-        /// <param name="framebuffer">The framebuffer bind</param>
-        internal void ForceBindFramebuffer(FramebufferTarget target, FramebufferObject framebuffer)
+        /// <summary>Gets or sets (binds) the framebuffer currently bound for reading</summary>
+        public FramebufferObject ReadFramebuffer
         {
-            int handle = framebuffer == null ? 0 : framebuffer.Handle;
-            switch (target)
+            get { return readFramebuffer; }
+            set
             {
-                case FramebufferTarget.DrawFramebuffer:
-                    ForceBindFramebufferDraw(handle);
-                    break;
-                case FramebufferTarget.ReadFramebuffer:
-                    ForceBindFramebufferRead(handle);
-                    break;
-                default:
-                    ForceBindFramebuffer(handle);
-                    break;
+                if (readFramebuffer != value)
+                {
+                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, value == null ? 0 : value.Handle);
+                    readFramebuffer = value;
+                }
             }
         }
 
-        /// <summary>
-        /// Ensures a framebuffer is bound to the draw and read targets
-        /// </summary>
-        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebuffer(FramebufferObject framebuffer)
+        /// <summary>Sets (binds) a framebuffer for both drawing and reading</summary>
+        public FramebufferObject Framebuffer
         {
-            BindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
+            set
+            {
+                if (readFramebuffer != value || drawFramebuffer != value)
+                {
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, value == null ? 0 : value.Handle);
+                    drawFramebuffer = value;
+                    readFramebuffer = value;
+                }
+            }
         }
 
+        /// <summary>Gets or sets (binds) the current renderbuffer</summary>
+        public RenderbufferObject Renderbuffer
+        {
+            get { return renderbuffer; }
+            set
+            {
+                if(renderbuffer != value)
+                {
+                    GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, value == null ? 0 : value.Handle);
+                    renderbuffer = value;
+                }
+            }
+        }
+        
         /// <summary>
-        /// Binds a framebuffer to both draw and read targets without first checking whether it's already bound
+        /// Binds a framebuffer for drawing without first checking whether it's already bound
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        internal void ForceBindFramebuffer(FramebufferObject framebuffer)
+        internal void ForceBindDrawFramebuffer(FramebufferObject framebuffer)
         {
-            ForceBindFramebuffer(framebuffer == null ? 0 : framebuffer.Handle);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
+            drawFramebuffer = framebuffer;
         }
 
         /// <summary>
-        /// Ensures a framebuffer is bound to the draw target
-        /// </summary>
-        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebufferDraw(FramebufferObject framebuffer)
-        {
-            BindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to the draw target without first checking whether it's already bound
+        /// Binds a framebuffer for reading without first checking whether it's already bound
         /// </summary>
         /// <param name="framebuffer">The framebuffer to bind</param>
-        public void ForceBindFramebufferDraw(FramebufferObject framebuffer)
+        internal void ForceBindReadFramebuffer(FramebufferObject framebuffer)
         {
-            ForceBindFramebufferDraw(framebuffer == null ? 0 : framebuffer.Handle);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
+            readFramebuffer = framebuffer;
         }
 
         /// <summary>
-        /// Ensures a framebuffer is bound to the read target
+        /// Binds a renderbuffer without first checking whether it's already bound
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to ensure is bound</param>
-        public void BindFramebufferRead(FramebufferObject framebuffer)
+        /// <param name="renderbuffer">The renderbuffer to bind</param>
+        internal void ForceBindRenderbuffer(RenderbufferObject renderbuffer)
         {
-            BindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to the read target without first checking whether it's already bound
-        /// </summary>
-        /// <param name="framebuffer">The framebuffer to bind</param>
-        public void ForceBindFramebufferRead(FramebufferObject framebuffer)
-        {
-            ForceBindFramebufferRead(framebuffer == null ? 0 : framebuffer.Handle);
-        }
-
-        /// <summary>
-        /// Ensures a framebuffer is bound to the draw and read targets
-        /// </summary>
-        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        internal void BindFramebuffer(int handle)
-        {
-            if (framebufferDrawHandle != handle || framebufferReadHandle != handle)
-                ForceBindFramebuffer(handle);
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to both draw and read targets without first checking whether it's already bound
-        /// </summary>
-        /// <param name="target">The framebuffer target</param>
-        /// <param name="handle">The framebuffer's handle bind</param>
-        internal void ForceBindFramebuffer(int handle)
-        {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, handle);
-            framebufferDrawHandle = handle;
-            framebufferReadHandle = handle;
-        }
-
-        /// <summary>
-        /// Ensures a framebuffer is bound to the draw target
-        /// </summary>
-        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        internal void BindFramebufferDraw(int handle)
-        {
-            if (framebufferDrawHandle != handle)
-                ForceBindFramebufferDraw(handle);
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to the draw target without first checking whether it's already bound
-        /// </summary>
-        /// <param name="handle">The framebuffer's handle bind</param>
-        internal void ForceBindFramebufferDraw(int handle)
-        {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, handle);
-            framebufferDrawHandle = handle;
-        }
-
-        /// <summary>
-        /// Ensures a framebuffer is bound to the read target
-        /// </summary>
-        /// <param name="handle">The framebuffer.s handle to ensure is bound</param>
-        internal void BindFramebufferRead(int handle)
-        {
-            if (framebufferReadHandle != handle)
-                ForceBindFramebufferRead(handle);
-        }
-
-        /// <summary>
-        /// Binds a framebuffer to the read target without first checking whether it's already bound
-        /// </summary>
-        /// <param name="handle">The framebuffer's handle bind</param>
-        internal void ForceBindFramebufferRead(int handle)
-        {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, handle);
-            framebufferReadHandle = handle;
-        }
-
-
-        /// <summary>
-        /// Ensures a renderbuffer's handle is the currently bound renderbuffer
-        /// </summary>
-        /// <param name="handle">The renderbuffer's handle to ensure is bound</param>
-        internal void BindRenderbuffer(int handle)
-        {
-            if (renderbufferHandle != handle)
-                ForceBindRenderbuffer(handle);
-        }
-
-        /// <summary>
-        /// Binds a renderbuffer's handle to GL_RENDERBUFFER without first checking whether it's already bound
-        /// </summary>
-        /// <param name="handle">The renderbuffer's handle to bind</param>
-        internal void ForceBindRenderbuffer(int handle)
-        {
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
-            renderbufferHandle = handle;
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbuffer.Handle);
+            this.renderbuffer = renderbuffer;
         }
 
         /// <summary>
@@ -897,9 +802,10 @@ namespace TrippyGL
         public void ResetFramebufferStates()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            framebufferDrawHandle = 0;
-            framebufferReadHandle = 0;
-            renderbufferHandle = 0;
+            drawFramebuffer = null;
+            readFramebuffer = null;
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            renderbuffer = null;
         }
 
         #endregion
@@ -981,8 +887,8 @@ namespace TrippyGL
             {
                 if (value != viewport)
                 {
+                    GL.Viewport(value.X, value.Y, value.Width, value.Height);
                     viewport = value;
-                    GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
                 }
             }
         }
@@ -1310,16 +1216,16 @@ namespace TrippyGL
         #region DrawingFunctions
 
         /// <summary>
-        /// 
+        /// Clears the current framebuffer to the specified color
         /// </summary>
-        /// <param name="mask">The mask indicating the values to clear, using bitwise OR</param>
+        /// <param name="mask">The masks indicating the values to clear, combined using bitwise OR</param>
         public void Clear(ClearBufferMask mask)
         {
             GL.Clear(mask);
         }
 
         /// <summary>
-        /// 
+        /// Renders primitive data
         /// </summary>
         /// <param name="primitiveType">The type of primitive to render</param>
         /// <param name="startIndex">The index of the first vertex to render</param>
@@ -1330,7 +1236,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// 
+        /// Renders indexed primitive data
         /// </summary>
         /// <param name="type">The type of primitive to render</param>
         /// <param name="startIndex">The index of the first element to render</param>
@@ -1427,8 +1333,8 @@ namespace TrippyGL
 
             // Holy unbelievable fuck those were A LOT of checks for a godfucken blit
 
-            BindFramebufferRead(src);
-            BindFramebufferDraw(dst);
+            ReadFramebuffer = src;
+            DrawFramebuffer = dst;
             GL.BlitFramebuffer(srcX, srcY, srcWidth, srcHeight, dstX, dstY, dstWidth, dstHeight, mask, filter);
         }
 
@@ -1474,7 +1380,7 @@ namespace TrippyGL
         {
             if (!IsDisposed)
             {
-                DebugMessagingEnabled = false;
+                DebugMessagingEnabled = false; // this makes sure any GCHandle or unmanaged stuff gets released
                 IsDisposed = true;
                 Context.Dispose();
                 //TODO: dispose the GraphicResource-s. This is gonna need a list somewhere and it might be a bit ugly

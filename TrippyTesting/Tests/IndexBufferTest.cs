@@ -61,7 +61,7 @@ namespace TrippyTesting.Tests
             VertexColor[] vertexData = new VertexColor[w * h];
             for (int y = 0; y < h; y++)
                 for (int x = 0; x < w; x++)
-                    vertexData[x + y * w] = new VertexColor(new Vector3((float)x / (float)w * 2f - 1 + randomf(-0.2f, 0.2f), (float)y / (float)h * 2f - 1 + randomf(-0.2f, 0.2f), 0), randomCol());
+                    vertexData[x + y * w] = new VertexColor(new Vector3((float)x / (float)w * 2f - 1 + randomf(-0.2f, 0.2f), (float)y / (float)h * 2f - 1 + randomf(-0.1f, 0.1f), 0), randomCol());
 
             bufferObject = new BufferObject(graphicsDevice, VertexColor.SizeInBytes * vertexData.Length + 128, BufferUsageHint.DynamicDraw);
             vertexSubset = new VertexDataBufferSubset<VertexColor>(bufferObject, vertexData, 0, 0, vertexData.Length);

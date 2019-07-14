@@ -16,7 +16,7 @@ namespace TrippyGL
         public readonly BufferObject Buffer;
 
         /// <summary>The subset that manages all of Buffer's storage</summary>
-        public readonly VertexDataBufferSubset<T> BufferSubset;
+        public readonly VertexDataBufferSubset<T> DataSubset;
 
         /// <summary>The VertexArray that defines how the vertex attributes are read</summary>
         public readonly VertexArray VertexArray;
@@ -38,12 +38,13 @@ namespace TrippyGL
         public VertexBuffer(GraphicsDevice graphicsDevice, T[] data, int dataOffset, int storageLength, BufferUsageHint usageHint)
         {
             ValidateStorageLength(storageLength);
+            StorageLength = storageLength;
             ElementSize = Marshal.SizeOf<T>();
 
             Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
-            BufferSubset = new VertexDataBufferSubset<T>(Buffer);
-            BufferSubset.SetData(data, dataOffset, 0, data.Length);
-            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, BufferSubset);
+            DataSubset = new VertexDataBufferSubset<T>(Buffer);
+            DataSubset.SetData(data, dataOffset, 0, data.Length);
+            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
         }
 
         /// <summary>
@@ -53,16 +54,9 @@ namespace TrippyGL
         /// <param name="data">An array containing the initial buffer data</param>
         /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, T[] data, BufferUsageHint usageHint)
+            : this(graphicsDevice, data, 0, data.Length, usageHint)
         {
-            if (data.Length == 0)
-                throw new ArgumentException("The data array must have a length greater than 0", "data");
-            ElementSize = Marshal.SizeOf<T>();
 
-            StorageLength = data.Length;
-            Buffer = new BufferObject(graphicsDevice, data.Length * ElementSize, usageHint);
-            BufferSubset = new VertexDataBufferSubset<T>(Buffer);
-            BufferSubset.SetData(data);
-            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, BufferSubset);
         }
 
         /// <summary>
@@ -78,8 +72,8 @@ namespace TrippyGL
 
             StorageLength = storageLength;
             Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
-            BufferSubset = new VertexDataBufferSubset<T>(Buffer);
-            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, BufferSubset);
+            DataSubset = new VertexDataBufferSubset<T>(Buffer);
+            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
         }
 
         /// <summary>
@@ -89,18 +83,18 @@ namespace TrippyGL
         /// <param name="dataOffset">The offset into the data array to start reading values from</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to</param>
         /// <param name="elementCount">The amount of elements to set</param>
-        public void SetData(T[] data, int dataOffset, int storageOffset, int elementCount)
+        public void SetVertexData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
-            BufferSubset.SetData(data, dataOffset, storageOffset, elementCount);
+            DataSubset.SetData(data, dataOffset, storageOffset, elementCount);
         }
 
         /// <summary>
         /// Sets the data of this VertexBuffer's storage
         /// </summary>
         /// <param name="data">The array containing the data to set</param>
-        public void SetData(T[] data)
+        public void SetVertexData(T[] data)
         {
-            BufferSubset.SetData(data);
+            DataSubset.SetData(data);
         }
 
         /// <summary>
@@ -110,18 +104,18 @@ namespace TrippyGL
         /// <param name="dataOffset">The offset into the data array to start writing values to</param>
         /// <param name="storageOffset">The offset into the subset's storage to start reading from</param>
         /// <param name="elementCount">The amount of elements to get</param>
-        public void GetData(T[] data, int dataOffset, int storageOffset, int elementCount)
+        public void GetVertexData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
-            BufferSubset.GetData(data, dataOffset, storageOffset, elementCount);
+            DataSubset.GetData(data, dataOffset, storageOffset, elementCount);
         }
 
         /// <summary>
         /// Gets the data of this VertexBuffer's storage
         /// </summary>
         /// <param name="data">The array to which the returned data will be written to</param>
-        public void GetData(T[] data)
+        public void GetVertexData(T[] data)
         {
-            BufferSubset.GetData(data);
+            DataSubset.GetData(data);
         }
         
         /// <summary>
@@ -133,7 +127,7 @@ namespace TrippyGL
             ValidateStorageLength(storageLength);
 
             Buffer.RecreateStorage(storageLength * ElementSize);
-            BufferSubset.ResizeSubset(0, storageLength);
+            DataSubset.ResizeSubset(0, storageLength);
             this.StorageLength = storageLength;
         }
 
@@ -147,7 +141,7 @@ namespace TrippyGL
             ValidateStorageLength(storageLength);
 
             Buffer.RecreateStorage(storageLength * ElementSize, usageHint);
-            BufferSubset.ResizeSubset(0, storageLength);
+            DataSubset.ResizeSubset(0, storageLength);
             this.StorageLength = storageLength;
         }
 
