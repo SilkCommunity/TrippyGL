@@ -212,6 +212,48 @@ namespace TrippyGL
         {
             return Marshal.SizeOf<T>() * storageLength;
         }
+
+        /// <summary>
+        /// Copies data from a source buffer to a destination buffer
+        /// </summary>
+        /// <param name="source">The buffer to copy data from</param>
+        /// <param name="sourceOffset">The index of the first element to copy from the source buffer</param>
+        /// <param name="dest">The buffer to write data to</param>
+        /// <param name="destOffset">The index of of the first element to write on the dest buffer</param>
+        /// <param name="dataCount">The amount of elements to copy</param>
+        public static void CopyBuffers(DataBufferSubset<T> source, int sourceOffset, DataBufferSubset<T> dest, int destOffset, int dataCount)
+        {
+            GraphicsDevice g = source.Buffer.GraphicsDevice;
+            if (g != dest.Buffer.GraphicsDevice)
+                throw new InvalidOperationException("You can't copy data between buffers from different GraphicsDevice-s");
+
+            if (sourceOffset < 0 || sourceOffset > source.StorageLength)
+                throw new ArgumentOutOfRangeException("sourceOffset", sourceOffset, "sourceOffset must be in the range [0, source.StorageLength)");
+
+            if (destOffset < 0 || destOffset > dest.StorageLength)
+                throw new ArgumentOutOfRangeException("destOffset", destOffset, "destOffset must be in the range [0, dest.StorageLength)");
+
+            if (sourceOffset + dataCount > source.StorageLength)
+                throw new BufferCopyException("There isn't enough data in the source buffer to copy dataCount elements");
+
+            if (destOffset + dataCount > dest.StorageLength)
+                throw new BufferCopyException("There isn't enough data in the dest buffer to copy dataCount elements");
+
+            g.CopyReadBuffer = source.Buffer;
+            g.CopyWriteBuffer = dest.Buffer;
+            int elementSize = source.ElementSize;
+            GL.CopyBufferSubData(BufferTarget.CopyReadBuffer, BufferTarget.CopyWriteBuffer, (IntPtr)(source.StorageOffsetInBytes + sourceOffset * elementSize), (IntPtr)(dest.StorageOffsetInBytes + destOffset * elementSize), dataCount * elementSize);
+        }
+
+        /// <summary>
+        /// Copies all the data from a source buffer to a destination buffer
+        /// </summary>
+        /// <param name="source">The buffer to copy data from</param>
+        /// <param name="dest">The buffer to write data to</param>
+        public static void CopyBuffers(DataBufferSubset<T> source, DataBufferSubset<T> dest)
+        {
+            CopyBuffers(source, 0, dest, 0, source.StorageLength);
+        }
     }
 
     /// <summary>
@@ -219,6 +261,7 @@ namespace TrippyGL
     /// </summary>
     internal interface IDataBufferSubset
     {
+        int StorageLength { get; }
         int ElementSize { get; }
     }
 }

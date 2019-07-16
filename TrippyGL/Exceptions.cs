@@ -51,4 +51,15 @@ namespace TrippyGL
 
         }
     }
+
+    /// <summary>
+    /// An exception thrown when a buffer copy operation fails
+    /// </summary>
+    public class BufferCopyException : Exception
+    {
+        public BufferCopyException(string message) : base(message)
+        {
+
+        }
+    }
 }
