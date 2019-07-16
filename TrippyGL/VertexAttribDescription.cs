@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL

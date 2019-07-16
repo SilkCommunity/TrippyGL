@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
@@ -12,16 +11,16 @@ namespace TrippyGL
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexPosition : IVertex
     {
-        /// <summary>The size of each VertexPosition, measured in bytes</summary>
+        /// <summary>The size of a VertexPosition measured in bytes</summary>
         public const int SizeInBytes = 3 * 4;
 
-        /// <summary>The vertex's Position</summary>
+        /// <summary>The vertex's position</summary>
         public Vector3 Position;
 
         /// <summary>
         /// Creates a VertexPosition with the specified position
         /// </summary>
-        /// <param name="position">The vertex Position</param>
+        /// <param name="position">The vertex position</param>
         public VertexPosition(Vector3 position)
         {
             Position = position;

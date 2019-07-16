@@ -1,6 +1,4 @@
 ﻿using System;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL

@@ -1,8 +1,4 @@
-﻿using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-
-namespace TrippyGL
+﻿namespace TrippyGL
 {
     /// <summary>
     /// Provides some general help math-related functions and values

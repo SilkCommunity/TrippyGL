@@ -12,24 +12,24 @@ namespace TrippyGL
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexColorTexture : IVertex
     {
-        /// <summary>The size of each VertexColorTexture, measured in bytes</summary>
+        /// <summary>The size of a VertexColorTexture measured in bytes</summary>
         public const int SizeInBytes = (3 + 1 + 2) * 4;
 
-        /// <summary>The vertex's Position</summary>
+        /// <summary>The vertex's position</summary>
         public Vector3 Position;
         
-        /// <summary>The vertex's Color</summary>
+        /// <summary>The vertex's color</summary>
         public Color4b Color;
 
-        /// <summary>The vertex's TexCoords</summary>
+        /// <summary>The vertex's texture coordinates</summary>
         public Vector2 TexCoords;
 
         /// <summary>
         /// Creates a VertexColorTexture with the specified position, color and texture coordinates
         /// </summary>
-        /// <param name="position">The vertex Position</param>
-        /// <param name="color">The vertex Color</param>
-        /// <param name="texCoords">The vertex TexCoords</param>
+        /// <param name="position">The vertex position</param>
+        /// <param name="color">The vertex color</param>
+        /// <param name="texCoords">The vertex texture coordinates</param>
         public VertexColorTexture(Vector3 position, Color4b color, Vector2 texCoords)
         {
             Position = position;
@@ -40,8 +40,8 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexColorTexture with the specified position and texture coordinates, and white color
         /// </summary>
-        /// <param name="position">The vertex Position</param>
-        /// <param name="texCoords">The vertex TexCoords</param>
+        /// <param name="position">The vertex position</param>
+        /// <param name="texCoords">The vertex texture coordinates</param>
         public VertexColorTexture(Vector3 position, Vector2 texCoords)
         {
             Position = position;

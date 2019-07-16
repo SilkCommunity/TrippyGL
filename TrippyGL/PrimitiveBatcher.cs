@@ -1,12 +1,4 @@
 ﻿using System;
-using System.IO;
-using OpenTK;
-using OpenTK.Input;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-using System.Drawing;
-using System.Drawing.Imaging;
-using TrippyGL;
 
 namespace TrippyGL
 {
@@ -185,6 +177,26 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Adds a single quad (will be converted to triangles)
+        /// </summary>
+        /// <param name="v1">The first vertex of the quad</param>
+        /// <param name="v2">The second vertex of the quad</param>
+        /// <param name="v3">The third vertex of the quad</param>
+        /// <param name="v4">The fourth vertex of the quad</param>
+        public void AddQuad(T v1, T v2, T v3, T v4)
+        {
+            EnsureTriangleSpace(triangleVertexCount + 6);
+
+            triangles[triangleVertexCount++] = v1;
+            triangles[triangleVertexCount++] = v2;
+            triangles[triangleVertexCount++] = v3;
+
+            triangles[triangleVertexCount++] = v1;
+            triangles[triangleVertexCount++] = v3;
+            triangles[triangleVertexCount++] = v4;
+        }
+
+        /// <summary>
         /// Adds a list of quads (these are converted to triangles)
         /// </summary>
         /// <param name="vertex">The quads, as vertices</param>
@@ -201,7 +213,7 @@ namespace TrippyGL
                 triangles[triangleVertexCount++] = vertex[i + 1];
                 triangles[triangleVertexCount++] = vertex[i + 2];
 
-                triangles[triangleVertexCount++] = vertex[i + 0];
+                triangles[triangleVertexCount++] = vertex[i];
                 triangles[triangleVertexCount++] = vertex[i + 2];
                 triangles[triangleVertexCount++] = vertex[i + 3];
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using OpenTK;
-using TrippyGL;
 
 using OpenTK.Graphics.OpenGL4;
 
@@ -12,7 +11,7 @@ namespace TrippyTesting
         {
             Console.WriteLine("Program started");
 
-            using (GameWindow w = new Tests.Test3DBatcher())
+            using (GameWindow w = new Tests.TerrainMaker())
                 w.Run();
 
             Console.WriteLine("Program ended");

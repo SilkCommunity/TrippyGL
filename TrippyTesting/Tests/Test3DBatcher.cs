@@ -193,7 +193,6 @@ namespace TrippyTesting.Tests
                 rotX += (ms.Y - oldMs.Y) * -0.005f;
                 rotX = MathHelper.Clamp(rotX, -1.57f, 1.57f);
                 Mouse.SetPosition(this.Width / 2f + this.X, this.Height / 2f + this.Y);
-
             }
         }
 
@@ -211,7 +210,6 @@ namespace TrippyTesting.Tests
             program.Uniforms["View"].SetValueMat4(ref mat);
             cubemapProgram.Uniforms["View"].SetValueMat4(ref mat);
             texProgram.Uniforms["View"].SetValueMat4(ref mat);
-            cubemapProgram.Uniforms["time"].SetValue1(time);
 
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
@@ -368,10 +366,10 @@ namespace TrippyTesting.Tests
 
             float wid = this.Width / (float)this.Height;
             wid *= 0.5f;
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
-            program.Uniforms["Projection"].SetValueMat4(ref mat);
-            cubemapProgram.Uniforms["Projection"].SetValueMat4(ref mat);
-            texProgram.Uniforms["Projection"].SetValueMat4(ref mat);
+            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
+            program.Uniforms["Projection"].SetValueMat4(ref proj);
+            cubemapProgram.Uniforms["Projection"].SetValueMat4(ref proj);
+            texProgram.Uniforms["Projection"].SetValueMat4(ref proj);
 
             FramebufferObject.Resize2D(fbo1, this.Width, this.Height);
             FramebufferObject.Resize2D(fbo2, this.Width, this.Height);

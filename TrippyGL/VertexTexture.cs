@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
@@ -12,20 +11,20 @@ namespace TrippyGL
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexTexture : IVertex
     {
-        /// <summary>The size of each VertexTexture, measured in bytes</summary>
+        /// <summary>The size of a VertexTexture measured in bytes</summary>
         public const int SizeInBytes = (3 + 2) * 4;
 
-        /// <summary>The vertex's Position</summary>
+        /// <summary>The vertex's position</summary>
         public Vector3 Position;
 
-        /// <summary>The vertex's TexCoords</summary>
+        /// <summary>The vertex's texture coordinates</summary>
         public Vector2 TexCoords;
 
         /// <summary>
         /// Creates a VertexTexture with the specified position and texture coordinates
         /// </summary>
-        /// <param name="position">The vertex Position</param>
-        /// <param name="texCoords">The vertex TexCoords</param>
+        /// <param name="position">The vertex position</param>
+        /// <param name="texCoords">The vertex texture coordinates</param>
         public VertexTexture(Vector3 position, Vector2 texCoords)
         {
             Position = position;

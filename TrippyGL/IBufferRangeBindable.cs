@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TrippyGL
+﻿namespace TrippyGL
 {
     /// <summary>
     /// As of right now the only use of this interface is for ShaderBlockUniform to be able to hold a UniformBufferSubset
