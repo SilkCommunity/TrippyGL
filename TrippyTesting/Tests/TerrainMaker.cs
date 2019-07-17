@@ -230,7 +230,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.Enable(EnableCap.ClipDistance0);
+            graphicsDevice.ClipDistances[0] = true;
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
@@ -238,6 +238,9 @@ namespace TrippyTesting.Tests
             waterProgram.Uniforms["time"].SetValue1(time);
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            Vector3 cameraDir = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
+            Vector3 invertedCameraDir = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(-rotX), (float)Math.Sin(-rotX), (float)Math.Sin(rotY) * (float)Math.Cos(-rotX));
 
             Matrix4 view = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
             Vector3 invertedCameraPos = new Vector3(cameraPos.X, WATER_TOP * 2 - cameraPos.Y, cameraPos.Z);

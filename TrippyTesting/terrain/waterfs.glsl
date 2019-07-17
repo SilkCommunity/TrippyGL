@@ -14,7 +14,7 @@ in vec3 pos;
 
 out vec4 FragColor;
 
-const vec3 sunlightVector = normalize(-vec3(0.823, 0.385, -0.418));
+const vec3 sunlightDirection = normalize(-vec3(0.823, 0.385, -0.418));
 
 void main() {
 	vec2 distort = (texture(distortMap, distortMapCoords).xy * 2.0 - 1.0) * 0.01;
@@ -29,8 +29,8 @@ void main() {
 	vec3 tocam = normalize(cameraPos - pos);
 	FragColor = fColor * mix(reflectionCol, refractionCol, pow(dot(tocam, vec3(0.0, 1.0, 0.0)), 1.2));
 
-	vec3 reflectedLightDirection = reflect(sunlightVector, normal);
-	FragColor += pow(max(0, dot(reflectedLightDirection, tocam)), 10.0) * 0.75;
+	vec3 reflectedLightDirection = reflect(sunlightDirection, normal);
+	FragColor += max(0, pow(dot(reflectedLightDirection, tocam), 10.0) * 0.75);
 
-	//FragColor += clamp(reflectionCol + refractionCol + distort.xyxy + normal.xyzx + time, 0.0, 0.0001);
+	//FragColor += clamp(reflectionCol + refractionCol + distort.xyxy + normal.xyzx + time + cameraPos.xyzx, 0.0, 0.0001);
 }

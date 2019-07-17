@@ -36,6 +36,7 @@ namespace TrippyGL
             drawFramebuffer = null;
             readFramebuffer = null;
             renderbuffer = null;
+            ClipDistances = new ClipDistanceManager(this);
 
             blendState = BlendState.Opaque;
         }
@@ -51,6 +52,7 @@ namespace TrippyGL
             ResetShaderProgramStates();
             ResetTextureStates();
             ResetFramebufferStates();
+            ClipDistances.ResetStates();
 
             GL.ClearColor(clearColor);
 
@@ -160,6 +162,7 @@ namespace TrippyGL
             MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
             MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
             MaxDrawBuffers = GL.GetInteger(GetPName.MaxDrawBuffers);
+            MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -195,6 +198,8 @@ namespace TrippyGL
         public int MaxFramebufferColorAttachments { get; private set; }
 
         public int MaxDrawBuffers { get; private set; }
+
+        public int MaxClipDistances { get; private set; }
 
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
@@ -255,7 +260,7 @@ namespace TrippyGL
             // The way it's done then, is by having the bufferRangeBindings array. The same index used to get
             // the buffer target and generic binding id used to get the BufferRangeBinding array.
             // However, trying to do this with any other target will result in an IndexOutOfRangeException
-            
+
             bufferBindingTargets[transformFeedbackBufferIndex] = BufferTarget.TransformFeedbackBuffer;
             bufferBindingTargets[uniformBufferIndex] = BufferTarget.UniformBuffer;
             bufferBindingTargets[shaderStorageBufferIndex] = BufferTarget.ShaderStorageBuffer;
@@ -331,7 +336,7 @@ namespace TrippyGL
             if (bufferBindings[defaultBufferTargetBindingIndex] != buffer)
                 ForceBindBufferObject(buffer);
         }
-        
+
         /// <summary>
         /// Binds a buffer to the default binding location without first checking whether it's already bound
         /// </summary>
@@ -503,7 +508,7 @@ namespace TrippyGL
             get { return vertexArray; }
             set
             {
-                if(vertexArray != value)
+                if (vertexArray != value)
                 {
                     GL.BindVertexArray(value == null ? 0 : value.Handle);
                     vertexArray = value;
@@ -544,7 +549,7 @@ namespace TrippyGL
             get { return shaderProgram; }
             set
             {
-                if(shaderProgram != value)
+                if (shaderProgram != value)
                 {
                     GL.UseProgram(value == null ? 0 : value.Handle);
                     shaderProgram = value;
@@ -852,14 +857,14 @@ namespace TrippyGL
             get { return renderbuffer; }
             set
             {
-                if(renderbuffer != value)
+                if (renderbuffer != value)
                 {
                     GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, value == null ? 0 : value.Handle);
                     renderbuffer = value;
                 }
             }
         }
-        
+
         /// <summary>
         /// Binds a framebuffer for drawing without first checking whether it's already bound
         /// </summary>
@@ -1200,7 +1205,7 @@ namespace TrippyGL
             get { return depthState.ClearDepth; }
             set
             {
-                if(depthState.ClearDepth != value)
+                if (depthState.ClearDepth != value)
                 {
                     GL.ClearDepth(value);
                     depthState.ClearDepth = value;
@@ -1257,10 +1262,117 @@ namespace TrippyGL
             get { return cullFaceMode; }
             set
             {
-                if(cullFaceMode != value)
+                if (cullFaceMode != value)
                 {
                     GL.CullFace(cullFaceMode);
                     cullFaceMode = value;
+                }
+            }
+        }
+
+        /// <summary>Controls to enable and/or disable clip distances</summary>
+        public ClipDistanceManager ClipDistances { get; private set; }
+
+        /// <summary>
+        /// Manages the enabling or disabling of clip distances
+        /// </summary>
+        public class ClipDistanceManager
+        {
+            private bool[] areEnabled;
+
+            /// <summary>The maximum amount of clip distances you can use</summary>
+            public int Count { get { return areEnabled.Length; } }
+
+            /// <summary>
+            /// Enables or disables a gl_ClipDistance[] index
+            /// </summary>
+            /// <param name="index"></param>
+            public bool this[int index]
+            {
+                get { return areEnabled[index]; }
+                set
+                {
+                    if (areEnabled[index] != value)
+                    {
+                        if (value)
+                            GL.Enable(EnableCap.ClipDistance0 + index);
+                        else
+                            GL.Disable(EnableCap.ClipDistance0 + index);
+                        areEnabled[index] = value;
+                    }
+                }
+            }
+
+            internal ClipDistanceManager(GraphicsDevice device)
+            {
+                areEnabled = new bool[device.MaxClipDistances];
+                for (int i = 0; i < areEnabled.Length; i++)
+                    areEnabled[i] = false;
+            }
+
+            /// <summary>
+            /// Enables a range of clip distance variables
+            /// </summary>
+            /// <param name="min">The index of the first clip distance to enable</param>
+            /// <param name="max">The index of the last clip distance to enable (inclusive)</param>
+            public void EnableRange(int min, int max)
+            {
+                for (int i = min; i <= max; i++)
+                    if (!areEnabled[i])
+                    {
+                        GL.Enable(EnableCap.ClipDistance0 + i);
+                        areEnabled[i] = true;
+                    }
+            }
+
+            /// <summary>
+            /// Disables a range of clip distance variables
+            /// </summary>
+            /// <param name="min">The index of the first clip distance to disable</param>
+            /// <param name="max">The index of the last clip distance to disable (inclusive)</param>
+            public void DisableRange(int min, int max)
+            {
+                for (int i = min; i <= max; i++)
+                    if (areEnabled[i])
+                    {
+                        GL.Disable(EnableCap.ClipDistance0 + i);
+                        areEnabled[i] = false;
+                    }
+            }
+
+            /// <summary>
+            /// Ensures that the only enabled clip distances are the ones on the specified range
+            /// </summary>
+            /// <param name="min">The index of the first clip distance to enable</param>
+            /// <param name="max">The index of the last clip distance to enable (inclusive)</param>
+            public void SetEnabledRange(int min, int max)
+            {
+                for (int i = 0; i < areEnabled.Length; i++)
+                    this[i] = (i >= min && i <= max);
+            }
+
+            /// <summary>
+            /// Disables all clip distances
+            /// </summary>
+            public void DisableAll()
+            {
+                for (int i = 0; i < areEnabled.Length; i++)
+                    if (areEnabled[i])
+                    {
+                        GL.Disable(EnableCap.ClipDistance0 + i);
+                        areEnabled[i] = false;
+                    }
+            }
+
+            /// <summary>
+            /// Resets all the states from clip distances
+            /// </summary>
+            public void ResetStates()
+            {
+                for (int i = 0; i < areEnabled.Length; i++)
+                {
+                    areEnabled[i] = false;
+                    GL.Disable(EnableCap.ClipDistance0 + i);
                 }
             }
         }
