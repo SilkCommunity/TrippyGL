@@ -41,7 +41,10 @@ namespace TrippyGL
         public int Count { get { return uniforms.Length; } }
 
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms</summary>
-        private List<Texture> textureList;
+        private readonly List<Texture> textureList;
+
+        /// <summary>Whether there is at least one sampler uniform</summary>
+        private readonly bool hasSamplerUniforms;
 
         /// <summary>Whether the textureList is correct or not. ShaderSamplerUniforms set this to true when a value has changed</summary>
         internal bool isTextureListDirty = true;
@@ -90,13 +93,19 @@ namespace TrippyGL
                 }
             }
 
-            samplerUniforms = su.ToArray();
-            samplerArrayUniforms = suarr.ToArray();
+            if (su.Count + suarr.Count == 0) // If there are no sampler uniforms, then we mark this as false and don't
+                hasSamplerUniforms = false; // create any of the sampler uniform variables nor do any of their processes
+            else
+            {
+                hasSamplerUniforms = true;
+                samplerUniforms = su.ToArray();
+                samplerArrayUniforms = suarr.ToArray();
 
-            int maxTextures = samplerUniforms.Length;
-            for (int i = 0; i < samplerArrayUniforms.Length; i++)
-                maxTextures += samplerArrayUniforms[i].ArrayLength;
-            textureList = new List<Texture>(maxTextures);
+                int maxTextures = samplerUniforms.Length;
+                for (int i = 0; i < samplerArrayUniforms.Length; i++)
+                    maxTextures += samplerArrayUniforms[i].ArrayLength;
+                textureList = new List<Texture>(maxTextures);
+            }
         }
 
         /// <summary>
@@ -110,15 +119,18 @@ namespace TrippyGL
             // Then, it tells each ShaderSamplerUniform to ensure the texture unit it's sampler is using is the correct one for their texture
             // This is necessary because else, when using multiple samplers, you can't ensure they will all be using the correct texture
 
-            if (isTextureListDirty)
-                RemakeTextureList();
+            if (hasSamplerUniforms)
+            {
+                if (isTextureListDirty)
+                    RemakeTextureList();
 
-            Program.GraphicsDevice.BindAllTextures(textureList);
+                Program.GraphicsDevice.BindAllTextures(textureList);
 
-            for (int i = 0; i < samplerUniforms.Length; i++)
-                samplerUniforms[i].ApplyUniformValue();
-            for (int i = 0; i < samplerArrayUniforms.Length; i++)
-                samplerArrayUniforms[i].ApplyUniformValues();
+                for (int i = 0; i < samplerUniforms.Length; i++)
+                    samplerUniforms[i].ApplyUniformValue();
+                for (int i = 0; i < samplerArrayUniforms.Length; i++)
+                    samplerArrayUniforms[i].ApplyUniformValues();
+            }
         }
 
         /// <summary>

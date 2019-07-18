@@ -213,7 +213,7 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
-            cubemapProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
 
@@ -325,7 +325,7 @@ namespace TrippyTesting.Tests
             }, 2, 10);
 
 
-            program.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = program;
             if (batcher.TriangleVertexCount > triangleBuffer.StorageLength)
                 triangleBuffer.RecreateStorage(batcher.TriangleVertexCapacity);
             batcher.WriteTrianglesTo(triangleBuffer.DataSubset);
@@ -344,7 +344,7 @@ namespace TrippyTesting.Tests
             mat = Matrix4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4.CreateTranslation(2.5f, 2, 12);
             texProgram.Uniforms["World"].SetValueMat4(ref mat);
             texProgram.Uniforms["samp"].SetValueTexture(tex2);
-            texProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = texProgram;
             graphicsDevice.VertexArray = texBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 

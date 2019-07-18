@@ -26,16 +26,22 @@ namespace TrippyGL
         /// <summary>The type of the attribute declared in the shader</summary>
         public readonly ActiveAttribType AttribType;
 
+        /// <summary>Defines the rate at which this attribute advances when rendering. If 0, it advances once per vertex. Otherwise, it advances once every AttribDivisor instance/s</summary>
+        public readonly int AttribDivisor;
+
         /// <summary>
         /// Creates a VertexAttribDescription where the format of the data declared in the shader is the same as present in the buffer and no conversion needs to be done
         /// </summary>
         /// <param name="attribType">The type of attribute declared in the shader</param>
-        public VertexAttribDescription(ActiveAttribType attribType)
+        /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering</param>
+        public VertexAttribDescription(ActiveAttribType attribType, int attribDivisor = 0)
         {
             EnsureDefined(attribType);
+            CheckAttribDivisor(attribDivisor);
 
             AttribType = attribType;
             Normalized = false;
+            AttribDivisor = attribDivisor;
             TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
             SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
         }
@@ -46,12 +52,15 @@ namespace TrippyGL
         /// <param name="attribType">The type of the attribute declared in the shader</param>
         /// <param name="normalized">Whether the vertex data should be normalized before being loaded into the shader</param>
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer</param>
-        public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType)
+        /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering</param>
+        public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType, int attribDivisor = 0)
         {
             EnsureDefined(attribType);
             EnsureDefined(dataBaseType);
+            CheckAttribDivisor(attribDivisor);
 
             Normalized = normalized;
+            AttribDivisor = attribDivisor;
             AttribBaseType = dataBaseType;
             AttribType = attribType;
             Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
@@ -83,6 +92,12 @@ namespace TrippyGL
         {
             if (!Enum.IsDefined(typeof(VertexAttribPointerType), dataBaseType))
                 throw new FormatException("The specified dataBaseType is invalid");
+        }
+
+        private static void CheckAttribDivisor(int attribDivisor)
+        {
+            if (attribDivisor < 0)
+                throw new ArgumentOutOfRangeException("AttribDivisor", attribDivisor, "AttribDivisor must be greater than 0");
         }
     }
 }

@@ -87,7 +87,7 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             graphicsDevice.VertexArray = buffer.VertexArray;
-            program.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = program;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             SwapBuffers();

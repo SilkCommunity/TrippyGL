@@ -30,7 +30,7 @@ void main() {
 	FragColor = fColor * mix(reflectionCol, refractionCol, pow(dot(tocam, vec3(0.0, 1.0, 0.0)), 1.2));
 
 	vec3 reflectedLightDirection = reflect(sunlightDirection, normal);
-	FragColor += max(0, pow(dot(reflectedLightDirection, tocam), 10.0) * 0.75);
+	FragColor += max(0, pow(dot(reflectedLightDirection, tocam), 30.0) * 0.75);
 
 	//FragColor += clamp(reflectionCol + refractionCol + distort.xyxy + normal.xyzx + time + cameraPos.xyzx, 0.0, 0.0001);
 }

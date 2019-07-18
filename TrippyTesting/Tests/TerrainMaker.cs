@@ -115,6 +115,8 @@ namespace TrippyTesting.Tests
             normalMap = new Texture2D(graphicsDevice, "terrain/normalMap.png");
             distortMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             normalMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
+            distortMap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            normalMap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             waterProgram.Uniforms["distortMap"].SetValueTexture(distortMap);
             waterProgram.Uniforms["normalMap"].SetValueTexture(normalMap);
 
@@ -124,6 +126,7 @@ namespace TrippyTesting.Tests
             reflectionFbo = FramebufferObject.Create2D(ref reflectionTex, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth32f);
             refractionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             reflectionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            refractionTex.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
             #endregion
 
@@ -259,14 +262,14 @@ namespace TrippyTesting.Tests
             terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP+0.01f);
             terrProgram.Uniforms["clipMultiplier"].SetValue1(-1.0f); //render only below the water
             graphicsDevice.VertexArray = terrBuffer.VertexArray;
-            terrProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
             graphicsDevice.DrawFramebuffer = reflectionFbo;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             cubemapProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref invertedCameraPos);
-            cubemapProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
@@ -274,7 +277,7 @@ namespace TrippyTesting.Tests
             terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
             terrProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
             graphicsDevice.VertexArray = terrBuffer.VertexArray;
-            terrProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
             terrProgram.Uniforms["View"].SetValueMat4(ref view);
@@ -283,22 +286,22 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             cubemapProgram.Uniforms["View"].SetValueMat4(ref view);
             cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
-            cubemapProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
 
-            graphicsDevice.VertexArray = waterBuffer.VertexArray;
-            waterProgram.Uniforms["refractionSamp"].SetValueTexture(refractionTex);
-            waterProgram.Uniforms["reflectionSamp"].SetValueTexture(reflectionTex);
-            waterProgram.EnsurePreDrawStates();
-            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-
             graphicsDevice.VertexArray = terrBuffer.VertexArray;
             terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP-0.01f);
             terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
-            terrProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
+
+            graphicsDevice.VertexArray = waterBuffer.VertexArray;
+            waterProgram.Uniforms["refractionSamp"].SetValueTexture(refractionTex);
+            waterProgram.Uniforms["reflectionSamp"].SetValueTexture(reflectionTex);
+            graphicsDevice.ShaderProgram = waterProgram;
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             SwapBuffers();
         }

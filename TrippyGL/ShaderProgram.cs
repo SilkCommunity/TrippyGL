@@ -141,6 +141,9 @@ namespace TrippyGL
         {
             ValidateUnlinked();
 
+            if (!GraphicsDevice.IsGeometryShaderAvailable)
+                throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
+
             if (String.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
@@ -168,6 +171,9 @@ namespace TrippyGL
         public bool TryAddGeometryShader(string code)
         {
             ValidateUnlinked();
+
+            if (!GraphicsDevice.IsGeometryShaderAvailable)
+                throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
 
             if (String.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
@@ -381,12 +387,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all necessary states are set for a draw command to use this program.
-        /// This includes making sure sampler or block uniforms are properly set and the program is currently in use
+        /// Ensures all necessary states are set for a draw command to use this program, such as making
+        /// sure sampler or block uniforms are properly set. This should always be called before a draw
+        /// operation and assumes this ShaderProgram is the one currently in use
         /// </summary>
-        public void EnsurePreDrawStates()
+        internal void EnsurePreDrawStates()
         {
-            GraphicsDevice.ShaderProgram = this;
             Uniforms.EnsureSamplerUniformsSet();
             BlockUniforms.EnsureAllSet();
         }

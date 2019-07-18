@@ -19,13 +19,24 @@ namespace TrippyGL
         /// <summary>Whether this GraphicsDevice has been disposed</summary>
         public bool IsDisposed { get; private set; }
 
+        private List<GraphicsResource> graphicsResources;
+
         /// <summary>
         /// Creates a GraphicsDevice to manage the given graphics context
         /// </summary>
         /// <param name="context">The OpenGL Context for this GraphicsDevice</param>
-        public GraphicsDevice(IGraphicsContext context)
+        /// <param name="resourceCount">The maximum amount of GraphicsResource-s you intend to use</param>
+        public GraphicsDevice(IGraphicsContext context, int resourceCount = 128)
         {
             Context = context;
+
+            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
+            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
+
+            if (!IsGLVersionAtLeast(3, 0))
+                throw new PlatformNotSupportedException("TrippyGL only supports OpenGL 3.0 and up!");
+
+            graphicsResources = new List<GraphicsResource>(resourceCount);
 
             InitGLGetVariables();
 
@@ -37,6 +48,7 @@ namespace TrippyGL
             readFramebuffer = null;
             renderbuffer = null;
             ClipDistances = new ClipDistanceManager(this);
+
 
             blendState = BlendState.Opaque;
         }
@@ -141,12 +153,6 @@ namespace TrippyGL
 
         private void InitGLGetVariables()
         {
-            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
-            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
-
-            if (GLMajorVersion < 3)
-                throw new PlatformNotSupportedException("The OpenGL version must be at least 3.0");
-
             UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
             MaxUniformBufferBindings = GL.GetInteger(GetPName.MaxUniformBufferBindings);
             MaxUniformBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
@@ -210,6 +216,18 @@ namespace TrippyGL
         public string GLShadingLanguageVersion { get { return GL.GetString(StringName.ShadingLanguageVersion); } }
 
         #endregion GLGet
+
+        #region IsAvailable
+
+        public bool IsDoublePrecisionVertexAttribsAvailable { get { return IsGLVersionAtLeast(4, 1); } }
+
+        public bool IsVertexAttribDivisorAvailable { get { return IsGLVersionAtLeast(3, 3); } }
+
+        public bool IsInstancedDrawingAvailable { get { return IsGLVersionAtLeast(3, 1); } }
+
+        public bool IsGeometryShaderAvailable { get { return IsGLVersionAtLeast(3, 2); } }
+
+        #endregion
 
         #region BindingStates
 
@@ -561,7 +579,7 @@ namespace TrippyGL
         /// Installs the given program into the rendering pipeline without first checking whether it's already in use
         /// </summary>
         /// <param name="program">The shader program to use</param>
-        public void ForceUseShaderProgram(ShaderProgram program)
+        internal void ForceUseShaderProgram(ShaderProgram program)
         {
             GL.UseProgram(program == null ? 0 : program.Handle);
             shaderProgram = program;
@@ -1400,6 +1418,7 @@ namespace TrippyGL
         /// <param name="count">The amount of vertices to render</param>
         public void DrawArrays(PrimitiveType primitiveType, int startIndex, int count)
         {
+            shaderProgram.EnsurePreDrawStates();
             GL.DrawArrays(primitiveType, startIndex, count);
         }
 
@@ -1411,6 +1430,7 @@ namespace TrippyGL
         /// <param name="count">The amount of elements to render</param>
         public void DrawElements(PrimitiveType type, int startIndex, int count)
         {
+            shaderProgram.EnsurePreDrawStates();
             IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
             GL.DrawElements(type, count, indexSubset.ElementType, indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize);
         }
@@ -1532,12 +1552,45 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Returns whether the GL version is the specified version or newer
+        /// </summary>
+        /// <param name="major">The major version number</param>
+        /// <param name="minor">The minor version number</param>
+        public bool IsGLVersionAtLeast(int major, int minor)
+        {
+            return GLMajorVersion > major || (major == GLMajorVersion && GLMinorVersion >= minor);
+        }
+
+        /// <summary>
+        /// This is called by GraphicResource-s on creation
+        /// </summary>
+        /// <param name="createdResource">The newly created resource</param>
+        internal void OnResourceCreated(GraphicsResource createdResource)
+        {
+            if (IsDisposed)
+                throw new InvalidOperationException("This GraphicsDevice is already disposed");
+
+            graphicsResources.Add(createdResource);
+        }
+
+        /// <summary>
         /// This is called by GraphicsResource-s on Dispose()
         /// </summary>
         /// <param name="disposedResource">The graphics resource that was just disposed</param>
         internal void OnResourceDisposed(GraphicsResource disposedResource)
         {
+            graphicsResources.Remove(disposedResource);
+        }
 
+        /// <summary>
+        /// Disposes all the GraphicsResources owned by this GraphicsDevice. This does not dispose the
+        /// GraphicsDevice, so it can still be used for new resources afterwards.
+        /// </summary>
+        public void DisposeAllResources()
+        {
+            for (int i = 0; i < graphicsResources.Count; i++)
+                graphicsResources[i].DisposeByGraphicsDevice();
+            graphicsResources.Clear();
         }
 
         /// <summary>
@@ -1548,10 +1601,10 @@ namespace TrippyGL
         {
             if (!IsDisposed)
             {
+                DisposeAllResources();
                 DebugMessagingEnabled = false; // this makes sure any GCHandle or unmanaged stuff gets released
                 IsDisposed = true;
                 Context.Dispose();
-                //TODO: dispose the GraphicResource-s. This is gonna need a list somewhere and it might be a bit ugly
             }
         }
     }

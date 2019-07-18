@@ -34,8 +34,10 @@ namespace TrippyGL
             if (attribSources.Length == 0)
                 throw new ArgumentException("You can't create a VertexArray with no attributes", "attribSources");
 
-            Handle = GL.GenVertexArray();
             AttribSources = new VertexAttribSourceList(attribSources);
+            EnsureAttribsValid();
+
+            Handle = GL.GenVertexArray();
 
             IndexBuffer = indexBuffer;
 
@@ -63,12 +65,13 @@ namespace TrippyGL
             if (attribDescriptions.Length == 0)
                 throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
 
-            Handle = GL.GenVertexArray();
-
             VertexAttribSource[] s = new VertexAttribSource[attribDescriptions.Length];
             for (int i = 0; i < s.Length; i++)
                 s[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
             AttribSources = new VertexAttribSourceList(s);
+            EnsureAttribsValid();
+
+            Handle = GL.GenVertexArray();
 
             IndexBuffer = indexBuffer;
 
@@ -81,7 +84,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
-        public void UpdateVertexAttributes(bool compensateStructPadding, int paddingPackValue = 4)
+        public void UpdateVertexAttributes(bool compensateStructPadding = true, int paddingPackValue = 4)
         {
             GraphicsDevice.VertexArray = this;
 
@@ -160,6 +163,7 @@ namespace TrippyGL
 
             for (int i = 0; i < calls.Length; i++)
             {
+
                 GraphicsDevice.BindBuffer(calls[i].source.BufferSubset);
                 calls[i].CallGlVertexAttribPointer();
             }
@@ -192,7 +196,35 @@ namespace TrippyGL
             return new VertexArray(graphicsDevice, dataBuffer, desc, indexBuffer, compensateStructPadding);
         }
 
+        private void EnsureAttribsValid()
+        {
+            int attribIndexCount = 0;
+            for (int i = 0; i < AttribSources.Length; i++)
+            {
+                attribIndexCount += AttribSources[i].AttribDescription.AttribIndicesUseCount;
 
+                if (AttribSources[i].AttribDescription.AttribDivisor != 0)
+                {
+                    if (!GraphicsDevice.IsVertexAttribDivisorAvailable)
+                        throw new PlatformNotSupportedException("Vertex attribute divisors are notsupported on this system");
+                }
+            }
+
+            if (!GraphicsDevice.IsDoublePrecisionVertexAttribsAvailable)
+            {
+                for (int i = 0; i < AttribSources.Length; i++)
+                    if (TrippyUtils.IsVertexAttribDoubleType(AttribSources[i].AttribDescription.AttribType))
+                        throw new PlatformNotSupportedException("Double precition vertex attributes are not supported on this system");
+            }
+
+            if (attribIndexCount > GraphicsDevice.MaxVertexAttribs)
+                throw new PlatformNotSupportedException("The current system doesn't support the specified amount of vertex attributes");
+        }
+
+        /// <summary>
+        /// Manages the calls for a single vertex attribute.
+        /// This is a helper class for VertexArray.UpdateVertexAttributes()
+        /// </summary>
         private class AttribCallDesc
         {
             public VertexAttribSource source;
@@ -212,6 +244,8 @@ namespace TrippyGL
                         GL.VertexAttribPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, stride, offs);
 
                     GL.EnableVertexAttribArray(index + i);
+                    if (source.AttribDescription.AttribDivisor != 0)
+                        GL.VertexAttribDivisor(index + i, source.AttribDescription.AttribDivisor);
                     offs += source.AttribDescription.SizeInBytes / source.AttribDescription.AttribIndicesUseCount;
                 }
             }

@@ -19,17 +19,33 @@ namespace TrippyGL
                 throw new ArgumentNullException("graphicsDevice");
 
             GraphicsDevice = graphicsDevice;
+            graphicsDevice.OnResourceCreated(this);
         }
 
         ~GraphicsResource()
         {
-            if (!GraphicsDevice.IsDisposed)
+            if (GraphicsDevice != null && !GraphicsDevice.IsDisposed)
                 Dispose(false);
         }
 
         protected virtual void Dispose(bool isManualDispose)
         {
 
+        }
+
+        /// <summary>
+        /// Disposes the GraphicsResource without notifying the GraphicsDevice.
+        /// This function is only called by the GraphicsDevice
+        /// </summary>
+        internal void DisposeByGraphicsDevice()
+        {
+            if (!IsDisposed)
+            {
+                Dispose(true);
+                IsDisposed = true;
+                GC.SuppressFinalize(this);
+                GraphicsDevice = null;
+            }
         }
 
         /// <summary>
@@ -41,9 +57,9 @@ namespace TrippyGL
             {
                 Dispose(true);
                 IsDisposed = true;
+                GC.SuppressFinalize(this);
                 GraphicsDevice.OnResourceDisposed(this);
                 GraphicsDevice = null;
-                GC.SuppressFinalize(this);
             }
         }
     }

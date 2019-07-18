@@ -148,12 +148,12 @@ namespace TrippyTesting
 
             graphicsDevice.VertexArray = vertexbuffer.VertexArray;
             program.Uniforms["samp"].SetValueTexture(whitepx);
-            program.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = program;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexbuffer.StorageLength);
 
             graphicsDevice.VertexArray = array;
             program.Uniforms["samp"].SetValueTexture(texture);
-            program.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = program;
             graphicsDevice.DrawElements(PrimitiveType.TriangleStrip, 0, 3);
 
             SwapBuffers();

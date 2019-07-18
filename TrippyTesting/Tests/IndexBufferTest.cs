@@ -88,7 +88,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             graphicsDevice.VertexArray = vertexArray;
-            shaderProgram.EnsurePreDrawStates();
+            graphicsDevice.ShaderProgram = shaderProgram;
             indexSubset.SetData(new byte[]
             {
                 (byte)r.Next(vertexSubset.StorageLength), 14, (byte)r.Next(vertexSubset.StorageLength), 15
