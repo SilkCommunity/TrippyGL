@@ -94,9 +94,12 @@
     <Compile Include="VertexAttribSourceList.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="VertexColor.cs" />
+    <Compile Include="VertexNormalColor.cs" />
     <Compile Include="VertexColorTexture.cs" />
     <Compile Include="VertexDataBufferSubset.cs" />
     <Compile Include="VertexNormal.cs" />
+    <Compile Include="VertexNormalColorTexture.cs" />
+    <Compile Include="VertexNormalTexture.cs" />
     <Compile Include="VertexPosition.cs" />
     <Compile Include="VertexTexture.cs" />
   </ItemGroup>
