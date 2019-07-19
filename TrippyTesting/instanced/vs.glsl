@@ -10,6 +10,8 @@ in vec4 vColor;
 out vec4 fColor;
 
 void main() {
-	gl_Position = Projection * View * World * vec4(vPosition, 1.0);
+	vec4 worldPosition = World * vec4(vPosition, 1.0);
+	//worldPosition.x += float(gl_InstanceID) * 20.0;
+	gl_Position = Projection * View * worldPosition;
 	fColor = vColor;
 }

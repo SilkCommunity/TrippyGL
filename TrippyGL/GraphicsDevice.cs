@@ -1425,14 +1425,41 @@ namespace TrippyGL
         /// <summary>
         /// Renders indexed primitive data
         /// </summary>
-        /// <param name="type">The type of primitive to render</param>
+        /// <param name="primitiveType">The type of primitive to render</param>
         /// <param name="startIndex">The index of the first element to render</param>
         /// <param name="count">The amount of elements to render</param>
-        public void DrawElements(PrimitiveType type, int startIndex, int count)
+        public void DrawElements(PrimitiveType primitiveType, int startIndex, int count)
         {
             shaderProgram.EnsurePreDrawStates();
             IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
-            GL.DrawElements(type, count, indexSubset.ElementType, indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize);
+            GL.DrawElements(primitiveType, count, indexSubset.ElementType, indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize);
+        }
+
+        /// <summary>
+        /// Renders instanced primitive data
+        /// </summary>
+        /// <param name="primitiveType">The type of primitive to render</param>
+        /// <param name="startIndex">The index of the first element to render</param>
+        /// <param name="count">The amount of elements to render</param>
+        /// <param name="instanceCount"></param>
+        public void DrawArraysInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
+        {
+            shaderProgram.EnsurePreDrawStates();
+            GL.DrawArraysInstanced(primitiveType, startIndex, count, instanceCount);
+        }
+
+        /// <summary>
+        /// Renders indexed instanced primitive data
+        /// </summary>
+        /// <param name="primitiveType">The type of primitive to render</param>
+        /// <param name="startIndex">The index of the first element to render</param>
+        /// <param name="count">The amount of elements to render</param>
+        /// <param name="instanceCount"></param>
+        public void DrawElementsInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
+        {
+            shaderProgram.EnsurePreDrawStates();
+            IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
+            GL.DrawElementsInstanced(primitiveType, count, indexSubset.ElementType, (IntPtr)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize), instanceCount);
         }
 
         /// <summary>

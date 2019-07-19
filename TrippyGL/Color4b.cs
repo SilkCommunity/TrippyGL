@@ -109,6 +109,11 @@ namespace OpenTK.Graphics
             );
         }
 
+        public static Color4b Multiply(Color4b color, float scale)
+        {
+            return new Color4b((byte)(color.R * scale + 0.5f), (byte)(color.G * scale + 0.5f), (byte)(color.B * scale + 0.5f), (byte)(color.A * scale + 0.5f));
+        }
+
         /// <summary>
         /// Compares whether this Color4b structure is equal to the specified object.
         /// </summary>

@@ -10,21 +10,24 @@ namespace TrippyTesting.Tests
 {
     class InstancedRendering : GameWindow
     {
-        const int MaxParticles = 50;
+        const int MaxParticles = 4096;
 
         System.Diagnostics.Stopwatch stopwatch;
-        public Random r = new Random();
-        public float time, deltaTime;
+        public static Random r = new Random();
+        public static float time, deltaTime;
 
         BufferObject ptcBuffer;
         VertexDataBufferSubset<Matrix4> matSubset;
         VertexDataBufferSubset<VertexColor> vertexSubset;
         VertexArray ptcArray;
 
+        Particle[] particles;
+
         ShaderProgram ptcProgram;
 
         GraphicsDevice graphicsDevice;
 
+        Vector2 mouseWindowPosition;
         MouseState ms, oldMs;
         KeyboardState ks, oldKs;
 
@@ -58,7 +61,7 @@ namespace TrippyTesting.Tests
                 float rot = i * MathHelper.TwoPi / maxvert;
                 float scale = (i * 10f / maxvert) % 0.5f + 0.5f;
                 scale = 3f * scale * scale - 2f * scale * scale * scale;
-                vertices[i+1] = new VertexColor(new Vector3((float)Math.Cos(rot) * scale, (float)Math.Sin(rot) * scale, 0f), randomCol());
+                vertices[i+1] = new VertexColor(new Vector3((float)Math.Cos(rot) * scale, (float)Math.Sin(rot) * scale, 0f), Color4b.Multiply(randomCol(), 0.1f));
             }
 
             ptcBuffer = new BufferObject(graphicsDevice, MaxParticles * 64 + VertexColor.SizeInBytes * vertices.Length, BufferUsageHint.StaticDraw);
@@ -77,6 +80,10 @@ namespace TrippyTesting.Tests
             ptcProgram.AddFragmentShader(File.ReadAllText("instanced/fs.glsl"));
             ptcProgram.SpecifyVertexAttribs(ptcArray.AttribSources, new string[] { "World", "vPosition", "vColor" });
             ptcProgram.LinkProgram();
+
+            particles = new Particle[MaxParticles];
+            for (int i = 0; i < MaxParticles; i++)
+                particles[i] = new Particle();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -94,23 +101,39 @@ namespace TrippyTesting.Tests
             {
                 Console.WriteLine("Error found: " + c);
             }
+
+            Vector2 mousePos = new Vector2(mouseWindowPosition.X, this.Height - mouseWindowPosition.Y) * 128f / (float)this.Width;
+            for (int i = 0; i < particles.Length; i++)
+                particles[i].Update(mousePos);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            graphicsDevice.BlendState = BlendState.Opaque;
+            graphicsDevice.BlendState = BlendState.Additive;
             graphicsDevice.DepthTestingEnabled = false;
             graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
             graphicsDevice.Framebuffer = null;
+
+            Matrix4[] mats = new Matrix4[particles.Length];
+            for (int i = 0; i < particles.Length; i++)
+                mats[i] = particles[i].GenerateMatrix();
+            matSubset.SetData(mats);
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = ptcArray;
             graphicsDevice.ShaderProgram = ptcProgram;
-            matSubset.SetData(new Matrix4[] { Matrix4.CreateScale(24f) * Matrix4.CreateRotationZ(time) *  Matrix4.CreateTranslation(64, 24, 0) });
-            graphicsDevice.DrawArrays(PrimitiveType.TriangleFan, 0, vertexSubset.StorageLength);
+            //matSubset.SetData(new Matrix4[] { Matrix4.CreateScale(24f) * Matrix4.CreateRotationZ(time) *  Matrix4.CreateTranslation(64, 24, 0) });
+            //graphicsDevice.DrawArrays(PrimitiveType.TriangleFan, 0, vertexSubset.StorageLength);
+            graphicsDevice.DrawArraysInstanced(PrimitiveType.TriangleFan, 0, vertexSubset.StorageLength, particles.Length);
 
             SwapBuffers();
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            mouseWindowPosition.X = e.Mouse.X;
+            mouseWindowPosition.Y = e.Mouse.Y;
         }
 
         protected override void OnResize(EventArgs e)
@@ -133,9 +156,64 @@ namespace TrippyTesting.Tests
             graphicsDevice.Dispose();
         }
 
-        private Color4b randomCol()
+        public static Color4b randomCol()
         {
             return new Color4b((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256), 255);
+        }
+
+        public static float randomf(float max)
+        {
+            return (float)r.NextDouble() * max;
+        }
+
+        public static float randomf(float min, float max)
+        {
+            return (float)r.NextDouble() * (max - min) + min;
+        }
+
+        private class Particle
+        {
+            Vector2 position;
+            Vector2 direction;
+
+            float rotation;
+            float rotSpeed;
+
+            float scale;
+            float scaleSpeed;
+
+            public Particle()
+            {
+                position = new Vector2(-999, -999);
+                rotation = 0;
+                scale = 1;
+            }
+
+            public void Update(Vector2 mousePos)
+            {
+                if (position.Y < 0)
+                {
+                    // Reset
+                    position = mousePos;
+                    direction.X = randomf(-20f, 20f);
+                    direction.Y = randomf(-6f, 70f);
+                    scale = randomf(2f, 3f);
+                    scaleSpeed = randomf(-1.5f, 1f);
+                    rotSpeed = randomf(-3f, 3f);
+                }
+                else
+                {
+                    position += direction * deltaTime;
+                    direction.Y -= deltaTime * 24f;
+                    scale += scaleSpeed * deltaTime;
+                    rotation += rotSpeed * deltaTime;
+                }
+            }
+
+            public Matrix4 GenerateMatrix()
+            {
+                return Matrix4.CreateScale(scale) * Matrix4.CreateRotationZ(rotation) * Matrix4.CreateTranslation(position.X, position.Y, 0);
+            }
         }
     }
 }

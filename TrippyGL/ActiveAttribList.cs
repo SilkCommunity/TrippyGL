@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
@@ -24,14 +25,16 @@ namespace TrippyGL
         internal ActiveAttribList(ShaderProgram program)
         {
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveAttributes, out int attribCount);
-            attributes = new ActiveVertexAttrib[attribCount];
+            List<ActiveVertexAttrib> attribList = new List<ActiveVertexAttrib>(attribCount);
 
             for (int i = 0; i < attribCount; i++)
             {
                 ActiveVertexAttrib a = new ActiveVertexAttrib(program, i);
-                attributes[i] = a;
+                if (a.Location >= 0)    // Sometimes other stuff shows up, such as gl_InstanceID with location -1.
+                    attribList.Add(a);  // We should, of course, filter these out.
             }
 
+            attributes = attribList.ToArray();
             Array.Sort(attributes, (x, y) => x.Location.CompareTo(y.Location));
         }
 
