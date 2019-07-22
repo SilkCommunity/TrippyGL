@@ -103,6 +103,13 @@ namespace TrippyTesting.Tests
             }
 
             Vector2 mousePos = new Vector2(mouseWindowPosition.X, this.Height - mouseWindowPosition.Y) * 128f / (float)this.Width;
+
+            if (ks.IsKeyDown(Key.Space) && oldKs.IsKeyUp(Key.Space))
+            {
+                for (int i = 0; i < particles.Length; i++)
+                    particles[i].Reset(mousePos);
+            }
+
             for (int i = 0; i < particles.Length; i++)
                 particles[i].Update(mousePos);
         }
@@ -114,7 +121,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
             graphicsDevice.Framebuffer = null;
 
-            Matrix4[] mats = new Matrix4[particles.Length];
+            Matrix4[] mats = new Matrix4[particles.Length]; // this line makes the GC cry :(
             for (int i = 0; i < particles.Length; i++)
                 mats[i] = particles[i].GenerateMatrix();
             matSubset.SetData(mats);
@@ -122,6 +129,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = ptcArray;
+            ptcProgram.Uniforms["time"].SetValue1(time);
             graphicsDevice.ShaderProgram = ptcProgram;
             //matSubset.SetData(new Matrix4[] { Matrix4.CreateScale(24f) * Matrix4.CreateRotationZ(time) *  Matrix4.CreateTranslation(64, 24, 0) });
             //graphicsDevice.DrawArrays(PrimitiveType.TriangleFan, 0, vertexSubset.StorageLength);
@@ -184,30 +192,39 @@ namespace TrippyTesting.Tests
 
             public Particle()
             {
-                position = new Vector2(-999, -999);
+                position = new Vector2(0, randomf(100));
                 rotation = 0;
                 scale = 1;
             }
 
             public void Update(Vector2 mousePos)
             {
-                if (position.Y < 0)
+                if (position.Y < -scale)
                 {
-                    // Reset
-                    position = mousePos;
-                    direction.X = randomf(-20f, 20f);
-                    direction.Y = randomf(-6f, 70f);
-                    scale = randomf(2f, 3f);
-                    scaleSpeed = randomf(-1.5f, 1f);
-                    rotSpeed = randomf(-3f, 3f);
+                    Reset(mousePos);
                 }
                 else
                 {
                     position += direction * deltaTime;
-                    direction.Y -= deltaTime * 24f;
+                    if (position.X < 0 || position.X > 128-scale)
+                        direction.X = -direction.X;
+                    //if (position.Y < scale)
+                    //    direction.Y *= -1f;
+
+                    direction.Y -= deltaTime * 64f;
                     scale += scaleSpeed * deltaTime;
                     rotation += rotSpeed * deltaTime;
                 }
+            }
+
+            public void Reset(Vector2 mousePos)
+            {
+                position = mousePos;
+                direction.X = randomf(-40f, 40f);
+                direction.Y = randomf(-6f, 70f);
+                scale = randomf(1.3f, 2.2f);
+                scaleSpeed = randomf(-0.75f, 0.5f);
+                rotSpeed = randomf(-3f, 3f);
             }
 
             public Matrix4 GenerateMatrix()

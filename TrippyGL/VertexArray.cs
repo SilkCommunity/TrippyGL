@@ -173,6 +173,9 @@ namespace TrippyGL
 
         protected override void Dispose(bool isManualDispose)
         {
+            if (isManualDispose && GraphicsDevice.VertexArray == this)
+                GraphicsDevice.VertexArray = null;
+
             GL.DeleteVertexArray(Handle);
             base.Dispose(isManualDispose);
         }

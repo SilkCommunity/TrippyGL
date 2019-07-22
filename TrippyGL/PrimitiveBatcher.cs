@@ -30,10 +30,28 @@ namespace TrippyGL
         public int LineCount { get { return lineVertexCount / 2; } }
 
         /// <summary>The amount of triangle vertices the primitive batcher can currently hold</summary>
-        public int TriangleVertexCapacity { get { return triangles.Length; } }
+        public int TriangleVertexCapacity
+        {
+            get { return triangles.Length; }
+            set
+            {
+                if (triangleVertexCount > value)
+                    throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
+                ResizeTriangles(value);
+            }
+        }
 
         /// <summary>The amount of line vertices the primitive batcher can currently hold</summary>
-        public int LineVertexCapacity { get { return lines.Length; } }
+        public int LineVertexCapacity
+        {
+            get { return lines.Length; }
+            set
+            {
+                if (lineVertexCount > value)
+                    throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
+                ResizeLines(value);
+            }
+        }
 
         /// <summary>
         /// Creates a primitive batcher with the specified initial capacities
@@ -402,7 +420,7 @@ namespace TrippyGL
 
             T[] oldTriangles = triangles;
             triangles = new T[newLength];
-            for (int i = 0; i < oldTriangles.Length; i++)
+            for (int i = 0; i < triangleVertexCount; i++)
                 triangles[i] = oldTriangles[i];
         }
 
@@ -416,8 +434,26 @@ namespace TrippyGL
 
             T[] oldLines = lines;
             lines = new T[newLength];
-            for (int i = 0; i < oldLines.Length; i++)
+            for (int i = 0; i < lineVertexCount; i++)
                 lines[i] = oldLines[i];
+        }
+
+        /// <summary>
+        /// Resizes the triangles array to make it hold exactly the current amount of triangle vertices
+        /// </summary>
+        public void TrimTriangles()
+        {
+            if (triangleVertexCount != triangles.Length)
+                ResizeTriangles(triangleVertexCount);
+        }
+
+        /// <summary>
+        /// Resizes the lines array to make it hold exactly the current amount of line vertices
+        /// </summary>
+        public void TrimLines()
+        {
+            if (lineVertexCount != lines.Length)
+                ResizeLines(lineVertexCount);
         }
 
         /// <summary>

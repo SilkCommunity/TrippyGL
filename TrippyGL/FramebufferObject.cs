@@ -315,6 +315,19 @@ namespace TrippyGL
 
         protected override void Dispose(bool isManualDispose)
         {
+            if (isManualDispose)
+            {
+                bool isDraw = GraphicsDevice.DrawFramebuffer == this;
+                bool isRead = GraphicsDevice.ReadFramebuffer == this;
+
+                if (isDraw && isRead)
+                    GraphicsDevice.Framebuffer = null;
+                else if (isDraw)
+                    GraphicsDevice.DrawFramebuffer = null;
+                else if (isRead)
+                    GraphicsDevice.ReadFramebuffer = null;
+            }
+
             GL.DeleteFramebuffer(Handle);
             base.Dispose(isManualDispose);
         }

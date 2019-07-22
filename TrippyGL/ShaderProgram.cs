@@ -417,6 +417,9 @@ namespace TrippyGL
 
         protected override void Dispose(bool isManualDispose)
         {
+            if (isManualDispose && GraphicsDevice.ShaderProgram == this)
+                GraphicsDevice.ShaderProgram = null;
+
             GL.DeleteProgram(Handle);
             base.Dispose(isManualDispose);
         }

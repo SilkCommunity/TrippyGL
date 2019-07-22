@@ -99,7 +99,12 @@ namespace TrippyGL
             else
                 GL.Disable(EnableCap.CullFace);
             GL.CullFace(cullFaceMode);
+            GL.FrontFace(polygonFrontFace);
 
+            if (rasterizerEnabled)
+                GL.Disable(EnableCap.RasterizerDiscard);
+            else
+                GL.Enable(EnableCap.RasterizerDiscard);
         }
 
         #region DebugMessaging
@@ -1233,29 +1238,11 @@ namespace TrippyGL
 
         #endregion
 
-        #region Misc
-
-        private bool cubemapSeamlessEnabled = false;
-
-        /// <summary>Enables or disables seamless sampling across cubemap faces</summary>
-        public bool TextureCubemapSeamlessEnabled
-        {
-            get { return cubemapSeamlessEnabled; }
-            set
-            {
-                if (cubemapSeamlessEnabled != value)
-                {
-                    if (value)
-                        GL.Enable(EnableCap.TextureCubeMapSeamless);
-                    else
-                        GL.Disable(EnableCap.TextureCubeMapSeamless);
-                    cubemapSeamlessEnabled = value;
-                }
-            }
-        }
+        #region FaceCulling
 
         private bool faceCullingEnabled = false;
         private CullFaceMode cullFaceMode = CullFaceMode.Back;
+        private FrontFaceDirection polygonFrontFace = FrontFaceDirection.Ccw;
 
         /// <summary>Enables or disables culling polygon faces</summary>
         public bool FaceCullingEnabled
@@ -1287,6 +1274,24 @@ namespace TrippyGL
                 }
             }
         }
+
+        /// <summary>Sets which face of a polygon is the front one (Whether front is when vertices are aligned clockwise or counter clockwise)</summary>
+        public FrontFaceDirection PolygonFrontFace
+        {
+            get { return polygonFrontFace; }
+            set
+            {
+                if(polygonFrontFace != value)
+                {
+                    GL.FrontFace(value);
+                    polygonFrontFace = value;
+                }
+            }
+        }
+
+        #endregion FaceCulling
+
+        #region ClipDistances
 
         /// <summary>Controls to enable and/or disable clip distances</summary>
         public ClipDistanceManager ClipDistances { get; private set; }
@@ -1395,6 +1400,48 @@ namespace TrippyGL
             }
         }
 
+        #endregion ClipDistances
+
+        #region Misc
+
+        private bool cubemapSeamlessEnabled = false;
+
+        /// <summary>Enables or disables seamless sampling across cubemap faces</summary>
+        public bool TextureCubemapSeamlessEnabled
+        {
+            get { return cubemapSeamlessEnabled; }
+            set
+            {
+                if (cubemapSeamlessEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.TextureCubeMapSeamless);
+                    else
+                        GL.Disable(EnableCap.TextureCubeMapSeamless);
+                    cubemapSeamlessEnabled = value;
+                }
+            }
+        }
+
+        private bool rasterizerEnabled = true;
+
+        /// <summary>Enables or disables the pixel rasterizer</summary>
+        public bool RasterizerEnabled
+        {
+            get { return rasterizerEnabled; }
+            set
+            {
+                if (rasterizerEnabled != value)
+                {
+                    if (value)
+                        GL.Disable(EnableCap.RasterizerDiscard);
+                    else
+                        GL.Enable(EnableCap.RasterizerDiscard);
+                    rasterizerEnabled = value;
+                }
+            }
+        }
+
         #endregion
 
         #endregion DrawingStates
@@ -1463,10 +1510,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Copies content from one framebuffer to another
+        /// Copies content from the read framebuffer to the draw framebuffer
         /// </summary>
-        /// <param name="src">The framebuffer to copy from</param>
-        /// <param name="dst">The framebuffer to copy to</param>
         /// <param name="srcX">The X location of the first pixel to read</param>
         /// <param name="srcY">The Y location of the first pixel to read</param>
         /// <param name="srcWidth">The width of the read rectangle</param>
@@ -1477,7 +1522,7 @@ namespace TrippyGL
         /// <param name="dstHeight">The height of the draw rectangle</param>
         /// <param name="mask">What data to copy from the framebuffers</param>
         /// <param name="filter">Whether to use nearest or linear filtering</param>
-        public void BlitFramebuffer(FramebufferObject src, FramebufferObject dst, int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
             // Blit rules:
             // General rectangle correctness rules (src and dst rectangles must be inside the framebuffers' size rectangles)
@@ -1488,111 +1533,43 @@ namespace TrippyGL
             //    1. Both framebuffers have different amount of samples and one of them isn't 0
             //    2. Condition 1 is true and the width and height of the src and dst rectangles don't match
 
-            if (src != null)
-            {
-                if (srcWidth <= 0 || srcWidth > src.Width)
-                    throw new ArgumentOutOfRangeException("srcWidth", srcWidth, "srcWidth must be in the range (0, src.Width]");
-
-                if (srcHeight <= 0 || srcHeight > src.Height)
-                    throw new ArgumentOutOfRangeException("srcHeight", srcHeight, "srcHeight must be in the range (0, src.Height]");
-
-                if (srcX < 0 || srcX > src.Width - srcWidth)
-                    throw new ArgumentOutOfRangeException("srcX", srcX, "srcX must be in the range [0, src.Width-srcWidth)");
-
-                if (srcY < 0 || srcY > src.Height - srcHeight)
-                    throw new ArgumentOutOfRangeException("srcY", srcY, "srcY must be in the range [0, src.Height-srcHeight)");
+            if (srcX < 0 || srcY < 0 || dstX < 0 || dstY < 0
+                || (readFramebuffer != null && (srcX + srcWidth > readFramebuffer.Width || srcY + srcHeight > readFramebuffer.Height))
+                || (drawFramebuffer != null && (dstX + dstWidth > drawFramebuffer.Width || dstY + dstHeight > drawFramebuffer.Height)))
+            { //If the source of destination rectangles are outside of bounds (if a framebuffer is null, the values are just ignored.
+                throw new ArgumentException("Both the source and destination rectangles must be inside their respective framebuffer's size rectangles");
             }
-
-            if (dst != null)
-            {
-                if (dstWidth <= 0 || dstWidth > dst.Width)
-                    throw new ArgumentOutOfRangeException("dstWidth", dstWidth, "dstWidth must be in the range (0, dst.Width]");
-
-                if (dstHeight <= 0 || dstHeight > dst.Height)
-                    throw new ArgumentOutOfRangeException("dstHeight", dstHeight, "dstHeight must be in the range (0, dst.Height]");
-
-                if (dstX < 0 || dstX > dst.Width - dstWidth)
-                    throw new ArgumentOutOfRangeException("dstX", dstX, "dstX must be in the range [0, dst.Width-dstWidth)");
-
-                if (dstY < 0 || dstY > dst.Height - dstHeight)
-                    throw new ArgumentOutOfRangeException("dstY", dstY, "dstY must be in the range [0, dst.Height-dstHeight)");
-            }
-
-            //if (src.Texture.ImageFormat != dst.Texture.ImageFormat)
-            //    throw new InvalidBlitException("You can't blit between framebuffers with different image formats");
-
-            //if ((mask & ClearBufferMask.ColorBufferBit) == ClearBufferMask.ColorBufferBit && (TrippyUtils.IsImageFormatIntegerType(src.Texture.ImageFormat) && filter != BlitFramebufferFilter.Nearest))
-            //    throw new InvalidBlitException("When blitting with color with integer formats, you must use a nearest filter");
 
             if (((mask & ClearBufferMask.DepthBufferBit) | (mask & ClearBufferMask.StencilBufferBit)) != 0 && filter != BlitFramebufferFilter.Nearest)
                 throw new InvalidBlitException("When using depth or stencil, the filter must be Nearest");
 
             //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
+            //TODO: Check that the sample count for both framebuffers is valid for blitting
 
-            /*bool areSameSize = srcWidth == dstWidth && srcHeight == dstHeight;
-            
-            if (src.Samples == dst.Samples)
-            {
-                if (src.Samples != 0 && !areSameSize)
-                    throw new InvalidBlitException("When blitting between multisampled framebuffers, the src and dst rectangle sizes must match");
-            }
-            else //then src.Samples != dst.Samples
-            {
-                // We're blitting framebuffers with different amounts of samples, this can be problematic
-                if (src.Samples * dst.Samples != 0) // None of the samples are 0 yet they aren't equal. This is invalid
-                    throw new InvalidBlitException("You can't blit between framebuffers with different sample counts");
-
-                if (!areSameSize)
-                    throw new InvalidBlitException("The sizes of both framebuffers must be the same when using different sample counts");
-            }*/ //alright this needs rewritting
-
-            // Holy unbelievable fuck those were A LOT of checks for a godfucken blit
-
-            ReadFramebuffer = src;
-            DrawFramebuffer = dst;
             GL.BlitFramebuffer(srcX, srcY, srcWidth, srcHeight, dstX, dstY, dstWidth, dstHeight, mask, filter);
         }
 
         /// <summary>
-        /// Copies content from one framebuffer to another
+        /// Copies content from the read framebuffer to the draw framebuffer
         /// </summary>
-        /// <param name="src">The framebuffer to copy from</param>
-        /// <param name="dst">The framebuffer to copy to</param>
         /// <param name="srcRect">The source rectangle to copy from</param>
         /// <param name="dstRect">The destination rectangle to write to</param>
         /// <param name="mask">What data to copy from the framebuffers</param>
         /// <param name="filter">Whether to use nearest or linear filtering</param>
-        public void BlitFramebuffer(FramebufferObject src, FramebufferObject dst, Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
-            BlitFramebuffer(src, dst, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
+            BlitFramebuffer(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
         }
 
         #endregion DrawingFunctions
 
-        /// <summary>
-        /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
-        /// </summary>
-        /// <param name="resource">The resource to pass over</param>
-        public void MakeMine(GraphicsResource resource)
-        {
-            resource.GraphicsDevice = this;
-        }
-
-        /// <summary>
-        /// Returns whether the GL version is the specified version or newer
-        /// </summary>
-        /// <param name="major">The major version number</param>
-        /// <param name="minor">The minor version number</param>
-        public bool IsGLVersionAtLeast(int major, int minor)
-        {
-            return GLMajorVersion > major || (major == GLMajorVersion && GLMinorVersion >= minor);
-        }
+        #region GraphicsResourceManagement
 
         /// <summary>
         /// This is called by GraphicResource-s on creation
         /// </summary>
         /// <param name="createdResource">The newly created resource</param>
-        internal void OnResourceCreated(GraphicsResource createdResource)
+        internal void OnResourceAdded(GraphicsResource createdResource)
         {
             if (IsDisposed)
                 throw new InvalidOperationException("This GraphicsDevice is already disposed");
@@ -1604,7 +1581,7 @@ namespace TrippyGL
         /// This is called by GraphicsResource-s on Dispose()
         /// </summary>
         /// <param name="disposedResource">The graphics resource that was just disposed</param>
-        internal void OnResourceDisposed(GraphicsResource disposedResource)
+        internal void OnResourceRemoved(GraphicsResource disposedResource)
         {
             graphicsResources.Remove(disposedResource);
         }
@@ -1618,6 +1595,48 @@ namespace TrippyGL
             for (int i = 0; i < graphicsResources.Count; i++)
                 graphicsResources[i].DisposeByGraphicsDevice();
             graphicsResources.Clear();
+        }
+
+        #endregion GraphicsResourceManagement
+
+        /// <summary>
+        /// Ensures all OpenGL commands given before this function was called are not being queued up (doesn't wait for them to finish)
+        /// </summary>
+        public void FlushCommands()
+        {
+            GL.Flush();
+        }
+
+        /// <summary>
+        /// Waits for all current OpenGL commands to finish being executed
+        /// </summary>
+        public void FinishCommands()
+        {
+            GL.Finish();
+        }
+
+        /// <summary>
+        /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
+        /// </summary>
+        /// <param name="resource">The resource to pass over</param>
+        public void MakeMine(GraphicsResource resource)
+        {
+            if (resource.GraphicsDevice != this)
+            {
+                resource.GraphicsDevice.OnResourceRemoved(resource);
+                resource.GraphicsDevice = this;
+                OnResourceAdded(resource);
+            }
+        }
+
+        /// <summary>
+        /// Returns whether the GL version is the specified version or newer
+        /// </summary>
+        /// <param name="major">The major version number</param>
+        /// <param name="minor">The minor version number</param>
+        public bool IsGLVersionAtLeast(int major, int minor)
+        {
+            return GLMajorVersion > major || (major == GLMajorVersion && GLMinorVersion >= minor);
         }
 
         /// <summary>

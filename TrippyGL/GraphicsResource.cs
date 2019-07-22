@@ -19,7 +19,7 @@ namespace TrippyGL
                 throw new ArgumentNullException("graphicsDevice");
 
             GraphicsDevice = graphicsDevice;
-            graphicsDevice.OnResourceCreated(this);
+            graphicsDevice.OnResourceAdded(this);
         }
 
         ~GraphicsResource()
@@ -58,7 +58,7 @@ namespace TrippyGL
                 Dispose(true);
                 IsDisposed = true;
                 GC.SuppressFinalize(this);
-                GraphicsDevice.OnResourceDisposed(this);
+                GraphicsDevice.OnResourceRemoved(this);
                 GraphicsDevice = null;
             }
         }

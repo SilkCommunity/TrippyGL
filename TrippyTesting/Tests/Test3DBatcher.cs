@@ -348,7 +348,9 @@ namespace TrippyTesting.Tests
             graphicsDevice.VertexArray = texBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            graphicsDevice.BlitFramebuffer(fbo1, null, new Rectangle(0, 0, this.Width, this.Height), new Rectangle(0, 0, this.Width, this.Height), ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            graphicsDevice.ReadFramebuffer = fbo1;
+            graphicsDevice.DrawFramebuffer = null;
+            graphicsDevice.BlitFramebuffer(new Rectangle(0, 0, this.Width, this.Height), new Rectangle(0, 0, this.Width, this.Height), ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
             FramebufferObject fbotmp = fbo1;
             fbo1 = fbo2;
