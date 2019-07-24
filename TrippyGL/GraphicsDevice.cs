@@ -36,21 +36,15 @@ namespace TrippyGL
             if (!IsGLVersionAtLeast(3, 0))
                 throw new PlatformNotSupportedException("TrippyGL only supports OpenGL 3.0 and up!");
 
+            InitIsAvailableVariables();
+
             graphicsResources = new List<GraphicsResource>(resourceCount);
 
             InitGLGetVariables();
-
             InitBufferObjectStates();
-            ForceBindVertexArray(null);
-            ForceUseShaderProgram(null);
             InitTextureStates();
-            drawFramebuffer = null;
-            readFramebuffer = null;
-            renderbuffer = null;
             ClipDistances = new ClipDistanceManager(this);
-
-
-            blendState = BlendState.Opaque;
+            ResetStates();
         }
 
         /// <summary>
@@ -174,6 +168,9 @@ namespace TrippyGL
             MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
             MaxDrawBuffers = GL.GetInteger(GetPName.MaxDrawBuffers);
             MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
+            MaxTransformFeedbackBuffers = GL.GetInteger(GetPName.MaxTransformFeedbackBuffers);
+            MaxTransformFeedbackInterleavedComponents = GL.GetInteger(GetPName.MaxTransformFeedbackInterleavedComponents);
+            MaxTransformFeedbackSeparateComponents = GL.GetInteger(GetPName.MaxTransformFeedbackSeparateComponents);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -212,6 +209,12 @@ namespace TrippyGL
 
         public int MaxClipDistances { get; private set; }
 
+        public int MaxTransformFeedbackBuffers { get; private set; }
+
+        public int MaxTransformFeedbackInterleavedComponents { get; private set; }
+
+        public int MaxTransformFeedbackSeparateComponents { get; private set; }
+
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
         public string GLVendor { get { return GL.GetString(StringName.Vendor); } }
@@ -224,13 +227,24 @@ namespace TrippyGL
 
         #region IsAvailable
 
-        public bool IsDoublePrecisionVertexAttribsAvailable { get { return IsGLVersionAtLeast(4, 1); } }
+        private void InitIsAvailableVariables()
+        {
+            IsDoublePrecisionVertexAttribsAvailable = IsGLVersionAtLeast(4, 1);
+            IsVertexAttribDivisorAvailable = IsGLVersionAtLeast(3, 3);
+            IsInstancedDrawingAvailable = IsGLVersionAtLeast(3, 1);
+            IsGeometryShaderAvailable = IsGLVersionAtLeast(3, 2);
+            IsTransformFeedbackObjectsAvailable = IsGLVersionAtLeast(4, 0);
+        }
 
-        public bool IsVertexAttribDivisorAvailable { get { return IsGLVersionAtLeast(3, 3); } }
+        public bool IsDoublePrecisionVertexAttribsAvailable { get; private set; }
 
-        public bool IsInstancedDrawingAvailable { get { return IsGLVersionAtLeast(3, 1); } }
+        public bool IsVertexAttribDivisorAvailable { get; private set; }
 
-        public bool IsGeometryShaderAvailable { get { return IsGLVersionAtLeast(3, 2); } }
+        public bool IsInstancedDrawingAvailable { get; private set; }
+
+        public bool IsGeometryShaderAvailable { get; private set; }
+
+        public bool IsTransformFeedbackObjectsAvailable { get; private set; }
 
         #endregion
 
@@ -563,8 +577,8 @@ namespace TrippyGL
 
         #region ShaderProgramBindingStates
 
-        /// <summary>The currently bound ShaderProgram's handle</summary>
         private ShaderProgram shaderProgram;
+        private TransformFeedbackObject transformFeedback;
 
         /// <summary>Gets or sets (binds) the currently bound ShaderProgram</summary>
         public ShaderProgram ShaderProgram
@@ -573,9 +587,23 @@ namespace TrippyGL
             set
             {
                 if (shaderProgram != value)
+                    ForceUseShaderProgram(value);
+            }
+        }
+
+        /// <summary>Gets or sets (binds) the current transform feedback object</summary>
+        public TransformFeedbackObject TransformFeedback
+        {
+            get { return transformFeedback; }
+            set
+            {
+                if (transformFeedback != value)
                 {
-                    GL.UseProgram(value == null ? 0 : value.Handle);
-                    shaderProgram = value;
+                    if (transformFeedback == null)
+                        TransformFeedbackObject.PerformUnbindOperation(this);
+                    else
+                        transformFeedback.PerformBindOperation();
+                    transformFeedback = value;
                 }
             }
         }
@@ -586,8 +614,24 @@ namespace TrippyGL
         /// <param name="program">The shader program to use</param>
         internal void ForceUseShaderProgram(ShaderProgram program)
         {
+            if (transformFeedback != null && transformFeedback.IsActive)
+                throw new InvalidOperationException("You can't change the shader program while a transform feedback operation is active");
+
             GL.UseProgram(program == null ? 0 : program.Handle);
             shaderProgram = program;
+        }
+
+        /// <summary>
+        /// Sets the current transform feedback without first checking whether it's already the currently bound transform feedback object
+        /// </summary>
+        /// <param name="transformFeedback">The transform feedback object to bind</param>
+        internal void ForceBindTransformFeedback(TransformFeedbackObject transformFeedback)
+        {
+            if (transformFeedback == null)
+                TransformFeedbackObject.PerformUnbindOperation(this);
+            else
+                transformFeedback.PerformBindOperation();
+            this.transformFeedback = transformFeedback;
         }
 
         /// <summary>
@@ -598,6 +642,8 @@ namespace TrippyGL
         {
             GL.UseProgram(0);
             shaderProgram = null;
+            TransformFeedbackObject.PerformUnbindOperation(this);
+            transformFeedback = null;
         }
 
         #endregion ShaderProgramBindingStates
@@ -1281,7 +1327,7 @@ namespace TrippyGL
             get { return polygonFrontFace; }
             set
             {
-                if(polygonFrontFace != value)
+                if (polygonFrontFace != value)
                 {
                     GL.FrontFace(value);
                     polygonFrontFace = value;

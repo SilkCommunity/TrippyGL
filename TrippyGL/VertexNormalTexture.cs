@@ -10,7 +10,7 @@ namespace TrippyGL
     /// Represents a vertex with Vector3 Position, Vector3 Normal and Vector2 TexCoords
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    struct VertexNormalTexture
+    public struct VertexNormalTexture
     {
         /// <summary>The size of a VertexNormalTexture measured in bytes</summary>
         public const int SizeInBytes = (3 + 3 + 2) * 4;

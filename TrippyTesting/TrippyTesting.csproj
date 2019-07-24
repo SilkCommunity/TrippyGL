@@ -63,6 +63,7 @@
     <Compile Include="Tests\StructPaddingTest.cs" />
     <Compile Include="Tests\TerrainMaker.cs" />
     <Compile Include="Tests\Test3DBatcher.cs" />
+    <Compile Include="Tests\TransformFeedback.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3dbatcher\3dfs.glsl">
@@ -118,6 +119,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="terrain\watervs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tfeedback\fs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tfeedback\vs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

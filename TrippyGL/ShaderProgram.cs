@@ -331,6 +331,13 @@ namespace TrippyGL
             SpecifyVertexAttribs(new T().AttribDescriptions, attribNames);
         }
 
+        public void ConfigureTransformFeedback(string[] feedbackOutputNames)
+        {
+            ValidateUnlinked();
+
+            GL.TransformFeedbackVaryings(Handle, feedbackOutputNames.Length, feedbackOutputNames, TransformFeedbackMode.InterleavedAttribs);
+        }
+
         /// <summary>
         /// Links the program.
         /// Once the program has been linked, it cannot be modifyed anymore, so make sure you add all your necessary shaders and specify vertex attributes
