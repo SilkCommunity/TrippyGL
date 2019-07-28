@@ -105,6 +105,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to set</param>
         public void SetData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateWriteOperation();
             ValidateSetParams(data, dataOffset, storageOffset, elementCount);
 
             Buffer.GraphicsDevice.BindBuffer(this);
@@ -129,6 +130,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to get</param>
         public void GetData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateReadOperation();
             ValidateGetParams(data, dataOffset, storageOffset, elementCount);
 
             Buffer.GraphicsDevice.BindBuffer(this);

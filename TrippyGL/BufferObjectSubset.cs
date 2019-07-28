@@ -23,7 +23,8 @@ namespace TrippyGL
         /// <summary>The length of this subset's storage measured in bytes</summary>
         public int StorageLengthInBytes { get; private set; }
 
-        /// <summary>The index of the next byte in the BufferObject's storage after this subset
+        /// <summary>
+        /// The index of the next byte in the BufferObject's storage after this subset
         /// (a byte that does NOT belong to this subset but is sequentially next to this subset's end).
         /// This is calculated as (StorageOffsetInBytes + StorageLengthInBytes)
         /// </summary>
@@ -77,7 +78,7 @@ namespace TrippyGL
             if (storageOffsetBytes < 0 || storageOffsetBytes >= Buffer.StorageLengthInBytes)
                 throw new ArgumentOutOfRangeException("storageOffsetBytes", storageOffsetBytes, "Storage offset must be in the range [0, bufferObject.StorageLengthInBytes)");
 
-            if (storageLengthBytes > Buffer.StorageLengthInBytes - storageOffsetBytes)
+            if (storageLengthBytes + storageOffsetBytes > Buffer.StorageLengthInBytes)
                 throw new ArgumentException("The given BufferObject isn't big enough for the specified range");
 
             StorageOffsetInBytes = storageOffsetBytes;

@@ -61,6 +61,7 @@ namespace TrippyGL
         /// <param name="index">The index in which to store the uniform value</param>
         public void SetValue(ref T value, int index = 0)
         {
+            Buffer.ValidateWriteOperation();
             if (index < 0 || index > StorageLength)
                 throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, this.StorageLength)");
 
@@ -85,6 +86,7 @@ namespace TrippyGL
         /// <param name="index">The array index of the value to read</param>
         public void GetValue(ref T value, int index = 0)
         {
+            Buffer.ValidateReadOperation();
             if (index < 0 || index > StorageLength)
                 throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, this.StorageLength)");
 

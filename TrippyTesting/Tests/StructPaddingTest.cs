@@ -119,14 +119,23 @@ namespace TrippyTesting.Tests
 
             public ushort x2;
             public byte y2;
+            private byte LMAObyte0;
             public byte z2;
 
             public Matrix4 mat4;
+            private Vector4 LMAOvec4;
 
             public short w;
+            private byte LMAObyte1;
 
             public byte cx;
+            private Vector3 LMAOvec3;
             public ushort cy;
+
+            private Matrix4 mainkra1;
+            private Matrix4 mainkra2;
+            private Matrix4 mainkra3;
+            private byte mainkra4;
 
             // "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
 
@@ -146,6 +155,15 @@ namespace TrippyTesting.Tests
 
                 this.cx = tobyte(tc.X);
                 this.cy = toushort(tc.Y);
+
+                LMAOvec4 = new Vector4();
+                LMAObyte1 = 0;
+                LMAOvec3 = new Vector3();
+                LMAObyte0 = 0;
+                mainkra1 = new Matrix4();
+                mainkra2 = new Matrix4();
+                mainkra3 = new Matrix4();
+                mainkra4 = 0;
             }
 
             static byte tobyte(float v)
@@ -169,20 +187,26 @@ namespace TrippyTesting.Tests
                 {
                     return new VertexAttribDescription[]
                     {
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //x
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //y
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //x
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //y
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z
 
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //x2
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //y2
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z2
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //x2
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //y2
+                        new VertexAttribDescription(1), //LMAObyte0 padding
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z2
                     
-                    new VertexAttribDescription(ActiveAttribType.FloatMat4), //mat4
+                        new VertexAttribDescription(ActiveAttribType.FloatMat4), //mat4
+                        VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec4), //LMAOvec4 padding
 
-                    new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short), //w
+                        new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short), //w
+                        new VertexAttribDescription(1), //LMAObyte1 padding
                     
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //cx
-                    new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort)  //cy
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //cx
+                        VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec3), //LMAOvec3 padding
+                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort),  //cy
+
+                        new VertexAttribDescription(193) //mainkra1-4 padding (3 matrices and a single byte
                     };
                 }
             }

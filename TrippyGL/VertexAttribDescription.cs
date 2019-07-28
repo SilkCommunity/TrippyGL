@@ -29,6 +29,9 @@ namespace TrippyGL
         /// <summary>Defines the rate at which this attribute advances when rendering. If 0, it advances once per vertex. Otherwise, it advances once every AttribDivisor instance/s</summary>
         public readonly int AttribDivisor;
 
+        /// <summary>Gets whether this VertexAttribDescription is only used to indicate padding</summary>
+        public bool IsPadding { get { return AttribIndicesUseCount == 0; } }
+
         /// <summary>
         /// Creates a VertexAttribDescription where the format of the data declared in the shader is the same as present in the buffer and no conversion needs to be done
         /// </summary>
@@ -77,9 +80,35 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Used internally by VertexAttribSource and VertexArray to indicate padding (unused, ignored buffer memory in between other vertex attribs).
+        /// The values given to the VertexAttribDescription by this constructor might not make sense
+        /// </summary>
+        /// <param name="paddingBytes">The size in bytes for this vertex attrib description</param>
+        public VertexAttribDescription(int paddingBytes)
+        {
+            Size = 0;
+            AttribBaseType = (VertexAttribPointerType)0;
+            SizeInBytes = paddingBytes; // The only non-zero field when a VertexAttribDescription is used for padding, stores the padding in bytes
+            Normalized = false;
+            AttribIndicesUseCount = 0; // We'll use this value to be the one that decides whether this is padding. If it uses 0 indices, it's padding.
+            AttribType = ActiveAttribType.None;
+            AttribDivisor = 0;
+        }
+
         public override string ToString()
         {
             return String.Concat(Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(), " baseType ", AttribBaseType.ToString());
+        }
+
+        public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, int size)
+        {
+            return new VertexAttribDescription(TrippyUtils.GetVertexAttribSizeInBytes(baseType) * size);
+        }
+
+        public static VertexAttribDescription CreatePadding(ActiveAttribType attribType)
+        {
+            return CreatePadding(TrippyUtils.GetVertexAttribBaseType(attribType), TrippyUtils.GetVertexAttribTypeSize(attribType));
         }
 
         private static void EnsureDefined(ActiveAttribType attribType)

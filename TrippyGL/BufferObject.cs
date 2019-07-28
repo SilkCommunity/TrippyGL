@@ -29,6 +29,9 @@ namespace TrippyGL
             RecreateStorage(sizeInBytes, usageHint);
         }
         
+        // TODO: If something like a transform feedback operation is active, you can't read/write/reallocate storage for ANY PART OF THE BUFFER
+        // so we need to throw some fucking exceptions
+
         /// <summary>
         /// Recreate this buffer object's storage with a new size and usage hint. The contents of the new storage are undefined after the operation
         /// </summary>
@@ -71,6 +74,24 @@ namespace TrippyGL
         public override string ToString()
         {
             return String.Concat("Handle=", Handle.ToString(), ", StorageLengthInBytes=", StorageLengthInBytes.ToString(), ", UsageHint=", UsageHint.ToString());
+        }
+
+        /// <summary>
+        /// This should always be called just before a read operation from this BufferObject.
+        /// If the operation can't occur for any reason, an exception is thrown
+        /// </summary>
+        internal void ValidateReadOperation()
+        {
+
+        }
+
+        /// <summary>
+        /// This should always be called just before a write operation from this BufferObject.
+        /// If the operation can't occur for any reason, an exception is thrown
+        /// </summary>
+        internal void ValidateWriteOperation()
+        {
+
         }
 
         private static void ValidateBufferSize(int sizeInBytes)

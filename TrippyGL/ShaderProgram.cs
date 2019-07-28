@@ -278,6 +278,8 @@ namespace TrippyGL
             if (attribNames == null)
                 throw new ArgumentNullException("attribNames");
 
+            attribData = TrippyUtils.CopyVertexAttribDescriptionsWithoutPaddingDescriptors(attribData);
+
             if (attribData.Length == 0)
                 throw new ArgumentException("There must be at least one attribute source", "attribData");
 
@@ -285,7 +287,7 @@ namespace TrippyGL
                 throw new ArgumentException("The attribData and attribNames arrays must have matching lengths");
 
             int index = 0;
-            for(int i=0; i<attribNames.Length; i++)
+            for (int i = 0; i < attribNames.Length; i++)
             {
                 if (String.IsNullOrEmpty(attribNames[i]))
                     throw new ArgumentException("All names in the array must have be valid");
@@ -293,9 +295,13 @@ namespace TrippyGL
                 GL.BindAttribLocation(Handle, index, attribNames[i]);
                 index += attribData[i].AttribIndicesUseCount;
             }
-
+            
+            // The following stored arrays are copies of the ones provided by the user.
+            // This way we ensure the user can't modify these
             givenAttribDescriptions = attribData;
-            givenAttribNames = attribNames;
+            givenAttribNames = new string[attribNames.Length];
+            for (int i = 0; i < attribNames.Length; i++)
+                givenAttribNames[i] = attribNames[i];
         }
 
         /// <summary>

@@ -99,6 +99,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to set</param>
         public void SetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
@@ -124,6 +125,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to set</param>
         public void SetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
@@ -149,6 +151,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to set</param>
         public void SetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
 
@@ -174,6 +177,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to get</param>
         public void GetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 
@@ -199,6 +203,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to get</param>
         public void GetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 
@@ -224,6 +229,7 @@ namespace TrippyGL
         /// <param name="elementCount">The amount of elements to get</param>
         public void GetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
         {
+            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
 

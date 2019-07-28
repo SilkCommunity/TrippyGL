@@ -79,13 +79,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.
-        /// The parameters of glVertexAttribPointer are calculated based on the VertexAttribSource-s from AttribSources
+        /// Updates the places where vertex data is read from for this VertexArray. Call this whenever you change a buffer subset
         /// </summary>
         /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         public void UpdateVertexAttributes(bool compensateStructPadding = true, int paddingPackValue = 4)
         {
+            // Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.
+            // The parameters of glVertexAttribPointer are calculated based on the VertexAttribSource-s from AttribSources
+
             GraphicsDevice.VertexArray = this;
 
             AttribCallDesc[] calls = new AttribCallDesc[AttribSources.Length];
@@ -101,9 +103,11 @@ namespace TrippyGL
                 attribIndex += calls[i].source.AttribDescription.AttribIndicesUseCount;
             }
 
-            // Sort by buffer object, so all sources that share BufferObject are grouped together
+            // Sort by buffer object, so all sources that share BufferObject are grouped together.
+            // This facilitates calculating the offset values, since we only need to work with one offset at a time
+            // rather than save the offset of each buffer simultaneously
             Array.Sort(calls, (x, y) => x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle));
-
+            // Note that the calls array is now sorted by both attrib index and buffer handle
 
             if (compensateStructPadding)
             {
@@ -111,7 +115,6 @@ namespace TrippyGL
                 int offset = 0;
                 BufferObjectSubset prevSubset = null; //setting this to null ensures the first for loop will enter the "different subset" if and initialize these variables
                 VertexAttribPointerType currentBaseType = 0;
-                int baseTypeCount = 0, baseTypeByteSize = 0;
 
                 for (int i = 0; i < calls.Length; i++)
                 {
@@ -119,26 +122,23 @@ namespace TrippyGL
                     {
                         // it's a different buffer subset, so let's calculate the padding values as for a new, different struct
                         offset = 0;
-                        baseTypeCount = 0;
                         prevSubset = calls[i].source.BufferSubset;
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
-                        baseTypeByteSize = TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType);
                         calls[i].offset = 0;
                     }
                     else if (currentBaseType != calls[i].source.AttribDescription.AttribBaseType)
                     {
                         // the base type has changed, let's ensure padding is applied to offset
-                        baseTypeCount = 0;
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
-                        baseTypeByteSize = TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType);
-                        int p = Math.Min(baseTypeByteSize, paddingPackValue);
-                        offset = (offset + p - 1) / p * p;
+                        if (!calls[i].source.IsPadding)
+                        { // We add the manual padding, unless it is padding added specifically by the user
+                            int packval = Math.Min(TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType), paddingPackValue); // offset should be aligned by the default packing value or the size of the base type
+                            offset = (offset + packval - 1) / packval * packval; // Make offset be greater or equal to offset and divisible by packval
+                        }
                     }
-                    baseTypeCount += calls[i].source.AttribDescription.Size * calls[i].source.AttribDescription.AttribIndicesUseCount;
 
                     calls[i].offset = offset;
                     offset += calls[i].source.AttribDescription.SizeInBytes;
-
                 }
                 #endregion
             }
@@ -162,11 +162,7 @@ namespace TrippyGL
             }
 
             for (int i = 0; i < calls.Length; i++)
-            {
-
-                GraphicsDevice.BindBuffer(calls[i].source.BufferSubset);
                 calls[i].CallGlVertexAttribPointer();
-            }
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBuffer == null ? 0 : IndexBuffer.BufferHandle);
         }
@@ -235,6 +231,7 @@ namespace TrippyGL
 
             public void CallGlVertexAttribPointer()
             {
+                source.BufferSubset.Buffer.GraphicsDevice.BindBuffer(source.BufferSubset);
                 int offs = offset + source.BufferSubset.StorageOffsetInBytes;
                 int stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
                 for (int i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)

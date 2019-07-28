@@ -83,6 +83,13 @@ namespace TrippyGL
             IsPaused = false;
         }
 
+        protected override void Dispose(bool isManualDispose)
+        {
+            if (Handle != -1)
+                GL.DeleteTransformFeedback(Handle);
+            base.Dispose(isManualDispose);
+        }
+
         internal void PerformBindOperation()
         {
             if (GraphicsDevice.TransformFeedback != null && GraphicsDevice.TransformFeedback.IsActive)
