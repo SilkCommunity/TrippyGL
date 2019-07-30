@@ -42,7 +42,7 @@ namespace TrippyGL
         /// Checks that the names given for some vertex attributes match the names found for the actual vertex attributes
         /// </summary>
         /// <param name="providedNames"></param>
-        internal bool CheckThatAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
+        internal bool DoAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
         {
             // This function assumes the length of the two given arrays match
 
@@ -52,14 +52,13 @@ namespace TrippyGL
             // That said, both arrays are indexed in the same way. So if all attributes are active, we'll basically just
             // check one-by-one, index-by-index that the names on attributes[i] match providedNames[i]
 
-            int nameIndex = -1;
+            int nameIndex = 0;
 
             if (providedNames.Length == 0)
                 return attributes.Length == 0;
 
             for (int i = 0; i < attributes.Length; i++)
             {
-                nameIndex++;
                 if (nameIndex == providedNames.Length)
                     return false;
 
@@ -68,6 +67,7 @@ namespace TrippyGL
                     if (++nameIndex == providedNames.Length)
                         return false;
                 }
+                nameIndex++;
             }
 
             return true;

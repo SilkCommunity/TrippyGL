@@ -19,7 +19,9 @@ namespace TrippyTesting.Tests
         VertexArray arrayRead, arrayWrite;
         VertexDataBufferSubset<Vector3> subsetPositionRead, subsetNormalRead, subsetPositionWrite, subsetNormalWrite;
 
-        int tbo;
+        TransformFeedbackObject TFObject;
+
+        int tfo;
 
         GraphicsDevice graphicsDevice;
 
@@ -50,7 +52,7 @@ namespace TrippyTesting.Tests
             program.AddVertexShader(File.ReadAllText("tfeedback/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("tfeedback/fs.glsl"));
             program.SpecifyVertexAttribs<VertexNormal>(new string[] { "vPosition", "vNormal" });
-            GL.TransformFeedbackVaryings(program.Handle, 2, new string[] { "tPosition", "tNormal" }, TransformFeedbackMode.SeparateAttribs);
+            GL.TransformFeedbackVaryings(program.Handle, 2, new string[] { "tPosition", "tNormal", }, TransformFeedbackMode.SeparateAttribs);
             program.LinkProgram();
 
             VertexNormal[] vertices = new VertexNormal[]
@@ -62,7 +64,7 @@ namespace TrippyTesting.Tests
 
             Vector3[] positions = new Vector3[vertices.Length];
             Vector3[] normals = new Vector3[vertices.Length];
-            for(int i=0; i<vertices.Length; i++)
+            for (int i = 0; i < vertices.Length; i++)
             {
                 positions[i] = vertices[i].Position;
                 normals[i] = vertices[i].Normal;
@@ -70,14 +72,10 @@ namespace TrippyTesting.Tests
 
             buffer1 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
             buffer2 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
-            //subsetRead = new VertexDataBufferSubset<VertexNormal>(buffer1, vertices, 0, 0, vertices.Length);
-            //subsetWrite = new VertexDataBufferSubset<VertexNormal>(buffer2, new VertexNormal[vertices.Length], 0, 0, vertices.Length);
             subsetPositionRead = new VertexDataBufferSubset<Vector3>(buffer1, positions, 0, 0, positions.Length);
             subsetNormalRead = new VertexDataBufferSubset<Vector3>(buffer1, normals, 0, subsetPositionRead.StorageNextInBytes, positions.Length);
             subsetPositionWrite = new VertexDataBufferSubset<Vector3>(buffer2, new Vector3[positions.Length], 0, 0, normals.Length);
             subsetNormalWrite = new VertexDataBufferSubset<Vector3>(buffer2, new Vector3[normals.Length], 0, subsetPositionWrite.StorageNextInBytes, normals.Length);
-            //arrayRead = VertexArray.CreateSingleBuffer<VertexNormal>(graphicsDevice, subsetRead);
-            //arrayWrite = VertexArray.CreateSingleBuffer<VertexNormal>(graphicsDevice, subsetWrite);
             arrayRead = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
                 new VertexAttribSource(subsetPositionRead, ActiveAttribType.FloatVec3),
@@ -89,8 +87,14 @@ namespace TrippyTesting.Tests
                 new VertexAttribSource(subsetNormalWrite, ActiveAttribType.FloatVec3)
             });
 
-            tbo = GL.GenTransformFeedback();
-            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, tbo);
+            tfo = GL.GenTransformFeedback();
+            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, tfo);
+
+            TFObject = new TransformFeedbackObject(graphicsDevice, new TransformFeedbackVariableDescription[]
+            {
+                new TransformFeedbackVariableDescription(subsetPositionWrite, TransformFeedbackType.FloatVec3),
+                new TransformFeedbackVariableDescription(subsetNormalWrite, TransformFeedbackType.FloatVec3)
+            }, TransformFeedbackPrimitiveType.Triangles);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -109,8 +113,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             graphicsDevice.ShaderProgram = program;
-            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, tbo);
-            //GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, 0, subsetWrite.BufferHandle, (IntPtr)subsetWrite.StorageOffsetInBytes, subsetWrite.StorageLengthInBytes);
+            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, tfo);
             GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, 0, subsetPositionWrite.BufferHandle, (IntPtr)subsetPositionWrite.StorageOffsetInBytes, subsetPositionWrite.StorageLengthInBytes);
             GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, 1, subsetNormalWrite.BufferHandle, (IntPtr)subsetNormalWrite.StorageOffsetInBytes, subsetNormalWrite.StorageOffsetInBytes);
 

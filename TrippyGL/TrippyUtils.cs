@@ -519,7 +519,7 @@ namespace TrippyGL
         /// <param name="format">The format to check</param>
         public static bool IsRenderbufferFormatDepthOnly(RenderbufferFormat format)
         {
-            return format == RenderbufferFormat.Depth16 || format  == RenderbufferFormat.Depth24|| format == RenderbufferFormat.Depth32f;
+            return format == RenderbufferFormat.Depth16 || format == RenderbufferFormat.Depth24 || format == RenderbufferFormat.Depth32f;
         }
 
         /// <summary>
@@ -568,6 +568,85 @@ namespace TrippyGL
             if (IsRenderbufferFormatStencilOnly(format))
                 return FramebufferAttachmentPoint.Stencil;
             throw new ArgumentException("The specified format appears to be invalid");
+        }
+
+
+
+        /// <summary>
+        /// Returns the amount of components used by a specified type of transform feedback variable
+        /// </summary>
+        /// <param name="type">The variable type to check</param>
+        public static int GetTransformFeedbackTypeComponentCount(TransformFeedbackType type)
+        {
+            if (type >= TransformFeedbackType.Int && type <= TransformFeedbackType.Float) //UnsignedInt is in between these
+                return 1;
+
+            switch (type)
+            {
+                case TransformFeedbackType.Double:
+                case TransformFeedbackType.FloatVec2:
+                case TransformFeedbackType.IntVec2:
+                case TransformFeedbackType.UnsignedIntVec2:
+                    return 2;
+
+                case TransformFeedbackType.FloatVec3:
+                case TransformFeedbackType.IntVec3:
+                case TransformFeedbackType.UnsignedIntVec3:
+                    return 3;
+
+                case TransformFeedbackType.FloatVec4:
+                case TransformFeedbackType.IntVec4:
+                case TransformFeedbackType.UnsignedIntVec4:
+                case TransformFeedbackType.FloatMat2:
+                case TransformFeedbackType.DoubleVec2:
+                    return 4;
+
+                case TransformFeedbackType.FloatMat2x3:
+                case TransformFeedbackType.FloatMat3x2:
+                case TransformFeedbackType.DoubleVec3:
+                    return 6;
+
+                case TransformFeedbackType.FloatMat2x4:
+                case TransformFeedbackType.FloatMat4x2:
+                case TransformFeedbackType.DoubleVec4:
+                case TransformFeedbackType.DoubleMat2:
+                    return 8;
+
+                case TransformFeedbackType.FloatMat3x4:
+                case TransformFeedbackType.FloatMat4x3:
+                case TransformFeedbackType.DoubleMat2x3:
+                case TransformFeedbackType.DoubleMat3x2:
+                    return 12;
+
+                case TransformFeedbackType.FloatMat3:
+                    return 9;
+
+                case TransformFeedbackType.FloatMat4:
+                case TransformFeedbackType.DoubleMat2x4:
+                case TransformFeedbackType.DoubleMat4x2:
+                    return 16;
+
+                case TransformFeedbackType.DoubleMat3:
+                    return 18;
+
+                case TransformFeedbackType.DoubleMat4x3:
+                case TransformFeedbackType.DoubleMat3x4:
+                    return 24;
+
+                case TransformFeedbackType.DoubleMat4:
+                    return 32;
+            }
+
+            throw new ArgumentException("The specified TransformFeedbackType value is invalid", "type");
+        }
+
+        /// <summary>
+        /// Returns whether the specified transform feedback variable type is a double-precition type
+        /// </summary>
+        /// <param name="type">The variable type to check</param>
+        public static bool IsTransformFeedbackTypeDoublePrecition(TransformFeedbackType type)
+        {
+            return type == TransformFeedbackType.Double || type >= TransformFeedbackType.DoubleMat2;
         }
     }
 }

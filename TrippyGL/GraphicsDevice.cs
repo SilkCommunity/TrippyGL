@@ -19,8 +19,6 @@ namespace TrippyGL
         /// <summary>Whether this GraphicsDevice has been disposed</summary>
         public bool IsDisposed { get; private set; }
 
-        private List<GraphicsResource> graphicsResources;
-
         /// <summary>
         /// Creates a GraphicsDevice to manage the given graphics context
         /// </summary>
@@ -171,6 +169,9 @@ namespace TrippyGL
             MaxTransformFeedbackBuffers = GL.GetInteger(GetPName.MaxTransformFeedbackBuffers);
             MaxTransformFeedbackInterleavedComponents = GL.GetInteger(GetPName.MaxTransformFeedbackInterleavedComponents);
             MaxTransformFeedbackSeparateComponents = GL.GetInteger(GetPName.MaxTransformFeedbackSeparateComponents);
+            MaxTransformFeedbackSeparateAttribs = GL.GetInteger(GetPName.MaxTransformFeedbackSeparateAttribs);
+            MaxShaderStorageBufferBindings = GL.GetInteger((GetPName)All.MaxShaderStorageBufferBindings);
+            MaxAtomicCounterBufferBindings = GL.GetInteger((GetPName)All.MaxAtomicCounterBufferBindings);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -215,6 +216,12 @@ namespace TrippyGL
 
         public int MaxTransformFeedbackSeparateComponents { get; private set; }
 
+        public int MaxTransformFeedbackSeparateAttribs { get; private set; }
+
+        public int MaxShaderStorageBufferBindings { get; private set; }
+        
+        public int MaxAtomicCounterBufferBindings { get; private set; }
+
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
 
         public string GLVendor { get { return GL.GetString(StringName.Vendor); } }
@@ -234,6 +241,7 @@ namespace TrippyGL
             IsInstancedDrawingAvailable = IsGLVersionAtLeast(3, 1);
             IsGeometryShaderAvailable = IsGLVersionAtLeast(3, 2);
             IsTransformFeedbackObjectsAvailable = IsGLVersionAtLeast(4, 0);
+            IsDoublePrecitionShaderVariablesAvailable = IsGLVersionAtLeast(4, 0);
         }
 
         public bool IsDoublePrecisionVertexAttribsAvailable { get; private set; }
@@ -246,6 +254,8 @@ namespace TrippyGL
 
         public bool IsTransformFeedbackObjectsAvailable { get; private set; }
 
+        public bool IsDoublePrecitionShaderVariablesAvailable { get; private set; }
+
         #endregion
 
         #region BindingStates
@@ -253,25 +263,25 @@ namespace TrippyGL
         #region BufferObjectBindingStates
 
         /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
-        private const int BufferTargetCount = 13;
+        private const int BufferTargetCount = 12;
 
         // The index on the bufferBindings array where each BufferTarget is located
-        private const int transformFeedbackBufferIndex = 0; //ranged
-        private const int uniformBufferIndex = 1; //ranged
-        private const int shaderStorageBufferIndex = 2; //ranged
-        private const int atomicCounterBufferIndex = 3; //ranged
-        private const int arrayBufferIndex = 4;
-        private const int textureBufferIndex = 5;
-        private const int pixelUnpackBufferIndex = 6;
-        private const int pixelPackBufferIndex = 7;
-        private const int drawIndirectBufferIndex = 8;
-        private const int dispatchIndirectBufferIndex = 9;
-        private const int copyReadBufferIndex = 10;
-        private const int copyWriteBufferIndex = 11;
-        private const int queryBufferIndex = 12;
+        private const int uniformBufferIndex = 0; //ranged
+        private const int shaderStorageBufferIndex = 1; //ranged
+        private const int atomicCounterBufferIndex = 2; //ranged
+        private const int arrayBufferIndex = 3;
+        private const int textureBufferIndex = 4;
+        private const int pixelUnpackBufferIndex = 5;
+        private const int pixelPackBufferIndex = 6;
+        private const int drawIndirectBufferIndex = 7;
+        private const int dispatchIndirectBufferIndex = 8;
+        private const int copyReadBufferIndex = 9;
+        private const int copyWriteBufferIndex = 10;
+        private const int queryBufferIndex = 11;
 
         // Other buffer binding locations and where they are stored:
         // GL_ELEMENT_ARRAY_BUFFER is stored on a Vertex Array Object
+        // GL_TRANSFORM_FEEDBACK_BUFFER is stored on a Transform Feedback Object
 
         internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
         private const int defaultBufferTargetBindingIndex = arrayBufferIndex;
@@ -298,7 +308,6 @@ namespace TrippyGL
             // the buffer target and generic binding id used to get the BufferRangeBinding array.
             // However, trying to do this with any other target will result in an IndexOutOfRangeException
 
-            bufferBindingTargets[transformFeedbackBufferIndex] = BufferTarget.TransformFeedbackBuffer;
             bufferBindingTargets[uniformBufferIndex] = BufferTarget.UniformBuffer;
             bufferBindingTargets[shaderStorageBufferIndex] = BufferTarget.ShaderStorageBuffer;
             bufferBindingTargets[atomicCounterBufferIndex] = BufferTarget.AtomicCounterBuffer;
@@ -314,12 +323,11 @@ namespace TrippyGL
 
             bufferBindings = new BufferObject[BufferTargetCount];
 
-            bufferRangeBindings = new BufferRangeBinding[4][];
+            bufferRangeBindings = new BufferRangeBinding[3][];
 
-            bufferRangeBindings[0] = new BufferRangeBinding[GL.GetInteger(GetPName.MaxTransformFeedbackBuffers)];
-            bufferRangeBindings[1] = new BufferRangeBinding[GL.GetInteger(GetPName.MaxUniformBufferBindings)];
-            bufferRangeBindings[2] = new BufferRangeBinding[GL.GetInteger((GetPName)All.MaxShaderStorageBufferBindings)]; //opentk wtf
-            bufferRangeBindings[3] = new BufferRangeBinding[GL.GetInteger((GetPName)All.MaxAtomicCounterBufferBindings)];
+            bufferRangeBindings[0] = new BufferRangeBinding[MaxUniformBufferBindings];
+            bufferRangeBindings[1] = new BufferRangeBinding[MaxShaderStorageBufferBindings]; //opentk wtf
+            bufferRangeBindings[2] = new BufferRangeBinding[MaxAtomicCounterBufferBindings];
         }
 
         /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_ARRAY_BUFFER</summary>
@@ -486,7 +494,7 @@ namespace TrippyGL
             for (int i = 0; i < BufferTargetCount; i++)
                 bufferBindings[i] = null;
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < bufferRangeBindings.Length; i++)
             {
                 BufferRangeBinding[] arr = bufferRangeBindings[i];
                 for (int c = 0; c < arr.Length; c++)
@@ -499,7 +507,7 @@ namespace TrippyGL
         /// Each BufferRangeBinding represents one of these binding points in a BufferTarget. Of course, this must be in a BufferTarget
         /// to which multiple buffers can be bound.
         /// </summary>
-        private struct BufferRangeBinding
+        internal struct BufferRangeBinding
         {
             public BufferObject Buffer;
             public int Offset;
@@ -513,23 +521,24 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Set the values of this BufferRangeBinding as for when glBindBufferBase was called
-            /// </summary>
-            public void SetBase(BufferObjectSubset buffer)
-            {
-                Buffer = buffer.Buffer;
-                Offset = 0;
-                Size = buffer.StorageLengthInBytes;
-            }
-
-            /// <summary>
-            /// Set the values of the BufferRangeBinding
+            /// Set the values of this BufferRangeBinding to the specified range of the given buffer
             /// </summary>
             public void SetRange(BufferObjectSubset buffer, int offset, int size)
             {
                 Buffer = buffer.Buffer;
                 Offset = offset;
                 Size = size;
+            }
+
+            /// <summary>
+            /// Sets the values of this BufferRangeBinding to the entire given subset
+            /// </summary>
+            /// <param name="buffer"></param>
+            public void SetRange(BufferObjectSubset buffer)
+            {
+                Buffer = buffer.Buffer;
+                Offset = buffer.StorageOffsetInBytes;
+                Size = buffer.StorageLengthInBytes;
             }
         }
 
@@ -1610,6 +1619,8 @@ namespace TrippyGL
         #endregion DrawingFunctions
 
         #region GraphicsResourceManagement
+
+        private List<GraphicsResource> graphicsResources;
 
         /// <summary>
         /// This is called by GraphicResource-s on creation

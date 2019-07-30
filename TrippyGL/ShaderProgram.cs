@@ -20,6 +20,9 @@ namespace TrippyGL
         private string[] givenAttribNames = null;
         private VertexAttribDescription[] givenAttribDescriptions = null;
 
+        // This stores the provided names for transform feedback variables to compare that they actually exist and match after linking
+        private string[] givenTransformFeedbackVariableNames = null;
+
         /// <summary>Gets data about the geometry shader in this program, if there is one</summary>
         public GeometryShaderData GeometryShader { get; private set; }
 
@@ -29,8 +32,11 @@ namespace TrippyGL
         /// <summary>The list of block uniforms in this program</summary>
         public ShaderBlockUniformList BlockUniforms { get; private set; }
 
-        /// <summary>Get the attributes</summary>
-        public ActiveAttribList ActiveAttribs;
+        /// <summary>Gets the input attributes on this program</summary>
+        public ActiveAttribList ActiveAttribs { get; private set; }
+
+        /// <summary>Gets the output transform feedback attributes on this program, if there is transform feedback</summary>
+        public TransformFeedbackProgramVariableList TransformFeedbackVariables { get; private set; }
 
         /// <summary>Whether this ShaderProgram has been linked</summary>
         public bool IsLinked { get; private set; } = false;
@@ -86,7 +92,7 @@ namespace TrippyGL
             GL.CompileShader(vs);
             GL.GetShader(vs, ShaderParameter.CompileStatus, out int status);
             shaderLog = GL.GetShaderInfoLog(vs);
-            
+
             if (status == (int)All.False)
                 return false;
 
@@ -295,7 +301,7 @@ namespace TrippyGL
                 GL.BindAttribLocation(Handle, index, attribNames[i]);
                 index += attribData[i].AttribIndicesUseCount;
             }
-            
+
             // The following stored arrays are copies of the ones provided by the user.
             // This way we ensure the user can't modify these
             givenAttribDescriptions = attribData;
@@ -341,7 +347,7 @@ namespace TrippyGL
         {
             ValidateUnlinked();
 
-            GL.TransformFeedbackVaryings(Handle, feedbackOutputNames.Length, feedbackOutputNames, TransformFeedbackMode.InterleavedAttribs);
+            givenTransformFeedbackVariableNames = feedbackOutputNames;
         }
 
         /// <summary>
@@ -367,13 +373,13 @@ namespace TrippyGL
             GL.DetachShader(Handle, vsHandle);
             GL.DeleteShader(vsHandle);
 
-            if(fsHandle != -1)
+            if (fsHandle != -1)
             {
                 GL.DetachShader(Handle, fsHandle);
                 GL.DeleteShader(fsHandle);
             }
 
-            if(gsHandle != -1)
+            if (gsHandle != -1)
             {
                 GL.DetachShader(Handle, gsHandle);
                 GL.DeleteShader(gsHandle);
@@ -384,8 +390,14 @@ namespace TrippyGL
             ActiveAttribs = new ActiveAttribList(this);
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = new ShaderUniformList(this);
+            if (givenTransformFeedbackVariableNames != null)
+            {
+                TransformFeedbackVariables = new TransformFeedbackProgramVariableList(this);
 
-            if (!ActiveAttribs.CheckThatAttributesMatch(givenAttribDescriptions, givenAttribNames))
+                givenTransformFeedbackVariableNames = null;
+            }
+
+            if (!ActiveAttribs.DoAttributesMatch(givenAttribDescriptions, givenAttribNames))
                 throw new InvalidOperationException("The vertex attributes specified on SpecifyVertexAttribs() don't match the shader-defined attributes either in name or type");
             givenAttribNames = null;
             givenAttribDescriptions = null;

@@ -19,9 +19,27 @@ namespace TrippyGL
         /// <summary>The amount of VertexAttribSource-s in this list</summary>
         public int Length { get { return sources.Length; } }
 
+        /// <summary>
+        /// Creates a VertexAttribSourceList by copying the VertexAttribSource from the specified array
+        /// </summary>
+        /// <param name="sources"></param>
         internal VertexAttribSourceList(VertexAttribSource[] sources)
         {
-            this.sources = sources;
+            this.sources = new VertexAttribSource[sources.Length];
+            for (int i = 0; i < sources.Length; i++)
+                this.sources[i] = new VertexAttribSource(sources[i].BufferSubset, sources[i].AttribDescription);
+        }
+
+        /// <summary>
+        /// Creates a VertexAttribSourceList where all the VertexAttribSources use the same BufferObjectSubset
+        /// </summary>
+        /// <param name="bufferSubset"></param>
+        /// <param name="attribDescriptions"></param>
+        internal VertexAttribSourceList(BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions)
+        {
+            sources = new VertexAttribSource[attribDescriptions.Length];
+            for (int i = 0; i < sources.Length; i++)
+                sources[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
         }
 
         public override string ToString()

@@ -11,7 +11,7 @@ namespace TrippyTesting
         {
             Console.WriteLine("Program started");
 
-            using (GameWindow w = new Tests.StructPaddingTest())
+            using (GameWindow w = new Tests.TransformFeedback2())
                 w.Run();
 
             Console.WriteLine("Program ended");

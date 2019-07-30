@@ -17,6 +17,19 @@ namespace TrippyGL
 
         public readonly IndexBufferSubset IndexBuffer;
 
+        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSourceList attribSourceList, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+            : base(graphicsDevice)
+        {
+            AttribSources = attribSourceList;
+            EnsureAttribsValid();
+
+            Handle = GL.GenVertexArray();
+
+            IndexBuffer = indexBuffer;
+
+            UpdateVertexAttributes(compensateStructPadding, paddingPackValue); //this also binds the vertex array
+        }
+
         /// <summary>
         /// Creates a VertexArray with the specified attribute sources
         /// </summary>
@@ -26,22 +39,9 @@ namespace TrippyGL
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : base(graphicsDevice)
+            : this(graphicsDevice, new VertexAttribSourceList(attribSources), indexBuffer, compensateStructPadding, paddingPackValue)
         {
-            if (attribSources == null)
-                throw new ArgumentNullException("attribSources");
 
-            if (attribSources.Length == 0)
-                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribSources");
-
-            AttribSources = new VertexAttribSourceList(attribSources);
-            EnsureAttribsValid();
-
-            Handle = GL.GenVertexArray();
-
-            IndexBuffer = indexBuffer;
-
-            UpdateVertexAttributes(compensateStructPadding, paddingPackValue); //this also binds the vertex array
         }
 
         /// <summary>
@@ -54,28 +54,9 @@ namespace TrippyGL
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
         public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : base(graphicsDevice)
+            : this(graphicsDevice, new VertexAttribSourceList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
-            if (bufferSubset == null)
-                throw new ArgumentNullException("dataBuffer");
 
-            if (attribDescriptions == null)
-                throw new ArgumentNullException("attribDescriptions");
-
-            if (attribDescriptions.Length == 0)
-                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
-
-            VertexAttribSource[] s = new VertexAttribSource[attribDescriptions.Length];
-            for (int i = 0; i < s.Length; i++)
-                s[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
-            AttribSources = new VertexAttribSourceList(s);
-            EnsureAttribsValid();
-
-            Handle = GL.GenVertexArray();
-
-            IndexBuffer = indexBuffer;
-
-            UpdateVertexAttributes(compensateStructPadding, paddingPackValue); //this also binds the vertex array
         }
 
         /// <summary>
@@ -197,6 +178,9 @@ namespace TrippyGL
 
         private void EnsureAttribsValid()
         {
+            if (AttribSources.Length == 0)
+                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
+
             int attribIndexCount = 0;
             for (int i = 0; i < AttribSources.Length; i++)
             {

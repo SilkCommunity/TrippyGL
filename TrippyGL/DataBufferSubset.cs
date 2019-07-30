@@ -220,8 +220,8 @@ namespace TrippyGL
         /// <param name="sourceOffset">The index of the first element to copy from the source buffer</param>
         /// <param name="dest">The buffer to write data to</param>
         /// <param name="destOffset">The index of of the first element to write on the dest buffer</param>
-        /// <param name="dataCount">The amount of elements to copy</param>
-        public static void CopyBuffers(DataBufferSubset<T> source, int sourceOffset, DataBufferSubset<T> dest, int destOffset, int dataCount)
+        /// <param name="dataLength">The amount of elements to copy</param>
+        public static void CopyBuffers(DataBufferSubset<T> source, int sourceOffset, DataBufferSubset<T> dest, int destOffset, int dataLength)
         {
             GraphicsDevice g = source.Buffer.GraphicsDevice;
             if (g != dest.Buffer.GraphicsDevice)
@@ -233,16 +233,25 @@ namespace TrippyGL
             if (destOffset < 0 || destOffset > dest.StorageLength)
                 throw new ArgumentOutOfRangeException("destOffset", destOffset, "destOffset must be in the range [0, dest.StorageLength)");
 
-            if (sourceOffset + dataCount > source.StorageLength)
-                throw new BufferCopyException("There isn't enough data in the source buffer to copy dataCount elements");
+            if (sourceOffset + dataLength > source.StorageLength)
+                throw new BufferCopyException("There isn't enough data in the source buffer to copy dataLength elements");
 
-            if (destOffset + dataCount > dest.StorageLength)
-                throw new BufferCopyException("There isn't enough data in the dest buffer to copy dataCount elements");
+            if (destOffset + dataLength > dest.StorageLength)
+                throw new BufferCopyException("There isn't enough data in the dest buffer to copy dataLength elements");
+
+            if (source == dest)
+            {
+                // We're copying from and to the same buffer? Let's ensure the sections don't overlap then
+
+                if ((destOffset + dataLength <= sourceOffset) || (destOffset > sourceOffset + dataLength))
+                    throw new BufferCopyException("When copying to and from the same buffer, the ranges must not overlap");
+                // This checks that the dest range is either fully to the left or fully to the right of the source range
+            }
 
             g.CopyReadBuffer = source.Buffer;
             g.CopyWriteBuffer = dest.Buffer;
             int elementSize = source.ElementSize;
-            GL.CopyBufferSubData(BufferTarget.CopyReadBuffer, BufferTarget.CopyWriteBuffer, (IntPtr)(source.StorageOffsetInBytes + sourceOffset * elementSize), (IntPtr)(dest.StorageOffsetInBytes + destOffset * elementSize), dataCount * elementSize);
+            GL.CopyBufferSubData(BufferTarget.CopyReadBuffer, BufferTarget.CopyWriteBuffer, (IntPtr)(source.StorageOffsetInBytes + sourceOffset * elementSize), (IntPtr)(dest.StorageOffsetInBytes + destOffset * elementSize), dataLength * elementSize);
         }
 
         /// <summary>

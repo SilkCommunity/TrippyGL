@@ -64,6 +64,7 @@
     <Compile Include="Tests\TerrainMaker.cs" />
     <Compile Include="Tests\Test3DBatcher.cs" />
     <Compile Include="Tests\TransformFeedback.cs" />
+    <Compile Include="Tests\TransformFeedback2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3dbatcher\3dfs.glsl">
