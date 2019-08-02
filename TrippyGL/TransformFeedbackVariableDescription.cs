@@ -23,7 +23,7 @@ namespace TrippyGL
         public bool IsPadding { get { return (int)Type > 0 && (int)Type < 5; } }
 
         /// <summary>The amount of components to pad, if this is a padding descriptor</summary>
-        public int PaddingComponentCount { get { return (int)Type; } }
+        public int PaddingComponentCount { get { return ComponentCount; } }
 
         public TransformFeedbackVariableDescription(BufferObjectSubset bufferSubset, TransformFeedbackType type)
         {

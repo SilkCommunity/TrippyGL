@@ -276,7 +276,7 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (givenAttribNames != null)
-                throw new InvalidOperationException("Attributes have already been bound for this program");
+                throw new InvalidOperationException("Attributes have already been specified for this program");
 
             if (attribData == null)
                 throw new ArgumentNullException("attribData");
@@ -343,11 +343,19 @@ namespace TrippyGL
             SpecifyVertexAttribs(new T().AttribDescriptions, attribNames);
         }
 
-        public void ConfigureTransformFeedback(string[] feedbackOutputNames)
+        public void ConfigureTransformFeedback(TransformFeedbackObject transformFeedbackObject, string[] feedbackOutputNames)
         {
             ValidateUnlinked();
 
-            givenTransformFeedbackVariableNames = feedbackOutputNames;
+            if (givenTransformFeedbackVariableNames != null)
+                throw new InvalidOperationException("Transform feedback has already been configured on this ShaderProgram");
+
+            transformFeedbackObject.PerformConfigureShaderProgram(this, feedbackOutputNames);
+
+            // We copy all the strings into a new array so the user can't modify them if he still has a reference to the array
+            givenTransformFeedbackVariableNames = new string[feedbackOutputNames.Length];
+            for (int i = 0; i < feedbackOutputNames.Length; i++)
+                givenTransformFeedbackVariableNames[i] = feedbackOutputNames[i];
         }
 
         /// <summary>
@@ -393,7 +401,8 @@ namespace TrippyGL
             if (givenTransformFeedbackVariableNames != null)
             {
                 TransformFeedbackVariables = new TransformFeedbackProgramVariableList(this);
-
+                if (!TransformFeedbackVariables.DoVariablesMatch(givenTransformFeedbackVariableNames))
+                    throw new InvalidOperationException("The specified transform feedback output variables names don't match the shader-defined ones");
                 givenTransformFeedbackVariableNames = null;
             }
 

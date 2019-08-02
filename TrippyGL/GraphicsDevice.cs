@@ -240,7 +240,7 @@ namespace TrippyGL
             IsVertexAttribDivisorAvailable = IsGLVersionAtLeast(3, 3);
             IsInstancedDrawingAvailable = IsGLVersionAtLeast(3, 1);
             IsGeometryShaderAvailable = IsGLVersionAtLeast(3, 2);
-            IsTransformFeedbackObjectsAvailable = IsGLVersionAtLeast(4, 0);
+            IsAdvancedTransformFeedbackAvailable = IsGLVersionAtLeast(4, 0);
             IsDoublePrecitionShaderVariablesAvailable = IsGLVersionAtLeast(4, 0);
         }
 
@@ -252,7 +252,7 @@ namespace TrippyGL
 
         public bool IsGeometryShaderAvailable { get; private set; }
 
-        public bool IsTransformFeedbackObjectsAvailable { get; private set; }
+        public bool IsAdvancedTransformFeedbackAvailable { get; private set; }
 
         public bool IsDoublePrecitionShaderVariablesAvailable { get; private set; }
 
@@ -611,7 +611,7 @@ namespace TrippyGL
                     if (transformFeedback == null)
                         TransformFeedbackObject.PerformUnbindOperation(this);
                     else
-                        transformFeedback.PerformBindOperation();
+                        value.PerformBindOperation();
                     transformFeedback = value;
                 }
             }

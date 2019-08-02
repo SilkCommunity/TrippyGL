@@ -22,8 +22,8 @@ namespace TrippyGL
         /// <summary>The total amount of components used by all the variables (and padding!) on this list</summary>
         public int ComponentCount { get; private set; }
 
-        /// <summary>The amount of different buffer subsets present on this list</summary>
-        public int BufferSubsetCount { get; private set; }
+        /// <summary>The amount of buffer bindings needed for this list's variables</summary>
+        public int BufferBindingsNeeded { get; private set; }
 
         /// <summary>The total number of attributes. This will equal this.Count when there are no padding descriptors</summary>
         public int AttribCount { get; private set; }
@@ -34,13 +34,22 @@ namespace TrippyGL
         internal TransformFeedbackVariableDescriptionList(TransformFeedbackVariableDescription[] descriptions)
         {
             List<TransformFeedbackVariableDescription> list = new List<TransformFeedbackVariableDescription>(descriptions.Length);
-            List<BufferObjectSubset> allSubsets = new List<BufferObjectSubset>(descriptions.Length);
+            List<BufferObjectSubset> usedSubsets = new List<BufferObjectSubset>(descriptions.Length);
+            BufferBindingsNeeded = 0;
+            BufferObjectSubset previousSubset = null;
             AttribCount = 0;
 
             for (int i = 0; i < descriptions.Length; i++)
             {
-                if (!allSubsets.Contains(descriptions[i].BufferSubset))
-                    allSubsets.Add(descriptions[i].BufferSubset);
+                if (previousSubset != descriptions[i].BufferSubset)
+                {
+                    BufferBindingsNeeded++;
+                    previousSubset = descriptions[i].BufferSubset;
+                    if (usedSubsets.Contains(previousSubset))
+                        ContainsPadding = true; // It's gonna need padding... You should put buffer-sharing variables together though :/
+                    else
+                        usedSubsets.Add(previousSubset);
+                }
 
                 if (descriptions[i].IsPadding)
                 {
@@ -90,8 +99,22 @@ namespace TrippyGL
                 list.Add(desc);
             }
 
-            BufferSubsetCount = allSubsets.Count;
             this.descriptions = list.ToArray();
+        }
+
+        /// <summary>
+        /// Calculates the offset into a subset for a variable, measured in components
+        /// </summary>
+        /// <param name="variableIndex">The index in this list of the variable who's offset to calculate</param>
+        internal int CalculateVariableOffsetIntoSubset(int variableIndex)
+        {
+            int offset = 0;
+            for (int i = 0; i < variableIndex; i++)
+            {
+                if (descriptions[i].BufferSubset == descriptions[variableIndex].BufferSubset)
+                    offset += descriptions[i].ComponentCount;
+            }
+            return offset;
         }
     }
 }

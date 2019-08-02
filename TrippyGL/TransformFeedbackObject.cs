@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -32,17 +33,20 @@ namespace TrippyGL
 
         public TransformFeedbackObject(GraphicsDevice graphicsDevice, TransformFeedbackVariableDescription[] variableDescriptions, TransformFeedbackPrimitiveType primitiveType) : base(graphicsDevice)
         {
-            Handle = graphicsDevice.IsTransformFeedbackObjectsAvailable ? GL.GenTransformFeedback() : -1;
+            if (variableDescriptions.Length == 0)
+                throw new ArgumentException("At least one variable description must be specified for transform feedback");
             IsActive = false;
             IsPaused = false;
             PrimitiveType = primitiveType;
             Variables = new TransformFeedbackVariableDescriptionList(variableDescriptions);
 
-            if (Variables.BufferSubsetCount > graphicsDevice.MaxTransformFeedbackBuffers)
+            if (Variables.BufferBindingsNeeded > graphicsDevice.MaxTransformFeedbackBuffers)
                 throw new PlatformNotSupportedException("The specified variable descriptions need more buffers than are supported on this system");
 
+            if (Variables.ContainsPadding && graphicsDevice.IsAdvancedTransformFeedbackAvailable)
+                throw new PlatformNotSupportedException("Padding transform feedback output variables requires advanced transform feedback capabilities");
 
-            if (!Variables.ContainsPadding && Variables.BufferSubsetCount == Variables.Count)
+            if (!Variables.ContainsPadding && Variables.BufferBindingsNeeded == Variables.Count)
             { // No padding and one variable goes to each buffer? Then let's just use separate attribs
                 #region UseSeparateAttribs
 
@@ -72,22 +76,59 @@ namespace TrippyGL
                     if (Variables[i].ComponentCount > graphicsDevice.MaxTransformFeedbackInterleavedComponents)
                         throw new PlatformNotSupportedException("A specified variable description uses more components than the maximum supported on this system for interleaved attribs");
 
-                bufferBindings = new GraphicsDevice.BufferRangeBinding[Variables.BufferSubsetCount];
+                bufferBindings = new GraphicsDevice.BufferRangeBinding[Variables.BufferBindingsNeeded];
+                int bindingIndex = 1;
+                int variableIndex = 0;
 
-                for(int i=0; i<Variables.Count; i++)
+                bufferBindings[0].SetRange(Variables[0].BufferSubset);
+                while(bindingIndex < bufferBindings.Length)
                 {
-                    
+                    if (Variables[variableIndex].BufferSubset != Variables[variableIndex - 1].BufferSubset)
+                    {
+                        // When the buffer subset changes, we need to go to the next index
+                        bufferBindings[bindingIndex++].SetRange(Variables[variableIndex].BufferSubset);
+                    }
+                    variableIndex++;
                 }
 
                 #endregion
             }
 
+            Handle = graphicsDevice.IsAdvancedTransformFeedbackAvailable ? GL.GenTransformFeedback() : -1;
             if (Handle != -1)
             {
                 graphicsDevice.ForceBindTransformFeedback(this);
                 for (int i = 0; i < bufferBindings.Length; i++)
                     GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, i, bufferBindings[i].Buffer.Handle, (IntPtr)bufferBindings[i].Offset, bufferBindings[i].Size);
             }
+        }
+
+        /// <summary>
+        /// Configures the transform feedback varyings for a ShaderProgram. The ShaderProgram must be unlinked.
+        /// This method is called by ShaderProgram.ConfigureTransformFeedback()
+        /// </summary>
+        /// <param name="program">The unlinked program</param>
+        /// <param name="feedbackOutputNames">The provided names for the transform feedback output variables</param>
+        internal void PerformConfigureShaderProgram(ShaderProgram program, string[] feedbackOutputNames)
+        {
+            if (Variables.AttribCount != feedbackOutputNames.Length)
+                throw new InvalidOperationException("The amount of specified output variables names don't match the amount of variables on this transform feedback");
+
+            List<string> varyings = new List<string>(feedbackOutputNames.Length * 2);
+            int nameIndex = 0;
+
+            for (int i = 0; i < Variables.Count; i++)
+            {
+                if (i != 0 && Variables[i].BufferSubset != Variables[i - 1].BufferSubset)
+                    varyings.Add("gl_NextBuffer");
+
+                if (Variables[i].IsPadding)
+                    varyings.Add(String.Concat("gl_SkipComponents", Variables[i].PaddingComponentCount.ToString()));
+                else
+                    varyings.Add(feedbackOutputNames[nameIndex++]);
+            }
+
+            GL.TransformFeedbackVaryings(program.Handle, varyings.Count, varyings.ToArray(), TransformFeedbackMode);
         }
 
         public void Begin()
@@ -100,16 +141,21 @@ namespace TrippyGL
                     throw new InvalidOperationException("Another transform feedback operation is already active. It must end before another one can begin");
 
                 GraphicsDevice.TransformFeedback = this;
-                GL.BeginTransformFeedback(PrimitiveType);
-
-                IsActive = true;
-                IsPaused = false;
             }
+
+            if (GraphicsDevice.ShaderProgram == null)
+                throw new InvalidOperationException("A transform feedback operation can't start if no ShaderProgram is in use");
+
+            GL.BeginTransformFeedback(PrimitiveType);
+
+            IsActive = true;
+            IsPaused = false;
+
         }
 
         public void Pause()
         {
-            if (GraphicsDevice.IsTransformFeedbackObjectsAvailable)
+            if (GraphicsDevice.IsAdvancedTransformFeedbackAvailable)
                 throw new PlatformNotSupportedException("Transform feedback pausing required OpenGL 4.0");
 
             if (!IsActive || GraphicsDevice.TransformFeedback != this) // The second condition shouldn't be necessary, since you can't change a TFO while it's active.
@@ -124,7 +170,7 @@ namespace TrippyGL
 
         public void Resume()
         {
-            if (GraphicsDevice.IsTransformFeedbackObjectsAvailable)
+            if (GraphicsDevice.IsAdvancedTransformFeedbackAvailable)
                 throw new PlatformNotSupportedException("Transform feedback pausing required OpenGL 4.0");
 
             if (!IsActive || GraphicsDevice.TransformFeedback != this) // The second condition shouldn't be necessary, since you can't change a TFO while it's active.
@@ -174,7 +220,7 @@ namespace TrippyGL
             if (graphicsDevice.TransformFeedback != null && graphicsDevice.TransformFeedback.IsActive)
                 throw new InvalidOperationException("A TransformFeedbackObject cannot be unbound if the current one is in an active feedback operation");
 
-            if (graphicsDevice.IsTransformFeedbackObjectsAvailable)
+            if (graphicsDevice.IsAdvancedTransformFeedbackAvailable)
                 GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
             else
             {

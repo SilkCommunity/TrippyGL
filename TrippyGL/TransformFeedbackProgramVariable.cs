@@ -30,7 +30,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("BufferIndex=", BufferIndex.ToString(), ", Size=", Size.ToString(), ", Type=", Type.ToString(), ", Name=", Name);
+            return String.Concat("BufferIndex=", BufferIndex.ToString(), ", Size=", Size.ToString(), ", Type=", Type.ToString(), ", Name=\"", Name, "\"");
         }
     }
 }

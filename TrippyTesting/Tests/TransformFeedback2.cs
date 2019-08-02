@@ -52,6 +52,10 @@ namespace TrippyTesting.Tests
                 new VertexNormal(new Vector3(0, 0.5f, 0), new Vector3(0.8f, 0.2f, 0.5f)),
                 new VertexNormal(new Vector3(0.5f, -0.5f, 0), new Vector3(0.6f, 0.9f, 0.3f)),
             };
+            vertices = new VertexNormal[4096];
+            for (int i = 0; i < vertices.Length; i++)
+                vertices[i] = new VertexNormal(new Vector3(randomf(-1, 1), randomf(-1, 1), randomf(-1, 1)), new Vector3(randomf(1), randomf(1), randomf(1)));
+
 
             Vector3[] positions = new Vector3[vertices.Length];
             Vector3[] normals = new Vector3[vertices.Length];
@@ -92,23 +96,51 @@ namespace TrippyTesting.Tests
             program.AddVertexShader(File.ReadAllText("tfeedback/vs.glsl"));
             program.AddFragmentShader(File.ReadAllText("tfeedback/fs.glsl"));
             program.SpecifyVertexAttribs<VertexNormal>(new string[] { "vPosition", "vNormal" });
-            //program TRANSFORM FEEDBACK
+            program.ConfigureTransformFeedback(tfoRead, new string[] { "tPosition", "tNormal" });
             program.LinkProgram();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-
+            time = (float)stopwatch.Elapsed.TotalSeconds;
+            ErrorCode c;
+            while ((c = GL.GetError()) != ErrorCode.NoError)
+            {
+                Console.WriteLine("Error found: " + c);
+            }
         }
 
+        private bool isRead = true;
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             graphicsDevice.ClearColor = Color4.Black;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.ShaderProgram = program;
-            graphicsDevice.VertexArray = arrayRead;
-            graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, subsetRead.StorageLength);
+            if (isRead)
+            {
+                tfoRead.Begin();
+
+                graphicsDevice.VertexArray = arrayRead;
+                graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, subsetRead.StorageLength);
+
+                tfoRead.End();
+
+                VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
+                subsetWrite.GetData(data);
+            }
+            else
+            {
+                tfoWrite.Begin();
+
+                graphicsDevice.VertexArray = arrayWrite;
+                graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, subsetWrite.StorageLength);
+
+                tfoWrite.End();
+                VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
+                subsetRead.GetData(data);
+            }
+            isRead = !isRead;
 
             SwapBuffers();
         }
@@ -123,6 +155,16 @@ namespace TrippyTesting.Tests
 
 
             graphicsDevice.Dispose();
+        }
+
+        public static float randomf(float max)
+        {
+            return (float)r.NextDouble() * max;
+        }
+
+        public static float randomf(float min, float max)
+        {
+            return min + (float)r.NextDouble() * (max - min);
         }
     }
 }
