@@ -17,27 +17,33 @@ namespace TrippyGL
         // Whether the feedback operation is paused and/or active
         // The current amount of primitives recorded in the current feedback operation, if active
 
+        /// <summary>The GL handle of this Transform Feedback Object</summary>
         public readonly int Handle;
 
+        /// <summary>Whether this transform feedback is in an active feedback operation</summary>
         public bool IsActive { get; private set; }
 
+        /// <summary>Whether the transform feedback operation is paused</summary>
         public bool IsPaused { get; private set; }
 
-        public TransformFeedbackPrimitiveType PrimitiveType { get; set; }
-
+        /// <summary>The mode in which the transform feedback attributes are written into the buffers</summary>
         public TransformFeedbackMode TransformFeedbackMode { get; private set; }
 
+        /// <summary>The output variables with which this transform feedback is configures</summary>
         public readonly TransformFeedbackVariableDescriptionList Variables;
 
+        /// <summary>The binding for each buffer index in this transform feedback</summary>
         private GraphicsDevice.BufferRangeBinding[] bufferBindings;
 
-        public TransformFeedbackObject(GraphicsDevice graphicsDevice, TransformFeedbackVariableDescription[] variableDescriptions, TransformFeedbackPrimitiveType primitiveType) : base(graphicsDevice)
+        private TransformFeedbackPrimitiveType beginPrimitiveType;
+
+        public TransformFeedbackObject(GraphicsDevice graphicsDevice, TransformFeedbackVariableDescription[] variableDescriptions) : base(graphicsDevice)
         {
             if (variableDescriptions.Length == 0)
                 throw new ArgumentException("At least one variable description must be specified for transform feedback");
+
             IsActive = false;
             IsPaused = false;
-            PrimitiveType = primitiveType;
             Variables = new TransformFeedbackVariableDescriptionList(variableDescriptions);
 
             if (Variables.BufferBindingsNeeded > graphicsDevice.MaxTransformFeedbackBuffers)
@@ -65,7 +71,7 @@ namespace TrippyGL
                 #endregion
             }
             else
-            {
+            { // We're gonna need to use interleaving or advanced interleaving
                 #region UseInterleavedAttribs
                 TransformFeedbackMode = TransformFeedbackMode.InterleavedAttribs;
 
@@ -114,24 +120,49 @@ namespace TrippyGL
             if (Variables.AttribCount != feedbackOutputNames.Length)
                 throw new InvalidOperationException("The amount of specified output variables names don't match the amount of variables on this transform feedback");
 
+            // We'll store all the varyings to give OpenGL in this list
             List<string> varyings = new List<string>(feedbackOutputNames.Length * 2);
             int nameIndex = 0;
 
             for (int i = 0; i < Variables.Count; i++)
             {
                 if (i != 0 && Variables[i].BufferSubset != Variables[i - 1].BufferSubset)
+                {
+                    #region NextBuffer
+                    // If the subset changed, we're now going into the next buffer index
                     varyings.Add("gl_NextBuffer");
 
+                    // We might need to add padding, if the same buffer subset is specified twice but not consecutively, it's
+                    // going to require two buffer indices and the second variable is gonna need padding so it doesn't overwrite
+                    // the first variable
+                    int skips = Variables.CalculateVariableOffsetIntoSubset(i);
+                    while (skips >= 4)
+                    {
+                        varyings.Add("gl_SkipComponents4");
+                        skips -= 4;
+                    }
+                    if (skips != 0)
+                        varyings.Add("gl_SkipComponents" + skips.ToString());
+                    #endregion
+                }
+
+                // Padding variables are specified to OpenGL as "gl_SkipComponentsX", with 'X' being an integer in the range [1, 4] 
                 if (Variables[i].IsPadding)
                     varyings.Add(String.Concat("gl_SkipComponents", Variables[i].PaddingComponentCount.ToString()));
-                else
+                else // If it's not padding, then let's get the next name and assign that name to the variable
                     varyings.Add(feedbackOutputNames[nameIndex++]);
             }
+            // nameIndex at this point should equal feedbackOutputNames.Length, because we checked
+            // that Variables.AttribCount equals it at the beginning.
 
             GL.TransformFeedbackVaryings(program.Handle, varyings.Count, varyings.ToArray(), TransformFeedbackMode);
         }
 
-        public void Begin()
+        /// <summary>
+        /// Starts a transform feedback operation
+        /// </summary>
+        /// <param name="primitiveType">The primitive type to record</param>
+        public void Begin(TransformFeedbackPrimitiveType primitiveType)
         {
             if (GraphicsDevice.TransformFeedback == null)
                 GraphicsDevice.ForceBindTransformFeedback(this);
@@ -146,19 +177,22 @@ namespace TrippyGL
             if (GraphicsDevice.ShaderProgram == null)
                 throw new InvalidOperationException("A transform feedback operation can't start if no ShaderProgram is in use");
 
-            GL.BeginTransformFeedback(PrimitiveType);
+            beginPrimitiveType = primitiveType;
+            GL.BeginTransformFeedback(primitiveType);
 
             IsActive = true;
             IsPaused = false;
-
         }
 
+        /// <summary>
+        /// Pauses the current active transform feedback operation
+        /// </summary>
         public void Pause()
         {
             if (GraphicsDevice.IsAdvancedTransformFeedbackAvailable)
-                throw new PlatformNotSupportedException("Transform feedback pausing required OpenGL 4.0");
+                throw new PlatformNotSupportedException("Transform feedback pausing required advanced transform feedback");
 
-            if (!IsActive || GraphicsDevice.TransformFeedback != this) // The second condition shouldn't be necessary, since you can't change a TFO while it's active.
+            if (!IsActive)
                 throw new InvalidOperationException("A transform feedback operation must be active to be paused");
 
             if (IsPaused)
@@ -168,6 +202,9 @@ namespace TrippyGL
             IsPaused = true;
         }
 
+        /// <summary>
+        /// Resumes the current transform feedback oepration from being paused
+        /// </summary>
         public void Resume()
         {
             if (GraphicsDevice.IsAdvancedTransformFeedbackAvailable)
@@ -183,6 +220,9 @@ namespace TrippyGL
             IsPaused = false;
         }
 
+        /// <summary>
+        /// Ends the current transform feedback operation
+        /// </summary>
         public void End()
         {
             if (!IsActive || GraphicsDevice.TransformFeedback != this) // The second condition shouldn't be necessary, since you can't change a TFO while it's active.
@@ -200,6 +240,9 @@ namespace TrippyGL
             base.Dispose(isManualDispose);
         }
 
+        /// <summary>
+        /// Calls the OpenGL functions needed to bind this transform feedback for use
+        /// </summary>
         internal void PerformBindOperation()
         {
             if (GraphicsDevice.TransformFeedback != null && GraphicsDevice.TransformFeedback.IsActive)
@@ -215,6 +258,10 @@ namespace TrippyGL
                 GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, Handle);
         }
 
+        /// <summary>
+        /// Calls the OpenGL functions needed to unbind any bound transform feedback
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice to unbind the transform feedback from</param>
         internal static void PerformUnbindOperation(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice.TransformFeedback != null && graphicsDevice.TransformFeedback.IsActive)

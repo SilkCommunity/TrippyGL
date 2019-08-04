@@ -102,7 +102,7 @@ namespace TrippyTesting.Tests
                 Console.WriteLine("Error found: " + c);
             }
 
-            Vector2 mousePos = new Vector2(mouseWindowPosition.X, this.Height - mouseWindowPosition.Y) * 128f / (float)this.Width;
+            Vector2 mousePos = new Vector2(mouseWindowPosition.X, Height - mouseWindowPosition.Y) * 128f / (float)Width;
 
             if (ks.IsKeyDown(Key.Space) && oldKs.IsKeyUp(Key.Space))
             {
@@ -146,9 +146,9 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
 
-            float ratio = (float)this.Width / (float)this.Height;
+            float ratio = (float)Width / (float)Height;
 
             Matrix4 view = Matrix4.Identity;
             ptcProgram.Uniforms["View"].SetValueMat4(ref view);

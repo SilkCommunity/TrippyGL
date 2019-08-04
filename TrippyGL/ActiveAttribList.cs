@@ -22,11 +22,20 @@ namespace TrippyGL
         /// <summary>The amount of ActiveVertexAttrib-s stored by this list</summary>
         public int Length { get { return attributes.Length; } }
 
+        /// <summary>
+        /// Creates an ActiveAttribList where the attribute list is queried from a ShaderProgram
+        /// </summary>
+        /// <param name="program">The ShaderProgram to query the attributes from</param>
         internal ActiveAttribList(ShaderProgram program)
         {
+            // We query the total amount of attributes we'll be reading from OpenGL
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveAttributes, out int attribCount);
+            
+            // We'll be storing the attributes in this list and then turning it into an array, because we can't
+            // know for sure how many attributes we'll have at the end, we just know it's be <= than attribCount
             List<ActiveVertexAttrib> attribList = new List<ActiveVertexAttrib>(attribCount);
 
+            // We query all the ShaderProgram's attributes one by one and add them to attribList
             for (int i = 0; i < attribCount; i++)
             {
                 ActiveVertexAttrib a = new ActiveVertexAttrib(program, i);
@@ -35,6 +44,8 @@ namespace TrippyGL
             }
 
             attributes = attribList.ToArray();
+
+            // The attributes don't always appear ordered by location, so let's order them now
             Array.Sort(attributes, (x, y) => x.Location.CompareTo(y.Location));
         }
 

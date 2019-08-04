@@ -6,6 +6,14 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A GLDebugMessage delegate can be used in a GraphicsDevice to get debug messages about performance and errors
+    /// </summary>
+    /// <param name="debugSource">Where the message originated from</param>
+    /// <param name="debugType">The type of message</param>
+    /// <param name="messageId">An identifier of the message (same messages have same ID)</param>
+    /// <param name="debugSeverity">The severity of the message</param>
+    /// <param name="message">A human-readable text explaining the message</param>
     public delegate void GLDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
 
     /// <summary>
@@ -1235,11 +1243,11 @@ namespace TrippyGL
                         depthState.ClearDepth = value.ClearDepth;
                     }
 
-                    if (depthState.depthNear != value.depthNear || depthState.depthFar != value.depthFar)
+                    if (depthState.DepthRangeNear != value.DepthRangeNear || depthState.DepthRangeFar != value.DepthRangeFar)
                     {
-                        GL.DepthRange(value.depthNear, value.depthFar);
-                        depthState.depthNear = value.depthNear;
-                        depthState.depthFar = value.depthFar;
+                        GL.DepthRange(value.DepthRangeNear, value.DepthRangeFar);
+                        depthState.DepthRangeNear = value.DepthRangeNear;
+                        depthState.DepthRangeFar = value.DepthRangeFar;
                     }
 
                     if (depthState.DepthBufferWrittingEnabled != value.DepthBufferWrittingEnabled)

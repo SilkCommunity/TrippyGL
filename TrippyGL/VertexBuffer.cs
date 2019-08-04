@@ -126,7 +126,7 @@ namespace TrippyGL
 
             Buffer.RecreateStorage(storageLength * ElementSize);
             DataSubset.ResizeSubset(0, storageLength);
-            this.StorageLength = storageLength;
+            StorageLength = storageLength;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace TrippyGL
 
             Buffer.RecreateStorage(storageLength * ElementSize, usageHint);
             DataSubset.ResizeSubset(0, storageLength);
-            this.StorageLength = storageLength;
+            StorageLength = storageLength;
         }
 
         /// <summary>

@@ -198,6 +198,8 @@ namespace TrippyGL
 
         #region Static Members
 
+        // TODO: Add documentation for static BlendState fields
+
         public static BlendState Opaque { get { return new BlendState(true); } }
 
         public static BlendState AlphaBlend { get { return new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One); } }

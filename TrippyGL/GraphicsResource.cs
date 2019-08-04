@@ -12,7 +12,11 @@ namespace TrippyGL
 
         /// <summary>Whether this graphics resource has been disposed</summary>
         public bool IsDisposed { get; private set; }
-
+        
+        /// <summary>
+        /// Creates a GraphicsResource that uses the specified GraphicsDevice
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice for this GraphicsResource</param>
         internal GraphicsResource(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice == null)
@@ -28,6 +32,11 @@ namespace TrippyGL
                 Dispose(false);
         }
 
+        /// <summary>
+        /// Disposes this GraphicsResource, deleting and releasing the resources it uses.
+        /// Resources override this method to implement their disposing code
+        /// </summary>
+        /// <param name="isManualDispose">Whether the call to this function happened because of a call to Dispose() or by, say, the destructor</param>
         protected virtual void Dispose(bool isManualDispose)
         {
 

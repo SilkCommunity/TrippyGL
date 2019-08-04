@@ -248,6 +248,7 @@ namespace TrippyGL
                 // This checks that the dest range is either fully to the left or fully to the right of the source range
             }
 
+            // Everything looks fine, let's perform the copy operation!
             g.CopyReadBuffer = source.Buffer;
             g.CopyWriteBuffer = dest.Buffer;
             int elementSize = source.ElementSize;

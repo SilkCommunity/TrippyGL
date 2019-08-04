@@ -493,5 +493,7 @@ namespace TrippyGL
                 throw new ArgumentException("The provided buffer subset doesn't have enough storage for this.LineVertexCount vertices");
             buffer.SetData(lines, 0, 0, lineVertexCount);
         }
+
+        // TODO: Add some ToString() and a way to simply access the internal arrays?
     }
 }

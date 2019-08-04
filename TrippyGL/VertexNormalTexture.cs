@@ -32,9 +32,9 @@ namespace TrippyGL
         /// <param name="texCoords">The vertex texture coordinates</param>
         public VertexNormalTexture(Vector3 position, Vector3 normal, Vector2 texCoords)
         {
-            this.Position = position;
-            this.Normal = normal;
-            this.TexCoords = texCoords;
+            Position = position;
+            Normal = normal;
+            TexCoords = texCoords;
         }
 
         public override string ToString()

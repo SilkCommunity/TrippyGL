@@ -39,11 +39,15 @@ namespace TrippyGL
         /// <param name="usageHint">The new usage hint for the buffer object</param>
         public void RecreateStorage(int sizeInBytes, BufferUsageHint usageHint)
         {
+            // We check that the parameters are valid
             ValidateBufferSize(sizeInBytes);
             ValidateBufferUsage(usageHint);
 
+            // We save these values on this object
             UsageHint = usageHint;
             StorageLengthInBytes = sizeInBytes;
+
+            // We then bind this buffer and specify it's storage to OpenGL
             GraphicsDevice.BindBufferObject(this);
             GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, usageHint);
         }
@@ -54,17 +58,17 @@ namespace TrippyGL
         /// <param name="sizeInBytes">The new size of the buffer object measured in bytes</param>
         public void RecreateStorage(int sizeInBytes)
         {
+            // We check that sizeInBytes is a valid value
             ValidateBufferSize(sizeInBytes);
 
+            // And save it
             StorageLengthInBytes = sizeInBytes;
+
+            // We then bind this buffer and specify it's storage to OpenGL
             GraphicsDevice.BindBufferObject(this);
             GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, UsageHint);
         }
 
-        /// <summary>
-        /// Disposes this buffer object, deleting and releasing the resources it uses.
-        /// The buffer object cannot be used after it's been disposed
-        /// </summary>
         protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteBuffer(Handle);

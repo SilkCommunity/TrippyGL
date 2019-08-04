@@ -129,8 +129,8 @@ namespace TrippyTesting.Tests
 
             tex1 = null;
             tex2 = null;
-            fbo1 = FramebufferObject.Create2D(ref tex1, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24Stencil8);
-            fbo2 = FramebufferObject.Create2D(ref tex2, graphicsDevice, this.Width, this.Height, DepthStencilFormat.Depth24);
+            fbo1 = FramebufferObject.Create2D(ref tex1, graphicsDevice, Width, Height, DepthStencilFormat.Depth24Stencil8);
+            fbo2 = FramebufferObject.Create2D(ref tex2, graphicsDevice, Width, Height, DepthStencilFormat.Depth24);
             tex1.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             tex2.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
         }
@@ -187,12 +187,12 @@ namespace TrippyTesting.Tests
             if (ks.IsKeyDown(Key.D))
                 cameraPos -= new Vector3((float)(Math.Sin(rotY) * Math.Cos(jejeX)), -(float)Math.Sin(jejeX), (float)(Math.Cos(rotY) * -Math.Cos(jejeX))) * CameraMoveSpeed * deltaTime;
 
-            if (this.WindowState != WindowState.Minimized && isMouseDown)
+            if (WindowState != WindowState.Minimized && isMouseDown)
             {
                 rotY += (ms.X - oldMs.X) * 0.005f;
                 rotX += (ms.Y - oldMs.Y) * -0.005f;
                 rotX = MathHelper.Clamp(rotX, -1.57f, 1.57f);
-                Mouse.SetPosition(this.Width / 2f + this.X, this.Height / 2f + this.Y);
+                Mouse.SetPosition(Width / 2f + X, Height / 2f + Y);
             }
         }
 
@@ -340,7 +340,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
             batcher.ClearLines();
 
-            float ratio = (float)this.Width / (float)this.Height;
+            float ratio = (float)Width / (float)Height;
             mat = Matrix4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4.CreateTranslation(2.5f, 2, 12);
             texProgram.Uniforms["World"].SetValueMat4(ref mat);
             texProgram.Uniforms["samp"].SetValueTexture(tex2);
@@ -350,7 +350,7 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.ReadFramebuffer = fbo1;
             graphicsDevice.DrawFramebuffer = null;
-            graphicsDevice.BlitFramebuffer(new Rectangle(0, 0, this.Width, this.Height), new Rectangle(0, 0, this.Width, this.Height), ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            graphicsDevice.BlitFramebuffer(new Rectangle(0, 0, Width, Height), new Rectangle(0, 0, Width, Height), ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
             FramebufferObject fbotmp = fbo1;
             fbo1 = fbo2;
@@ -364,17 +364,17 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
 
-            float wid = this.Width / (float)this.Height;
+            float wid = Width / (float)Height;
             wid *= 0.5f;
-            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, this.Width / (float)this.Height, 0.0001f, 100f);
+            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float)Height, 0.0001f, 100f);
             program.Uniforms["Projection"].SetValueMat4(ref proj);
             cubemapProgram.Uniforms["Projection"].SetValueMat4(ref proj);
             texProgram.Uniforms["Projection"].SetValueMat4(ref proj);
 
-            FramebufferObject.Resize2D(fbo1, this.Width, this.Height);
-            FramebufferObject.Resize2D(fbo2, this.Width, this.Height);
+            FramebufferObject.Resize2D(fbo1, Width, Height);
+            FramebufferObject.Resize2D(fbo2, Width, Height);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)

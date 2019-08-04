@@ -19,7 +19,7 @@ namespace TrippyGL
         /// <summary>The depth value to use when clearing a depth buffer</summary>
         public float ClearDepth;
 
-        internal double depthNear, depthFar;
+        private double depthNear, depthFar;
 
         /// <summary>The near depth value for the depth's range. Must be in the [0, 1] range</summary>
         public double DepthRangeNear

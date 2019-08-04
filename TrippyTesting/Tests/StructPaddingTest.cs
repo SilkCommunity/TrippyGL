@@ -95,7 +95,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
             Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
             program.Uniforms["Projection"].SetValueMat4(ref mat);
         }
@@ -141,20 +141,20 @@ namespace TrippyTesting.Tests
 
             public WeirdAssVertex(Vector3 pos, Vector2 tc)
             {
-                this.x = tobyte(pos.X - 0.1f);
-                this.y = toushort(pos.Y - 0.1f);
-                this.z = tobyte(0);
+                x = tobyte(pos.X - 0.1f);
+                y = toushort(pos.Y - 0.1f);
+                z = tobyte(0);
 
-                this.x2 = toushort(0.1f);
-                this.y2 = tobyte(0.1f);
-                this.z2 = tobyte(0);
+                x2 = toushort(0.1f);
+                y2 = tobyte(0.1f);
+                z2 = tobyte(0);
 
-                this.mat4 = Matrix4.Identity;
+                mat4 = Matrix4.Identity;
 
-                this.w = 1;
+                w = 1;
 
-                this.cx = tobyte(tc.X);
-                this.cy = toushort(tc.Y);
+                cx = tobyte(tc.X);
+                cy = toushort(tc.Y);
 
                 LMAOvec4 = new Vector4();
                 LMAObyte1 = 0;

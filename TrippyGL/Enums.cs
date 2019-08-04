@@ -2,6 +2,8 @@
 
 namespace TrippyGL
 {
+    // TODO: Add documentation & descriptions to the enums (and the values in the enums?)
+
     public enum TextureImageFormat
     {
         // These are organized in such away so the base type (float, int, uint)

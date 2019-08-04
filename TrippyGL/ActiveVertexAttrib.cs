@@ -20,8 +20,15 @@ namespace TrippyGL
         /// <summary>The type of the attribute declared in the shader</summary>
         public readonly ActiveAttribType AttribType;
 
+        /// <summary>
+        /// Creates an ActiveVertexAttrib and queries the attribute data from a specified attrib index in a ShaderProgram
+        /// </summary>
+        /// <param name="program">The ShaderProgram from which to query the attrib data</param>
+        /// <param name="attribIndex">The attribute index to query the data from</param>
         internal ActiveVertexAttrib(ShaderProgram program, int attribIndex)
         {
+            // OpenTK has this glGetActiveAttrib that easily turns the required Name parameters into the function's return value
+            // So we use that one to get the name, size and type and then query the location separately
             Name = GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
             Location = GL.GetAttribLocation(program.Handle, Name);
         }

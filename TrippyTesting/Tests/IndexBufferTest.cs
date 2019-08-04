@@ -43,7 +43,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnLoad(EventArgs e)
         {
-            this.TargetRenderFrequency = 3;
+            TargetRenderFrequency = 3;
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
@@ -102,7 +102,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
         }
 
         protected override void OnUnload(EventArgs e)

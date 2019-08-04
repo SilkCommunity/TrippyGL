@@ -94,7 +94,7 @@ namespace TrippyTesting.Tests
             {
                 new TransformFeedbackVariableDescription(subsetPositionWrite, TransformFeedbackType.FloatVec3),
                 new TransformFeedbackVariableDescription(subsetNormalWrite, TransformFeedbackType.FloatVec3)
-            }, TransformFeedbackPrimitiveType.Triangles);
+            });
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -141,7 +141,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
         }
 
         protected override void OnUnload(EventArgs e)

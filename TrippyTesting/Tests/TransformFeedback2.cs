@@ -56,7 +56,6 @@ namespace TrippyTesting.Tests
             for (int i = 0; i < vertices.Length; i++)
                 vertices[i] = new VertexNormal(new Vector3(randomf(-1, 1), randomf(-1, 1), randomf(-1, 1)), new Vector3(randomf(1), randomf(1), randomf(1)));
 
-
             Vector3[] positions = new Vector3[vertices.Length];
             Vector3[] normals = new Vector3[vertices.Length];
             for (int i = 0; i < vertices.Length; i++)
@@ -85,12 +84,12 @@ namespace TrippyTesting.Tests
             {
                 new TransformFeedbackVariableDescription(subsetWrite, TransformFeedbackType.FloatVec3),
                 new TransformFeedbackVariableDescription(subsetWrite, TransformFeedbackType.FloatVec3)
-            }, TransformFeedbackPrimitiveType.Triangles);
+            });
             tfoWrite = new TransformFeedbackObject(graphicsDevice, new TransformFeedbackVariableDescription[]
             {
                 new TransformFeedbackVariableDescription(subsetRead, TransformFeedbackType.FloatVec3),
                 new TransformFeedbackVariableDescription(subsetRead, TransformFeedbackType.FloatVec3)
-            }, TransformFeedbackPrimitiveType.Triangles);
+            });
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("tfeedback/vs.glsl"));
@@ -119,26 +118,26 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = program;
             if (isRead)
             {
-                tfoRead.Begin();
+                tfoRead.Begin(TransformFeedbackPrimitiveType.Triangles);
 
                 graphicsDevice.VertexArray = arrayRead;
                 graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, subsetRead.StorageLength);
 
                 tfoRead.End();
 
-                VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
-                subsetWrite.GetData(data);
+                //VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
+                //subsetWrite.GetData(data);
             }
             else
             {
-                tfoWrite.Begin();
+                tfoWrite.Begin(TransformFeedbackPrimitiveType.Triangles);
 
                 graphicsDevice.VertexArray = arrayWrite;
                 graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, subsetWrite.StorageLength);
 
                 tfoWrite.End();
-                VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
-                subsetRead.GetData(data);
+                //VertexNormal[] data = new VertexNormal[subsetRead.StorageLength];
+                //subsetRead.GetData(data);
             }
             isRead = !isRead;
 
@@ -147,7 +146,7 @@ namespace TrippyTesting.Tests
 
         protected override void OnResize(EventArgs e)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, this.Width, this.Height);
+            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
         }
 
         protected override void OnUnload(EventArgs e)

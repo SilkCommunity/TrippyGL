@@ -14,10 +14,10 @@ namespace TrippyGL
         /// <summary>The GL Texture's name</summary>
         public readonly int Handle;
 
-        /// <summary>The type of texture, such as 1D, 2D, Multisampled 2D, or CubeMap</summary>
+        /// <summary>The type of texture, such as 1D, 2D, Multisampled 2D, Array 2D, CubeMap, etc</summary>
         public readonly TextureTarget TextureType;
 
-        /// <summary>The format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats (though these are unused)</summary>
+        /// <summary>The format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats</summary>
         internal readonly PixelInternalFormat PixelInternalFormat;
 
         /// <summary>The data type of the components of the texture's pixels, such as UnsignedByte (typical), Float, Int, HalfFloat, etc</summary>
@@ -31,7 +31,12 @@ namespace TrippyGL
 
         /// <summary>Gets whether this texture is mipmapped</summary>
         public bool IsMipmapped { get; private set; }
-        private bool isNotMipmappable;
+
+        /// <summary>False if the texture can be mipmapped (depends on texture type)</summary>
+        private readonly bool isNotMipmappable;
+
+        /// <summary>Gets whether this texture can be mipmapped (depends on texture type)</summary>
+        public bool IsMipmappable { get { return !isNotMipmappable; } }
 
         /// <summary>Gets whether this texture is currently bound to a unit</summary>
         public bool IsBound { get { return GraphicsDevice.IsTextureBound(this); } }
@@ -45,6 +50,12 @@ namespace TrippyGL
         /// <summary>The last texture unit to which this texture was bound. This value is used by binding functions</summary>
         internal int lastBindUnit;
 
+        /// <summary>
+        /// Creates a texture with specified TextureTarget and TextureImageFormat
+        /// </summary>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="type">The type of texture (or texture target) the texture will be</param>
+        /// <param name="imageFormat">The type of image format this texture will store</param>
         internal Texture(GraphicsDevice graphicsDevice, TextureTarget type, TextureImageFormat imageFormat) : base (graphicsDevice)
         {
             if (!Enum.IsDefined(typeof(TextureTarget), type))
@@ -53,13 +64,13 @@ namespace TrippyGL
             if (!Enum.IsDefined(typeof(TextureImageFormat), imageFormat))
                 throw new FormatException("Invalid texture image format");
 
-            Handle = GL.GenTexture();
             TextureType = type;
             ImageFormat = imageFormat;
             TrippyUtils.GetTextureFormatEnums(imageFormat, out PixelInternalFormat, out PixelType, out PixelFormat);
             lastBindUnit = 0;
             IsMipmapped = false;
             isNotMipmappable = !TrippyUtils.IsTextureTypeMipmappable(type);
+            Handle = GL.GenTexture();
         }
 
         /// <summary>
