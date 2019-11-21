@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using OpenTK;
 using OpenTK.Graphics;
@@ -27,7 +27,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
-            Console.WriteLine(String.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
+            Console.WriteLine(string.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
             Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
             Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
             Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);

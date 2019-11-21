@@ -1,41 +1,40 @@
-﻿using System;
 using System.Collections.Generic;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// A read-only list of all transform feedback variables
+    /// A read-only list of all transform feedback variables.
     /// </summary>
     public class TransformFeedbackVariableDescriptionList
     {
         private readonly TransformFeedbackVariableDescription[] descriptions;
 
-        /// <summary>Gets the total amount of variables on this list</summary>
+        /// <summary>Gets the total amount of variables on this list.</summary>
         public int Count { get { return descriptions.Length; } }
 
         /// <summary>
-        /// Gets a variable from this list
+        /// Gets a variable from this list.
         /// </summary>
-        /// <param name="index">The index of the variable to get</param>
+        /// <param name="index">The index of the variable to get.</param>
         public TransformFeedbackVariableDescription this[int index] { get { return descriptions[index]; } }
 
-        /// <summary>The total amount of components used by all the variables (and padding!) on this list</summary>
+        /// <summary>The total amount of components used by all the variables (and padding!) on this list.</summary>
         public int ComponentCount { get; }
 
-        /// <summary>The amount of buffer bindings needed for this list's variables</summary>
+        /// <summary>The amount of buffer bindings needed for this list's variables.</summary>
         public int BufferBindingsNeeded { get; }
 
-        /// <summary>The total number of attributes. This will equal this.Count when there are no padding descriptors</summary>
+        /// <summary>The total number of attributes. This will equal this.Count when there are no padding descriptors.</summary>
         public int AttribCount { get; }
 
-        /// <summary>Whether there is at least one padding descriptor on this list</summary>
+        /// <summary>Whether there is at least one padding descriptor on this list.</summary>
         public bool ContainsPadding { get; }
 
         /// <summary>
         /// Creates a list of TransformFeedbackVariableDescription-s from an array of user-specified descriptions.
-        /// The list will be formatted so padding variables are merged and placed adjacent to another variable from the same buffer where possible
+        /// The list will be formatted so padding variables are merged and placed adjacent to another variable from the same buffer where possible.
         /// </summary>
-        /// <param name="variableDescriptions">The user-specified array of TransformFeedbackVariableDescription-s. No reference to this array will be held</param>
+        /// <param name="variableDescriptions">The user-specified array of TransformFeedbackVariableDescription-s. No reference to this array will be held.</param>
         internal TransformFeedbackVariableDescriptionList(TransformFeedbackVariableDescription[] variableDescriptions)
         {
             List<TransformFeedbackVariableDescription> list = new List<TransformFeedbackVariableDescription>(variableDescriptions.Length);
@@ -46,7 +45,7 @@ namespace TrippyGL
             // We need to implement the following case:
             // (skips buff1) (skips buff1) (var1 buff2) (var2 buff1) should be turned into:
             // (var1 buff2) (skips buff1) (skipb buff1) (var2 buff1)
-            
+
             // TODO: WE NEED TO ADD SKIPPING TO THE FIRST VARIABLES WHEN NON-CONSECUTIVE VARIABLES SHARE SUBSET
             // (var1 buff1) (var2 buff2) (var3 buff1) in this case we'll send each into a different buffer indice,
             // but var1 is gonna need var.ComponentCount skipping after itself and var3 is gonna need var1.ComponentCount skippings before itself
@@ -98,7 +97,7 @@ namespace TrippyGL
                 // Got to the end? Then there was nothing going into desc.BufferSubset yet. desc is the first
                 list.Add(desc); // That means the buffer subset's first variable is padding
             }
-            
+
             // This function takes care of adding attrib variables to the list
             void AddNewAttribVariable(ref TransformFeedbackVariableDescription desc)
             {
@@ -148,13 +147,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calculates the offset into a subset for a variable, measured in components
+        /// Calculates the offset into a subset for a variable, measured in components.
         /// </summary>
-        /// <param name="variableIndex">The index in this list of the variable who's offset to calculate</param>
+        /// <param name="variableIndex">The index in this list of the variable who's offset to calculate.</param>
         internal int CalculateVariableOffsetIntoSubset(int variableIndex)
         {
             int offset = 0;
-            
+
             // We loop from the start to the variable index and add up the components of all the variables in the same buffer
             for (int i = 0; i < variableIndex; i++)
             {

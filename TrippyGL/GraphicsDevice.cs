@@ -1,37 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// A GLDebugMessage delegate can be used in a GraphicsDevice to get debug messages about performance and errors
+    /// A GLDebugMessage delegate can be used in a GraphicsDevice to get debug messages about performance and errors.
     /// </summary>
-    /// <param name="debugSource">Where the message originated from</param>
-    /// <param name="debugType">The type of message</param>
-    /// <param name="messageId">An identifier of the message (same messages have same ID)</param>
-    /// <param name="debugSeverity">The severity of the message</param>
-    /// <param name="message">A human-readable text explaining the message</param>
+    /// <param name="debugSource">Where the message originated from.</param>
+    /// <param name="debugType">The type of message.</param>
+    /// <param name="messageId">An identifier of the message (same messages have same ID).</param>
+    /// <param name="debugSeverity">The severity of the message.</param>
+    /// <param name="message">A human-readable text explaining the message.</param>
     public delegate void GLDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
 
     /// <summary>
-    /// The GraphicsDevice manages an OpenGL Context and it's GraphicsResources (everything from BufferObjects to Textures to ShaderPrograms)
+    /// The GraphicsDevice manages an OpenGL Context and it's GraphicsResources (everything from BufferObjects to Textures to ShaderPrograms).
     /// </summary>
     public class GraphicsDevice : IDisposable
     {
-        /// <summary>The OpenGL Context for this GraphicDevice</summary>
+        /// <summary>The OpenGL Context for this GraphicDevice.</summary>
         public IGraphicsContext Context { get; private set; }
 
-        /// <summary>Whether this GraphicsDevice has been disposed</summary>
+        /// <summary>Whether this GraphicsDevice has been disposed.</summary>
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Creates a GraphicsDevice to manage the given graphics context
+        /// Creates a GraphicsDevice to manage the given graphics context.
         /// </summary>
-        /// <param name="context">The OpenGL Context for this GraphicsDevice</param>
-        /// <param name="resourceCount">The maximum amount of GraphicsResource-s you intend to use</param>
+        /// <param name="context">The OpenGL Context for this GraphicsDevice.</param>
+        /// <param name="resourceCount">The maximum amount of GraphicsResource-s you intend to use.</param>
         public GraphicsDevice(IGraphicsContext context, int resourceCount = 128)
         {
             Context = context;
@@ -55,7 +55,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Resets all saved states. These variables are used to prevent unnecessarily setting the same states twice.
-        /// You should only need to call this when interoperating with other libraries or using your own GL functions
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetStates()
         {
@@ -111,7 +111,7 @@ namespace TrippyGL
 
         private bool debugMessagingEnabled = false;
 
-        /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3)</summary>
+        /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
         {
             get { return debugMessagingEnabled; }
@@ -140,10 +140,10 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work</summary>
+        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
         public event GLDebugMessage DebugMessage;
 
-        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito</summary>
+        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
         private DebugProc debugProcDelegate;
         private GCHandle debugProcDelegateHandle;
 
@@ -227,7 +227,7 @@ namespace TrippyGL
         public int MaxTransformFeedbackSeparateAttribs { get; private set; }
 
         public int MaxShaderStorageBufferBindings { get; private set; }
-        
+
         public int MaxAtomicCounterBufferBindings { get; private set; }
 
         public string GLVersion { get { return GL.GetString(StringName.Version); } }
@@ -270,7 +270,7 @@ namespace TrippyGL
 
         #region BufferObjectBindingStates
 
-        /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays</summary>
+        /// <summary>This constant defines the total amount of buffer targets. This defines the array sizes for the bufferBindings and bufferBindingTargets arrays.</summary>
         private const int BufferTargetCount = 12;
 
         // The index on the bufferBindings array where each BufferTarget is located
@@ -294,17 +294,17 @@ namespace TrippyGL
         internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
         private const int defaultBufferTargetBindingIndex = arrayBufferIndex;
 
-        /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array</summary>
+        /// <summary>Stores the handle of the last buffer bound to the BufferTarget found on the same index on the bufferBindingsTarget array.</summary>
         private BufferObject[] bufferBindings;
 
-        /// <summary>The BufferTargets for the handles found on the bufferBindings array</summary>
+        /// <summary>The BufferTargets for the handles found on the bufferBindings array.</summary>
         private BufferTarget[] bufferBindingTargets;
 
-        /// <summary>For the four BufferTargets that have range bindings, this is an array of four arrays that contain the bound buffer and the bound range of each binding index</summary>
+        /// <summary>For the four BufferTargets that have range bindings, this is an array of four arrays that contain the bound buffer and the bound range of each binding index.</summary>
         private BufferRangeBinding[][] bufferRangeBindings;
 
         /// <summary>
-        /// Initializes all the fields needed for buffer binding
+        /// Initializes all the fields needed for buffer binding.
         /// </summary>
         private void InitBufferObjectStates()
         {
@@ -338,7 +338,7 @@ namespace TrippyGL
             bufferRangeBindings[2] = new BufferRangeBinding[MaxAtomicCounterBufferBindings];
         }
 
-        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_ARRAY_BUFFER</summary>
+        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_ARRAY_BUFFER.</summary>
         public BufferObject ArrayBuffer
         {
             get { return bufferBindings[arrayBufferIndex]; }
@@ -352,7 +352,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_COPY_READ_BUFFER</summary>
+        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_COPY_READ_BUFFER.</summary>
         public BufferObject CopyReadBuffer
         {
             get { return bufferBindings[copyReadBufferIndex]; }
@@ -366,7 +366,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_COPY_WRITE_BUFFER</summary>
+        /// <summary>Gets or sets (binds) the BufferObject currently bound to GL_COPY_WRITE_BUFFER.</summary>
         public BufferObject CopyWriteBuffer
         {
             get { return bufferBindings[copyWriteBufferIndex]; }
@@ -381,9 +381,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer to the default binding location
+        /// Binds a buffer to the default binding location.
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
         internal void BindBufferObject(BufferObject buffer)
         {
             if (bufferBindings[defaultBufferTargetBindingIndex] != buffer)
@@ -391,9 +391,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer to the default binding location without first checking whether it's already bound
+        /// Binds a buffer to the default binding location without first checking whether it's already bound.
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
+        /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
         internal void ForceBindBufferObject(BufferObject buffer)
         {
             GL.BindBuffer(DefaultBufferTarget, buffer.Handle);
@@ -401,9 +401,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer subset to it's BufferTarget
+        /// Binds a buffer subset to it's BufferTarget.
         /// </summary>
-        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null.</param>
         public void BindBuffer(BufferObjectSubset bufferSubset)
         {
             if (bufferBindings[bufferSubset.bufferTargetBindingIndex] != bufferSubset.Buffer)
@@ -413,7 +413,7 @@ namespace TrippyGL
         /// <summary>
         /// Binds a buffer subset to it's BufferTarget without first checking whether it's already bound.
         /// </summary>
-        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null</param>
+        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null.</param>
         internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
         {
             GL.BindBuffer(bufferSubset.BufferTarget, bufferSubset.BufferHandle);
@@ -422,12 +422,12 @@ namespace TrippyGL
 
         /// <summary>
         /// Binds a range of a buffer subset to a binding index on it's BufferTarget
-        /// The buffer subset's BufferTarget must be one with multiple binding indexes
+        /// The buffer subset's BufferTarget must be one with multiple binding indexes.
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
-        /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
+        /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
+        /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
+        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins.</param>
+        /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
         public void BindBufferRange(BufferObjectSubset bufferSubset, int bindingIndex, int offset, int size)
         {
             BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
@@ -437,12 +437,12 @@ namespace TrippyGL
 
         /// <summary>
         /// Binds a range of a buffer to a binding index on it's BufferTarget without first checking whether it's already bound.
-        /// The buffer object's BufferTarget must be one with multiple binding indexes
+        /// The buffer object's BufferTarget must be one with multiple binding indexes.
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null</param>
-        /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound</param>
-        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins</param>
-        /// <param name="size">The amount of bytes that can be read from the storage, starting from offset</param>
+        /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
+        /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
+        /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins.</param>
+        /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
         internal void ForceBindBufferRange(BufferObjectSubset buffer, int bindingIndex, int offset, int size)
         {
             offset += buffer.StorageOffsetInBytes;
@@ -452,9 +452,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer to the GL_COPY_READ_BUFFER target without first checking whether it's already bound
+        /// Binds a buffer to the GL_COPY_READ_BUFFER target without first checking whether it's already bound.
         /// </summary>
-        /// <param name="buffer">The buffer to bind</param>
+        /// <param name="buffer">The buffer to bind.</param>
         internal void ForceBindBufferCopyRead(BufferObject buffer)
         {
             GL.BindBuffer(BufferTarget.CopyReadBuffer, buffer == null ? 0 : buffer.Handle);
@@ -462,9 +462,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer to the GL_COPY_WRITE_BUFFER taret without first checking whether it's already bound
+        /// Binds a buffer to the GL_COPY_WRITE_BUFFER taret without first checking whether it's already bound.
         /// </summary>
-        /// <param name="buffer">The buffer to bind</param>
+        /// <param name="buffer">The buffer to bind.</param>
         internal void ForceBindBufferCopyWrite(BufferObject buffer)
         {
             GL.BindBuffer(BufferTarget.CopyWriteBuffer, buffer == null ? 0 : buffer.Handle);
@@ -472,9 +472,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the given buffer subset is the currently bound one for it's BufferTarget
+        /// Returns whether the given buffer subset is the currently bound one for it's BufferTarget.
         /// </summary>
-        /// <param name="buffer">The buffer subset to check. This value is assumed not to be null</param>
+        /// <param name="buffer">The buffer subset to check. This value is assumed not to be null.</param>
         public bool IsBufferCurrentlyBound(BufferObjectSubset buffer)
         {
             return bufferBindings[buffer.bufferTargetBindingIndex] == buffer.Buffer;
@@ -482,9 +482,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Gets the index on the 'bufferBindings' list for the specified BufferTarget.
-        /// If there's no such index, it returns -1, though this won't happen as long as you only use proper BufferTarget enum values
+        /// If there's no such index, it returns -1, though this won't happen as long as you only use proper BufferTarget enum values.
         /// </summary>
-        /// <param name="bufferTarget">The BufferTarget to get the binds list index for</param>
+        /// <param name="bufferTarget">The BufferTarget to get the binds list index for.</param>
         internal int GetBindingTargetIndex(BufferTarget bufferTarget)
         {
             for (int i = 0; i < BufferTargetCount; i++)
@@ -495,7 +495,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Resets all saved states for buffer objects. This is, the variables used to check whether to bind a buffer or not.
-        /// You should only need to call this when interoperating with other libraries or using your own GL functions
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetBufferStates()
         {
@@ -529,7 +529,7 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Set the values of this BufferRangeBinding to the specified range of the given buffer
+            /// Set the values of this BufferRangeBinding to the specified range of the given buffer.
             /// </summary>
             public void SetRange(BufferObjectSubset buffer, int offset, int size)
             {
@@ -539,9 +539,9 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Sets the values of this BufferRangeBinding to the entire given subset
+            /// Sets the values of this BufferRangeBinding to the entire given subset.
             /// </summary>
-            /// <param name="buffer"></param>
+            /// <param name="buffer".></param>
             public void SetRange(BufferObjectSubset buffer)
             {
                 Buffer = buffer.Buffer;
@@ -556,7 +556,7 @@ namespace TrippyGL
 
         private VertexArray vertexArray;
 
-        /// <summary>Gets or sets (binds) the currently bound VertexArray</summary>
+        /// <summary>Gets or sets (binds) the currently bound VertexArray.</summary>
         public VertexArray VertexArray
         {
             get { return vertexArray; }
@@ -571,9 +571,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a vertex array without first checking whether it's already bound
+        /// Binds a vertex array without first checking whether it's already bound.
         /// </summary>
-        /// <param name="array">The array to bind</param>
+        /// <param name="array">The array to bind.</param>
         internal void ForceBindVertexArray(VertexArray array)
         {
             GL.BindVertexArray(array == null ? 0 : array.Handle);
@@ -582,7 +582,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Resets all saved states for vertex arrays This is, the variables used to check whether to bind a vertex array or not.
-        /// You should only need to call this when interoperating with other libraries or using your own GL functions
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetVertexArrayStates()
         {
@@ -597,7 +597,7 @@ namespace TrippyGL
         private ShaderProgram shaderProgram;
         private TransformFeedbackObject transformFeedback;
 
-        /// <summary>Gets or sets (binds) the currently bound ShaderProgram</summary>
+        /// <summary>Gets or sets (binds) the currently bound ShaderProgram.</summary>
         public ShaderProgram ShaderProgram
         {
             get { return shaderProgram; }
@@ -608,7 +608,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the current transform feedback object</summary>
+        /// <summary>Gets or sets (binds) the current transform feedback object.</summary>
         public TransformFeedbackObject TransformFeedback
         {
             get { return transformFeedback; }
@@ -626,9 +626,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Installs the given program into the rendering pipeline without first checking whether it's already in use
+        /// Installs the given program into the rendering pipeline without first checking whether it's already in use.
         /// </summary>
-        /// <param name="program">The shader program to use</param>
+        /// <param name="program">The shader program to use.</param>
         internal void ForceUseShaderProgram(ShaderProgram program)
         {
             if (transformFeedback != null && transformFeedback.IsActive)
@@ -639,9 +639,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the current transform feedback without first checking whether it's already the currently bound transform feedback object
+        /// Sets the current transform feedback without first checking whether it's already the currently bound transform feedback object.
         /// </summary>
-        /// <param name="transformFeedback">The transform feedback object to bind</param>
+        /// <param name="transformFeedback">The transform feedback object to bind.</param>
         internal void ForceBindTransformFeedback(TransformFeedbackObject transformFeedback)
         {
             if (transformFeedback == null)
@@ -653,7 +653,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Resets all saved states for shader programs. This is, the variables used to check whether to use a shader program or not.
-        /// You should only need to call this when itneroperating with other libraries or using your own GL functions
+        /// You should only need to call this when itneroperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetShaderProgramStates()
         {
@@ -667,17 +667,17 @@ namespace TrippyGL
 
         #region TextureBindingStates
 
-        /// <summary>The array containing for each texture unit (that is, the index of the array) which texture handle is bound to it</summary>
+        /// <summary>The array containing for each texture unit (that is, the index of the array) which texture handle is bound to it.</summary>
         private int[] textureBindings;
 
-        /// <summary>This variable counts which texture unit will be used the next time a texture needs binding</summary>
+        /// <summary>This variable counts which texture unit will be used the next time a texture needs binding.</summary>
         private int nextBindUnit;
 
-        /// <summary>The currently active texture unit</summary>
+        /// <summary>The currently active texture unit.</summary>
         public int ActiveTextureUnit { get; private set; }
 
         /// <summary>
-        /// When a texture needs a new binding, it requests a texture unit from this method
+        /// When a texture needs a new binding, it requests a texture unit from this method.
         /// </summary>
         private int GetNextBindTextureUnit()
         {
@@ -694,9 +694,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a texture unit is the currently active one
+        /// Ensures a texture unit is the currently active one.
         /// </summary>
-        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, TotalTextureUnits)</param>
+        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, TotalTextureUnits).</param>
         public void SetActiveTexture(int textureUnit)
         {
             if (ActiveTextureUnit != textureUnit)
@@ -704,9 +704,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the active texture unit without first checking whether it's the currently active texture unit
+        /// Sets the active texture unit without first checking whether it's the currently active texture unit.
         /// </summary>
-        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, MaxTextureImageUnits)</param>
+        /// <param name="textureUnit">The index of the texture unit. Must be in the range [0, MaxTextureImageUnits).</param>
         internal void ForceSetActiveTextureUnit(int textureUnit)
         {
             if (textureUnit < 0 || textureUnit >= MaxTextureImageUnits)
@@ -718,9 +718,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures a texture is bound to any texture unit, but doesn't ensure that texture unit is the currently active one.
-        /// Returns the texture unit to which the texture is bound
+        /// Returns the texture unit to which the texture is bound.
         /// </summary>
-        /// <param name="texture">The texture to ensure is bound</param>
+        /// <param name="texture">The texture to ensure is bound.</param>
         public int BindTexture(Texture texture)
         {
             if (textureBindings[texture.lastBindUnit] != texture.Handle)
@@ -730,9 +730,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures a texture is bound to any texture unit, and that the texture unit to which the texture is bound is the currently active one.
-        /// Returns the texture unit to which the texture is bound
+        /// Returns the texture unit to which the texture is bound.
         /// </summary>
-        /// <param name="texture">The texture to ensure is bound and active</param>
+        /// <param name="texture">The texture to ensure is bound and active.</param>
         public int BindTextureSetActive(Texture texture)
         {
             if (texture.Handle == textureBindings[texture.lastBindUnit])
@@ -748,7 +748,7 @@ namespace TrippyGL
         /// Binds a texture to any texture unit. Returns the texture unit to which the texture is now bound to.
         /// The returned texture unit will also always be the currently active one.
         /// </summary>
-        /// <param name="texture">The texture to bind</param>
+        /// <param name="texture">The texture to bind.</param>
         internal int ForceBindTexture(Texture texture)
         {
             SetActiveTexture(GetNextBindTextureUnit());
@@ -759,9 +759,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a texture to the current texture unit
+        /// Binds a texture to the current texture unit.
         /// </summary>
-        /// <param name="texture">The texture to bind</param>
+        /// <param name="texture">The texture to bind.</param>
         internal void ForceBindTextureToCurrentUnit(Texture texture)
         {
             GL.BindTexture(texture.TextureType, texture.Handle);
@@ -770,9 +770,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all of the given textures are bound to a texture unit
+        /// Ensures all of the given textures are bound to a texture unit.
         /// </summary>
-        /// <param name="textures">The textures to ensure are bound</param>
+        /// <param name="textures">The textures to ensure are bound.</param>
         public void BindAllTextures(Texture[] textures)
         {
             if (textures.Length > textureBindings.Length)
@@ -813,9 +813,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all of the given textures are bound to a texture unit
+        /// Ensures all of the given textures are bound to a texture unit.
         /// </summary>
-        /// <param name="textures">The textures to ensure are bound</param>
+        /// <param name="textures">The textures to ensure are bound.</param>
         public void BindAllTextures(List<Texture> textures)
         {
             if (textures.Count > textureBindings.Length)
@@ -856,16 +856,16 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether a texture is the one still bound to it's last bind location
+        /// Returns whether a texture is the one still bound to it's last bind location.
         /// </summary>
-        /// <param name="texture">The texture to check if it's bound</param>
+        /// <param name="texture">The texture to check if it's bound.</param>
         public bool IsTextureBound(Texture texture)
         {
             return textureBindings[texture.lastBindUnit] == texture.Handle;
         }
 
         /// <summary>
-        /// Initiates all variables that track texture binding states
+        /// Initiates all variables that track texture binding states.
         /// </summary>
         private void InitTextureStates()
         {
@@ -876,7 +876,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resets all saved states for textures
+        /// Resets all saved states for textures.
         /// </summary>
         public void ResetTextureStates()
         {
@@ -895,7 +895,7 @@ namespace TrippyGL
         private FramebufferObject readFramebuffer;
         private RenderbufferObject renderbuffer;
 
-        /// <summary>Gets or sets (binds) the framebuffer currently bound for drawing</summary>
+        /// <summary>Gets or sets (binds) the framebuffer currently bound for drawing.</summary>
         public FramebufferObject DrawFramebuffer
         {
             get { return drawFramebuffer; }
@@ -909,7 +909,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the framebuffer currently bound for reading</summary>
+        /// <summary>Gets or sets (binds) the framebuffer currently bound for reading.</summary>
         public FramebufferObject ReadFramebuffer
         {
             get { return readFramebuffer; }
@@ -923,7 +923,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Sets (binds) a framebuffer for both drawing and reading</summary>
+        /// <summary>Sets (binds) a framebuffer for both drawing and reading.</summary>
         public FramebufferObject Framebuffer
         {
             set
@@ -937,7 +937,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the current renderbuffer</summary>
+        /// <summary>Gets or sets (binds) the current renderbuffer.</summary>
         public RenderbufferObject Renderbuffer
         {
             get { return renderbuffer; }
@@ -952,9 +952,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a framebuffer for drawing without first checking whether it's already bound
+        /// Binds a framebuffer for drawing without first checking whether it's already bound.
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to bind</param>
+        /// <param name="framebuffer">The framebuffer to bind.</param>
         internal void ForceBindDrawFramebuffer(FramebufferObject framebuffer)
         {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
@@ -962,9 +962,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a framebuffer for reading without first checking whether it's already bound
+        /// Binds a framebuffer for reading without first checking whether it's already bound.
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to bind</param>
+        /// <param name="framebuffer">The framebuffer to bind.</param>
         internal void ForceBindReadFramebuffer(FramebufferObject framebuffer)
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
@@ -972,9 +972,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a renderbuffer without first checking whether it's already bound
+        /// Binds a renderbuffer without first checking whether it's already bound.
         /// </summary>
-        /// <param name="renderbuffer">The renderbuffer to bind</param>
+        /// <param name="renderbuffer">The renderbuffer to bind.</param>
         internal void ForceBindRenderbuffer(RenderbufferObject renderbuffer)
         {
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbuffer.Handle);
@@ -983,7 +983,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Resets all saved states for FramebufferObjects. This is, the variables used to check whether to use a shader program or not.
-        /// You should only need to call this when itneroperating with other libraries or using your own GL functions
+        /// You should only need to call this when itneroperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetFramebufferStates()
         {
@@ -1002,11 +1002,11 @@ namespace TrippyGL
 
         #region ClearColor
 
-        /// <summary>The current clear color</summary>
+        /// <summary>The current clear color.</summary>
         private Color4 clearColor;
 
         /// <summary>
-        /// Gets or sets the current color to use on clear operations
+        /// Gets or sets the current color to use on clear operations.
         /// </summary>
         public Color4 ClearColor
         {
@@ -1023,10 +1023,10 @@ namespace TrippyGL
         #endregion
 
         #region Viewport
-        /// <summary>The current drawing viewport</summary>
+        /// <summary>The current drawing viewport.</summary>
         private Rectangle viewport;
 
-        /// <summary>Gets or sets the viewport for drawing</summary>
+        /// <summary>Gets or sets the viewport for drawing.</summary>
         public Rectangle Viewport
         {
             get { return viewport; } //The get is OK because Rectangle is a struct so no worries about modifying it
@@ -1041,12 +1041,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the current viewport for drawing
+        /// Sets the current viewport for drawing.
         /// </summary>
-        /// <param name="x">The viewport's X</param>
-        /// <param name="y">The viewport's Y</param>
-        /// <param name="width">The viewport's width</param>
-        /// <param name="height">The viewport's height</param>
+        /// <param name="x">The viewport's X.</param>
+        /// <param name="y">The viewport's Y.</param>
+        /// <param name="width">The viewport's width.</param>
+        /// <param name="height">The viewport's height.</param>
         public void SetViewport(int x, int y, int width, int height)
         {
             if (viewport.X != x || viewport.Y != y || viewport.Width != width || viewport.Height != height)
@@ -1063,13 +1063,13 @@ namespace TrippyGL
 
         #region ScissorTest
 
-        /// <summary>Whether scissor testing is currently enabled</summary>
+        /// <summary>Whether scissor testing is currently enabled.</summary>
         private bool scissorTestEnabled = false;
 
-        /// <summary>The current scissor rectangle</summary>
+        /// <summary>The current scissor rectangle.</summary>
         private Rectangle scissorRect;
 
-        /// <summary>Gets or sets whether scissor testing is enable</summary>
+        /// <summary>Gets or sets whether scissor testing is enable.</summary>
         public bool ScissorTestEnabled
         {
             get { return scissorTestEnabled; }
@@ -1087,7 +1087,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets or sets the scissor rectangle that discards fragments rendered outside it
+        /// Gets or sets the scissor rectangle that discards fragments rendered outside it.
         /// </summary>
         public Rectangle ScissorRectangle
         {
@@ -1109,10 +1109,10 @@ namespace TrippyGL
 
         #region BlendState
 
-        /// <summary>The current blend state</summary>
+        /// <summary>The current blend state.</summary>
         private BlendState blendState = BlendState.Opaque;
 
-        /// <summary>Gets or sets the blend state for drawing</summary>
+        /// <summary>Gets or sets the blend state for drawing.</summary>
         public BlendState BlendState
         {
             set
@@ -1194,7 +1194,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Enables or disables color blending</summary>
+        /// <summary>Enables or disables color blending.</summary>
         public bool BlendingEnabled
         {
             get { return !blendState.IsOpaque; }
@@ -1215,10 +1215,10 @@ namespace TrippyGL
 
         #region DepthTestingState
 
-        /// <summary>The current depth state</summary>
+        /// <summary>The current depth state.</summary>
         private DepthTestingState depthState = new DepthTestingState(false);
 
-        /// <summary>Sets the current depth testing state</summary>
+        /// <summary>Sets the current depth testing state.</summary>
         public DepthTestingState DepthState
         {
             set
@@ -1268,7 +1268,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Enables or disables depth testing</summary>
+        /// <summary>Enables or disables depth testing.</summary>
         public bool DepthTestingEnabled
         {
             get { return depthState.DepthTestingEnabled; }
@@ -1285,7 +1285,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>The current depth to set on a clear depth operation</summary>
+        /// <summary>The current depth to set on a clear depth operation.</summary>
         public float ClearDepth
         {
             get { return depthState.ClearDepth; }
@@ -1307,7 +1307,7 @@ namespace TrippyGL
         private CullFaceMode cullFaceMode = CullFaceMode.Back;
         private FrontFaceDirection polygonFrontFace = FrontFaceDirection.Ccw;
 
-        /// <summary>Enables or disables culling polygon faces</summary>
+        /// <summary>Enables or disables culling polygon faces.</summary>
         public bool FaceCullingEnabled
         {
             get { return faceCullingEnabled; }
@@ -1324,7 +1324,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Sets the face culling mode to use when face culling is enabled</summary>
+        /// <summary>Sets the face culling mode to use when face culling is enabled.</summary>
         public CullFaceMode CullFaceMode
         {
             get { return cullFaceMode; }
@@ -1338,7 +1338,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Sets which face of a polygon is the front one (Whether front is when vertices are aligned clockwise or counter clockwise)</summary>
+        /// <summary>Sets which face of a polygon is the front one (Whether front is when vertices are aligned clockwise or counter clockwise).</summary>
         public FrontFaceDirection PolygonFrontFace
         {
             get { return polygonFrontFace; }
@@ -1356,23 +1356,23 @@ namespace TrippyGL
 
         #region ClipDistances
 
-        /// <summary>Controls to enable and/or disable clip distances</summary>
+        /// <summary>Controls to enable and/or disable clip distances.</summary>
         public ClipDistanceManager ClipDistances { get; private set; }
 
         /// <summary>
-        /// Manages the enabling or disabling of clip distances
+        /// Manages the enabling or disabling of clip distances.
         /// </summary>
         public class ClipDistanceManager
         {
             private bool[] areEnabled;
 
-            /// <summary>The maximum amount of clip distances you can use</summary>
+            /// <summary>The maximum amount of clip distances you can use.</summary>
             public int Count { get { return areEnabled.Length; } }
 
             /// <summary>
-            /// Enables or disables a gl_ClipDistance[] index
+            /// Enables or disables a gl_ClipDistance[] index.
             /// </summary>
-            /// <param name="index"></param>
+            /// <param name="index".></param>
             public bool this[int index]
             {
                 get { return areEnabled[index]; }
@@ -1397,10 +1397,10 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Enables a range of clip distance variables
+            /// Enables a range of clip distance variables.
             /// </summary>
-            /// <param name="min">The index of the first clip distance to enable</param>
-            /// <param name="max">The index of the last clip distance to enable (inclusive)</param>
+            /// <param name="min">The index of the first clip distance to enable.</param>
+            /// <param name="max">The index of the last clip distance to enable (inclusive).</param>
             public void EnableRange(int min, int max)
             {
                 for (int i = min; i <= max; i++)
@@ -1412,10 +1412,10 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Disables a range of clip distance variables
+            /// Disables a range of clip distance variables.
             /// </summary>
-            /// <param name="min">The index of the first clip distance to disable</param>
-            /// <param name="max">The index of the last clip distance to disable (inclusive)</param>
+            /// <param name="min">The index of the first clip distance to disable.</param>
+            /// <param name="max">The index of the last clip distance to disable (inclusive).</param>
             public void DisableRange(int min, int max)
             {
                 for (int i = min; i <= max; i++)
@@ -1427,10 +1427,10 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Ensures that the only enabled clip distances are the ones on the specified range
+            /// Ensures that the only enabled clip distances are the ones on the specified range.
             /// </summary>
-            /// <param name="min">The index of the first clip distance to enable</param>
-            /// <param name="max">The index of the last clip distance to enable (inclusive)</param>
+            /// <param name="min">The index of the first clip distance to enable.</param>
+            /// <param name="max">The index of the last clip distance to enable (inclusive).</param>
             public void SetEnabledRange(int min, int max)
             {
                 for (int i = 0; i < areEnabled.Length; i++)
@@ -1438,7 +1438,7 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Disables all clip distances
+            /// Disables all clip distances.
             /// </summary>
             public void DisableAll()
             {
@@ -1451,7 +1451,7 @@ namespace TrippyGL
             }
 
             /// <summary>
-            /// Resets all the states from clip distances
+            /// Resets all the states from clip distances.
             /// </summary>
             public void ResetStates()
             {
@@ -1469,7 +1469,7 @@ namespace TrippyGL
 
         private bool cubemapSeamlessEnabled = false;
 
-        /// <summary>Enables or disables seamless sampling across cubemap faces</summary>
+        /// <summary>Enables or disables seamless sampling across cubemap faces.</summary>
         public bool TextureCubemapSeamlessEnabled
         {
             get { return cubemapSeamlessEnabled; }
@@ -1488,7 +1488,7 @@ namespace TrippyGL
 
         private bool rasterizerEnabled = true;
 
-        /// <summary>Enables or disables the pixel rasterizer</summary>
+        /// <summary>Enables or disables the pixel rasterizer.</summary>
         public bool RasterizerEnabled
         {
             get { return rasterizerEnabled; }
@@ -1512,20 +1512,20 @@ namespace TrippyGL
         #region DrawingFunctions
 
         /// <summary>
-        /// Clears the current framebuffer to the specified color
+        /// Clears the current framebuffer to the specified color.
         /// </summary>
-        /// <param name="mask">The masks indicating the values to clear, combined using bitwise OR</param>
+        /// <param name="mask">The masks indicating the values to clear, combined using bitwise OR.</param>
         public void Clear(ClearBufferMask mask)
         {
             GL.Clear(mask);
         }
 
         /// <summary>
-        /// Renders primitive data
+        /// Renders primitive data.
         /// </summary>
-        /// <param name="primitiveType">The type of primitive to render</param>
-        /// <param name="startIndex">The index of the first vertex to render</param>
-        /// <param name="count">The amount of vertices to render</param>
+        /// <param name="primitiveType">The type of primitive to render.</param>
+        /// <param name="startIndex">The index of the first vertex to render.</param>
+        /// <param name="count">The amount of vertices to render.</param>
         public void DrawArrays(PrimitiveType primitiveType, int startIndex, int count)
         {
             shaderProgram.EnsurePreDrawStates();
@@ -1533,11 +1533,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Renders indexed primitive data
+        /// Renders indexed primitive data.
         /// </summary>
-        /// <param name="primitiveType">The type of primitive to render</param>
-        /// <param name="startIndex">The index of the first element to render</param>
-        /// <param name="count">The amount of elements to render</param>
+        /// <param name="primitiveType">The type of primitive to render.</param>
+        /// <param name="startIndex">The index of the first element to render.</param>
+        /// <param name="count">The amount of elements to render.</param>
         public void DrawElements(PrimitiveType primitiveType, int startIndex, int count)
         {
             shaderProgram.EnsurePreDrawStates();
@@ -1546,12 +1546,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Renders instanced primitive data
+        /// Renders instanced primitive data.
         /// </summary>
-        /// <param name="primitiveType">The type of primitive to render</param>
-        /// <param name="startIndex">The index of the first element to render</param>
-        /// <param name="count">The amount of elements to render</param>
-        /// <param name="instanceCount"></param>
+        /// <param name="primitiveType">The type of primitive to render.</param>
+        /// <param name="startIndex">The index of the first element to render.</param>
+        /// <param name="count">The amount of elements to render.</param>
+        /// <param name="instanceCount".></param>
         public void DrawArraysInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
         {
             shaderProgram.EnsurePreDrawStates();
@@ -1559,12 +1559,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Renders indexed instanced primitive data
+        /// Renders indexed instanced primitive data.
         /// </summary>
-        /// <param name="primitiveType">The type of primitive to render</param>
-        /// <param name="startIndex">The index of the first element to render</param>
-        /// <param name="count">The amount of elements to render</param>
-        /// <param name="instanceCount"></param>
+        /// <param name="primitiveType">The type of primitive to render.</param>
+        /// <param name="startIndex">The index of the first element to render.</param>
+        /// <param name="count">The amount of elements to render.</param>
+        /// <param name="instanceCount".></param>
         public void DrawElementsInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
         {
             shaderProgram.EnsurePreDrawStates();
@@ -1573,18 +1573,18 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Copies content from the read framebuffer to the draw framebuffer
+        /// Copies content from the read framebuffer to the draw framebuffer.
         /// </summary>
-        /// <param name="srcX">The X location of the first pixel to read</param>
-        /// <param name="srcY">The Y location of the first pixel to read</param>
-        /// <param name="srcWidth">The width of the read rectangle</param>
-        /// <param name="srcHeight">The height of the read rectangle</param>
-        /// <param name="dstX">The X location of the first pixel to write</param>
-        /// <param name="dstY">The Y location of the first pixel to write</param>
-        /// <param name="dstWidth">The width of the write rectangle</param>
-        /// <param name="dstHeight">The height of the draw rectangle</param>
-        /// <param name="mask">What data to copy from the framebuffers</param>
-        /// <param name="filter">Whether to use nearest or linear filtering</param>
+        /// <param name="srcX">The X location of the first pixel to read.</param>
+        /// <param name="srcY">The Y location of the first pixel to read.</param>
+        /// <param name="srcWidth">The width of the read rectangle.</param>
+        /// <param name="srcHeight">The height of the read rectangle.</param>
+        /// <param name="dstX">The X location of the first pixel to write.</param>
+        /// <param name="dstY">The Y location of the first pixel to write.</param>
+        /// <param name="dstWidth">The width of the write rectangle.</param>
+        /// <param name="dstHeight">The height of the draw rectangle.</param>
+        /// <param name="mask">What data to copy from the framebuffers.</param>
+        /// <param name="filter">Whether to use nearest or linear filtering.</param>
         public void BlitFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
             // Blit rules:
@@ -1613,12 +1613,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Copies content from the read framebuffer to the draw framebuffer
+        /// Copies content from the read framebuffer to the draw framebuffer.
         /// </summary>
-        /// <param name="srcRect">The source rectangle to copy from</param>
-        /// <param name="dstRect">The destination rectangle to write to</param>
-        /// <param name="mask">What data to copy from the framebuffers</param>
-        /// <param name="filter">Whether to use nearest or linear filtering</param>
+        /// <param name="srcRect">The source rectangle to copy from.</param>
+        /// <param name="dstRect">The destination rectangle to write to.</param>
+        /// <param name="mask">What data to copy from the framebuffers.</param>
+        /// <param name="filter">Whether to use nearest or linear filtering.</param>
         public void BlitFramebuffer(Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
             BlitFramebuffer(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
@@ -1631,9 +1631,9 @@ namespace TrippyGL
         private List<GraphicsResource> graphicsResources;
 
         /// <summary>
-        /// This is called by GraphicResource-s on creation
+        /// This is called by GraphicResource-s on creation.
         /// </summary>
-        /// <param name="createdResource">The newly created resource</param>
+        /// <param name="createdResource">The newly created resource.</param>
         internal void OnResourceAdded(GraphicsResource createdResource)
         {
             if (IsDisposed)
@@ -1643,9 +1643,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This is called by GraphicsResource-s on Dispose()
+        /// This is called by GraphicsResource-s on Dispose().
         /// </summary>
-        /// <param name="disposedResource">The graphics resource that was just disposed</param>
+        /// <param name="disposedResource">The graphics resource that was just disposed.</param>
         internal void OnResourceRemoved(GraphicsResource disposedResource)
         {
             graphicsResources.Remove(disposedResource);
@@ -1665,7 +1665,7 @@ namespace TrippyGL
         #endregion GraphicsResourceManagement
 
         /// <summary>
-        /// Ensures all OpenGL commands given before this function was called are not being queued up (doesn't wait for them to finish)
+        /// Ensures all OpenGL commands given before this function was called are not being queued up (doesn't wait for them to finish).
         /// </summary>
         public void FlushCommands()
         {
@@ -1673,7 +1673,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Waits for all current OpenGL commands to finish being executed
+        /// Waits for all current OpenGL commands to finish being executed.
         /// </summary>
         public void FinishCommands()
         {
@@ -1683,7 +1683,7 @@ namespace TrippyGL
         /// <summary>
         /// Removes a GraphicsResource from it's GraphicsDevice and makes it belong to this GraphicsDevice.
         /// </summary>
-        /// <param name="resource">The resource to pass over</param>
+        /// <param name="resource">The resource to pass over.</param>
         public void MakeMine(GraphicsResource resource)
         {
             if (resource.GraphicsDevice != this)
@@ -1695,10 +1695,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the GL version is the specified version or newer
+        /// Returns whether the GL version is the specified version or newer.
         /// </summary>
-        /// <param name="major">The major version number</param>
-        /// <param name="minor">The minor version number</param>
+        /// <param name="major">The major version number.</param>
+        /// <param name="minor">The minor version number.</param>
         public bool IsGLVersionAtLeast(int major, int minor)
         {
             return GLMajorVersion > major || (major == GLMajorVersion && GLMinorVersion >= minor);
@@ -1706,7 +1706,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Disposes this GraphicsDevice, it's GraphicsResource and it's context.
-        /// The GraphicsDevice nor it's resources can be used once it's been disposed
+        /// The GraphicsDevice nor it's resources can be used once it's been disposed.
         /// </summary>
         public void Dispose()
         {

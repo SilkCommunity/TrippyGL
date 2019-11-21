@@ -1,36 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// A readonly list containing the active attributes of a ShaderProgram
+    /// A readonly list containing the active attributes of a ShaderProgram.
     /// </summary>
     public class ActiveAttribList
     {
-        /// <summary>The internal ActiveVertexAttrib array</summary>
+        /// <summary>The internal ActiveVertexAttrib array.</summary>
         internal readonly ActiveVertexAttrib[] attributes;
 
         /// <summary>
-        /// Gets an ActiveVertexAttrib from the list. While these are by location, remember that some attributes use more than one location
+        /// Gets an ActiveVertexAttrib from the list. While these are by location, remember that some attributes use more than one location.
         /// </summary>
-        /// <param name="index">The list index of the ActiveVertexAttrib</param>
+        /// <param name="index">The list index of the ActiveVertexAttrib.</param>
         /// <returns></returns>
         public ActiveVertexAttrib this[int index] { get { return attributes[index]; } }
 
-        /// <summary>The amount of ActiveVertexAttrib-s stored by this list</summary>
+        /// <summary>The amount of ActiveVertexAttrib-s stored by this list.</summary>
         public int Length { get { return attributes.Length; } }
 
         /// <summary>
-        /// Creates an ActiveAttribList where the attribute list is queried from a ShaderProgram
+        /// Creates an ActiveAttribList where the attribute list is queried from a ShaderProgram.
         /// </summary>
-        /// <param name="program">The ShaderProgram to query the attributes from</param>
+        /// <param name="program">The ShaderProgram to query the attributes from.</param>
         internal ActiveAttribList(ShaderProgram program)
         {
             // We query the total amount of attributes we'll be reading from OpenGL
             GL.GetProgram(program.Handle, GetProgramParameterName.ActiveAttributes, out int attribCount);
-            
+
             // We'll be storing the attributes in this list and then turning it into an array, because we can't
             // know for sure how many attributes we'll have at the end, we just know it's be <= than attribCount
             List<ActiveVertexAttrib> attribList = new List<ActiveVertexAttrib>(attribCount);
@@ -50,9 +50,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Checks that the names given for some vertex attributes match the names found for the actual vertex attributes
+        /// Checks that the names given for some vertex attributes match the names found for the actual vertex attributes.
         /// </summary>
-        /// <param name="providedNames"></param>
+        /// <param name="providedNames".></param>
         internal bool DoAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
         {
             // This function assumes the length of the two given arrays match

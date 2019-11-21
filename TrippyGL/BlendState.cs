@@ -1,6 +1,6 @@
-﻿using System.Text;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System.Text;
 
 namespace TrippyGL
 {
@@ -10,31 +10,31 @@ namespace TrippyGL
     /// </summary>
     public class BlendState
     {
-        /// <summary>Whether the blend mode is opaque. If this is true, all other BlendMode members are irrelevant</summary>
+        /// <summary>Whether the blend mode is opaque. If this is true, all other BlendMode members are irrelevant.</summary>
         public bool IsOpaque;
 
-        /// <summary>The equation mode for the RGB color components</summary>
+        /// <summary>The equation mode for the RGB color components.</summary>
         public BlendEquationMode EquationModeRGB;
-        /// <summary>The equation mode for the Alpha color component</summary>
+        /// <summary>The equation mode for the Alpha color component.</summary>
         public BlendEquationMode EquationModeAlpha;
 
-        /// <summary>The source factor for the RGB color components</summary>
+        /// <summary>The source factor for the RGB color components.</summary>
         public BlendingFactorSrc SourceFactorRGB;
-        /// <summary>The source factor for the Alpha color component</summary>
+        /// <summary>The source factor for the Alpha color component.</summary>
         public BlendingFactorSrc SourceFactorAlpha;
 
-        /// <summary>The destination factor for the RGB color components</summary>
+        /// <summary>The destination factor for the RGB color components.</summary>
         public BlendingFactorDest DestFactorRGB;
-        /// <summary>The destination factor for the Alpha color components</summary>
+        /// <summary>The destination factor for the Alpha color components.</summary>
         public BlendingFactorDest DestFactorAlpha;
 
-        /// <summary>This color can be used for blending calculations with the blending factors for constant color</summary>
+        /// <summary>This color can be used for blending calculations with the blending factors for constant color.</summary>
         public Color4 BlendColor;
 
         /// <summary>
-        /// Creates a simple BlendState
+        /// Creates a simple BlendState.
         /// </summary>
-        /// <param name="isOpaque">Whether this BlendState is opaque</param>
+        /// <param name="isOpaque">Whether this BlendState is opaque.</param>
         public BlendState(bool isOpaque)
         {
             IsOpaque = isOpaque;
@@ -47,12 +47,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a BlendState with a simple equation
+        /// Creates a BlendState with a simple equation.
         /// </summary>
-        /// <param name="isOpaque">Whether this BlendState is opaque</param>
-        /// <param name="equationModeRgba">The equation mode to use for the RGBA values</param>
-        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values</param>
-        /// <param name="destFactorRgba">The destination factor to use for the RGBA values</param>
+        /// <param name="isOpaque">Whether this BlendState is opaque.</param>
+        /// <param name="equationModeRgba">The equation mode to use for the RGBA values.</param>
+        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values.</param>
+        /// <param name="destFactorRgba">The destination factor to use for the RGBA values.</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba)
         {
             IsOpaque = isOpaque;
@@ -65,13 +65,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a BlendState with a simple equation and a blending color
+        /// Creates a BlendState with a simple equation and a blending color.
         /// </summary>
-        /// <param name="isOpaque">Whether this BlendState is opaque</param>
-        /// <param name="equationModeRgba">The equation mode to use for the RGBA values</param>
-        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values</param>
-        /// <param name="destFactorRgba">The destination factor to use for the RGBA values</param>
-        /// <param name="blendColor">The equation-constant blending color</param>
+        /// <param name="isOpaque">Whether this BlendState is opaque.</param>
+        /// <param name="equationModeRgba">The equation mode to use for the RGBA values.</param>
+        /// <param name="sourceFactorRgba">The source factor to use for the RGBA values.</param>
+        /// <param name="destFactorRgba">The destination factor to use for the RGBA values.</param>
+        /// <param name="blendColor">The equation-constant blending color.</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba, Color4 blendColor)
         {
             IsOpaque = isOpaque;
@@ -85,15 +85,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a BlendState with specified separate equations, factors and a blend color
+        /// Creates a BlendState with specified separate equations, factors and a blend color.
         /// </summary>
-        /// <param name="isOpaque">Whether this BlendState is opaque</param>
-        /// <param name="equationModeRgb">The equation mode to use for the RGB values</param>
-        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value</param>
-        /// <param name="sourceFactorRgb">The source factor to use for the RGB values</param>
-        /// <param name="destFactorRgb">The destination factor to use for the RGB values</param>
-        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value</param>
-        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value</param>
+        /// <param name="isOpaque">Whether this BlendState is opaque.</param>
+        /// <param name="equationModeRgb">The equation mode to use for the RGB values.</param>
+        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value.</param>
+        /// <param name="sourceFactorRgb">The source factor to use for the RGB values.</param>
+        /// <param name="destFactorRgb">The destination factor to use for the RGB values.</param>
+        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value.</param>
+        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value.</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha)
         {
             IsOpaque = isOpaque;
@@ -106,16 +106,16 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a BlendState with specified separate equations, factors and a blend color
+        /// Creates a BlendState with specified separate equations, factors and a blend color.
         /// </summary>
-        /// <param name="isOpaque">Whether this BlendState is opaque</param>
-        /// <param name="equationModeRgb">The equation mode to use for the RGB values</param>
-        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value</param>
-        /// <param name="sourceFactorRgb">The source factor to use for the RGB values</param>
-        /// <param name="destFactorRgb">The destination factor to use for the RGB values</param>
-        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value</param>
-        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value</param>
-        /// <param name="blendColor">The equation-constant blending color</param>
+        /// <param name="isOpaque">Whether this BlendState is opaque.</param>
+        /// <param name="equationModeRgb">The equation mode to use for the RGB values.</param>
+        /// <param name="equationModeAlpha">The equation mode to use for the Alpha value.</param>
+        /// <param name="sourceFactorRgb">The source factor to use for the RGB values.</param>
+        /// <param name="destFactorRgb">The destination factor to use for the RGB values.</param>
+        /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value.</param>
+        /// <param name="destFactorAlpha">The destination factor to use for the Alpha value.</param>
+        /// <param name="blendColor">The equation-constant blending color.</param>
         public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha, Color4 blendColor)
         {
             IsOpaque = isOpaque;
@@ -129,9 +129,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a BlendState with the same values as another specified BlendState
+        /// Creates a BlendState with the same values as another specified BlendState.
         /// </summary>
-        /// <param name="copy">The BlendState whose values to copy</param>
+        /// <param name="copy">The BlendState whose values to copy.</param>
         public BlendState(BlendState copy)
         {
             IsOpaque = copy.IsOpaque;
@@ -164,7 +164,7 @@ namespace TrippyGL
                 builder.Append(EquationModeAlpha.ToString());
             }
 
-            if(SourceFactorRGB == SourceFactorAlpha)
+            if (SourceFactorRGB == SourceFactorAlpha)
             {
                 builder.Append("\", SourceFactorRGBA=\"");
                 builder.Append(SourceFactorRGB.ToString());
@@ -177,7 +177,7 @@ namespace TrippyGL
                 builder.Append(SourceFactorAlpha.ToString());
             }
 
-            if(DestFactorRGB == DestFactorAlpha)
+            if (DestFactorRGB == DestFactorAlpha)
             {
                 builder.Append("\", DestFactorRGBA=\"");
                 builder.Append(DestFactorRGB.ToString());

@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -6,28 +6,28 @@ using System.Drawing.Imaging;
 namespace TrippyGL
 {
     /// <summary>
-    /// A 2D OpenGL texture
+    /// A 2D OpenGL texture.
     /// </summary>
     public class Texture2D : Texture, IMultisamplableTexture
     {
-        /// <summary>The width of this texture</summary>
+        /// <summary>The width of this texture.</summary>
         public int Width { get; private set; }
 
-        /// <summary>The height of this texture</summary>
+        /// <summary>The height of this texture.</summary>
         public int Height { get; private set; }
 
-        /// <summary>The amount of samples this texture has. Most common value is 0</summary>
+        /// <summary>The amount of samples this texture has. Most common value is 0.</summary>
         public int Samples { get; private set; }
 
         /// <summary>
-        /// Creates a Texture2D with the desired parameters but no image data
+        /// Creates a Texture2D with the desired parameters but no image data.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="width">The width of the texture</param>
-        /// <param name="height">The height of the texture</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture</param>
-        /// <param name="samples">The amount of samples for this texture. Default is 0</param>
-        /// <param name="imageFormat">The image format for this texture</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="width">The width of the texture.</param>
+        /// <param name="height">The height of the texture.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture.</param>
+        /// <param name="samples">The amount of samples for this texture. Default is 0.</param>
+        /// <param name="imageFormat">The image format for this texture.</param>
         public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool generateMipmaps = false, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b) : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, imageFormat)
         {
             ValidateSampleCount(samples);
@@ -71,11 +71,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a Texture2D from an image from a file
+        /// Creates a Texture2D from an image from a file.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="file">The file containing the texture pixels data</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="file">The file containing the texture pixels data.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture.</param>
         public Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false) : this(graphicsDevice, file, generateMipmaps, TextureTarget.Texture2D)
         {
 
@@ -83,14 +83,14 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of a specified area of the texture, copying it from the specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the data</param>
-        /// <param name="rectX">The X coordinate of the first pixel to write</param>
-        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="dataPtr">The pointer for reading the data.</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write.</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
@@ -100,16 +100,16 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the texture, copying the new data from a specified array
+        /// Sets the data of a specified area of the texture, copying the new data from a specified array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
-        /// <param name="rectX">The X coordinate of the first pixel to write</param>
-        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array containing the new texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start reading from.</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write.</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData<T>(T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
@@ -119,12 +119,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of the entire texture, copying the new data from a given array
+        /// Sets the data of the entire texture, copying the new data from a given array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data</param>
-        /// <param name="dataOffset">The index of the first element in the array to start reading from</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array containing the new texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the array to start reading from.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData<T>(T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             SetData(data, dataOffset, 0, 0, Width, Height, pixelFormat);
@@ -132,11 +132,11 @@ namespace TrippyGL
 
         /// <summary>
         /// Gets the data of the entire texture and copies it to a specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for writting the data</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="dataPtr">The pointer for writting the data.</param>
+        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void GetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
@@ -144,31 +144,31 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of the entire texture, copying the texture data to a specified array
+        /// Gets the data of the entire texture, copying the texture data to a specified array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array in which to write the texture data</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start writing from</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array in which to write the texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start writing from.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void GetData<T>(T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateGetOperation(data, dataOffset);
-            
+
             GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[dataOffset]);
         }
 
         /// <summary>
-        /// Saves this texture as an image file. You can't save multisampled textures
+        /// Saves this texture as an image file. You can't save multisampled textures.
         /// </summary>
-        /// <param name="file">The location in which to store the file</param>
-        /// <param name="imageFormat">The format</param>
+        /// <param name="file">The location in which to store the file.</param>
+        /// <param name="imageFormat">The format.</param>
         public void SaveAsImage(string file, SaveImageFormat imageFormat)
         {
             if (Samples != 0)
                 throw new NotSupportedException("You can't save multisampled textures");
 
-            if (String.IsNullOrEmpty(file))
+            if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("You must specify a file name", "file");
 
             if (ImageFormat != TextureImageFormat.Color4b)
@@ -205,10 +205,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range.
         /// </summary>
-        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
-        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate.</param>
+        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate.</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode)
         {
             if (Samples != 0)
@@ -220,10 +220,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreates this texture's image with a new size, resizing the texture but losing the image data
+        /// Recreates this texture's image with a new size, resizing the texture but losing the image data.
         /// </summary>
-        /// <param name="width">The new width for the texture</param>
-        /// <param name="height">The new height for the texture</param>
+        /// <param name="width">The new width for the texture.</param>
+        /// <param name="height">The new height for the texture.</param>
         public void RecreateImage(int width, int height)
         {
             ValidateTextureSize(width, height);

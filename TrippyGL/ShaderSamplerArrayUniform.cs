@@ -1,17 +1,17 @@
-﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a sampler-array-type shader uniform from a shader program and allows control over that uniform
+    /// Represents a sampler-array-type shader uniform from a shader program and allows control over that uniform.
     /// </summary>
     public class ShaderSamplerArrayUniform : ShaderUniform
     {
-        /// <summary>The texture values for the samplers in the array</summary>
+        /// <summary>The texture values for the samplers in the array.</summary>
         internal Texture[] texValues;
 
-        /// <summary>The length of the uniform array</summary>
+        /// <summary>The length of the uniform array.</summary>
         public int ArrayLength { get { return texValues.Length; } }
 
         internal ShaderSamplerArrayUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
@@ -21,7 +21,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the applied texture value for the specified index on the uniform array
+        /// Gets the applied texture value for the specified index on the uniform array.
         /// </summary>
         public Texture GetValue(int index)
         {
@@ -59,7 +59,7 @@ namespace TrippyGL
         /// <summary>
         /// This is called by ShaderUniformList.EnsureSamplerUniformsSet() after all the required sampler uniform textures have been bound to different units.
         /// This method supposes that all the textures in the "values" array are bound to texture units, so they are all ready to be used together.
-        /// This method also assumes the uniform's ShaderProgram is the one currently in use
+        /// This method also assumes the uniform's ShaderProgram is the one currently in use.
         /// </summary>
         internal void ApplyUniformValues()
         {

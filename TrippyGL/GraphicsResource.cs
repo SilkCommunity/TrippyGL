@@ -1,22 +1,22 @@
-﻿using System;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Encapsulates any graphics resource. These include Textures, BufferObjects, VertexArrays, etc
+    /// Encapsulates any graphics resource. These include Textures, BufferObjects, VertexArrays, etc.
     /// </summary>
     public abstract class GraphicsResource : IDisposable
     {
-        /// <summary>The graphics device that manages this graphics resource</summary>
+        /// <summary>The graphics device that manages this graphics resource.</summary>
         public GraphicsDevice GraphicsDevice { get; internal set; }
 
-        /// <summary>Whether this graphics resource has been disposed</summary>
+        /// <summary>Whether this graphics resource has been disposed.</summary>
         public bool IsDisposed { get; private set; }
-        
+
         /// <summary>
-        /// Creates a GraphicsResource that uses the specified GraphicsDevice
+        /// Creates a GraphicsResource that uses the specified GraphicsDevice.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice for this GraphicsResource</param>
+        /// <param name="graphicsDevice">The GraphicsDevice for this GraphicsResource.</param>
         internal GraphicsResource(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice == null)
@@ -34,9 +34,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Disposes this GraphicsResource, deleting and releasing the resources it uses.
-        /// Resources override this method to implement their disposing code
+        /// Resources override this method to implement their disposing code.
         /// </summary>
-        /// <param name="isManualDispose">Whether the call to this function happened because of a call to Dispose() or by, say, the destructor</param>
+        /// <param name="isManualDispose">Whether the call to this function happened because of a call to Dispose() or by, say, the destructor.</param>
         protected virtual void Dispose(bool isManualDispose)
         {
 
@@ -44,7 +44,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Disposes the GraphicsResource without notifying the GraphicsDevice.
-        /// This function is only called by the GraphicsDevice
+        /// This function is only called by the GraphicsDevice.
         /// </summary>
         internal void DisposeByGraphicsDevice()
         {
@@ -58,7 +58,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Disposes this graphics resource. It cannot be used after it's been disposed
+        /// Disposes this graphics resource. It cannot be used after it's been disposed.
         /// </summary>
         public void Dispose()
         {

@@ -1,7 +1,7 @@
-﻿namespace TrippyGL
+namespace TrippyGL
 {
     /// <summary>
-    /// Provides some general help math-related functions and values
+    /// Provides some general help math-related functions and values.
     /// </summary>
     public static class TrippyMath
     {

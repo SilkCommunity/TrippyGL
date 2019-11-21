@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace TrippyGL
 {
     public struct Rectangle
@@ -46,7 +44,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("{X=", X.ToString(), ", Y=", Y.ToString(), ", Width=" + Width.ToString(), ", Height=", Height.ToString(), "}");
+            return string.Concat("{X=", X.ToString(), ", Y=", Y.ToString(), ", Width=" + Width.ToString(), ", Height=", Height.ToString(), "}");
         }
     }
 }

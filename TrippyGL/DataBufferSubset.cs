@@ -1,28 +1,28 @@
-﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Runtime.InteropServices;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// An abstract class for BufferObjectSubset-s that will manage a struct type across the entire subset
+    /// An abstract class for BufferObjectSubset-s that will manage a struct type across the entire subset.
     /// </summary>
     /// <typeparam name="T">The type of struct (element) this DataBufferSubset will manage</typeparam>
     public abstract class DataBufferSubset<T> : BufferObjectSubset, IDataBufferSubset where T : struct
     {
-        /// <summary>The length of the buffer object's storage measured in elements</summary>
+        /// <summary>The length of the buffer object's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
-        /// <summary>The size of each element in the buffer object's storage measured in bytes</summary>
+        /// <summary>The size of each element in the buffer object's storage measured in bytes.</summary>
         public int ElementSize { get; }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements
+        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength) : base(bufferObject, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
@@ -31,14 +31,14 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements
+        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
-        /// <param name="data">An array containing the initial data to set to the subset</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="data">An array containing the initial data to set to the subset.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset, int storageOffsetBytes, int storageLength)
             : this(bufferObject, bufferTarget, storageOffsetBytes, storageLength)
         {
@@ -46,10 +46,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage
+        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget) : base(bufferObject, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
@@ -61,22 +61,22 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage and sets initial data
+        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage and sets initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
-        /// <param name="data">An array containing the initial data to set to the subset</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="data">An array containing the initial data to set to the subset.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset) : this(bufferObject, bufferTarget)
         {
             SetData(data, dataOffset, 0, data.Length);
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset that occupies the same area in the same buffer as another buffer subset but has another BufferTarget
+        /// Creates a DataBufferSubset that occupies the same area in the same buffer as another buffer subset but has another BufferTarget.
         /// </summary>
-        /// <param name="copy">The BufferObjectSubset to copy the range form</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
+        /// <param name="copy">The BufferObjectSubset to copy the range form.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
         internal DataBufferSubset(BufferObjectSubset copy, BufferTarget bufferTarget) : base(copy, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
@@ -86,10 +86,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset that occupies the same area in the same buffer and uses the same struct type as another DataBufferSubset but has another BufferTarget
+        /// Creates a DataBufferSubset that occupies the same area in the same buffer and uses the same struct type as another DataBufferSubset but has another BufferTarget.
         /// </summary>
-        /// <param name="copy">The DataBufferSubset to copy the range from</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to</param>
+        /// <param name="copy">The DataBufferSubset to copy the range from.</param>
+        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
         internal DataBufferSubset(DataBufferSubset<T> copy, BufferTarget bufferTarget) : base(copy, bufferTarget)
         {
             ElementSize = copy.ElementSize;
@@ -97,12 +97,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified part of this subset's storage
+        /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to</param>
-        /// <param name="elementCount">The amount of elements to set</param>
+        /// <param name="data">The array containing the data to set.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
+        /// <param name="elementCount">The amount of elements to set.</param>
         public void SetData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateWriteOperation();
@@ -113,21 +113,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of this subset's storage
+        /// Sets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
+        /// <param name="data">The array containing the data to set.</param>
         public void SetData(T[] data)
         {
             SetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Gets the data of a specified part of this subset's storage
+        /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start reading from</param>
-        /// <param name="elementCount">The amount of elements to get</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
+        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
+        /// <param name="elementCount">The amount of elements to get.</param>
         public void GetData(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateReadOperation();
@@ -138,19 +138,19 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of this subset's storage
+        /// Gets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
         public void GetData(T[] data)
         {
             GetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Changes the subset location of this DataBufferSubset
+        /// Changes the subset location of this DataBufferSubset.
         /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
             InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
@@ -158,7 +158,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Validates the parameters for a set operation
+        /// Validates the parameters for a set operation.
         /// </summary>
         private protected void ValidateSetParams(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
@@ -179,7 +179,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Validates the parameters for a get operation
+        /// Validates the parameters for a get operation.
         /// </summary>
         private protected void ValidateGetParams(T[] data, int dataOffset, int storageOffset, int elementCount)
         {
@@ -201,26 +201,26 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat(base.ToString(), ", StorageLength=", StorageLength.ToString(), ", ElementSize=", ElementSize.ToString());
+            return string.Concat(base.ToString(), ", StorageLength=", StorageLength.ToString(), ", ElementSize=", ElementSize.ToString());
         }
 
         /// <summary>
-        /// Calculates the required storage length in bytes required for a DataBufferSubset with the specified storage length
+        /// Calculates the required storage length in bytes required for a DataBufferSubset with the specified storage length.
         /// </summary>
-        /// <param name="storageLength">The desired length for the subset measured in elements</param>
+        /// <param name="storageLength">The desired length for the subset measured in elements.</param>
         public static int CalculateRequiredSizeInBytes(int storageLength)
         {
             return Marshal.SizeOf<T>() * storageLength;
         }
 
         /// <summary>
-        /// Copies data from a source buffer to a destination buffer
+        /// Copies data from a source buffer to a destination buffer.
         /// </summary>
-        /// <param name="source">The buffer to copy data from</param>
-        /// <param name="sourceOffset">The index of the first element to copy from the source buffer</param>
-        /// <param name="dest">The buffer to write data to</param>
-        /// <param name="destOffset">The index of of the first element to write on the dest buffer</param>
-        /// <param name="dataLength">The amount of elements to copy</param>
+        /// <param name="source">The buffer to copy data from.</param>
+        /// <param name="sourceOffset">The index of the first element to copy from the source buffer.</param>
+        /// <param name="dest">The buffer to write data to.</param>
+        /// <param name="destOffset">The index of of the first element to write on the dest buffer.</param>
+        /// <param name="dataLength">The amount of elements to copy.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, int sourceOffset, DataBufferSubset<T> dest, int destOffset, int dataLength)
         {
             GraphicsDevice g = source.Buffer.GraphicsDevice;
@@ -256,10 +256,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Copies all the data from a source buffer to a destination buffer
+        /// Copies all the data from a source buffer to a destination buffer.
         /// </summary>
-        /// <param name="source">The buffer to copy data from</param>
-        /// <param name="dest">The buffer to write data to</param>
+        /// <param name="source">The buffer to copy data from.</param>
+        /// <param name="dest">The buffer to write data to.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, DataBufferSubset<T> dest)
         {
             CopyBuffers(source, 0, dest, 0, source.StorageLength);
@@ -267,7 +267,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// This interface is used to be able to acces methods of a DataBufferSubset without caring about it's type param
+    /// This interface is used to be able to acces methods of a DataBufferSubset without caring about it's type param.
     /// </summary>
     internal interface IDataBufferSubset
     {

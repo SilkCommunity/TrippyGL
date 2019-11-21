@@ -1,28 +1,28 @@
-﻿using System;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a shader uniform from a ShaderProgram and allows control over that uniform
+    /// Represents a shader uniform from a ShaderProgram and allows control over that uniform.
     /// </summary>
     public class ShaderUniform
     {
-        /// <summary>The name with which this uniform is declared on the shader program</summary>
+        /// <summary>The name with which this uniform is declared on the shader program.</summary>
         public readonly string Name;
 
-        /// <summary>The type of uniform</summary>
+        /// <summary>The type of uniform.</summary>
         public readonly ActiveUniformType UniformType;
 
-        /// <summary>The program containing this uniform</summary>
+        /// <summary>The program containing this uniform.</summary>
         public readonly ShaderProgram OwnerProgram;
 
-        /// <summary>The location of the uniform on the program. Used for setting the value</summary>
+        /// <summary>The location of the uniform on the program. Used for setting the value.</summary>
         public readonly int UniformLocation;
 
-        /// <summary>For array uniforms, this is the length of the array. 1 for non-arrays</summary>
+        /// <summary>For array uniforms, this is the length of the array. 1 for non-arrays.</summary>
         public readonly int Size;
 
         internal ShaderUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
@@ -97,7 +97,7 @@ namespace TrippyGL
             OwnerProgram.EnsureInUse();
             GL.Uniform2(UniformLocation, x, y);
         }
-        
+
         public void SetValue2(int x, int y)
         {
             ValidateType(ActiveUniformType.IntVec2);
@@ -144,7 +144,7 @@ namespace TrippyGL
             OwnerProgram.EnsureInUse();
             GL.Uniform3(UniformLocation, x, y, z);
         }
-        
+
         public void SetValue3(int x, int y, int z)
         {
             ValidateType(ActiveUniformType.IntVec3);
@@ -452,13 +452,13 @@ namespace TrippyGL
         //Also: Should we even check that the type is OK?
 
         /// <summary>
-        /// Checks that the ShaderUniform's UniformType is the correct type and throws an exception otherwise
+        /// Checks that the ShaderUniform's UniformType is the correct type and throws an exception otherwise.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type".></param>
         private protected void ValidateType(ActiveUniformType type)
         {
             if (UniformType != type)
-                throw new InvalidOperationException(String.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
+                throw new InvalidOperationException(string.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
         }
 
         private protected void ValidateArrayAndType(ActiveUniformType type, int valueLength, int startValueIndex, int count)
@@ -476,7 +476,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("Name=\"", Name, "\" Type=", UniformType.ToString());
+            return string.Concat("Name=\"", Name, "\" Type=", UniformType.ToString());
         }
     }
 }

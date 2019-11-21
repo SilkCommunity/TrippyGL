@@ -1,35 +1,35 @@
-﻿using System;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
     /// Batches primitives, both triangles and lines. The batcher works for both lines and triangles, just beware that both types are batched independently.
-    /// The result of the batcher is always triangle/line list (GL_TRIANGLES or GL_LINES)
+    /// The result of the batcher is always triangle/line list (GL_TRIANGLES or GL_LINES).
     /// </summary>
     /// <typeparam name="T">The type of vertex to batch</typeparam>
     public class PrimitiveBatcher<T> where T : struct, IVertex
     {
         //TODO: Optimize all add operations by making them unsafe & utilizing pointers
-        
+
         private T[] lines;
         private int lineVertexCount;
 
         private T[] triangles;
         private int triangleVertexCount;
 
-        /// <summary>The amount of triangle vertices currently stored by the primitive batcher</summary>
+        /// <summary>The amount of triangle vertices currently stored by the primitive batcher.</summary>
         public int TriangleVertexCount { get { return triangleVertexCount; } }
 
-        /// <summary>The amount of line vertices currently stored by the primitive batcher</summary>
+        /// <summary>The amount of line vertices currently stored by the primitive batcher.</summary>
         public int LineVertexCount { get { return lineVertexCount; } }
 
-        /// <summary>The amount of triangles currently stored by the primitive batcher</summary>
+        /// <summary>The amount of triangles currently stored by the primitive batcher.</summary>
         public int TriangleCount { get { return triangleVertexCount / 3; } }
 
-        /// <summary>The amount of lines currently stored by the primitive batcher</summary>
+        /// <summary>The amount of lines currently stored by the primitive batcher.</summary>
         public int LineCount { get { return lineVertexCount / 2; } }
 
-        /// <summary>The amount of triangle vertices the primitive batcher can currently hold</summary>
+        /// <summary>The amount of triangle vertices the primitive batcher can currently hold.</summary>
         public int TriangleVertexCapacity
         {
             get { return triangles.Length; }
@@ -41,7 +41,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>The amount of line vertices the primitive batcher can currently hold</summary>
+        /// <summary>The amount of line vertices the primitive batcher can currently hold.</summary>
         public int LineVertexCapacity
         {
             get { return lines.Length; }
@@ -54,10 +54,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a primitive batcher with the specified initial capacities
+        /// Creates a primitive batcher with the specified initial capacities.
         /// </summary>
-        /// <param name="initialTriangleCount">The initial capacity for triangles, in vertex. A negative or 0 value means you don't want to use triangles</param>
-        /// <param name="initialLineCount">The initial capacity for lines, in vertex. A negative or 0 value means you don't want to use lines</param>
+        /// <param name="initialTriangleCount">The initial capacity for triangles, in vertex. A negative or 0 value means you don't want to use triangles.</param>
+        /// <param name="initialLineCount">The initial capacity for lines, in vertex. A negative or 0 value means you don't want to use lines.</param>
         public PrimitiveBatcher(int initialTriangleCount, int initialLineCount)
         {
             if (initialLineCount > 0)
@@ -78,7 +78,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a primitive batcher with the default capacities for both arrays (96)
+        /// Creates a primitive batcher with the default capacities for both arrays (96).
         /// </summary>
         public PrimitiveBatcher() : this(96, 96)
         {
@@ -88,11 +88,11 @@ namespace TrippyGL
         #region AddTriangles
 
         /// <summary>
-        /// Adds a single triangle
+        /// Adds a single triangle.
         /// </summary>
-        /// <param name="v1">The first vertex of the triangle</param>
-        /// <param name="v2">The second vertex</param>
-        /// <param name="v3">The third vertex</param>
+        /// <param name="v1">The first vertex of the triangle.</param>
+        /// <param name="v2">The second vertex.</param>
+        /// <param name="v3">The third vertex.</param>
         public void AddTriangle(T v1, T v2, T v3)
         {
             EnsureTriangleSpace(triangleVertexCount + 3);
@@ -103,9 +103,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of triangles. If the amount of vertices isn't a multiple of 3, then the last vertices will be dropped
+        /// Adds a list of triangles. If the amount of vertices isn't a multiple of 3, then the last vertices will be dropped.
         /// </summary>
-        /// <param name="vertex">The list of triangles, as vertices</param>
+        /// <param name="vertex">The list of triangles, as vertices.</param>
         public void AddTriangles(T[] vertex)
         {
             int max = vertex.Length / 3 * 3;
@@ -115,11 +115,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of triangles, but only using part of the given array. If the amount of vertices isn't a multiple of 3, then the last vertices will be dropped
+        /// Adds a list of triangles, but only using part of the given array. If the amount of vertices isn't a multiple of 3, then the last vertices will be dropped.
         /// </summary>
-        /// <param name="vertex">The list of triangles, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to add</param>
+        /// <param name="vertex">The list of triangles, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to add.</param>
         public void AddTriangles(T[] vertex, int startIndex, int count)
         {
             //TODO: Add parameter checks!
@@ -131,9 +131,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a strip of triangles
+        /// Adds a strip of triangles.
         /// </summary>
-        /// <param name="vertex">The vertices representing the triangle strip</param>
+        /// <param name="vertex">The vertices representing the triangle strip.</param>
         public void AddTriangleStrip(T[] vertex)
         {
             EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
@@ -146,15 +146,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a strip of triangles, but only using part of the given array
+        /// Adds a strip of triangles, but only using part of the given array.
         /// </summary>
-        /// <param name="vertex">The strip of triangles, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The strip of triangles, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddTriangleStrip(T[] vertex, int startIndex, int count)
         {
             EnsureTriangleSpace(triangleVertexCount + (count - 2) * 3);
-            for(int i=2; i<count; i++)
+            for (int i = 2; i < count; i++)
             {
                 triangles[triangleVertexCount++] = vertex[i - 2 + startIndex];
                 triangles[triangleVertexCount++] = vertex[i - 1 + startIndex];
@@ -163,9 +163,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a fan of triangles
+        /// Adds a fan of triangles.
         /// </summary>
-        /// <param name="vertex">The vertices representing the triangle fan</param>
+        /// <param name="vertex">The vertices representing the triangle fan.</param>
         public void AddTriangleFan(T[] vertex)
         {
             EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
@@ -178,15 +178,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a fan of triangles, but only using part of the given array
+        /// Adds a fan of triangles, but only using part of the given array.
         /// </summary>
-        /// <param name="vertex">The fan of triangles, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The fan of triangles, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddTriangleFan(T[] vertex, int startIndex, int count)
         {
             EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
-            for(int i=2; i<count; i++)
+            for (int i = 2; i < count; i++)
             {
                 triangles[triangleVertexCount++] = vertex[startIndex];
                 triangles[triangleVertexCount++] = vertex[i - 1 + startIndex];
@@ -195,12 +195,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a single quad (will be converted to triangles)
+        /// Adds a single quad (will be converted to triangles).
         /// </summary>
-        /// <param name="v1">The first vertex of the quad</param>
-        /// <param name="v2">The second vertex of the quad</param>
-        /// <param name="v3">The third vertex of the quad</param>
-        /// <param name="v4">The fourth vertex of the quad</param>
+        /// <param name="v1">The first vertex of the quad.</param>
+        /// <param name="v2">The second vertex of the quad.</param>
+        /// <param name="v3">The third vertex of the quad.</param>
+        /// <param name="v4">The fourth vertex of the quad.</param>
         public void AddQuad(T v1, T v2, T v3, T v4)
         {
             EnsureTriangleSpace(triangleVertexCount + 6);
@@ -215,9 +215,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of quads (these are converted to triangles)
+        /// Adds a list of quads (these are converted to triangles).
         /// </summary>
-        /// <param name="vertex">The quads, as vertices</param>
+        /// <param name="vertex">The quads, as vertices.</param>
         public void AddQuads(T[] vertex)
         {
             int max = vertex.Length / 4 * 4;
@@ -238,11 +238,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of quads (these are converted to triangles) but only using part of the given array
+        /// Adds a list of quads (these are converted to triangles) but only using part of the given array.
         /// </summary>
-        /// <param name="vertex">The quads, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The quads, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddQuads(T[] vertex, int startIndex, int count)
         {
             count = count / 4 * 4;
@@ -267,10 +267,10 @@ namespace TrippyGL
         #region AddLines
 
         /// <summary>
-        /// Adds a single line
+        /// Adds a single line.
         /// </summary>
-        /// <param name="v1">The first vertex of the line</param>
-        /// <param name="v2">The second vertex</param>
+        /// <param name="v1">The first vertex of the line.</param>
+        /// <param name="v2">The second vertex.</param>
         public void AddLine(T v1, T v2)
         {
             EnsureLineSpace(lineVertexCount + 2);
@@ -279,9 +279,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of lines. If the amount of vertices isn't a multiple of 2, then the last vertex is dropped
+        /// Adds a list of lines. If the amount of vertices isn't a multiple of 2, then the last vertex is dropped.
         /// </summary>
-        /// <param name="vertex">The list of lines, as vertices</param>
+        /// <param name="vertex">The list of lines, as vertices.</param>
         public void AddLines(T[] vertex)
         {
             int max = vertex.Length / 2 * 2;
@@ -291,11 +291,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a list of lines, but only using part of the given array. If count isn't a multiple of 2, then the last vertex is dropped
+        /// Adds a list of lines, but only using part of the given array. If count isn't a multiple of 2, then the last vertex is dropped.
         /// </summary>
-        /// <param name="vertex">The strip of lines, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The strip of lines, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddLines(T[] vertex, int startIndex, int count)
         {
             //TODO: Add parameter checks!
@@ -307,13 +307,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a strip of lines
+        /// Adds a strip of lines.
         /// </summary>
-        /// <param name="vertex">The vertices representing the line strip</param>
+        /// <param name="vertex">The vertices representing the line strip.</param>
         public void AddLineStrip(T[] vertex)
         {
             EnsureLineSpace(lineVertexCount + (vertex.Length - 1) * 2);
-            for(int i=1; i<vertex.Length; i++)
+            for (int i = 1; i < vertex.Length; i++)
             {
                 lines[lineVertexCount++] = vertex[i - 1];
                 lines[lineVertexCount++] = vertex[i];
@@ -321,16 +321,16 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a strip of lines, but only using part of the given array
+        /// Adds a strip of lines, but only using part of the given array.
         /// </summary>
-        /// <param name="vertex">The strip of lines, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The strip of lines, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddLineStrip(T[] vertex, int startIndex, int count)
         {
             count = count / 2 * 2;
             EnsureLineSpace(lineVertexCount + (count - 2) * 3);
-            for(int i=1; i<count; i++)
+            for (int i = 1; i < count; i++)
             {
                 lines[lineVertexCount++] = vertex[i - 1 + startIndex];
                 lines[lineVertexCount++] = vertex[i + startIndex];
@@ -338,9 +338,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a loop of lines
+        /// Adds a loop of lines.
         /// </summary>
-        /// <param name="vertex">The loop of lines, as vertices</param>
+        /// <param name="vertex">The loop of lines, as vertices.</param>
         public void AddLineLoop(T[] vertex)
         {
             EnsureLineSpace(lineVertexCount + vertex.Length * 2);
@@ -354,11 +354,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a loop of lines, but only using part of the given array
+        /// Adds a loop of lines, but only using part of the given array.
         /// </summary>
-        /// <param name="vertex">The strip of lines, as vertices</param>
-        /// <param name="startIndex">The index of the first element to read from the array</param>
-        /// <param name="count">The amount of vertices to process</param>
+        /// <param name="vertex">The strip of lines, as vertices.</param>
+        /// <param name="startIndex">The index of the first element to read from the array.</param>
+        /// <param name="count">The amount of vertices to process.</param>
         public void AddLineLoop(T[] vertex, int startIndex, int count)
         {
             EnsureLineSpace(lineVertexCount + count * 2);
@@ -375,9 +375,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures the primitive batcher has enough space for a specified amount of triangle vertices.
-        /// If there isn't enough space, the list will be expanded exponentially
+        /// If there isn't enough space, the list will be expanded exponentially.
         /// </summary>
-        /// <param name="requiredVertexCount">The minimum amount of triangle vertices required</param>
+        /// <param name="requiredVertexCount">The minimum amount of triangle vertices required.</param>
         public void EnsureTriangleSpace(int requiredVertexCount)
         {
             if (requiredVertexCount > triangles.Length)
@@ -394,9 +394,9 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures the primitive batcher has enough space for a specified amount of line vertices.
-        /// If there isn't enough space, the list will be expanded exponentially
+        /// If there isn't enough space, the list will be expanded exponentially.
         /// </summary>
-        /// <param name="requiredVertexCount">The minimum amount of lines vertices required</param>
+        /// <param name="requiredVertexCount">The minimum amount of lines vertices required.</param>
         public void EnsureLineSpace(int requiredVertexCount)
         {
             if (requiredVertexCount > lines.Length)
@@ -411,9 +411,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resizes the triangles array to the new specified length (which is assumed to be higher than the old length)
+        /// Resizes the triangles array to the new specified length (which is assumed to be higher than the old length).
         /// </summary>
-        /// <param name="newLength">The new triangles array length</param>
+        /// <param name="newLength">The new triangles array length.</param>
         private void ResizeTriangles(int newLength)
         {
             // This function assumes newLength is greater than triangles.Length
@@ -425,9 +425,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resizes the lines array to the new specified length (which is a ssumed to be higher than the old length)
+        /// Resizes the lines array to the new specified length (which is a ssumed to be higher than the old length).
         /// </summary>
-        /// <param name="newLength">The new lines array length</param>
+        /// <param name="newLength">The new lines array length.</param>
         private void ResizeLines(int newLength)
         {
             // This function assumes newLength is greater than triangles.Length
@@ -439,7 +439,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resizes the triangles array to make it hold exactly the current amount of triangle vertices
+        /// Resizes the triangles array to make it hold exactly the current amount of triangle vertices.
         /// </summary>
         public void TrimTriangles()
         {
@@ -448,7 +448,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resizes the lines array to make it hold exactly the current amount of line vertices
+        /// Resizes the lines array to make it hold exactly the current amount of line vertices.
         /// </summary>
         public void TrimLines()
         {
@@ -457,7 +457,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Clears the list of triangles, resetting it to 0 triangles
+        /// Clears the list of triangles, resetting it to 0 triangles.
         /// </summary>
         public void ClearTriangles()
         {
@@ -465,7 +465,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Clears the list of lines, resetting it to 0 lines
+        /// Clears the list of lines, resetting it to 0 lines.
         /// </summary>
         public void ClearLines()
         {
@@ -473,9 +473,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Writes all the triangles to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown
+        /// Writes all the triangles to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown.
         /// </summary>
-        /// <param name="buffer">The buffer where the triangles will be written to</param>
+        /// <param name="buffer">The buffer where the triangles will be written to.</param>
         public void WriteTrianglesTo(DataBufferSubset<T> buffer)
         {
             if (buffer.StorageLength < triangleVertexCount)
@@ -484,9 +484,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Writes all the lines to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown
+        /// Writes all the lines to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown.
         /// </summary>
-        /// <param name="buffer">The buffer where the triangles will be written to</param>
+        /// <param name="buffer">The buffer where the triangles will be written to.</param>
         public void WriteLinesTo(DataBufferSubset<T> buffer)
         {
             if (buffer.StorageLength < lineVertexCount)

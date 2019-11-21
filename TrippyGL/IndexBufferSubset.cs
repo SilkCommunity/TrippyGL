@@ -1,29 +1,29 @@
-﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// A BufferObjectSubset whose purpose is to store index data
+    /// A BufferObjectSubset whose purpose is to store index data.
     /// </summary>
     public class IndexBufferSubset : BufferObjectSubset
     {
-        /// <summary>The length of the buffer object's storage measured in elements</summary>
+        /// <summary>The length of the buffer object's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
-        /// <summary>The size of each element in the buffer object's storage measured in bytes</summary>
+        /// <summary>The size of each element in the buffer object's storage measured in bytes.</summary>
         public readonly int ElementSize;
 
-        /// <summary>Gets the amount of bytes each element occupies</summary>
+        /// <summary>Gets the amount of bytes each element occupies.</summary>
         public readonly DrawElementsType ElementType;
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length and element type
+        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length and element type.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
-        /// <param name="elementType">The type of elements this index buffer will use</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
+        /// <param name="elementType">The type of elements this index buffer will use.</param>
         public IndexBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength, DrawElementsType elementType)
             : base(bufferObject, BufferTarget.ElementArrayBuffer)
         {
@@ -33,10 +33,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an IndexBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage
+        /// Creates an IndexBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="elementType">The type of elements this index buffer will use</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="elementType">The type of elements this index buffer will use.</param>
         public IndexBufferSubset(BufferObject bufferObject, DrawElementsType elementType) : base(bufferObject, BufferTarget.ElementArrayBuffer)
         {
             ElementType = elementType;
@@ -49,13 +49,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedInt element type and initial data
+        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedInt element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="data">An array containing the initial data</param>
-        /// <param name="dataOffset">The index of the first element to read from the array</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="data">An array containing the initial data.</param>
+        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint[] data, int dataOffset, int storageOffsetBytes, int storageLength)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedInt)
         {
@@ -63,13 +63,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedShort element type and initial data
+        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedShort element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="data">An array containing the initial data</param>
-        /// <param name="dataOffset">The index of the first element to read from the array</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="data">An array containing the initial data.</param>
+        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         public IndexBufferSubset(BufferObject bufferObject, ushort[] data, int dataOffset, int storageOffsetBytes, int storageLength)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedShort)
         {
@@ -77,13 +77,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedByte element type and initial data
+        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedByte element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to</param>
-        /// <param name="data">An array containing the initial data</param>
-        /// <param name="dataOffset">The index of the first element to read from the array</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="data">An array containing the initial data.</param>
+        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         public IndexBufferSubset(BufferObject bufferObject, byte[] data, int dataOffset, int storageOffsetBytes, int storageLength)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
         {
@@ -91,12 +91,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified part of this subset's storage
+        /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to</param>
-        /// <param name="elementCount">The amount of elements to set</param>
+        /// <param name="data">The array containing the data to set.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
+        /// <param name="elementCount">The amount of elements to set.</param>
         public void SetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateWriteOperation();
@@ -108,21 +108,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of this subset's storage
+        /// Sets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
+        /// <param name="data">The array containing the data to set.</param>
         public void SetData(uint[] data)
         {
             SetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Sets the data of a specified part of this subset's storage
+        /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to</param>
-        /// <param name="elementCount">The amount of elements to set</param>
+        /// <param name="data">The array containing the data to set.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
+        /// <param name="elementCount">The amount of elements to set.</param>
         public void SetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateWriteOperation();
@@ -134,21 +134,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of this subset's storage
+        /// Sets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
+        /// <param name="data">The array containing the data to set.</param>
         public void SetData(ushort[] data)
         {
             SetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Sets the data of a specified part of this subset's storage
+        /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to</param>
-        /// <param name="elementCount">The amount of elements to set</param>
+        /// <param name="data">The array containing the data to set.</param>
+        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
+        /// <param name="elementCount">The amount of elements to set.</param>
         public void SetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateWriteOperation();
@@ -160,21 +160,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of this subset's storage
+        /// Sets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set</param>
+        /// <param name="data">The array containing the data to set.</param>
         public void SetData(byte[] data)
         {
             SetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Gets the data of a specified part of this subset's storage
+        /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start reading from</param>
-        /// <param name="elementCount">The amount of elements to get</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
+        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
+        /// <param name="elementCount">The amount of elements to get.</param>
         public void GetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateReadOperation();
@@ -186,21 +186,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of this subset's storage
+        /// Gets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
         public void GetData(uint[] data)
         {
             GetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Gets the data of a specified part of this subset's storage
+        /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start reading from</param>
-        /// <param name="elementCount">The amount of elements to get</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
+        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
+        /// <param name="elementCount">The amount of elements to get.</param>
         public void GetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateReadOperation();
@@ -212,21 +212,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of this subset's storage
+        /// Gets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
         public void GetData(ushort[] data)
         {
             GetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Gets the data of a specified part of this subset's storage
+        /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start reading from</param>
-        /// <param name="elementCount">The amount of elements to get</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
+        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
+        /// <param name="elementCount">The amount of elements to get.</param>
         public void GetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
         {
             Buffer.ValidateReadOperation();
@@ -238,19 +238,19 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of this subset's storage
+        /// Gets the data of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to</param>
+        /// <param name="data">The array to which the returned data will be written to.</param>
         public void GetData(byte[] data)
         {
             GetData(data, 0, 0, data.Length);
         }
 
         /// <summary>
-        /// Changes the subset location of this DataBufferSubset
+        /// Changes the subset location of this DataBufferSubset.
         /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins</param>
-        /// <param name="storageLength">The length of this subset measured in elements</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageLength">The length of this subset measured in elements.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
             if (storageOffsetBytes % ElementSize != 0)
@@ -262,9 +262,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Checks that the index buffer's ElementType is the specified one and throws an exception if it's not
+        /// Checks that the index buffer's ElementType is the specified one and throws an exception if it's not.
         /// </summary>
-        /// <param name="elementType">The element type to check</param>
+        /// <param name="elementType">The element type to check.</param>
         private void ValidateCorrectElementType(DrawElementsType elementType)
         {
             if (elementType != ElementType)
@@ -272,7 +272,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Validates the parameters for a set operation
+        /// Validates the parameters for a set operation.
         /// </summary>
         private void ValidateSetParams(int dataLength, int dataOffset, int storageOffset, int elementCount)
         {
@@ -293,7 +293,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Validates the parameters for a get operation
+        /// Validates the parameters for a get operation.
         /// </summary>
         private void ValidateGetParams(int dataLength, int dataOffset, int storageOffset, int elementCount)
         {
@@ -314,10 +314,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calculates the required storage length in bytes required for a UniformBufferSubset with the specified storage length
+        /// Calculates the required storage length in bytes required for a UniformBufferSubset with the specified storage length.
         /// </summary>
-        /// <param name="elementType">The desired element type for the index buffer</param>
-        /// <param name="storageLength">The desired length for the subset measured in elements</param>
+        /// <param name="elementType">The desired element type for the index buffer.</param>
+        /// <param name="storageLength">The desired length for the subset measured in elements.</param>
         public static int CalculateRequiredSizeInBytes(DrawElementsType elementType, int storageLength)
         {
             return TrippyUtils.GetSizeInBytesOfElementType(elementType) * storageLength;

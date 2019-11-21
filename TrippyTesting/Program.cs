@@ -1,7 +1,6 @@
-﻿using System;
 using OpenTK;
-
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyTesting
 {
@@ -11,7 +10,7 @@ namespace TrippyTesting
         {
             Console.WriteLine("Program started");
 
-            using (GameWindow w = new Tests.TransformFeedback2())
+            using (GameWindow w = new Tests.TerrainMaker())
                 w.Run();
 
             Console.WriteLine("Program ended");
@@ -20,13 +19,13 @@ namespace TrippyTesting
         public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)
         {
             if (messageId != 131185 && messageId != 131186)
-                Console.WriteLine(String.Concat("Debug message: source=", debugSource.ToString(), " type=", debugType.ToString(), " id=", messageId.ToString(), " severity=", debugSeverity.ToString(), " message=\"", message, "\""));
+                Console.WriteLine(string.Concat("Debug message: source=", debugSource.ToString(), " type=", debugType.ToString(), " id=", messageId.ToString(), " severity=", debugSeverity.ToString(), " message=\"", message, "\""));
         }
 
         static int ReadInt()
         {
             int res;
-            while (!Int32.TryParse(Console.ReadLine(), out res)) ;
+            while (!int.TryParse(Console.ReadLine(), out res)) ;
             return res;
         }
     }

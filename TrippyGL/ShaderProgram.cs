@@ -1,15 +1,15 @@
-﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
     /// Encapsulates an OpenGL program object for using shaders.
-    /// Shaders define how things are processed in the graphics card, from calculating vertex positions to choosing the color of each fragment
+    /// Shaders define how things are processed in the graphics card, from calculating vertex positions to choosing the color of each fragment.
     /// </summary>
     public class ShaderProgram : GraphicsResource
     {
-        /// <summary>The handle for the OpenGL Progrma object</summary>
+        /// <summary>The handle for the OpenGL Progrma object.</summary>
         public readonly int Handle;
 
         private int vsHandle = -1;
@@ -23,49 +23,49 @@ namespace TrippyGL
         // This stores the provided names for transform feedback variables to compare that they actually exist and match after linking
         private string[] givenTransformFeedbackVariableNames = null;
 
-        /// <summary>Gets data about the geometry shader in this program, if there is one</summary>
+        /// <summary>Gets data about the geometry shader in this program, if there is one.</summary>
         public GeometryShaderData GeometryShader { get; private set; }
 
-        /// <summary>The list of uniforms in this program</summary>
+        /// <summary>The list of uniforms in this program.</summary>
         public ShaderUniformList Uniforms { get; private set; }
 
-        /// <summary>The list of block uniforms in this program</summary>
+        /// <summary>The list of block uniforms in this program.</summary>
         public ShaderBlockUniformList BlockUniforms { get; private set; }
 
-        /// <summary>Gets the input attributes on this program</summary>
+        /// <summary>Gets the input attributes on this program.</summary>
         public ActiveAttribList ActiveAttribs { get; private set; }
 
-        /// <summary>Gets the output transform feedback attributes on this program, if there is transform feedback</summary>
+        /// <summary>Gets the output transform feedback attributes on this program, if there is transform feedback.</summary>
         public TransformFeedbackProgramVariableList TransformFeedbackVariables { get; private set; }
 
-        /// <summary>Whether this ShaderProgram has been linked</summary>
+        /// <summary>Whether this ShaderProgram has been linked.</summary>
         public bool IsLinked { get; private set; } = false;
 
-        /// <summary>Whether this ShaderProgram is the one currently in use</summary>
+        /// <summary>Whether this ShaderProgram is the one currently in use.</summary>
         public bool IsCurrentlyInUse { get { return GraphicsDevice.ShaderProgram == this; } }
 
-        /// <summary>Whether this ShaderProgram has a vertex shader attached</summary>
+        /// <summary>Whether this ShaderProgram has a vertex shader attached.</summary>
         public bool HasVertexShader { get { return vsHandle != -1; } }
 
-        /// <summary>Whether this ShaderProgram has a geometry shader attached</summary>
+        /// <summary>Whether this ShaderProgram has a geometry shader attached.</summary>
         public bool HasGeometryShader { get { return gsHandle != -1; } }
 
-        /// <summary>Whether this ShaderProgram has a fragment shader attached</summary>
+        /// <summary>Whether this ShaderProgram has a fragment shader attached.</summary>
         public bool HasFragmentShader { get { return fsHandle != -1; } }
 
         /// <summary>
-        /// Creates a ShaderProgram
+        /// Creates a ShaderProgram.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
         public ShaderProgram(GraphicsDevice graphicsDevice) : base(graphicsDevice)
         {
             Handle = GL.CreateProgram();
         }
 
         /// <summary>
-        /// Adds a vertex shader to this ShaderProgram
+        /// Adds a vertex shader to this ShaderProgram.
         /// </summary>
-        /// <param name="code">The GLSL code for the vertex shader</param>
+        /// <param name="code">The GLSL code for the vertex shader.</param>
         public void AddVertexShader(string code)
         {
             if (!TryAddVertexShader(code, out string log))
@@ -73,15 +73,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The vertex shader's code</param>
-        /// <param name="code">The GLSL code for the vertex shader</param>
+        /// <param name="code">The vertex shader's code.</param>
+        /// <param name="code">The GLSL code for the vertex shader.</param>
         public bool TryAddVertexShader(string code, out string shaderLog)
         {
             ValidateUnlinked();
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (vsHandle != -1)
@@ -102,14 +102,14 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a vertex shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The GLSL code for the vertex shader</param>
+        /// <param name="code">The GLSL code for the vertex shader.</param>
         public bool TryAddVertexShader(string code)
         {
             ValidateUnlinked();
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (vsHandle != -1)
@@ -129,9 +129,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a geometry shader to this ShaderProgram
+        /// Adds a geometry shader to this ShaderProgram.
         /// </summary>
-        /// <param name="code">The GLSL code for the geometry shader</param>
+        /// <param name="code">The GLSL code for the geometry shader.</param>
         public void AddGeometryShader(string code)
         {
             if (!TryAddGeometryShader(code, out string log))
@@ -139,10 +139,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The GLSL code for the geometry shader</param>
-        /// <param name="shaderLog">The compilation log from the shader</param>
+        /// <param name="code">The GLSL code for the geometry shader.</param>
+        /// <param name="shaderLog">The compilation log from the shader.</param>
         public bool TryAddGeometryShader(string code, out string shaderLog)
         {
             ValidateUnlinked();
@@ -150,7 +150,7 @@ namespace TrippyGL
             if (!GraphicsDevice.IsGeometryShaderAvailable)
                 throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (gsHandle != -1)
@@ -171,9 +171,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a geometry shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The GLSL code for the geometry shader</param>
+        /// <param name="code">The GLSL code for the geometry shader.</param>
         public bool TryAddGeometryShader(string code)
         {
             ValidateUnlinked();
@@ -181,7 +181,7 @@ namespace TrippyGL
             if (!GraphicsDevice.IsGeometryShaderAvailable)
                 throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (gsHandle != -1)
@@ -201,9 +201,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Adds a fragment shader to this ShaderProgram
+        /// Adds a fragment shader to this ShaderProgram.
         /// </summary>
-        /// <param name="code">The GLSL code for the fragment shader</param>
+        /// <param name="code">The GLSL code for the fragment shader.</param>
         public void AddFragmentShader(string code)
         {
             if (!TryAddFragmentShader(code, out string log))
@@ -211,15 +211,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The GLSL code for the fragment shader</param>
-        /// <param name="shaderLog">The compilation log from the shader</param>
+        /// <param name="code">The GLSL code for the fragment shader.</param>
+        /// <param name="shaderLog">The compilation log from the shader.</param>
         public bool TryAddFragmentShader(string code, out string shaderLog)
         {
             ValidateUnlinked();
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (fsHandle != -1)
@@ -240,14 +240,14 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful
+        /// Tries to add a fragment shader to the ShaderProgram. Returns whether it was successful.
         /// </summary>
-        /// <param name="code">The GLSL code for the fragment shader</param>
+        /// <param name="code">The GLSL code for the fragment shader.</param>
         public bool TryAddFragmentShader(string code)
         {
             ValidateUnlinked();
 
-            if (String.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
             if (fsHandle != -1)
@@ -267,10 +267,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
+        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
-        /// <param name="attribData">The input attributes's descriptions, ordered by attribute index</param>
-        /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
+        /// <param name="attribData">The input attributes's descriptions, ordered by attribute index.</param>
+        /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs(VertexAttribDescription[] attribData, string[] attribNames)
         {
             ValidateUnlinked();
@@ -295,7 +295,7 @@ namespace TrippyGL
             int index = 0;
             for (int i = 0; i < attribNames.Length; i++)
             {
-                if (String.IsNullOrEmpty(attribNames[i]))
+                if (string.IsNullOrEmpty(attribNames[i]))
                     throw new ArgumentException("All names in the array must have be valid");
 
                 GL.BindAttribLocation(Handle, index, attribNames[i]);
@@ -311,10 +311,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
+        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
-        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index</param>
-        /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
+        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index.</param>
+        /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs(VertexAttribSource[] attribSources, string[] attribNames)
         {
             VertexAttribDescription[] attribData = new VertexAttribDescription[attribSources.Length];
@@ -324,20 +324,20 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
+        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
-        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index</param>
-        /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
+        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index.</param>
+        /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs(VertexAttribSourceList attribSources, string[] attribNames)
         {
             SpecifyVertexAttribs(attribSources.sources, attribNames);
         }
 
         /// <summary>
-        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader
+        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
         /// <typeparam name="T">The type of vertex this ShaderProgram will use as input</typeparam>
-        /// <param name="attribNames">The input attribute's names, ordered by attribute index</param>
+        /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs<T>(string[] attribNames) where T : struct, IVertex
         {
             SpecifyVertexAttribs(new T().AttribDescriptions, attribNames);
@@ -360,7 +360,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Links the program.
-        /// Once the program has been linked, it cannot be modifyed anymore, so make sure you add all your necessary shaders and specify vertex attributes
+        /// Once the program has been linked, it cannot be modifyed anymore, so make sure you add all your necessary shaders and specify vertex attributes.
         /// </summary>
         public void LinkProgram()
         {
@@ -413,7 +413,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures this program is the one currently in use for it's GraphicsDevice
+        /// Ensures this program is the one currently in use for it's GraphicsDevice.
         /// </summary>
         internal void EnsureInUse()
         {
@@ -423,7 +423,7 @@ namespace TrippyGL
         /// <summary>
         /// Ensures all necessary states are set for a draw command to use this program, such as making
         /// sure sampler or block uniforms are properly set. This should always be called before a draw
-        /// operation and assumes this ShaderProgram is the one currently in use
+        /// operation and assumes this ShaderProgram is the one currently in use.
         /// </summary>
         internal void EnsurePreDrawStates()
         {
@@ -432,7 +432,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Make sure this program is unlinked and throw a proper exception otherwise
+        /// Make sure this program is unlinked and throw a proper exception otherwise.
         /// </summary>
         internal void ValidateUnlinked()
         {
@@ -441,7 +441,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Make sure this program is linked and throw a proper exception otherwise
+        /// Make sure this program is linked and throw a proper exception otherwise.
         /// </summary>
         internal void ValidateLinked()
         {
@@ -460,20 +460,20 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Stores data about a geometry shader
+        /// Stores data about a geometry shader.
         /// </summary>
         public class GeometryShaderData
         {
-            /// <summary>The PrimitiveType the geometry shader takes as input</summary>
+            /// <summary>The PrimitiveType the geometry shader takes as input.</summary>
             public readonly PrimitiveType GeometryInputType;
 
-            /// <summary>The PrimitiveType the geometry shader takes as output</summary>
+            /// <summary>The PrimitiveType the geometry shader takes as output.</summary>
             public readonly PrimitiveType GeometryOutputType;
 
-            /// <summary>The amount of invocations the geometry shader will do</summary>
+            /// <summary>The amount of invocations the geometry shader will do.</summary>
             public readonly int GeometryShaderInvocations;
 
-            /// <summary>The maximum amount of vertices the geometry shader can output</summary>
+            /// <summary>The maximum amount of vertices the geometry shader can output.</summary>
             public readonly int GeometryVerticesOut;
 
             internal GeometryShaderData(int program)

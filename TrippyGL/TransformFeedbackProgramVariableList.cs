@@ -1,35 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System.Collections.Generic;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Stores the output transform feedback variables of a ShaderProgram and the transform feedback configuration
+    /// Stores the output transform feedback variables of a ShaderProgram and the transform feedback configuration.
     /// </summary>
     public class TransformFeedbackProgramVariableList
     {
-        /// <summary>The array that stores the TransformFeedbackProgramVariable-s</summary>
+        /// <summary>The array that stores the TransformFeedbackProgramVariable-s.</summary>
         private readonly TransformFeedbackProgramVariable[] variables;
 
-        /// <summary>The output mode of the ShaderProgram's transform feedback</summary>
+        /// <summary>The output mode of the ShaderProgram's transform feedback.</summary>
         public readonly TransformFeedbackMode TransformFeedbackMode;
 
-        /// <summary>The amount of transform feedback variables the ShaderProgram outputs</summary>
+        /// <summary>The amount of transform feedback variables the ShaderProgram outputs.</summary>
         public int Count { get { return variables.Length; } }
 
         /// <summary>
-        /// Gets a transform feedback variable
+        /// Gets a transform feedback variable.
         /// </summary>
-        /// <param name="index">The index of the variable from [0, this.Count)</param>
+        /// <param name="index">The index of the variable from [0, this.Count).</param>
         public TransformFeedbackProgramVariable this[int index] { get { return variables[index]; } }
 
         /// <summary>
-        /// Creates a TransformFeedbackProgramVariableList where the variables are queried from the given ShaderProgram
+        /// Creates a TransformFeedbackProgramVariableList where the variables are queried from the given ShaderProgram.
         /// </summary>
-        /// <param name="program">The ShaderProgram to query the variables from</param>
+        /// <param name="program">The ShaderProgram to query the variables from.</param>
         internal TransformFeedbackProgramVariableList(ShaderProgram program)
         {
             // We query a bunch of info from the ShaderProgram's transform feedback configuration
@@ -60,15 +57,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Checks that the variables in this list match the ones from the provided names
+        /// Checks that the variables in this list match the ones from the provided names.
         /// </summary>
-        /// <param name="givenNames"></param>
+        /// <param name="givenNames".></param>
         internal bool DoVariablesMatch(string[] givenNames)
         {
             if (variables.Length == 0)
                 return givenNames.Length == 0;  // For transform feedback we're not gonna support declaring but not using a variable
                                                 // What am I supposed to do? Leave it as it is or somehow add padding? That would require re-linking!
-                                                
+
             int variableIndex = 0; // The index we'll read from the "variables" array.
             // We'll increment this after each variable we check, whether the check was successfull or not.
 

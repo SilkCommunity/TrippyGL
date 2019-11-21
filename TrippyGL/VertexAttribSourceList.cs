@@ -1,28 +1,28 @@
-﻿using System.Text;
+using System.Text;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// A read-only list of VertexAttribSource-s
+    /// A read-only list of VertexAttribSource-s.
     /// </summary>
     public class VertexAttribSourceList
     {
-        /// <summary>The internal VertexAttribSource array. Marked internal for convenience, this should only be read</summary>
+        /// <summary>The internal VertexAttribSource array. Marked internal for convenience, this should only be read.</summary>
         internal readonly VertexAttribSource[] sources;
 
         /// <summary>
-        /// Gets a VertexAttribSource from the list
+        /// Gets a VertexAttribSource from the list.
         /// </summary>
-        /// <param name="index">The list index of the VertexAttribSource</param>
+        /// <param name="index">The list index of the VertexAttribSource.</param>
         public VertexAttribSource this[int index] { get { return sources[index]; } }
 
-        /// <summary>The amount of VertexAttribSource-s in this list</summary>
+        /// <summary>The amount of VertexAttribSource-s in this list.</summary>
         public int Length { get { return sources.Length; } }
 
         /// <summary>
-        /// Creates a VertexAttribSourceList by copying the VertexAttribSource from the specified array
+        /// Creates a VertexAttribSourceList by copying the VertexAttribSource from the specified array.
         /// </summary>
-        /// <param name="sources"></param>
+        /// <param name="sources".></param>
         internal VertexAttribSourceList(VertexAttribSource[] sources)
         {
             this.sources = new VertexAttribSource[sources.Length];
@@ -31,10 +31,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexAttribSourceList where all the VertexAttribSources use the same BufferObjectSubset
+        /// Creates a VertexAttribSourceList where all the VertexAttribSources use the same BufferObjectSubset.
         /// </summary>
-        /// <param name="bufferSubset"></param>
-        /// <param name="attribDescriptions"></param>
+        /// <param name="bufferSubset".></param>
+        /// <param name="attribDescriptions".></param>
         internal VertexAttribSourceList(BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions)
         {
             sources = new VertexAttribSource[attribDescriptions.Length];

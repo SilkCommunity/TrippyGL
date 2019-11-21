@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Controls transform feedback operations and stores the states needed for the transform feedback to work
+    /// Controls transform feedback operations and stores the states needed for the transform feedback to work.
     /// </summary>
     public class TransformFeedbackObject : GraphicsResource
     {
@@ -17,22 +15,22 @@ namespace TrippyGL
         // Whether the feedback operation is paused and/or active
         // The current amount of primitives recorded in the current feedback operation, if active
 
-        /// <summary>The GL handle of this Transform Feedback Object</summary>
+        /// <summary>The GL handle of this Transform Feedback Object.</summary>
         public readonly int Handle;
 
-        /// <summary>Whether this transform feedback is in an active feedback operation</summary>
+        /// <summary>Whether this transform feedback is in an active feedback operation.</summary>
         public bool IsActive { get; private set; }
 
-        /// <summary>Whether the transform feedback operation is paused</summary>
+        /// <summary>Whether the transform feedback operation is paused.</summary>
         public bool IsPaused { get; private set; }
 
-        /// <summary>The mode in which the transform feedback attributes are written into the buffers</summary>
+        /// <summary>The mode in which the transform feedback attributes are written into the buffers.</summary>
         public TransformFeedbackMode TransformFeedbackMode { get; private set; }
 
-        /// <summary>The output variables with which this transform feedback is configures</summary>
+        /// <summary>The output variables with which this transform feedback is configures.</summary>
         public readonly TransformFeedbackVariableDescriptionList Variables;
 
-        /// <summary>The binding for each buffer index in this transform feedback</summary>
+        /// <summary>The binding for each buffer index in this transform feedback.</summary>
         private GraphicsDevice.BufferRangeBinding[] bufferBindings;
 
         private TransformFeedbackPrimitiveType beginPrimitiveType;
@@ -87,7 +85,7 @@ namespace TrippyGL
                 int variableIndex = 0;
 
                 bufferBindings[0].SetRange(Variables[0].BufferSubset);
-                while(bindingIndex < bufferBindings.Length)
+                while (bindingIndex < bufferBindings.Length)
                 {
                     if (Variables[variableIndex].BufferSubset != Variables[variableIndex - 1].BufferSubset)
                     {
@@ -111,10 +109,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Configures the transform feedback varyings for a ShaderProgram. The ShaderProgram must be unlinked.
-        /// This method is called by ShaderProgram.ConfigureTransformFeedback()
+        /// This method is called by ShaderProgram.ConfigureTransformFeedback().
         /// </summary>
-        /// <param name="program">The unlinked program</param>
-        /// <param name="feedbackOutputNames">The provided names for the transform feedback output variables</param>
+        /// <param name="program">The unlinked program.</param>
+        /// <param name="feedbackOutputNames">The provided names for the transform feedback output variables.</param>
         internal void PerformConfigureShaderProgram(ShaderProgram program, string[] feedbackOutputNames)
         {
             if (Variables.AttribCount != feedbackOutputNames.Length)
@@ -148,7 +146,7 @@ namespace TrippyGL
 
                 // Padding variables are specified to OpenGL as "gl_SkipComponentsX", with 'X' being an integer in the range [1, 4] 
                 if (Variables[i].IsPadding)
-                    varyings.Add(String.Concat("gl_SkipComponents", Variables[i].PaddingComponentCount.ToString()));
+                    varyings.Add(string.Concat("gl_SkipComponents", Variables[i].PaddingComponentCount.ToString()));
                 else // If it's not padding, then let's get the next name and assign that name to the variable
                     varyings.Add(feedbackOutputNames[nameIndex++]);
             }
@@ -159,9 +157,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Starts a transform feedback operation
+        /// Starts a transform feedback operation.
         /// </summary>
-        /// <param name="primitiveType">The primitive type to record</param>
+        /// <param name="primitiveType">The primitive type to record.</param>
         public void Begin(TransformFeedbackPrimitiveType primitiveType)
         {
             if (GraphicsDevice.TransformFeedback == null)
@@ -185,7 +183,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Pauses the current active transform feedback operation
+        /// Pauses the current active transform feedback operation.
         /// </summary>
         public void Pause()
         {
@@ -203,7 +201,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resumes the current transform feedback oepration from being paused
+        /// Resumes the current transform feedback oepration from being paused.
         /// </summary>
         public void Resume()
         {
@@ -221,7 +219,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ends the current transform feedback operation
+        /// Ends the current transform feedback operation.
         /// </summary>
         public void End()
         {
@@ -241,7 +239,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calls the OpenGL functions needed to bind this transform feedback for use
+        /// Calls the OpenGL functions needed to bind this transform feedback for use.
         /// </summary>
         internal void PerformBindOperation()
         {
@@ -259,9 +257,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calls the OpenGL functions needed to unbind any bound transform feedback
+        /// Calls the OpenGL functions needed to unbind any bound transform feedback.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice to unbind the transform feedback from</param>
+        /// <param name="graphicsDevice">The GraphicsDevice to unbind the transform feedback from.</param>
         internal static void PerformUnbindOperation(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice.TransformFeedback != null && graphicsDevice.TransformFeedback.IsActive)

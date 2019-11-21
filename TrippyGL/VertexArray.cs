@@ -1,18 +1,18 @@
-﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL4;
 using System;
 
 namespace TrippyGL
 {
     /// <summary>
     /// Vertex arrays are used for specifying the way vertex attributes are laid out in memory and 
-    /// from which buffer object each data attribute comes from. Also stores an index buffers, if wanted
+    /// from which buffer object each data attribute comes from. Also stores an index buffers, if wanted.
     /// </summary>
     public class VertexArray : GraphicsResource
     {
-        /// <summary>The GL VertexArrayObject's name</summary>
+        /// <summary>The GL VertexArrayObject's name.</summary>
         public readonly int Handle;
 
-        /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls</summary>
+        /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>
         public readonly VertexAttribSourceList AttribSources;
 
         public readonly IndexBufferSubset IndexBuffer;
@@ -31,13 +31,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexArray with the specified attribute sources
+        /// Creates a VertexArray with the specified attribute sources.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="attribSources">The sources from which the data of the vertex attributes will come from</param>
-        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="attribSources">The sources from which the data of the vertex attributes will come from.</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
         public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : this(graphicsDevice, new VertexAttribSourceList(attribSources), indexBuffer, compensateStructPadding, paddingPackValue)
         {
@@ -45,14 +45,14 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexArray in which all the vertex attributes come from the same data buffer
+        /// Creates a VertexArray in which all the vertex attributes come from the same data buffer.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="bufferSubset">The data buffer that stores all the vertex attributes</param>
-        /// <param name="attribDescriptions">The descriptions of the vertex attributes</param>
-        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="bufferSubset">The data buffer that stores all the vertex attributes.</param>
+        /// <param name="attribDescriptions">The descriptions of the vertex attributes.</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
         public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : this(graphicsDevice, new VertexAttribSourceList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
@@ -60,10 +60,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Updates the places where vertex data is read from for this VertexArray. Call this whenever you change a buffer subset
+        /// Updates the places where vertex data is read from for this VertexArray. Call this whenever you change a buffer subset.
         /// </summary>
-        /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4</param>
+        /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
         public void UpdateVertexAttributes(bool compensateStructPadding = true, int paddingPackValue = 4)
         {
             // Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.
@@ -159,17 +159,17 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("AttribSources: {", AttribSources.ToString(), "}");
+            return string.Concat("AttribSources: {", AttribSources.ToString(), "}");
         }
 
         /// <summary>
-        /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer
+        /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer.
         /// </summary>
         /// <typeparam name="T">The type of vertex to use</typeparam>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use</param>
-        /// <param name="dataBuffer">The buffer from which all attributes come from</param>
-        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true</param>
+        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="dataBuffer">The buffer from which all attributes come from.</param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
+        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true) where T : struct, IVertex
         {
             VertexAttribDescription[] desc = new T().AttribDescriptions;
@@ -206,7 +206,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Manages the calls for a single vertex attribute.
-        /// This is a helper class for VertexArray.UpdateVertexAttributes()
+        /// This is a helper class for VertexArray.UpdateVertexAttributes().
         /// </summary>
         private class AttribCallDesc
         {
@@ -236,7 +236,7 @@ namespace TrippyGL
 
             public override string ToString()
             {
-                return String.Concat("index ", index, " offset ", offset);
+                return string.Concat("index ", index, " offset ", offset);
             }
         }
     }

@@ -1,5 +1,5 @@
-﻿using System;
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -7,7 +7,7 @@ namespace TrippyGL
 {
     public class TextureCubemap : Texture
     {
-        /// <summary>The size of a face from this cubemap</summary>
+        /// <summary>The size of a face from this cubemap.</summary>
         public int Size { get; private set; }
 
         public TextureCubemap(GraphicsDevice graphicsDevice, int size, TextureImageFormat imageFormat = TextureImageFormat.Color4b) : base(graphicsDevice, TextureTarget.TextureCubeMap, imageFormat)
@@ -31,14 +31,14 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of a specified area of the texture, copying it from the specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the data</param>
-        /// <param name="rectX">The X coordinate of the first pixel to write</param>
-        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="dataPtr">The pointer for reading the data.</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write.</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData(CubeMapFace face, IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
@@ -48,16 +48,16 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the texture, copying the new data from a specified array
+        /// Sets the data of a specified area of the texture, copying the new data from a specified array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start reading from</param>
-        /// <param name="rectX">The X coordinate of the first pixel to write</param>
-        /// <param name="rectY">The Y coordinate of the first pixel to write</param>
-        /// <param name="rectWidth">The width of the rectangle of pixels to write</param>
-        /// <param name="rectHeight">The height of the rectangle of pixels to write</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array containing the new texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start reading from.</param>
+        /// <param name="rectX">The X coordinate of the first pixel to write.</param>
+        /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
+        /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
+        /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData<T>(CubeMapFace face, T[] data, int dataOffset, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateSetOperation(data, dataOffset, rectX, rectY, rectWidth, rectHeight);
@@ -67,12 +67,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of the entire texture, copying the new data from a given array
+        /// Sets the data of the entire texture, copying the new data from a given array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data</param>
-        /// <param name="dataOffset">The index of the first element in the array to start reading from</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array containing the new texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the array to start reading from.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData<T>(CubeMapFace face, T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             SetData(face, data, dataOffset, 0, 0, Size, Size, pixelFormat);
@@ -96,11 +96,11 @@ namespace TrippyGL
 
         /// <summary>
         /// Gets the data of the entire texture and copies it to a specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read
+        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for writting the data</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="dataPtr">The pointer for writting the data.</param>
+        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void GetData(CubeMapFace face, IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
@@ -108,12 +108,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of the entire texture, copying the texture data to a specified array
+        /// Gets the data of the entire texture, copying the texture data to a specified array.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array in which to write the texture data</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start writing from</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default</param>
+        /// <param name="data">The array in which to write the texture data.</param>
+        /// <param name="dataOffset">The index of the first element in the data array to start writing from.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void GetData<T>(CubeMapFace face, T[] data, int dataOffset = 0, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateGetOperation(data, dataOffset);
@@ -124,11 +124,11 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range
+        /// Sets the texture coordinate wrapping modes for when a texture is sampled outside the [0, 1] range.
         /// </summary>
-        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate</param>
-        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate</param>
-        /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate</param>
+        /// <param name="sWrapMode">The wrap mode for the S (or texture-X) coordinate.</param>
+        /// <param name="tWrapMode">The wrap mode for the T (or texture-Y) coordinate.</param>
+        /// <param name="rWrapMode">The wrap mode for the R (or texture-Z) coordinate.</param>
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
         {
             GraphicsDevice.BindTextureSetActive(this);

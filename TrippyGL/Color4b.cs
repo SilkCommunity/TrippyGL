@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -144,7 +144,7 @@ namespace OpenTK.Graphics
         /// <returns>A System.String that describes this Color4b structure.</returns>
         public override string ToString()
         {
-            return String.Format("{{(R, G, B, A) = ({0}, {1}, {2}, {3})}}", R.ToString(), G.ToString(), B.ToString(), A.ToString());
+            return string.Format("{{(R, G, B, A) = ({0}, {1}, {2}, {3})}}", R.ToString(), G.ToString(), B.ToString(), A.ToString());
         }
 
         #region Colors

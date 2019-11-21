@@ -1,25 +1,25 @@
-﻿using System;
+using System;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// An exception thrown when a shader didn't compile properly
+    /// An exception thrown when a shader didn't compile properly.
     /// </summary>
     public class ShaderCompilationException : Exception
     {
-        internal ShaderCompilationException(string infoLog) : base(String.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog)) { }
+        internal ShaderCompilationException(string infoLog) : base(string.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog)) { }
     }
 
     /// <summary>
-    /// An exception thrown when a ShaderProgram didn't link properly
+    /// An exception thrown when a ShaderProgram didn't link properly.
     /// </summary>
     public class ProgramLinkException : Exception
     {
-        internal ProgramLinkException(string infoLog) : base(String.Concat("Program didn't link properly: ", Environment.NewLine, infoLog)) { }
+        internal ProgramLinkException(string infoLog) : base(string.Concat("Program didn't link properly: ", Environment.NewLine, infoLog)) { }
     }
 
     /// <summary>
-    /// An exception thrown when a Framebuffer fails to be updated
+    /// An exception thrown when a Framebuffer fails to be updated.
     /// </summary>
     public class FramebufferException : Exception
     {
@@ -30,7 +30,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a blit operation between two framebuffers is invalid
+    /// An exception thrown when a blit operation between two framebuffers is invalid.
     /// </summary>
     public class InvalidBlitException : Exception
     {
@@ -41,7 +41,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a framebuffer can't attach a resource to an attachment point
+    /// An exception thrown when a framebuffer can't attach a resource to an attachment point.
     /// </summary>
     public class InvalidFramebufferAttachmentException : Exception
     {
@@ -52,7 +52,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a buffer copy operation fails
+    /// An exception thrown when a buffer copy operation fails.
     /// </summary>
     public class BufferCopyException : Exception
     {

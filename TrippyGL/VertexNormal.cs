@@ -1,30 +1,29 @@
-﻿using System;
-using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System.Runtime.InteropServices;
 
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with a Vector3 Position and Vector3 Normal
+    /// Represents a vertex with a Vector3 Position and Vector3 Normal.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexNormal : IVertex
     {
-        /// <summary>The size of a VertexNormal measured in bytes</summary>
+        /// <summary>The size of a VertexNormal measured in bytes.</summary>
         public const int SizeInBytes = (3 + 3) * 4;
 
-        /// <summary>The vertex's position</summary>
+        /// <summary>The vertex's position.</summary>
         public Vector3 Position;
 
-        /// <summary>The vertex's normal</summary>
+        /// <summary>The vertex's normal.</summary>
         public Vector3 Normal;
 
         /// <summary>
-        /// Creates a VertexNormal with the specified position and normal
+        /// Creates a VertexNormal with the specified position and normal.
         /// </summary>
-        /// <param name="position">The vertex position</param>
-        /// <param name="normal">The vertex normal</param>
+        /// <param name="position">The vertex position.</param>
+        /// <param name="normal">The vertex normal.</param>
         public VertexNormal(Vector3 position, Vector3 normal)
         {
             Position = position;
@@ -33,11 +32,11 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return String.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Normal.X.ToString(), ", ", Normal.Y.ToString(), ", ", Normal.Z.ToString(), ")");
+            return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Normal.X.ToString(), ", ", Normal.Y.ToString(), ", ", Normal.Z.ToString(), ")");
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexNormal
+        /// Creates an array with the descriptions of all the vertex attributes present in a VertexNormal.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {
