@@ -14,7 +14,7 @@ namespace TrippyGL
     /// <param name="messageId">An identifier of the message (same messages have same ID).</param>
     /// <param name="debugSeverity">The severity of the message.</param>
     /// <param name="message">A human-readable text explaining the message.</param>
-    public delegate void GLDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
+    public delegate void GLDebugMessageReceivedHandler(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
 
     /// <summary>
     /// The GraphicsDevice manages an OpenGL Context and it's GraphicsResources (everything from BufferObjects to Textures to ShaderPrograms).
@@ -141,7 +141,7 @@ namespace TrippyGL
         }
 
         /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
-        public event GLDebugMessage DebugMessage;
+        public event GLDebugMessageReceivedHandler DebugMessage;
 
         /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
         private DebugProc debugProcDelegate;

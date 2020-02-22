@@ -81,7 +81,7 @@ namespace TrippyGL
         public void SetData(CubeMapFace face, string file)
         {
             if (ImageFormat != TextureImageFormat.Color4b)
-                throw new InvalidOperationException("To set a cubemap's face from a file, the cubemap's format must be");
+                throw new InvalidOperationException("To set a cubemap's face from a file, the cubemap's format must be " + nameof(TextureImageFormat.Color4b));
 
             using (Bitmap b = new Bitmap(file))
             {

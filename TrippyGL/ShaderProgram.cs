@@ -9,7 +9,8 @@ namespace TrippyGL
     /// </summary>
     public class ShaderProgram : GraphicsResource
     {
-        /// <summary>The handle for the OpenGL Progrma object.</summary>
+        // TODO: Change this to internal!!!
+        /// <summary>The handle for the OpenGL Program object.</summary>
         public readonly int Handle;
 
         private int vsHandle = -1;

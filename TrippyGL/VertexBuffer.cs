@@ -152,6 +152,10 @@ namespace TrippyGL
             VertexArray.Dispose();
         }
 
+        /// <summary>
+        /// Checks that the given storage length value is valid and throws an exception if it's not.
+        /// </summary>
+        /// <param name="storageLength">The storage length value to check.</param>
         private static void ValidateStorageLength(int storageLength)
         {
             if (storageLength <= 0)
