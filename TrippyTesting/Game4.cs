@@ -92,9 +92,9 @@ namespace TrippyTesting
 
             int uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
             buffer = new BufferObject(graphicsDevice, uboSizeBytes + vertexPositions.Length * VertexColorTexture.SizeInBytes, BufferUsageHint.DynamicDraw);
-            positionSubset = new VertexDataBufferSubset<Vector3>(buffer, vertexPositions, 0, uboSizeBytes, vertexPositions.Length);
-            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, vertexColors, 0, positionSubset.StorageNextInBytes, vertexColors.Length);
-            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, vertexTexCoords, 0, colorSubset.StorageNextInBytes, vertexTexCoords.Length);
+            positionSubset = new VertexDataBufferSubset<Vector3>(buffer, uboSizeBytes, vertexPositions.Length, vertexPositions);
+            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.StorageNextInBytes, vertexColors.Length, vertexColors);
+            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, colorSubset.StorageNextInBytes, vertexTexCoords.Length, vertexTexCoords);
 
             const int JEJJEJJEJJ = 523152;
 

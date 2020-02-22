@@ -430,13 +430,13 @@ namespace TrippyGL
         /// <param name="format">The format to check.</param>
         public static PixelFormat GetDefaultGetDataFormat(TextureImageFormat format)
         {
-            if (TrippyUtils.IsImageFormatColorRenderable(format))
+            if (IsImageFormatColorRenderable(format))
                 return PixelFormat.Rgba;
-            else if (TrippyUtils.IsImageFormatDepthType(format))
+            else if (IsImageFormatDepthType(format))
                 return PixelFormat.DepthComponent;
-            else if (TrippyUtils.IsImageFormatDepthStencilType(format))
+            else if (IsImageFormatDepthStencilType(format))
                 return PixelFormat.DepthStencil;
-            else if (TrippyUtils.IsImageFormatStencilType(format))
+            else if (IsImageFormatStencilType(format))
                 return PixelFormat.StencilIndex;
             throw new ArgumentException("The given TextureImageFormat isn't valid");
         }

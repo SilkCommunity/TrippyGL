@@ -72,10 +72,10 @@ namespace TrippyTesting.Tests
 
             buffer1 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
             buffer2 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
-            subsetPositionRead = new VertexDataBufferSubset<Vector3>(buffer1, positions, 0, 0, positions.Length);
-            subsetNormalRead = new VertexDataBufferSubset<Vector3>(buffer1, normals, 0, subsetPositionRead.StorageNextInBytes, positions.Length);
-            subsetPositionWrite = new VertexDataBufferSubset<Vector3>(buffer2, new Vector3[positions.Length], 0, 0, normals.Length);
-            subsetNormalWrite = new VertexDataBufferSubset<Vector3>(buffer2, new Vector3[normals.Length], 0, subsetPositionWrite.StorageNextInBytes, normals.Length);
+            subsetPositionRead = new VertexDataBufferSubset<Vector3>(buffer1, 0, positions.Length, positions);
+            subsetNormalRead = new VertexDataBufferSubset<Vector3>(buffer1, subsetPositionRead.StorageNextInBytes, normals.Length, positions);
+            subsetPositionWrite = new VertexDataBufferSubset<Vector3>(buffer2, 0, normals.Length, new Vector3[positions.Length]);
+            subsetNormalWrite = new VertexDataBufferSubset<Vector3>(buffer2, subsetPositionWrite.StorageNextInBytes, normals.Length, new Vector3[normals.Length]);
             arrayRead = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
                 new VertexAttribSource(subsetPositionRead, ActiveAttribType.FloatVec3),

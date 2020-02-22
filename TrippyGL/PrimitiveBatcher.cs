@@ -11,23 +11,26 @@ namespace TrippyGL
     {
         //TODO: Optimize all add operations by making them unsafe & utilizing pointers
 
-        private T[] lines;
-        private int lineVertexCount;
-
         private T[] triangles;
-        private int triangleVertexCount;
+        private T[] lines;
 
-        /// <summary>The amount of triangle vertices currently stored by the primitive batcher.</summary>
-        public int TriangleVertexCount { get { return triangleVertexCount; } }
+        /// <summary>Gets a <see cref="Span{T}"/> with the batched triangle vertices.</summary>
+        public Span<T> TriangleVertices => triangles.AsSpan(0, TriangleVertexCount);
 
-        /// <summary>The amount of line vertices currently stored by the primitive batcher.</summary>
-        public int LineVertexCount { get { return lineVertexCount; } }
+        /// <summary>Gets a <see cref="Span{T}"/> with the batched line vertices.</summary>
+        public Span<T> LineVertices => lines.AsSpan(0, LineVertexCount);
 
-        /// <summary>The amount of triangles currently stored by the primitive batcher.</summary>
-        public int TriangleCount { get { return triangleVertexCount / 3; } }
+        /// <summary>Gets the amount of triangle vertices currently stored by the primitive batcher.</summary>
+        public int TriangleVertexCount { get; private set; }
 
-        /// <summary>The amount of lines currently stored by the primitive batcher.</summary>
-        public int LineCount { get { return lineVertexCount / 2; } }
+        /// <summary>Gets the amount of line vertices currently stored by the primitive batcher.</summary>
+        public int LineVertexCount { get; private set; }
+
+        /// <summary>Gets the amount of triangles currently stored by the primitive batcher.</summary>
+        public int TriangleCount => TriangleVertexCount / 3;
+
+        /// <summary>Gets the amount of lines currently stored by the primitive batcher.</summary>
+        public int LineCount => LineVertexCount / 2;
 
         /// <summary>The amount of triangle vertices the primitive batcher can currently hold.</summary>
         public int TriangleVertexCapacity
@@ -35,7 +38,7 @@ namespace TrippyGL
             get { return triangles.Length; }
             set
             {
-                if (triangleVertexCount > value)
+                if (TriangleVertexCount > value)
                     throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
                 ResizeTriangles(value);
             }
@@ -47,7 +50,7 @@ namespace TrippyGL
             get { return lines.Length; }
             set
             {
-                if (lineVertexCount > value)
+                if (LineVertexCount > value)
                     throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
                 ResizeLines(value);
             }
@@ -63,18 +66,18 @@ namespace TrippyGL
             if (initialLineCount > 0)
             {
                 lines = new T[initialLineCount];
-                lineVertexCount = 0;
+                LineVertexCount = 0;
             }
             else
-                lineVertexCount = -1;
+                LineVertexCount = -1;
 
             if (initialTriangleCount > 0)
             {
                 triangles = new T[initialTriangleCount];
-                triangleVertexCount = 0;
+                TriangleVertexCount = 0;
             }
             else
-                triangleVertexCount = -1;
+                TriangleVertexCount = -1;
         }
 
         /// <summary>
@@ -95,11 +98,11 @@ namespace TrippyGL
         /// <param name="v3">The third vertex.</param>
         public void AddTriangle(T v1, T v2, T v3)
         {
-            EnsureTriangleSpace(triangleVertexCount + 3);
+            EnsureTriangleSpace(TriangleVertexCount + 3);
 
-            triangles[triangleVertexCount++] = v1;
-            triangles[triangleVertexCount++] = v2;
-            triangles[triangleVertexCount++] = v3;
+            triangles[TriangleVertexCount++] = v1;
+            triangles[TriangleVertexCount++] = v2;
+            triangles[TriangleVertexCount++] = v3;
         }
 
         /// <summary>
@@ -109,9 +112,9 @@ namespace TrippyGL
         public void AddTriangles(T[] vertex)
         {
             int max = vertex.Length / 3 * 3;
-            EnsureTriangleSpace(triangleVertexCount + max);
+            EnsureTriangleSpace(TriangleVertexCount + max);
             for (int i = 0; i < max; i++)
-                triangles[triangleVertexCount++] = vertex[i];
+                triangles[TriangleVertexCount++] = vertex[i];
         }
 
         /// <summary>
@@ -125,9 +128,9 @@ namespace TrippyGL
             //TODO: Add parameter checks!
 
             count = count / 3 * 3;
-            EnsureTriangleSpace(triangleVertexCount + count);
+            EnsureTriangleSpace(TriangleVertexCount + count);
             for (int i = 0; i < count; i++)
-                triangles[triangleVertexCount++] = vertex[startIndex + i];
+                triangles[TriangleVertexCount++] = vertex[startIndex + i];
         }
 
         /// <summary>
@@ -136,12 +139,12 @@ namespace TrippyGL
         /// <param name="vertex">The vertices representing the triangle strip.</param>
         public void AddTriangleStrip(T[] vertex)
         {
-            EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
+            EnsureTriangleSpace(TriangleVertexCount + (vertex.Length - 2) * 3);
             for (int i = 2; i < vertex.Length; i++)
             {
-                triangles[triangleVertexCount++] = vertex[i - 2];
-                triangles[triangleVertexCount++] = vertex[i - 1];
-                triangles[triangleVertexCount++] = vertex[i];
+                triangles[TriangleVertexCount++] = vertex[i - 2];
+                triangles[TriangleVertexCount++] = vertex[i - 1];
+                triangles[TriangleVertexCount++] = vertex[i];
             }
         }
 
@@ -153,12 +156,12 @@ namespace TrippyGL
         /// <param name="count">The amount of vertices to process.</param>
         public void AddTriangleStrip(T[] vertex, int startIndex, int count)
         {
-            EnsureTriangleSpace(triangleVertexCount + (count - 2) * 3);
+            EnsureTriangleSpace(TriangleVertexCount + (count - 2) * 3);
             for (int i = 2; i < count; i++)
             {
-                triangles[triangleVertexCount++] = vertex[i - 2 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i - 1 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i - 2 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i - 1 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + startIndex];
             }
         }
 
@@ -168,12 +171,12 @@ namespace TrippyGL
         /// <param name="vertex">The vertices representing the triangle fan.</param>
         public void AddTriangleFan(T[] vertex)
         {
-            EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
+            EnsureTriangleSpace(TriangleVertexCount + (vertex.Length - 2) * 3);
             for (int i = 2; i < vertex.Length; i++)
             {
-                triangles[triangleVertexCount++] = vertex[0];
-                triangles[triangleVertexCount++] = vertex[i - 1];
-                triangles[triangleVertexCount++] = vertex[i];
+                triangles[TriangleVertexCount++] = vertex[0];
+                triangles[TriangleVertexCount++] = vertex[i - 1];
+                triangles[TriangleVertexCount++] = vertex[i];
             }
         }
 
@@ -185,12 +188,12 @@ namespace TrippyGL
         /// <param name="count">The amount of vertices to process.</param>
         public void AddTriangleFan(T[] vertex, int startIndex, int count)
         {
-            EnsureTriangleSpace(triangleVertexCount + (vertex.Length - 2) * 3);
+            EnsureTriangleSpace(TriangleVertexCount + (vertex.Length - 2) * 3);
             for (int i = 2; i < count; i++)
             {
-                triangles[triangleVertexCount++] = vertex[startIndex];
-                triangles[triangleVertexCount++] = vertex[i - 1 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + startIndex];
+                triangles[TriangleVertexCount++] = vertex[startIndex];
+                triangles[TriangleVertexCount++] = vertex[i - 1 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + startIndex];
             }
         }
 
@@ -203,15 +206,15 @@ namespace TrippyGL
         /// <param name="v4">The fourth vertex of the quad.</param>
         public void AddQuad(T v1, T v2, T v3, T v4)
         {
-            EnsureTriangleSpace(triangleVertexCount + 6);
+            EnsureTriangleSpace(TriangleVertexCount + 6);
 
-            triangles[triangleVertexCount++] = v1;
-            triangles[triangleVertexCount++] = v2;
-            triangles[triangleVertexCount++] = v3;
+            triangles[TriangleVertexCount++] = v1;
+            triangles[TriangleVertexCount++] = v2;
+            triangles[TriangleVertexCount++] = v3;
 
-            triangles[triangleVertexCount++] = v1;
-            triangles[triangleVertexCount++] = v3;
-            triangles[triangleVertexCount++] = v4;
+            triangles[TriangleVertexCount++] = v1;
+            triangles[TriangleVertexCount++] = v3;
+            triangles[TriangleVertexCount++] = v4;
         }
 
         /// <summary>
@@ -221,19 +224,19 @@ namespace TrippyGL
         public void AddQuads(T[] vertex)
         {
             int max = vertex.Length / 4 * 4;
-            EnsureTriangleSpace(triangleVertexCount + (max / 4) * 6);
+            EnsureTriangleSpace(TriangleVertexCount + (max / 4) * 6);
             for (int i = 0; i < max; i += 4)
             {
                 // Writting them this way ensures the orientation of the vertex is the right
                 // This way culling works properly with quads
 
-                triangles[triangleVertexCount++] = vertex[i];
-                triangles[triangleVertexCount++] = vertex[i + 1];
-                triangles[triangleVertexCount++] = vertex[i + 2];
+                triangles[TriangleVertexCount++] = vertex[i];
+                triangles[TriangleVertexCount++] = vertex[i + 1];
+                triangles[TriangleVertexCount++] = vertex[i + 2];
 
-                triangles[triangleVertexCount++] = vertex[i];
-                triangles[triangleVertexCount++] = vertex[i + 2];
-                triangles[triangleVertexCount++] = vertex[i + 3];
+                triangles[TriangleVertexCount++] = vertex[i];
+                triangles[TriangleVertexCount++] = vertex[i + 2];
+                triangles[TriangleVertexCount++] = vertex[i + 3];
             }
         }
 
@@ -246,19 +249,19 @@ namespace TrippyGL
         public void AddQuads(T[] vertex, int startIndex, int count)
         {
             count = count / 4 * 4;
-            EnsureTriangleSpace(triangleVertexCount + (count / 4) * 6);
+            EnsureTriangleSpace(TriangleVertexCount + (count / 4) * 6);
             for (int i = 0; i < count; i += 4)
             {
                 // Writting them this way ensures the orientation of the vertex is the right
                 // This way culling works properly with quads
 
-                triangles[triangleVertexCount++] = vertex[i + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + 1 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + 2 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + 1 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + 2 + startIndex];
 
-                triangles[triangleVertexCount++] = vertex[i + 0 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + 2 + startIndex];
-                triangles[triangleVertexCount++] = vertex[i + 3 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + 0 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + 2 + startIndex];
+                triangles[TriangleVertexCount++] = vertex[i + 3 + startIndex];
             }
         }
 
@@ -273,9 +276,9 @@ namespace TrippyGL
         /// <param name="v2">The second vertex.</param>
         public void AddLine(T v1, T v2)
         {
-            EnsureLineSpace(lineVertexCount + 2);
-            lines[lineVertexCount++] = v1;
-            lines[lineVertexCount++] = v2;
+            EnsureLineSpace(LineVertexCount + 2);
+            lines[LineVertexCount++] = v1;
+            lines[LineVertexCount++] = v2;
         }
 
         /// <summary>
@@ -285,9 +288,9 @@ namespace TrippyGL
         public void AddLines(T[] vertex)
         {
             int max = vertex.Length / 2 * 2;
-            EnsureLineSpace(lineVertexCount + max);
+            EnsureLineSpace(LineVertexCount + max);
             for (int i = 0; i < max; i++)
-                lines[lineVertexCount++] = vertex[i];
+                lines[LineVertexCount++] = vertex[i];
         }
 
         /// <summary>
@@ -301,9 +304,9 @@ namespace TrippyGL
             //TODO: Add parameter checks!
 
             count = count / 2 * 2;
-            EnsureTriangleSpace(lineVertexCount + count);
+            EnsureTriangleSpace(LineVertexCount + count);
             for (int i = 0; i < count; i++)
-                lines[lineVertexCount++] = vertex[startIndex + i];
+                lines[LineVertexCount++] = vertex[startIndex + i];
         }
 
         /// <summary>
@@ -312,11 +315,11 @@ namespace TrippyGL
         /// <param name="vertex">The vertices representing the line strip.</param>
         public void AddLineStrip(T[] vertex)
         {
-            EnsureLineSpace(lineVertexCount + (vertex.Length - 1) * 2);
+            EnsureLineSpace(LineVertexCount + (vertex.Length - 1) * 2);
             for (int i = 1; i < vertex.Length; i++)
             {
-                lines[lineVertexCount++] = vertex[i - 1];
-                lines[lineVertexCount++] = vertex[i];
+                lines[LineVertexCount++] = vertex[i - 1];
+                lines[LineVertexCount++] = vertex[i];
             }
         }
 
@@ -329,11 +332,11 @@ namespace TrippyGL
         public void AddLineStrip(T[] vertex, int startIndex, int count)
         {
             count = count / 2 * 2;
-            EnsureLineSpace(lineVertexCount + (count - 2) * 3);
+            EnsureLineSpace(LineVertexCount + (count - 2) * 3);
             for (int i = 1; i < count; i++)
             {
-                lines[lineVertexCount++] = vertex[i - 1 + startIndex];
-                lines[lineVertexCount++] = vertex[i + startIndex];
+                lines[LineVertexCount++] = vertex[i - 1 + startIndex];
+                lines[LineVertexCount++] = vertex[i + startIndex];
             }
         }
 
@@ -343,14 +346,14 @@ namespace TrippyGL
         /// <param name="vertex">The loop of lines, as vertices.</param>
         public void AddLineLoop(T[] vertex)
         {
-            EnsureLineSpace(lineVertexCount + vertex.Length * 2);
+            EnsureLineSpace(LineVertexCount + vertex.Length * 2);
             for (int i = 1; i < vertex.Length; i++)
             {
-                lines[lineVertexCount++] = vertex[i - 1];
-                lines[lineVertexCount++] = vertex[i];
+                lines[LineVertexCount++] = vertex[i - 1];
+                lines[LineVertexCount++] = vertex[i];
             }
-            lines[lineVertexCount++] = vertex[vertex.Length - 1];
-            lines[lineVertexCount++] = vertex[0];
+            lines[LineVertexCount++] = vertex[vertex.Length - 1];
+            lines[LineVertexCount++] = vertex[0];
         }
 
         /// <summary>
@@ -361,14 +364,14 @@ namespace TrippyGL
         /// <param name="count">The amount of vertices to process.</param>
         public void AddLineLoop(T[] vertex, int startIndex, int count)
         {
-            EnsureLineSpace(lineVertexCount + count * 2);
+            EnsureLineSpace(LineVertexCount + count * 2);
             for (int i = 1; i < count; i++)
             {
-                lines[lineVertexCount++] = vertex[i - 1 + startIndex];
-                lines[lineVertexCount++] = vertex[i + startIndex];
+                lines[LineVertexCount++] = vertex[i - 1 + startIndex];
+                lines[LineVertexCount++] = vertex[i + startIndex];
             }
-            lines[lineVertexCount++] = vertex[startIndex + count - 1];
-            lines[lineVertexCount++] = vertex[startIndex];
+            lines[LineVertexCount++] = vertex[startIndex + count - 1];
+            lines[LineVertexCount++] = vertex[startIndex];
         }
 
         #endregion AddLines
@@ -420,7 +423,7 @@ namespace TrippyGL
 
             T[] oldTriangles = triangles;
             triangles = new T[newLength];
-            for (int i = 0; i < triangleVertexCount; i++)
+            for (int i = 0; i < TriangleVertexCount; i++)
                 triangles[i] = oldTriangles[i];
         }
 
@@ -434,7 +437,7 @@ namespace TrippyGL
 
             T[] oldLines = lines;
             lines = new T[newLength];
-            for (int i = 0; i < lineVertexCount; i++)
+            for (int i = 0; i < LineVertexCount; i++)
                 lines[i] = oldLines[i];
         }
 
@@ -443,8 +446,8 @@ namespace TrippyGL
         /// </summary>
         public void TrimTriangles()
         {
-            if (triangleVertexCount != triangles.Length)
-                ResizeTriangles(triangleVertexCount);
+            if (TriangleVertexCount != triangles.Length)
+                ResizeTriangles(TriangleVertexCount);
         }
 
         /// <summary>
@@ -452,8 +455,8 @@ namespace TrippyGL
         /// </summary>
         public void TrimLines()
         {
-            if (lineVertexCount != lines.Length)
-                ResizeLines(lineVertexCount);
+            if (LineVertexCount != lines.Length)
+                ResizeLines(LineVertexCount);
         }
 
         /// <summary>
@@ -461,7 +464,7 @@ namespace TrippyGL
         /// </summary>
         public void ClearTriangles()
         {
-            triangleVertexCount = 0;
+            TriangleVertexCount = 0;
         }
 
         /// <summary>
@@ -469,7 +472,7 @@ namespace TrippyGL
         /// </summary>
         public void ClearLines()
         {
-            lineVertexCount = 0;
+            LineVertexCount = 0;
         }
 
         /// <summary>
@@ -478,9 +481,7 @@ namespace TrippyGL
         /// <param name="buffer">The buffer where the triangles will be written to.</param>
         public void WriteTrianglesTo(DataBufferSubset<T> buffer)
         {
-            if (buffer.StorageLength < triangleVertexCount)
-                throw new ArgumentException("The provided buffer subset doesn't have enough storage for this.TriangleVertexCount vertices");
-            buffer.SetData(triangles, 0, 0, triangleVertexCount);
+            buffer.SetData(TriangleVertices);
         }
 
         /// <summary>
@@ -489,11 +490,9 @@ namespace TrippyGL
         /// <param name="buffer">The buffer where the triangles will be written to.</param>
         public void WriteLinesTo(DataBufferSubset<T> buffer)
         {
-            if (buffer.StorageLength < lineVertexCount)
-                throw new ArgumentException("The provided buffer subset doesn't have enough storage for this.LineVertexCount vertices");
-            buffer.SetData(lines, 0, 0, lineVertexCount);
+            buffer.SetData(LineVertices);
         }
 
-        // TODO: Add some ToString() and a way to simply access the internal arrays?
+        // TODO: Add some ToString()?
     }
 }

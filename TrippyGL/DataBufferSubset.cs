@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// An abstract class for BufferObjectSubset-s that will manage a struct type across the entire subset.
+    /// An abstract class for <see cref="BufferObjectSubset"/>-s that will manage a struct type across the entire subset.
     /// </summary>
-    /// <typeparam name="T">The type of struct (element) this DataBufferSubset will manage</typeparam>
+    /// <typeparam name="T">The type of struct (element) type this <see cref="DataBufferSubset{T}"/> will manage.</typeparam>
     public abstract class DataBufferSubset<T> : BufferObjectSubset, IDataBufferSubset where T : struct
     {
         /// <summary>The length of the buffer object's storage measured in elements.</summary>
@@ -17,10 +17,11 @@ namespace TrippyGL
         public int ElementSize { get; }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements.
+        /// Creates a <see cref="DataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
+        /// and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength) : base(bufferObject, bufferTarget)
@@ -31,25 +32,27 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, offset into the buffer in bytes and storage length in elements.
+        /// Creates a <see cref="DataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
+        /// and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
-        /// <param name="data">An array containing the initial data to set to the subset.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength, Span<T> data, int dataWriteOffset = 0)
             : this(bufferObject, bufferTarget, storageOffsetBytes, storageLength)
         {
-            SetData(data, dataOffset, 0, storageLength);
+            SetData(data, dataWriteOffset);
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage.
+        /// Creates a <see cref="DataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
+        /// and target, with the subset covering the entire buffer's storage.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget) : base(bufferObject, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
@@ -57,93 +60,90 @@ namespace TrippyGL
             StorageLength = StorageLengthInBytes / ElementSize;
 
             if (StorageLength * ElementSize != StorageLengthInBytes)
-                throw new ArgumentException("The provided BufferObjectSubset's StorageLengthInBytes should be a multiple of this.ElementSize");
+                throw new ArgumentException("The provided " + nameof(BufferObject) + "'s "
+                    + nameof(BufferObject.StorageLengthInBytes) + " should be a multiple of " + nameof(ElementSize));
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset with the given BufferObject and target, with the subset covering the entire buffer's storage and sets initial data.
+        /// Creates a <see cref="DataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
+        /// and target, with the subset covering the entire buffer's storage and sets initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
-        /// <param name="data">An array containing the initial data to set to the subset.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, T[] data, int dataOffset) : this(bufferObject, bufferTarget)
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, Span<T> data) : this(bufferObject, bufferTarget)
         {
-            SetData(data, dataOffset, 0, data.Length);
+            SetData(data);
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset that occupies the same area in the same buffer as another buffer subset but has another BufferTarget.
+        /// Creates a <see cref="DataBufferSubset{T}"/> that occupies the same area in the same buffer as
+        /// another buffer subset but has another <see cref="BufferTarget"/>.
         /// </summary>
-        /// <param name="copy">The BufferObjectSubset to copy the range form.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
-        internal DataBufferSubset(BufferObjectSubset copy, BufferTarget bufferTarget) : base(copy, bufferTarget)
+        /// <param name="subsetToCopy">The <see cref="BufferObjectSubset"/> to copy the range form.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        internal DataBufferSubset(BufferObjectSubset subsetToCopy, BufferTarget bufferTarget) : base(subsetToCopy, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
             StorageLength = StorageLengthInBytes / ElementSize;
+
             if (StorageLength * ElementSize != StorageLengthInBytes)
-                throw new ArgumentException("The provided BufferObjectSubset's StorageLengthInBytes should be a multiple of this.ElementSize");
+                throw new ArgumentException("The provided " + nameof(BufferObjectSubset) + "'s "
+                    + nameof(StorageLengthInBytes) + " should be a multiple of " + nameof(ElementSize));
         }
 
         /// <summary>
-        /// Creates a DataBufferSubset that occupies the same area in the same buffer and uses the same struct type as another DataBufferSubset but has another BufferTarget.
+        /// Creates a <see cref="DataBufferSubset{T}"/> that occupies the same area in the same buffer and uses the
+        /// same struct type as another <see cref="DataBufferSubset{T}"/> but has different <see cref="BufferTarget"/>.
         /// </summary>
-        /// <param name="copy">The DataBufferSubset to copy the range from.</param>
-        /// <param name="bufferTarget">The BufferTarget this subset will always bind to.</param>
+        /// <param name="copy">The <see cref="DataBufferSubset{T}"/> to copy the range from.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         internal DataBufferSubset(DataBufferSubset<T> copy, BufferTarget bufferTarget) : base(copy, bufferTarget)
         {
             ElementSize = copy.ElementSize;
             StorageLength = copy.StorageLength;
         }
 
+        // TODO: SetData() should really use ReadOnlySpans<T>... Problem is, we have to pass the span by ref data[0]
+        // Once this is fixed, remember to also change the constructors! And in VertexBuffer's constructors!
+        // and in VertexDataBufferSubset's constructors!
+
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
+        /// The amount of elements written is the length of the given <see cref="Span{T}"/>.
         /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        /// <param name="elementCount">The amount of elements to set.</param>
-        public void SetData(T[] data, int dataOffset, int storageOffset, int elementCount)
+        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
+        public void SetData(Span<T> data, int storageOffset = 0)
         {
             Buffer.ValidateWriteOperation();
-            ValidateSetParams(data, dataOffset, storageOffset, elementCount);
+            if (storageOffset < 0 || storageOffset >= StorageLength)
+                throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
+
+            if (data.Length + storageOffset > StorageLength)
+                throw new ArgumentOutOfRangeException("Tried to write past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Sets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        public void SetData(T[] data)
-        {
-            SetData(data, 0, 0, data.Length);
+            GL.BufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), data.Length * ElementSize, ref data[0]);
         }
 
         /// <summary>
         /// Gets the data of a specified part of this subset's storage.
+        /// The amount of elements read is the length of the given <see cref="Span{T}"/>.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
-        /// <param name="elementCount">The amount of elements to get.</param>
-        public void GetData(T[] data, int dataOffset, int storageOffset, int elementCount)
+        /// <param name="data">The <see cref="Span{T}"/> to which the returned data will be written to.</param>
+        /// <param name="storageOffset">The offset into the subset's storage to start reading from, measured in elements.</param>
+        public void GetData(Span<T> data, int storageOffset = 0)
         {
             Buffer.ValidateReadOperation();
-            ValidateGetParams(data, dataOffset, storageOffset, elementCount);
+            if (storageOffset < 0 || storageOffset >= StorageLength)
+                throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
+
+            if (data.Length + storageOffset > StorageLength)
+                throw new ArgumentOutOfRangeException("Tried to read past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Gets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        public void GetData(T[] data)
-        {
-            GetData(data, 0, 0, data.Length);
+            GL.GetBufferSubData(BufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), data.Length * ElementSize, ref data[0]);
         }
 
         /// <summary>
@@ -157,55 +157,14 @@ namespace TrippyGL
             StorageLength = storageLength;
         }
 
-        /// <summary>
-        /// Validates the parameters for a set operation.
-        /// </summary>
-        private protected void ValidateSetParams(T[] data, int dataOffset, int storageOffset, int elementCount)
-        {
-            if (data == null || data.Length == 0)
-                throw new ArgumentNullException("data", "The data array can't be null nor empty");
-
-            if (storageOffset < 0 || storageOffset >= StorageLength)
-                throw new ArgumentOutOfRangeException("storageOffset", storageOffset, "Storage offset must be in the range [0, this.StorageLength)");
-
-            if (dataOffset < 0 || dataOffset >= data.Length)
-                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
-
-            if (data.Length - dataOffset < elementCount)
-                throw new ArgumentOutOfRangeException("There isn't enough data in the array to and read elementCount elements starting from index dataOffset");
-
-            if (elementCount > StorageLength - storageOffset)
-                throw new ArgumentOutOfRangeException("The buffer's storage isn't big enough to write elementCount elements starting from storageOffset");
-        }
-
-        /// <summary>
-        /// Validates the parameters for a get operation.
-        /// </summary>
-        private protected void ValidateGetParams(T[] data, int dataOffset, int storageOffset, int elementCount)
-        {
-            if (data == null || data.Length == 0)
-                throw new ArgumentException("Data array can't be null nor empty", "data");
-
-            if (storageOffset < 0 || storageOffset >= StorageLength)
-                throw new ArgumentOutOfRangeException("storageOffset", storageOffset, "Storage offset must be in the range [0, StorageLength)");
-
-            if (dataOffset < 0 || dataOffset >= data.Length)
-                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
-
-            if (data.Length - dataOffset < elementCount)
-                throw new ArgumentOutOfRangeException("There data array ins't big enough to write dataLength elements starting from index dataOffset");
-
-            if (elementCount > StorageLength - storageOffset)
-                throw new ArgumentOutOfRangeException("There isn't enough data in the buffer object's storage to read dataLength elements starting from index storageOffset");
-        }
-
         public override string ToString()
         {
             return string.Concat(base.ToString(), ", StorageLength=", StorageLength.ToString(), ", ElementSize=", ElementSize.ToString());
         }
 
         /// <summary>
-        /// Calculates the required storage length in bytes required for a DataBufferSubset with the specified storage length.
+        /// Calculates the required storage length in bytes required for a
+        /// <see cref="DataBufferSubset{T}"/> with the specified storage length.
         /// </summary>
         /// <param name="storageLength">The desired length for the subset measured in elements.</param>
         public static int CalculateRequiredSizeInBytes(int storageLength)
@@ -267,7 +226,8 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// This interface is used to be able to acces methods of a DataBufferSubset without caring about it's type param.
+    /// This interface is used to be able to access properties and methods of a
+    /// <see cref="DataBufferSubset{T}"/> without caring about it's type param.
     /// </summary>
     internal interface IDataBufferSubset
     {
