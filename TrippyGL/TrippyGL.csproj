@@ -1,19 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.Toolset.3.4.0\build\Microsoft.Net.Compilers.Toolset.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.4.0\build\Microsoft.Net.Compilers.Toolset.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3715D913-0E2E-453D-8D18-2C12EFE097CE}</ProjectGuid>
+    <ProjectGuid>{36D837C1-8AC1-4A80-8124-5904B67E9552}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TrippyGL</RootNamespace>
     <AssemblyName>TrippyGL</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -25,8 +24,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,38 +32,39 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=3.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libs\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK.GLControl">
-      <HintPath>..\..\..\..\..\libs\OpenTK\OpenTK.GLControl.dll</HintPath>
+    <Reference Include="OpenTK.GLControl, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.GLControl.3.1.0\lib\net20\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="SixLabors.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SixLabors.Core.1.0.0-beta0008\lib\netstandard2.0\SixLabors.Core.dll</HintPath>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SixLabors.ImageSharp.1.0.0-beta0007\lib\netstandard2.0\SixLabors.ImageSharp.dll</HintPath>
+      <HintPath>..\packages\SixLabors.ImageSharp.1.0.0-beta0007\lib\net472\SixLabors.ImageSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Threading.Thread" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -78,8 +76,8 @@
     <Compile Include="ActiveAttribList.cs" />
     <Compile Include="ActiveVertexAttrib.cs" />
     <Compile Include="BlendState.cs" />
-    <Compile Include="BufferObjectSubset.cs" />
     <Compile Include="BufferObject.cs" />
+    <Compile Include="BufferObjectSubset.cs" />
     <Compile Include="Color4b.cs" />
     <Compile Include="DataBufferSubset.cs" />
     <Compile Include="DepthTestingState.cs" />
@@ -91,28 +89,28 @@
     <Compile Include="IBufferRangeBindable.cs" />
     <Compile Include="IndexBufferSubset.cs" />
     <Compile Include="IVertex.cs" />
+    <Compile Include="PrimitiveBatcher.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rectangle.cs" />
     <Compile Include="RenderbufferObject.cs" />
+    <Compile Include="ShaderBlockUniform.cs" />
+    <Compile Include="ShaderBlockUniformList.cs" />
+    <Compile Include="ShaderProgram.cs" />
     <Compile Include="ShaderSamplerArrayUniform.cs" />
+    <Compile Include="ShaderSamplerUniform.cs" />
+    <Compile Include="ShaderUniform.cs" />
+    <Compile Include="ShaderUniformList.cs" />
+    <Compile Include="Texture.cs" />
+    <Compile Include="Texture1D.cs" />
+    <Compile Include="Texture2D.cs" />
     <Compile Include="Texture2DArray.cs" />
-    <Compile Include="TextureCubemap.cs" />
+    <Compile Include="TextureCubeMap.cs" />
     <Compile Include="TransformFeedbackObject.cs" />
     <Compile Include="TransformFeedbackProgramVariable.cs" />
     <Compile Include="TransformFeedbackProgramVariableList.cs" />
     <Compile Include="TransformFeedbackVariableDescription.cs" />
     <Compile Include="TransformFeedbackVariableDescriptionList.cs" />
     <Compile Include="TrippyMath.cs" />
-    <Compile Include="PrimitiveBatcher.cs" />
-    <Compile Include="ShaderBlockUniform.cs" />
-    <Compile Include="ShaderBlockUniformList.cs" />
-    <Compile Include="ShaderProgram.cs" />
-    <Compile Include="ShaderSamplerUniform.cs" />
-    <Compile Include="ShaderUniform.cs" />
-    <Compile Include="ShaderUniformList.cs" />
-    <Compile Include="Texture1D.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Texture.cs" />
-    <Compile Include="Texture2D.cs" />
     <Compile Include="TrippyUtils.cs" />
     <Compile Include="UniformBufferSubset.cs" />
     <Compile Include="VertexArray.cs" />
@@ -121,10 +119,10 @@
     <Compile Include="VertexAttribSourceList.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="VertexColor.cs" />
-    <Compile Include="VertexNormalColor.cs" />
     <Compile Include="VertexColorTexture.cs" />
     <Compile Include="VertexDataBufferSubset.cs" />
     <Compile Include="VertexNormal.cs" />
+    <Compile Include="VertexNormalColor.cs" />
     <Compile Include="VertexNormalColorTexture.cs" />
     <Compile Include="VertexNormalTexture.cs" />
     <Compile Include="VertexPosition.cs" />
@@ -132,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -139,6 +138,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.4.0\build\Microsoft.Net.Compilers.Toolset.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.Toolset.3.4.0\build\Microsoft.Net.Compilers.Toolset.props'))" />
   </Target>
 </Project>

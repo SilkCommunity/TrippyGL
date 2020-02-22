@@ -123,7 +123,7 @@ namespace TrippyGL
         private void InitializeUniformStorage(int storageOffsetBytes, int storageLength)
         {
             if (storageOffsetBytes % Buffer.GraphicsDevice.UniformBufferOffsetAlignment != 0)
-                throw new ArgumentException("storageOffsetBytes must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment", "storageOffsetBytes");
+                throw new ArgumentException("storageOffsetBytes must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment", nameof(storageOffsetBytes));
 
             InitializeStorage(storageOffsetBytes, (storageLength - 1) * ElementStride + ElementSize);
             StorageLength = storageLength;

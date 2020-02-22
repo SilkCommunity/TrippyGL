@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.539
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{3715D913-0E2E-453D-8D18-2C12EFE097CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{36D837C1-8AC1-4A80-8124-5904B67E9552}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{C4F37720-13F1-4A8F-B420-F56831D90FC6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{856112F6-EA43-477E-8362-5A7618A12892}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3715D913-0E2E-453D-8D18-2C12EFE097CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3715D913-0E2E-453D-8D18-2C12EFE097CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3715D913-0E2E-453D-8D18-2C12EFE097CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3715D913-0E2E-453D-8D18-2C12EFE097CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4F37720-13F1-4A8F-B420-F56831D90FC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4F37720-13F1-4A8F-B420-F56831D90FC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4F37720-13F1-4A8F-B420-F56831D90FC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4F37720-13F1-4A8F-B420-F56831D90FC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{856112F6-EA43-477E-8362-5A7618A12892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{856112F6-EA43-477E-8362-5A7618A12892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{856112F6-EA43-477E-8362-5A7618A12892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{856112F6-EA43-477E-8362-5A7618A12892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DEDB5389-98D7-4A23-9AB2-AC80DEE041EF}
+		SolutionGuid = {0356D8CB-6A5E-4946-B317-0A10C463083B}
 	EndGlobalSection
 EndGlobal

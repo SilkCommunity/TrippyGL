@@ -10,7 +10,7 @@ namespace TrippyTesting
         {
             Console.WriteLine("Program started");
 
-            using (GameWindow w = new Tests.DoSumShit())
+            using (GameWindow w = new Tests.InstancedRendering())
                 w.Run();
 
             Console.WriteLine("Program ended");
