@@ -1705,8 +1705,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Disposes this GraphicsDevice, it's GraphicsResource and it's context.
-        /// The GraphicsDevice nor it's resources can be used once it's been disposed.
+        /// Disposes this <see cref="GraphicsDevice"/>, it's <see cref="GraphicsResource"/>-s and it's context.
+        /// The <see cref="GraphicsDevice"/> nor it's resources can be used once it's been disposed.
         /// </summary>
         public void Dispose()
         {

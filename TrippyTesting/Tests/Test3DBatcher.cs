@@ -340,7 +340,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, batcher.LineVertexCount);
             batcher.ClearLines();
 
-            float ratio = (float)Width / (float)Height;
+            float ratio = Width / (float)Height;
             mat = Matrix4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4.CreateTranslation(2.5f, 2, 12);
             texProgram.Uniforms["World"].SetValueMat4(ref mat);
             texProgram.Uniforms["samp"].SetValueTexture(tex2);

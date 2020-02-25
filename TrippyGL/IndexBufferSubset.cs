@@ -4,23 +4,28 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// A BufferObjectSubset whose purpose is to store index data.
+    /// A <see cref="BufferObjectSubset"/> whose purpose is to store index data.
     /// </summary>
     public class IndexBufferSubset : BufferObjectSubset
     {
-        /// <summary>The length of the buffer object's storage measured in elements.</summary>
+        private const int SizeOfUint = sizeof(uint);
+        private const int SizeOfUshort = sizeof(ushort);
+        private const int SizeOfByte = sizeof(byte);
+
+        /// <summary>The length of the buffer subset's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
-        /// <summary>The size of each element in the buffer object's storage measured in bytes.</summary>
+        /// <summary>The size of each element in the buffer subset's storage measured in bytes.</summary>
         public readonly int ElementSize;
 
         /// <summary>Gets the amount of bytes each element occupies.</summary>
         public readonly DrawElementsType ElementType;
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length and element type.
+        /// Creates a new <see cref="IndexBufferSubset"/> with the given <see cref="BufferObject"/>
+        /// and specified offset into the buffer, storage length and element type.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         /// <param name="elementType">The type of elements this index buffer will use.</param>
@@ -33,284 +38,196 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an IndexBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage.
+        /// Creates an <see cref="IndexBufferSubset"/> with the given <see cref="BufferObject"/>,
+        /// with the subset covering the entire buffer object's storage.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="elementType">The type of elements this index buffer will use.</param>
-        public IndexBufferSubset(BufferObject bufferObject, DrawElementsType elementType) : base(bufferObject, BufferTarget.ElementArrayBuffer)
+        public IndexBufferSubset(BufferObject bufferObject, DrawElementsType elementType)
+            : this(bufferObject, 0, bufferObject.StorageLengthInBytes, elementType)
         {
-            ElementType = elementType;
-            ElementSize = TrippyUtils.GetSizeInBytesOfElementType(elementType);
-            InitializeStorage(0, Buffer.StorageLengthInBytes);
-            StorageLength = bufferObject.StorageLengthInBytes / ElementSize;
 
-            if (StorageLength * ElementSize != StorageLengthInBytes)
-                throw new ArgumentException("The provided BufferObjectSubset's StorageLengthInBytes should be a multiple of this.ElementSize");
         }
 
         /// <summary>
         /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedInt element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="data">An array containing the initial data.</param>
-        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        public IndexBufferSubset(BufferObject bufferObject, uint[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
+        public IndexBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength, Span<uint> data, int dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedInt)
         {
-            SetData(data, dataOffset, 0, data.Length);
+            SetData(data, dataWriteOffset);
         }
 
         /// <summary>
         /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedShort element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="data">An array containing the initial data.</param>
-        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        public IndexBufferSubset(BufferObject bufferObject, ushort[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
+        public IndexBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength, Span<ushort> data, int dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedShort)
         {
-            SetData(data, dataOffset, 0, data.Length);
+            SetData(data, dataWriteOffset);
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedByte element type and initial data.
+        /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
+        /// storage length, <see cref="byte"/> element type and initial data.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="data">An array containing the initial data.</param>
-        /// <param name="dataOffset">The index of the first element to read from the array.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        public IndexBufferSubset(BufferObject bufferObject, byte[] data, int dataOffset, int storageOffsetBytes, int storageLength)
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
+        public IndexBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength, Span<byte> data, int dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
         {
-            SetData(data, dataOffset, 0, data.Length);
+            SetData(data, dataWriteOffset);
         }
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        /// <param name="elementCount">The amount of elements to set.</param>
-        public void SetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
+        public void SetData(Span<uint> data, int storageOffset = 0)
         {
             Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
-            ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Sets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        public void SetData(uint[] data)
-        {
-            SetData(data, 0, 0, data.Length);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfUint + StorageOffsetInBytes), data.Length * SizeOfUint, ref data[0]);
         }
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        /// <param name="elementCount">The amount of elements to set.</param>
-        public void SetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
+        public void SetData(Span<ushort> data, int storageOffset = 0)
         {
             Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
-            ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Sets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        public void SetData(ushort[] data)
-        {
-            SetData(data, 0, 0, data.Length);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfUshort + StorageOffsetInBytes), data.Length * SizeOfUshort, ref data[0]);
         }
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        /// <param name="dataOffset">The offset into the data array to start reading values from.</param>
+        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        /// <param name="elementCount">The amount of elements to set.</param>
-        public void SetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
+        public void SetData(Span<byte> data, int storageOffset = 0)
         {
             Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
-            ValidateSetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Sets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array containing the data to set.</param>
-        public void SetData(byte[] data)
-        {
-            SetData(data, 0, 0, data.Length);
+            GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfByte + StorageOffsetInBytes), data.Length * SizeOfByte, ref data[0]);
         }
 
         /// <summary>
         /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="data">The <see cref="Span{T}"/> to which the returned data will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
-        /// <param name="elementCount">The amount of elements to get.</param>
-        public void GetData(uint[] data, int dataOffset, int storageOffset, int elementCount)
+        public void GetData(Span<uint> data, int storageOffset = 0)
         {
             Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
-            ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Gets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        public void GetData(uint[] data)
-        {
-            GetData(data, 0, 0, data.Length);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfUint + StorageOffsetInBytes), data.Length * SizeOfUint, ref data[0]);
         }
 
         /// <summary>
         /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="data">The <see cref="Span{T}"/> to which the returned data will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
-        /// <param name="elementCount">The amount of elements to get.</param>
-        public void GetData(ushort[] data, int dataOffset, int storageOffset, int elementCount)
+        public void GetData(Span<ushort> data, int storageOffset = 0)
         {
             Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
-            ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
-        }
-
-        /// <summary>
-        /// Gets the data of this subset's storage.
-        /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        public void GetData(ushort[] data)
-        {
-            GetData(data, 0, 0, data.Length);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfUshort + StorageOffsetInBytes), data.Length * SizeOfUshort, ref data[0]);
         }
 
         /// <summary>
         /// Gets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        /// <param name="dataOffset">The offset into the data array to start writing values to.</param>
+        /// <param name="data">The <see cref="Span{T}"/> to which the returned data will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
-        /// <param name="elementCount">The amount of elements to get.</param>
-        public void GetData(byte[] data, int dataOffset, int storageOffset, int elementCount)
+        public void GetData(Span<byte> data, int storageOffset = 0)
         {
             Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
-            ValidateGetParams(data.Length, dataOffset, storageOffset, elementCount);
+            ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * ElementSize + StorageOffsetInBytes), elementCount * ElementSize, ref data[dataOffset]);
+            GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (IntPtr)(storageOffset * SizeOfByte + StorageOffsetInBytes), data.Length * SizeOfByte, ref data[0]);
         }
 
         /// <summary>
-        /// Gets the data of this subset's storage.
+        /// Changes the subset location of this <see cref="IndexBufferSubset"/>.
         /// </summary>
-        /// <param name="data">The array to which the returned data will be written to.</param>
-        public void GetData(byte[] data)
-        {
-            GetData(data, 0, 0, data.Length);
-        }
-
-        /// <summary>
-        /// Changes the subset location of this DataBufferSubset.
-        /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer object's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
             if (storageOffsetBytes % ElementSize != 0)
-                throw new ArgumentException("storageOffsetBytes should be a multiple of this.ElementSize", "storageOffsetBytes");
-            //Else it's pretty much impossible to use the index buffer
+                throw new ArgumentException(nameof(storageOffsetBytes) + " should be a multiple of " + nameof(ElementSize), nameof(storageOffsetBytes));
 
             InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
             StorageLength = storageLength;
         }
 
         /// <summary>
-        /// Checks that the index buffer's ElementType is the specified one and throws an exception if it's not.
+        /// Checks that this index buffer's <see cref="ElementType"/> is the specified one and throws an exception if it's not.
         /// </summary>
-        /// <param name="elementType">The element type to check.</param>
+        /// <param name="elementType">The element type to compare.</param>
         private void ValidateCorrectElementType(DrawElementsType elementType)
         {
             if (elementType != ElementType)
-                throw new InvalidOperationException("To perform this operation the IndexBufferSubset's ElementType must be " + elementType.ToString());
+                throw new InvalidOperationException("To perform this operation the " + nameof(IndexBufferSubset) + "'s " + nameof(ElementType) + " must be " + elementType.ToString());
         }
 
         /// <summary>
         /// Validates the parameters for a set operation.
         /// </summary>
-        private void ValidateSetParams(int dataLength, int dataOffset, int storageOffset, int elementCount)
+        private void ValidateSetParams(int dataLength, int storageOffset)
         {
-            if (dataLength == 0)
-                throw new ArgumentNullException("data", "The data array can't be null nor empty");
-
             if (storageOffset < 0 || storageOffset >= StorageLength)
-                throw new ArgumentOutOfRangeException("storageOffset", storageOffset, "Storage offset must be in the range [0, this.StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
-            if (dataOffset < 0 || dataOffset >= dataLength)
-                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
-
-            if (dataLength - dataOffset < elementCount)
-                throw new ArgumentOutOfRangeException("There isn't enough data in the array to and read elementCount elements starting from index dataOffset");
-
-            if (elementCount > StorageLength - storageOffset)
-                throw new ArgumentOutOfRangeException("The buffer's storage isn't big enough to write elementCount elements starting from storageOffset");
+            if (dataLength + storageOffset > StorageLength)
+                throw new ArgumentOutOfRangeException("Tried to write past the subset's length");
         }
 
         /// <summary>
         /// Validates the parameters for a get operation.
         /// </summary>
-        private void ValidateGetParams(int dataLength, int dataOffset, int storageOffset, int elementCount)
+        private void ValidateGetParams(int dataLength, int storageOffset)
         {
-            if (dataLength == 0)
-                throw new ArgumentException("Data array can't be null nor empty", "data");
-
             if (storageOffset < 0 || storageOffset >= StorageLength)
-                throw new ArgumentOutOfRangeException("storageOffset", storageOffset, "Storage offset must be in the range [0, StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
-            if (dataOffset < 0 || dataOffset >= dataLength)
-                throw new ArgumentOutOfRangeException("dataOffset", dataOffset, "Data offset must be in the range [0, data.Length)");
-
-            if (dataLength - dataOffset < elementCount)
-                throw new ArgumentOutOfRangeException("There data array ins't big enough to write dataLength elements starting from index dataOffset");
-
-            if (elementCount > StorageLength - storageOffset)
-                throw new ArgumentOutOfRangeException("There isn't enough data in the buffer object's storage to read dataLength elements starting from index storageOffset");
+            if (dataLength + storageOffset > StorageLength)
+                throw new ArgumentOutOfRangeException("Tried to read past the subset's length");
         }
 
         /// <summary>

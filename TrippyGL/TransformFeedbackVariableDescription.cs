@@ -19,7 +19,7 @@ namespace TrippyGL
         public readonly int ComponentCount;
 
         /// <summary>Whether this descriptor doesn't represent an actual variable but just indicates padding.</summary>
-        public bool IsPadding { get { return (int)Type > 0 && (int)Type < 5; } }
+        public bool IsPadding { get { return Type > 0 && (int)Type < 5; } }
 
         /// <summary>The amount of components to pad, if this is a padding descriptor.</summary>
         public int PaddingComponentCount { get { return ComponentCount; } }

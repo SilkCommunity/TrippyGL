@@ -88,7 +88,7 @@ namespace TrippyGL
         public VertexAttribDescription(int paddingBytes)
         {
             Size = 0;
-            AttribBaseType = (VertexAttribPointerType)0;
+            AttribBaseType = 0;
             SizeInBytes = paddingBytes; // The only non-zero field when a VertexAttribDescription is used for padding, stores the padding in bytes
             Normalized = false;
             AttribIndicesUseCount = 0; // We'll use this value to be the one that decides whether this is padding. If it uses 0 indices, it's padding.

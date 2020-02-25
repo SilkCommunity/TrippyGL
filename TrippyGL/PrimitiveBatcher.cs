@@ -479,18 +479,20 @@ namespace TrippyGL
         /// Writes all the triangles to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown.
         /// </summary>
         /// <param name="buffer">The buffer where the triangles will be written to.</param>
-        public void WriteTrianglesTo(DataBufferSubset<T> buffer)
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
+        public void WriteTrianglesTo(DataBufferSubset<T> buffer, int storageOffset = 0)
         {
-            buffer.SetData(TriangleVertices);
+            buffer.SetData(TriangleVertices, storageOffset);
         }
 
         /// <summary>
         /// Writes all the lines to the given buffer. If there isn't enough storage space in the buffer, an exception will be thrown.
         /// </summary>
         /// <param name="buffer">The buffer where the triangles will be written to.</param>
-        public void WriteLinesTo(DataBufferSubset<T> buffer)
+        /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
+        public void WriteLinesTo(DataBufferSubset<T> buffer, int storageOffset = 0)
         {
-            buffer.SetData(LineVertices);
+            buffer.SetData(LineVertices, storageOffset);
         }
 
         // TODO: Add some ToString()?

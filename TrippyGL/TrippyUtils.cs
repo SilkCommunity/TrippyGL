@@ -251,7 +251,7 @@ namespace TrippyGL
                     return 4;
             }
 
-            throw new ArgumentException("That's not a valid DrawElementsType value");
+            throw new ArgumentException("Invalid " + nameof(DrawElementsType) + " value");
         }
 
 

@@ -57,7 +57,7 @@ namespace OpenTK.Graphics
                 (uint)A << 24 |
                 (uint)R << 16 |
                 (uint)G << 8 |
-                (uint)B;
+                B;
 
             return unchecked((int)value);
         }
@@ -102,10 +102,10 @@ namespace OpenTK.Graphics
         public static explicit operator Color(Color4b color)
         {
             return Color.FromArgb(
-                (int)(color.A),
-                (int)(color.R),
-                (int)(color.G),
-                (int)(color.B)
+                color.A,
+                color.R,
+                color.G,
+                color.B
             );
         }
 

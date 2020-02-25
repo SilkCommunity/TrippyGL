@@ -98,9 +98,9 @@ namespace TrippyTesting
 
             const int JEJJEJJEJJ = 523152;
 
-            ushort[] indices = new ushort[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 };
+            Span<ushort> indices = stackalloc ushort[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 };
             indexbuffer = new BufferObject(graphicsDevice, indices.Length * sizeof(ushort) + JEJJEJJEJJ, BufferUsageHint.DynamicDraw);
-            indexsubset = new IndexBufferSubset(indexbuffer, indices, 0, JEJJEJJEJJ, indices.Length);
+            indexsubset = new IndexBufferSubset(indexbuffer, JEJJEJJEJJ, indices.Length, indices);
 
             array = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {

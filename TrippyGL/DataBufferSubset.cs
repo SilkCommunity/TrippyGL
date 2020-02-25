@@ -24,7 +24,8 @@ namespace TrippyGL
         /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength) : base(bufferObject, bufferTarget)
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength)
+            : base(bufferObject, bufferTarget)
         {
             ElementSize = Marshal.SizeOf<T>();
             InitializeStorage(storageOffsetBytes, storageLength * ElementSize);
@@ -71,9 +72,11 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, Span<T> data) : this(bufferObject, bufferTarget)
+        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, Span<T> data, int dataWriteOffset = 0)
+            : this(bufferObject, bufferTarget)
         {
-            SetData(data);
+            SetData(data, dataWriteOffset);
         }
 
         /// <summary>
@@ -107,6 +110,8 @@ namespace TrippyGL
         // TODO: SetData() should really use ReadOnlySpans<T>... Problem is, we have to pass the span by ref data[0]
         // Once this is fixed, remember to also change the constructors! And in VertexBuffer's constructors!
         // and in VertexDataBufferSubset's constructors!
+        // Also, doing ref data[0] will throw an IndexOutOfRange if data has a length of 0
+        // Also change these in IndexBufferSubset
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
@@ -149,7 +154,7 @@ namespace TrippyGL
         /// <summary>
         /// Changes the subset location of this DataBufferSubset.
         /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the buffer object's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
