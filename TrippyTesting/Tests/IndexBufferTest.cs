@@ -103,7 +103,7 @@ namespace TrippyTesting.Tests
                 15
             };
 
-            indexSubset.SetData(indices.ToArray());
+            indexSubset.SetData(indices);
             graphicsDevice.DrawElements(PrimitiveType.TriangleStrip, 1, 3);
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, vertexSubset.StorageLength);
 

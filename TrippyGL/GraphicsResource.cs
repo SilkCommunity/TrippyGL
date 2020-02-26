@@ -3,7 +3,7 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// Encapsulates any graphics resource. These include Textures, BufferObjects, VertexArrays, etc.
+    /// Encapsulates any graphics resource. These include <see cref="Texture"/>, <see cref="BufferObject"/>, <see cref="VertexArray"/>, etc.
     /// </summary>
     public abstract class GraphicsResource : IDisposable
     {
@@ -14,13 +14,13 @@ namespace TrippyGL
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Creates a GraphicsResource that uses the specified GraphicsDevice.
+        /// Creates a <see cref="GraphicsResource"/>-s that uses the specified <see cref="GraphicsDevice"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice for this GraphicsResource.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> for this <see cref="GraphicsResource"/>.</param>
         internal GraphicsResource(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice == null)
-                throw new ArgumentNullException("graphicsDevice");
+                throw new ArgumentNullException(nameof(graphicsDevice));
 
             GraphicsDevice = graphicsDevice;
             graphicsDevice.OnResourceAdded(this);
@@ -33,18 +33,18 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Disposes this GraphicsResource, deleting and releasing the resources it uses.
+        /// Disposes this <see cref="GraphicsResource"/>, deleting and releasing the resources it uses.
         /// Resources override this method to implement their disposing code.
         /// </summary>
-        /// <param name="isManualDispose">Whether the call to this function happened because of a call to Dispose() or by, say, the destructor.</param>
+        /// <param name="isManualDispose">Whether the call to this function happened because of a call to <see cref="Dispose()"/> or by the destructor.</param>
         protected virtual void Dispose(bool isManualDispose)
         {
 
         }
 
         /// <summary>
-        /// Disposes the GraphicsResource without notifying the GraphicsDevice.
-        /// This function is only called by the GraphicsDevice.
+        /// Disposes this <see cref="GraphicsResource"/> without notifying the <see cref="GraphicsDevice"/>.
+        /// This function is only called by the <see cref="GraphicsDevice"/>.
         /// </summary>
         internal void DisposeByGraphicsDevice()
         {

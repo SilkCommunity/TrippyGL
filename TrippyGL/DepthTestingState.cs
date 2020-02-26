@@ -9,7 +9,10 @@ namespace TrippyGL
     /// </summary>
     public class DepthTestingState
     {
-        /// <summary>Whether depth testing is enabled for this depth state. If false, all other DepthTestingState parameters are irrelevant.</summary>
+        /// <summary>
+        /// Whether depth testing is enabled for this depth state.
+        /// If false, all other <see cref="DepthTestingState"/> parameters are irrelevant.
+        /// </summary>
         public bool DepthTestingEnabled;
 
         /// <summary>The function for comparing depth values to determine whether the new value passes the depth test.</summary>
@@ -38,7 +41,7 @@ namespace TrippyGL
         public bool DepthBufferWrittingEnabled;
 
         /// <summary>
-        /// Create a DepthTestingState with the specified depth testing parameters.
+        /// Create a <see cref="DepthTestingState"/> with the specified depth testing parameters.
         /// </summary>
         /// <param name="testingEnabled">Whether depth testing is enabled.</param>
         /// <param name="comparison">The comparison mode that determines when a depth test succeedes.</param>
@@ -57,7 +60,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a DepthTestingState with the same values as another specified DepthTestingState.
+        /// Creates a <see cref="DepthTestingState"/> with the same values as another specified <see cref="DepthTestingState"/>.
         /// </summary>
         /// <param name="copy">The DepthTestingState whose values to copy.</param>
         public DepthTestingState(DepthTestingState copy)
@@ -80,14 +83,20 @@ namespace TrippyGL
 
         #region Static Members
 
-        /// <summary>The default, most common DepthTestingState. Checks that the depth of a fragment is closer to the camera or else, discards the fragment.</summary>
-        public static DepthTestingState Default { get { return new DepthTestingState(true); } }
+        /// <summary>
+        /// The default, most common <see cref="DepthTestingState"/>.
+        /// Checks that the depth of a fragment is closer to the camera or else, discards the fragment.
+        /// </summary>
+        public static DepthTestingState Default => new DepthTestingState(true);
 
-        /// <summary>The default and most common DepthTestingState but with an inverted comparison, so fragments will be discarded if they're closer to the camera.</summary>
-        public static DepthTestingState Inverted { get { return new DepthTestingState(true, DepthFunction.Greater, 0); } }
+        /// <summary>
+        /// The default and most common <see cref="DepthTestingState"/> but with an inverted
+        /// comparison, so fragments will be discarded if they're closer to the camera.
+        /// </summary>
+        public static DepthTestingState Inverted => new DepthTestingState(true, DepthFunction.Greater, 0);
 
-        /// <summary>Gets a DepthTestingState where no depth testing is done and all fragments are written.</summary>
-        public static DepthTestingState None { get { return new DepthTestingState(false); } }
+        /// <summary>Gets a <see cref="DepthTestingState"/> where no depth testing is done and all fragments are written.</summary>
+        public static DepthTestingState None => new DepthTestingState(false);
 
         #endregion
     }
