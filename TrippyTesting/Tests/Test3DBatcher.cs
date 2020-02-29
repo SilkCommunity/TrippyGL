@@ -158,16 +158,16 @@ namespace TrippyTesting.Tests
                 cameraPos.X += CameraMoveSpeed * deltaTime;
             if (ks.IsKeyDown(Key.LShift) || ks.IsKeyDown(Key.RShift))
             {
-                if (ks.IsKeyDown(Key.Up))
+                if (ks.IsKeyDown(Key.E))
                     cameraPos.Z += CameraMoveSpeed * deltaTime;
-                if (ks.IsKeyDown(Key.Down))
+                if (ks.IsKeyDown(Key.Q))
                     cameraPos.Z -= CameraMoveSpeed * deltaTime;
             }
             else
             {
-                if (ks.IsKeyDown(Key.Up))
+                if (ks.IsKeyDown(Key.E))
                     cameraPos.Y += CameraMoveSpeed * deltaTime;
-                if (ks.IsKeyDown(Key.Down))
+                if (ks.IsKeyDown(Key.Q))
                     cameraPos.Y -= CameraMoveSpeed * deltaTime;
             }
 
@@ -302,7 +302,7 @@ namespace TrippyTesting.Tests
 
                 new VertexColor(Vector3.Zero, Color4b.White),
                 new VertexColor(Vector3.Zero, Color4b.White),
-            }, ref mat), 3, 8);
+            }, ref mat).AsSpan(3, 8));
 
             batcher.AddTriangleStrip(new VertexColor[]
             {
@@ -322,7 +322,7 @@ namespace TrippyTesting.Tests
 
                 new VertexColor(Vector3.Zero, Color4b.White),
                 new VertexColor(Vector3.Zero, Color4b.White),
-            }, 2, 10);
+            }.AsSpan(2, 10));
 
 
             graphicsDevice.ShaderProgram = program;
