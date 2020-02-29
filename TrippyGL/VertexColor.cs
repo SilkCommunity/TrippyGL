@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with Vector3 Position and Color4b Color.
+    /// Represents a vertex with <see cref="Vector3"/> Position and <see cref="Color4b"/> Color.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexColor : IVertex
     {
-        /// <summary>The size of a VertexColor measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexColor"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 1) * 4;
 
         /// <summary>The vertex's position.</summary>
@@ -21,10 +21,8 @@ namespace TrippyGL
         public Color4b Color;
 
         /// <summary>
-        /// Creates a VertexColor with the specified position and color.
+        /// Creates a <see cref="VertexColor"/> with the specified position and color.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="color">The vertex color.</param>
         public VertexColor(Vector3 position, Color4b color)
         {
             Position = position;
@@ -32,9 +30,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexColor with the specified position and white color.
+        /// Creates a <see cref="VertexColor"/> with the specified position and white color.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
         public VertexColor(Vector3 position)
         {
             Position = position;
@@ -47,7 +44,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexColor.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexColor"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

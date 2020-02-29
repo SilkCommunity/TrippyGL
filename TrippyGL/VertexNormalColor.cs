@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with Vector3 Position, Vector3 Normal and Color4b Color.
+    /// Represents a vertex with <see cref="Vector3"/> Position, <see cref="Vector3"/> Normal and <see cref="Color4b"/> Color.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexNormalColor
+    public struct VertexNormalColor : IVertex
     {
-        /// <summary>The size of a VertexNormalColorTexture measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexNormalColor"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 3 + 1) * 4;
 
         /// <summary>The vertex's position.</summary>
@@ -24,11 +24,8 @@ namespace TrippyGL
         public Color4b Color;
 
         /// <summary>
-        /// Creates a VertexNormalColor with the specified position, normal and color.
+        /// Creates a <see cref="VertexNormalColor"/> with the specified position, normal and color.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="normal">The vertex normal.</param>
-        /// <param name="color">The vertex color.</param>
         public VertexNormalColor(Vector3 position, Vector3 normal, Color4b color)
         {
             Position = position;
@@ -42,7 +39,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexNormalColor.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexNormalColor"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

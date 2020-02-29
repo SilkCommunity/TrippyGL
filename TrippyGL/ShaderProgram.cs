@@ -5,7 +5,8 @@ namespace TrippyGL
 {
     /// <summary>
     /// Encapsulates an OpenGL program object for using shaders.
-    /// Shaders define how things are processed in the graphics card, from calculating vertex positions to choosing the color of each fragment.
+    /// Shaders define how things are processed in the graphics card,
+    /// from calculating vertex positions to choosing the color of each fragment.
     /// </summary>
     public class ShaderProgram : GraphicsResource
     {
@@ -43,28 +44,28 @@ namespace TrippyGL
         public bool IsLinked { get; private set; } = false;
 
         /// <summary>Whether this ShaderProgram is the one currently in use.</summary>
-        public bool IsCurrentlyInUse { get { return GraphicsDevice.ShaderProgram == this; } }
+        public bool IsCurrentlyInUse => GraphicsDevice.ShaderProgram == this;
 
         /// <summary>Whether this ShaderProgram has a vertex shader attached.</summary>
-        public bool HasVertexShader { get { return vsHandle != -1; } }
+        public bool HasVertexShader => vsHandle != -1;
 
         /// <summary>Whether this ShaderProgram has a geometry shader attached.</summary>
-        public bool HasGeometryShader { get { return gsHandle != -1; } }
+        public bool HasGeometryShader => gsHandle != -1;
 
         /// <summary>Whether this ShaderProgram has a fragment shader attached.</summary>
-        public bool HasFragmentShader { get { return fsHandle != -1; } }
+        public bool HasFragmentShader => fsHandle != -1;
 
         /// <summary>
-        /// Creates a ShaderProgram.
+        /// Creates a <see cref="ShaderProgram"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         public ShaderProgram(GraphicsDevice graphicsDevice) : base(graphicsDevice)
         {
             Handle = GL.CreateProgram();
         }
 
         /// <summary>
-        /// Adds a vertex shader to this ShaderProgram.
+        /// Adds a vertex shader to this <see cref="ShaderProgram"/>.
         /// </summary>
         /// <param name="code">The GLSL code for the vertex shader.</param>
         public void AddVertexShader(string code)
@@ -337,7 +338,7 @@ namespace TrippyGL
         /// <summary>
         /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
-        /// <typeparam name="T">The type of vertex this ShaderProgram will use as input</typeparam>
+        /// <typeparam name="T">The type of vertex this ShaderProgram will use as input.</typeparam>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs<T>(string[] attribNames) where T : struct, IVertex
         {
@@ -397,8 +398,8 @@ namespace TrippyGL
             }
 
             ActiveAttribs = new ActiveAttribList(this);
-            BlockUniforms = new ShaderBlockUniformList(this);
-            Uniforms = new ShaderUniformList(this);
+            BlockUniforms = ShaderBlockUniformList.CreateForProgram(this);
+            Uniforms = ShaderUniformList.CreateForProgram(this);
             if (givenTransformFeedbackVariableNames != null)
             {
                 TransformFeedbackVariables = new TransformFeedbackProgramVariableList(this);
@@ -414,7 +415,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures this program is the one currently in use for it's GraphicsDevice.
+        /// Ensures this program is the one currently in use for it's <see cref="GraphicsDevice"/>.
         /// </summary>
         internal void EnsureInUse()
         {
@@ -423,17 +424,18 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures all necessary states are set for a draw command to use this program, such as making
-        /// sure sampler or block uniforms are properly set. This should always be called before a draw
-        /// operation and assumes this ShaderProgram is the one currently in use.
+        /// sure sampler or block uniforms are properly set.<para/>
+        /// This should always be called before a draw operation and assumes this
+        /// <see cref="ShaderProgram"/> is the one currently in use.
         /// </summary>
         internal void EnsurePreDrawStates()
         {
-            Uniforms.EnsureSamplerUniformsSet();
-            BlockUniforms.EnsureAllSet();
+            Uniforms?.EnsureSamplerUniformsSet();
+            BlockUniforms?.EnsureAllSet();
         }
 
         /// <summary>
-        /// Make sure this program is unlinked and throw a proper exception otherwise.
+        /// Ensures this program is unlinked and throw a proper exception otherwise.
         /// </summary>
         internal void ValidateUnlinked()
         {
@@ -442,7 +444,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Make sure this program is linked and throw a proper exception otherwise.
+        /// Ensures this program is linked and throw a proper exception otherwise.
         /// </summary>
         internal void ValidateLinked()
         {
@@ -463,7 +465,7 @@ namespace TrippyGL
         /// <summary>
         /// Stores data about a geometry shader.
         /// </summary>
-        public class GeometryShaderData
+        public readonly struct GeometryShaderData
         {
             /// <summary>The PrimitiveType the geometry shader takes as input.</summary>
             public readonly PrimitiveType GeometryInputType;
@@ -477,20 +479,18 @@ namespace TrippyGL
             /// <summary>The maximum amount of vertices the geometry shader can output.</summary>
             public readonly int GeometryVerticesOut;
 
-            internal GeometryShaderData(int program)
+            internal GeometryShaderData(int programHandle)
             {
-                int tmp;
-
-                GL.GetProgram(program, GetProgramParameterName.GeometryInputType, out tmp);
+                GL.GetProgram(programHandle, GetProgramParameterName.GeometryInputType, out int tmp);
                 GeometryInputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryOutputType, out tmp);
+                GL.GetProgram(programHandle, GetProgramParameterName.GeometryOutputType, out tmp);
                 GeometryOutputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryShaderInvocations, out tmp);
+                GL.GetProgram(programHandle, GetProgramParameterName.GeometryShaderInvocations, out tmp);
                 GeometryShaderInvocations = tmp;
 
-                GL.GetProgram(program, GetProgramParameterName.GeometryVerticesOut, out tmp);
+                GL.GetProgram(programHandle, GetProgramParameterName.GeometryVerticesOut, out tmp);
                 GeometryVerticesOut = tmp;
             }
         }

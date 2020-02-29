@@ -4,11 +4,11 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a sampler-type shader uniform from a shader program and allows control over that uniform.
+    /// Represents a sampler-type shader uniform from a <see cref="ShaderProgram"/> and allows control over that uniform.
     /// </summary>
     public class ShaderSamplerUniform : ShaderUniform
     {
-        /// <summary>The texture value assigned to this sampler uniform.</summary>
+        /// <summary>The <see cref="Texture"/> value assigned to this sampler uniform.</summary>
         public Texture TextureValue { get; private set; }
 
         /// <summary>The last texture unit to be applied as a value for the sampler.</summary>
@@ -23,7 +23,7 @@ namespace TrippyGL
         public override void SetValueTexture(Texture value)
         {
             if (value == null)
-                throw new ArgumentNullException("texture");
+                throw new ArgumentNullException(nameof(value));
 
             if (TextureValue != value)
             {
@@ -32,16 +32,12 @@ namespace TrippyGL
             }
         }
 
-        public override void SetValueTextureArray(Texture[] values, int startValueIndex, int startUniformIndex, int count)
+        public override void SetValueTextureArray(Span<Texture> values, int startUniformIndex = 0)
         {
-            if (values == null)
-                throw new ArgumentNullException("textures");
-
-            if (startValueIndex < 0 || startValueIndex >= values.Length)
-                throw new ArgumentOutOfRangeException("startValueIndex", "startValueIndex must be in the range [0, Length)");
-
-            if (startUniformIndex == 0 && count > 0)
-                SetValueTexture(values[startValueIndex]);
+            if (startUniformIndex == 0 && values.Length == 1)
+                SetValueTexture(values[0]);
+            else
+                throw new InvalidOperationException(string.Concat("Tried to set multiple textures on a ", UniformType.ToString(), " uniform"));
         }
 
         /// <summary>
@@ -60,9 +56,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This is called by ShaderUniformList.EnsureSamplerUniformsSet() after all the required sampler uniform textures have been bound to different units
-        /// This method supposes that all the "value" texture is bound to a texture unit, so it is ready to be used.
-        /// This method also assumes that the ShaderProgram is the one currently in use.
+        /// This is called by <see cref="ShaderUniformList.EnsureSamplerUniformsSet"/> after all the required sampler uniform
+        /// textures have been bound to different units.<para/>
+        /// This method assumes that the <see cref="TextureValue"/> texture is bound to a texture unit, so it is ready to be used.
+        /// This method also assumes that the <see cref="ShaderProgram"/> is the one currently in use.
         /// </summary>
         internal void ApplyUniformValue()
         {

@@ -19,7 +19,7 @@ namespace TrippyGL
     /// <summary>
     /// Manages an OpenGL Context and it's <see cref="graphicsResource"/>-s.
     /// </summary>
-    public class GraphicsDevice : IDisposable
+    public sealed class GraphicsDevice : IDisposable
     {
         /// <summary>The OpenGL Context for this <see cref="GraphicsDevice"/>.</summary>
         public IGraphicsContext Context { get; private set; }

@@ -5,12 +5,12 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with Vector3 Position, Vector3 Normal and Vector2 TexCoords.
+    /// Represents a vertex with <see cref="Vector3"/> Position, <see cref="Vector3"/> Normal and <see cref="Vector2"/> TexCoords.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexNormalTexture
+    public struct VertexNormalTexture : IVertex
     {
-        /// <summary>The size of a VertexNormalTexture measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexNormalTexture"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 3 + 2) * 4;
 
         /// <summary>The vertex's position.</summary>
@@ -23,11 +23,8 @@ namespace TrippyGL
         public Vector2 TexCoords;
 
         /// <summary>
-        /// Creates a VertexNormalTexture with the specified position, normal and texture coordinates.
+        /// Creates a <see cref="VertexNormalTexture"/> with the specified position, normal and texture coordinates.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="normal">The vertex normal.</param>
-        /// <param name="texCoords">The vertex texture coordinates.</param>
         public VertexNormalTexture(Vector3 position, Vector3 normal, Vector2 texCoords)
         {
             Position = position;
@@ -41,7 +38,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexNormalTexture.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexNormalTexture"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

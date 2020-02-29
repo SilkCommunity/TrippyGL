@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with Vector3 Position, Color4b Color and Vector2 TexCoords.
+    /// Represents a vertex with <see cref="Vector3"/> Position, <see cref="Color4b"/> Color and <see cref="Vector2"/> TexCoords.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexColorTexture : IVertex
     {
-        /// <summary>The size of a VertexColorTexture measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexColorTexture"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 1 + 2) * 4;
 
         /// <summary>The vertex's position.</summary>
@@ -24,11 +24,8 @@ namespace TrippyGL
         public Vector2 TexCoords;
 
         /// <summary>
-        /// Creates a VertexColorTexture with the specified position, color and texture coordinates.
+        /// Creates a <see cref="VertexColorTexture"/> with the specified position, color and texture coordinates.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="color">The vertex color.</param>
-        /// <param name="texCoords">The vertex texture coordinates.</param>
         public VertexColorTexture(Vector3 position, Color4b color, Vector2 texCoords)
         {
             Position = position;
@@ -37,10 +34,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexColorTexture with the specified position and texture coordinates, and white color.
+        /// Creates a <see cref="VertexColorTexture"/> with the specified position and texture coordinates, and white color.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="texCoords">The vertex texture coordinates.</param>
         public VertexColorTexture(Vector3 position, Vector2 texCoords)
         {
             Position = position;
@@ -54,7 +49,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexColorTexture.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexColorTexture"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

@@ -75,7 +75,7 @@ namespace TrippyTesting.Tests
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             graphicsDevice.Framebuffer = null;
-            graphicsDevice.SetViewport(0, 0, this.Width, this.Height);
+            graphicsDevice.SetViewport(0, 0, Width, Height);
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = vertexArray;

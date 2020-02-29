@@ -5,27 +5,27 @@ using System.Collections.Generic;
 namespace TrippyGL
 {
     /// <summary>
-    /// A readonly list containing the active attributes of a ShaderProgram.
+    /// A readonly list containing the active attributes of a <see cref="ShaderProgram"/>.
     /// </summary>
     public class ActiveAttribList
     {
-        /// <summary>The internal ActiveVertexAttrib array.</summary>
-        internal readonly ActiveVertexAttrib[] attributes;
+        /// <summary>The internal <see cref="ActiveVertexAttrib"/> array.</summary>
+        private readonly ActiveVertexAttrib[] attributes;
 
         /// <summary>
-        /// Gets an ActiveVertexAttrib from the list. While these are by location, remember that some attributes use more than one location.
+        /// Gets an <see cref="ActiveVertexAttrib"/> from the list.
+        /// While these are ordered by location, remember that some attributes use more than one location.
         /// </summary>
-        /// <param name="index">The list index of the ActiveVertexAttrib.</param>
-        /// <returns></returns>
-        public ActiveVertexAttrib this[int index] { get { return attributes[index]; } }
+        /// <param name="index">The list index of the <see cref="ActiveVertexAttrib"/>.</param>
+        public ActiveVertexAttrib this[int index] => attributes[index];
 
-        /// <summary>The amount of ActiveVertexAttrib-s stored by this list.</summary>
-        public int Length { get { return attributes.Length; } }
+        /// <summary>The amount of <see cref="ActiveVertexAttrib"/>-s stored by this list.</summary>
+        public int Length => attributes.Length;
 
         /// <summary>
-        /// Creates an ActiveAttribList where the attribute list is queried from a ShaderProgram.
+        /// Creates an <see cref="ActiveAttribList"/> where the attribute list is queried from a <see cref="ShaderProgram"/>.
         /// </summary>
-        /// <param name="program">The ShaderProgram to query the attributes from.</param>
+        /// <param name="program">The <see cref="ShaderProgram"/> to query the attributes from.</param>
         internal ActiveAttribList(ShaderProgram program)
         {
             // We query the total amount of attributes we'll be reading from OpenGL
@@ -50,10 +50,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Checks that the names given for some vertex attributes match the names found for the actual vertex attributes.
+        /// Checks that the names given for some vertex attributes match the names actually found for the vertex attributes.
         /// </summary>
-        /// <param name="providedNames".></param>
-        internal bool DoAttributesMatch(VertexAttribDescription[] providedDesc, string[] providedNames)
+        /// <param name="providedDesc">The <see cref="VertexAttribDescription"/>-s provided.</param>
+        /// <param name="providedNames">The names of the <see cref="VertexAttribDescription"/>-s provided</param>
+        internal bool DoAttributesMatch(Span<VertexAttribDescription> providedDesc, Span<string> providedNames)
         {
             // This function assumes the length of the two given arrays match
 

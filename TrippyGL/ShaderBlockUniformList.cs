@@ -3,18 +3,21 @@ using OpenTK.Graphics.OpenGL4;
 namespace TrippyGL
 {
     /// <summary>
-    /// A list of ShaderUniformBlock variables.
-    /// This class also does some controlling over these uniforms to make everything run nicely.
+    /// A list of <see cref="ShaderBlockUniform"/>-s belonging to a <see cref="ShaderProgram"/>.
+    /// This class also does some controlling over these uniform blocks to make everything run nicely.
     /// </summary>
     public class ShaderBlockUniformList
     {
-        /// <summary>All of the block uniforms in the ShaderProgram.</summary>
-        private ShaderBlockUniform[] uniforms;
+        /// <summary>The <see cref="ShaderProgram"/> the uniform blocks belong to.</summary>
+        public readonly ShaderProgram Program;
+
+        /// <summary>All of the block uniforms in the <see cref="ShaderProgram"/>.</summary>
+        private readonly ShaderBlockUniform[] uniforms;
 
         /// <summary>
-        /// Gets a ShaderBlockUniform by name. If there's no such name, returns null.
+        /// Gets a <see cref="ShaderBlockUniform"/> by name. If there's no such name, returns null.
         /// </summary>
-        /// <param name="name">The name (declared in the shaders) of the uniform block to get.</param>
+        /// <param name="name">The name (declared in the shaders) of the <see cref="ShaderBlockUniform"/> to get.</param>
         public ShaderBlockUniform this[string name]
         {
             get
@@ -26,19 +29,19 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>The amount of block uniforms in the shader program.</summary>
-        public int Count { get { return uniforms.Length; } }
+        /// <summary>The amount of <see cref="ShaderBlockUniform"/> in the <see cref="ShaderProgram"/>.</summary>
+        public int Count => uniforms.Length;
 
-        /// <summary>The total amount of uniforms from all the block. If a block has two values, these are two uniforms.</summary>
-        public int TotalUniformCount { get; private set; }
+        /// <summary>The total amount of uniforms from all the block. If a block has two values, these count as two uniforms.</summary>
+        public readonly int TotalUniformCount;
 
-        internal ShaderBlockUniformList(ShaderProgram program)
+        private ShaderBlockUniformList(ShaderProgram program, int blockUniformCount)
         {
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniformBlocks, out int length);
-            uniforms = new ShaderBlockUniform[length];
+            Program = program;
+            uniforms = new ShaderBlockUniform[blockUniformCount];
             TotalUniformCount = 0;
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < blockUniformCount; i++)
             {
                 GL.GetActiveUniformBlock(program.Handle, i, ActiveUniformBlockParameter.UniformBlockNameLength, out int nameLength);
                 GL.GetActiveUniformBlockName(program.Handle, i, nameLength, out int actualNameLength, out string name);
@@ -52,7 +55,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Ensures the buffer bindings for the blocks is correct.
-        /// This is called by ShaderProgram.EnsurePreDrawStates().
+        /// This is called by <see cref="ShaderProgram.EnsurePreDrawStates"/>
         /// </summary>
         internal void EnsureAllSet()
         {
@@ -62,8 +65,16 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat("ShaderBlockUniformList with ", uniforms.Length.ToString(), " uniform blocks");
+            return string.Concat(nameof(Count) + "=", Count.ToString());
         }
 
+        /// <summary>
+        /// Creates a <see cref="ShaderBlockUniformList"/> and queries the uniforms for a given <see cref="ShaderProgram"/>.
+        /// </summary>
+        internal static ShaderBlockUniformList CreateForProgram(ShaderProgram program)
+        {
+            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniformBlocks, out int blockUniformCount);
+            return blockUniformCount == 0 ? null : new ShaderBlockUniformList(program, blockUniformCount);
+        }
     }
 }

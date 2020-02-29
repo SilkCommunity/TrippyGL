@@ -30,7 +30,7 @@ namespace TrippyGL
         public readonly int AttribDivisor;
 
         /// <summary>Gets whether this VertexAttribDescription is only used to indicate padding.</summary>
-        public bool IsPadding { get { return AttribIndicesUseCount == 0; } }
+        public bool IsPadding => AttribIndicesUseCount == 0;
 
         /// <summary>
         /// Creates a VertexAttribDescription where the format of the data declared in the shader is the same as present in the buffer and no conversion needs to be done.

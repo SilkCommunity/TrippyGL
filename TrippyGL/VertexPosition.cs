@@ -5,19 +5,19 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with only Vector3 Position.
+    /// Represents a vertex with only a <see cref="Vector3"/> Position.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexPosition : IVertex
     {
-        /// <summary>The size of a VertexPosition measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexPosition"/> measured in bytes.</summary>
         public const int SizeInBytes = 3 * 4;
 
         /// <summary>The vertex's position.</summary>
         public Vector3 Position;
 
         /// <summary>
-        /// Creates a VertexPosition with the specified position.
+        /// Creates a <see cref="VertexPosition"/> with the specified position.
         /// </summary>
         /// <param name="position">The vertex position.</param>
         public VertexPosition(Vector3 position)
@@ -31,7 +31,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexPosition.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexPosition"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

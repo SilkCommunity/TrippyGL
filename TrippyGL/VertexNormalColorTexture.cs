@@ -6,12 +6,13 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a vertex with Vector3 Position, Vector3 Normal, Color4b Color and Vector2 TexCoords.
+    /// Represents a vertex with <see cref="Vector3"/> Position, <see cref="Vector3"/> Normal,
+    /// <see cref="Color4b"/> Color and <see cref="Vector2"/> TexCoords.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexNormalColorTexture
+    public struct VertexNormalColorTexture : IVertex
     {
-        /// <summary>The size of a VertexNormalColorTexture measured in bytes.</summary>
+        /// <summary>The size of a <see cref="VertexNormalColorTexture"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 3 + 1 + 2) * 4;
 
         /// <summary>The vertex's position.</summary>
@@ -27,12 +28,8 @@ namespace TrippyGL
         public Vector2 TexCoords;
 
         /// <summary>
-        /// Creates a VertexNormalColorTexture with the specified position, normal, color and texture coordinates.
+        /// Creates a <see cref="VertexNormalColorTexture"/> with the specified position, normal, color and texture coordinates.
         /// </summary>
-        /// <param name="position">The vertex position.</param>
-        /// <param name="normal">The vertex normal.</param>
-        /// <param name="color">The vertex color.</param>
-        /// <param name="texCoords">The vertex texture coordinates.</param>
         public VertexNormalColorTexture(Vector3 position, Vector3 normal, Color4b color, Vector2 texCoords)
         {
             Position = position;
@@ -47,7 +44,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a VertexNormalColorTexture.
+        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexNormalColorTexture"/>.
         /// </summary>
         public VertexAttribDescription[] AttribDescriptions
         {

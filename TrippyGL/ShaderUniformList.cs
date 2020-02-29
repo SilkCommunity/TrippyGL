@@ -4,27 +4,27 @@ using System.Collections.Generic;
 namespace TrippyGL
 {
     /// <summary>
-    /// A list of ShaderUniform variables.
+    /// A list of <see cref="ShaderUniform"/> belonging to a <see cref="ShaderProgram"/>.
     /// This class also does some controlling over these uniforms to make everything run nicely.
     /// </summary>
     public class ShaderUniformList
     {
-        /// <summary>All of the (non-block) uniforms from the ShaderProgram.</summary>
-        private readonly ShaderUniform[] uniforms;
-
-        /// <summary>This array contains only the sampler uniforms.</summary>
-        private readonly ShaderSamplerUniform[] samplerUniforms;
-
-        /// <summary>This array contains only the sampler array uniforms.</summary>
-        private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
-
-        /// <summary>The ShaderProgram these uniforms belong to.</summary>
+        /// <summary>The <see cref="ShaderProgram"/> the uniforms belong to.</summary>
         public readonly ShaderProgram Program;
 
+        /// <summary>All of the (non-block) uniforms from the <see cref="ShaderProgram"/>.</summary>
+        private readonly ShaderUniform[] uniforms;
+
+        /// <summary>This array contains only the sampler <see cref="ShaderUniform"/>-s.</summary>
+        private readonly ShaderSamplerUniform[] samplerUniforms;
+
+        /// <summary>This array contains only the sampler array <see cref="ShaderUniform"/>-s.</summary>
+        private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
+
         /// <summary>
-        /// Gets a ShaderUniform by name. If there's no such name, returns null.
+        /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns null.
         /// </summary>
-        /// <param name="name">The name (declared in the shaders) of the uniform to get.</param>
+        /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
         public ShaderUniform this[string name]
         {
             get
@@ -36,24 +36,25 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>The amount of uniforms in the shader program.</summary>
-        public int Count { get { return uniforms.Length; } }
+        /// <summary>The amount of <see cref="ShaderUniform"/>-s in the <see cref="ShaderProgram"/>.</summary>
+        public int Count => uniforms.Length;
 
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
         private readonly List<Texture> textureList;
 
-        /// <summary>Whether there is at least one sampler uniform.</summary>
-        private readonly bool hasSamplerUniforms;
-
-        /// <summary>Whether the textureList is correct or not. ShaderSamplerUniforms set this to true when a value has changed.</summary>
+        /// <summary>
+        /// Whether the <see cref="textureList"/> is correct or not.<para/>
+        /// <see cref="ShaderSamplerUniform"/>-s set this to true when their value has changed.
+        /// </summary>
         internal bool isTextureListDirty = true;
 
-        internal ShaderUniformList(ShaderProgram program)
+        /// <summary>Whether there is at least one sampler-type (or sampler-array-type) <see cref="ShaderUniform"/>.</summary>
+        private readonly bool hasSamplerUniforms;
+
+        private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {
             Program = program;
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalCount);
-
-            uniforms = new ShaderUniform[totalCount - program.BlockUniforms.TotalUniformCount];
+            uniforms = new ShaderUniform[totalUniformCount - totalUniformBlockCount];
 
             // All ShaderSamplerUniform-s and ShaderSamplerArrayUniform-s found will be added to these lists,
             // which will then be turned into the samplerUniforms and samplerArrayUniforms arrays
@@ -61,7 +62,7 @@ namespace TrippyGL
             List<ShaderSamplerArrayUniform> suarr = new List<ShaderSamplerArrayUniform>(uniforms.Length);
 
             int arrIndex = 0;
-            for (int i = 0; i < totalCount; i++)
+            for (int i = 0; i < totalUniformCount; i++)
             {
                 string name = GL.GetActiveUniform(program.Handle, i, out int size, out ActiveUniformType type);
                 int location = GL.GetUniformLocation(program.Handle, name);
@@ -109,7 +110,7 @@ namespace TrippyGL
 
         /// <summary>
         /// When using sampler uniforms, this will make sure they all work together properly.
-        /// This is called by ShaderProgram.EnsurePreDrawStates() after the program is ensured to be in use.
+        /// This is called by <see cref="ShaderProgram.EnsurePreDrawStates"/> after the program is ensured to be in use.
         /// </summary>
         internal void EnsureSamplerUniformsSet()
         {
@@ -133,18 +134,20 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreates the textureList list. This is, clears it and then adds all the sampler uniform's texture values.
-        /// Then marks the list as not dirty.
+        /// Recreates the <see cref="textureList"/> list. This is, clears it and then adds all the
+        /// sampler uniform's texture values, then marks the list as not dirty.
         /// </summary>
         private void RemakeTextureList()
         {
             textureList.Clear();
+
             for (int i = 0; i < samplerUniforms.Length; i++)
             {
                 Texture t = samplerUniforms[i].TextureValue;
                 if (t != null && !textureList.Contains(t))
                     textureList.Add(t);
             }
+
             for (int i = 0; i < samplerArrayUniforms.Length; i++)
             {
                 Texture[] tarr = samplerArrayUniforms[i].texValues;
@@ -162,6 +165,20 @@ namespace TrippyGL
         public override string ToString()
         {
             return string.Concat("ShaderUniformList with ", uniforms.Length.ToString(), " uniforms");
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ShaderUniformList"/> and queries the uniforms for a given <see cref="ShaderProgram"/>.<para/>
+        /// The <see cref="ShaderProgram"/> must already have had it's block uniforms queried prior to this.
+        /// </summary>
+        internal static ShaderUniformList CreateForProgram(ShaderProgram program)
+        {
+            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalUniformCount);
+            int totalUniformBlockCount = program.BlockUniforms == null ? 0 : program.BlockUniforms.TotalUniformCount;
+           
+            if (totalUniformCount - totalUniformBlockCount == 0)
+                return null;
+            return new ShaderUniformList(program, totalUniformCount, totalUniformBlockCount);
         }
     }
 }
