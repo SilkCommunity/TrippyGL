@@ -1443,7 +1443,7 @@ namespace TrippyGL
             public void SetEnabledRange(int min, int max)
             {
                 for (int i = 0; i < areEnabled.Length; i++)
-                    this[i] = (i >= min && i <= max);
+                    this[i] = i >= min && i <= max;
             }
 
             /// <summary>

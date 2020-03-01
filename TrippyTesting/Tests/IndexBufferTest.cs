@@ -67,7 +67,7 @@ namespace TrippyTesting.Tests
 
             bufferObject = new BufferObject(graphicsDevice, VertexColor.SizeInBytes * vertexData.Length + 128, BufferUsageHint.DynamicDraw);
             vertexSubset = new VertexDataBufferSubset<VertexColor>(bufferObject, 0, vertexData.Length, vertexData);
-            indexSubset = new IndexBufferSubset(bufferObject, vertexSubset.StorageNextInBytes, 128, DrawElementsType.UnsignedByte);
+            indexSubset = new IndexBufferSubset(bufferObject, vertexSubset.NextByteInBuffer, 128, DrawElementsType.UnsignedByte);
 
             vertexArray = VertexArray.CreateSingleBuffer<VertexColor>(graphicsDevice, vertexSubset, indexSubset);
 

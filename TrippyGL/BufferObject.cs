@@ -4,25 +4,25 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// An buffer object owns storage on the GPU's memory that can be used for various purposes.
+    /// Owns storage on the GPU's memory that can be used for various purposes though <see cref="BufferObjectSubset"/>-s.
     /// </summary>
-    public class BufferObject : GraphicsResource
+    public sealed class BufferObject : GraphicsResource
     {
-        /// <summary>The GL Buffer Object's name.</summary>
+        /// <summary>The handle for the GL Buffer Object.</summary>
         public readonly int Handle;
 
-        /// <summary>The usage hint for this BufferObject.</summary>
+        /// <summary>The usage hint for this <see cref="BufferObject"/>.</summary>
         public BufferUsageHint UsageHint { get; private set; }
 
         /// <summary>The length of this buffer object's storage, measured in bytes.</summary>
         public int StorageLengthInBytes { get; private set; }
 
         /// <summary>
-        /// Creates a BufferObject with a specified length and usage hint.
+        /// Creates a <see cref="BufferObject"/> with a specified length and usage hint.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
-        /// <param name="sizeInBytes">The desired size of the buffer object's storage measured in bytes.</param>
-        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="sizeInBytes">The desired size of the <see cref="BufferObject"/>'s storage measured in bytes.</param>
+        /// <param name="usageHint">The usage hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
         public BufferObject(GraphicsDevice graphicsDevice, int sizeInBytes, BufferUsageHint usageHint) : base(graphicsDevice)
         {
             Handle = GL.GenBuffer();
@@ -33,10 +33,11 @@ namespace TrippyGL
         // so we need to throw some fucking exceptions (buffer locking?)
 
         /// <summary>
-        /// Recreate this buffer object's storage with a new size and usage hint. The contents of the new storage are undefined after the operation.
+        /// Recreate this <see cref="BufferObject"/>'s storage with a new size and usage hint.
+        /// The contents of the new storage are undefined after this operation.
         /// </summary>
-        /// <param name="sizeInBytes">The new size of the buffer object measured in bytes.</param>
-        /// <param name="usageHint">The new usage hint for the buffer object.</param>
+        /// <param name="sizeInBytes">The new size for the <see cref="BufferObject"/> measured in bytes.</param>
+        /// <param name="usageHint">The new usage hint for the <see cref="BufferObject"/>.</param>
         public void RecreateStorage(int sizeInBytes, BufferUsageHint usageHint)
         {
             // We check that the parameters are valid
@@ -53,9 +54,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreate this buffer object's storage with a new size and same usage hint. The contents of the new storage are undefined after the operation.
+        /// Recreate this <see cref="BufferObject"/>'s storage with a new size but same usage hint as before.
+        /// The contents of the new storage are undefined after this operation.
         /// </summary>
-        /// <param name="sizeInBytes">The new size of the buffer object measured in bytes.</param>
+        /// <param name="sizeInBytes">The new size of the <see cref="BufferObject"/> measured in bytes.</param>
         public void RecreateStorage(int sizeInBytes)
         {
             // We check that sizeInBytes is a valid value
@@ -77,11 +79,15 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat("Handle=", Handle.ToString(), ", StorageLengthInBytes=", StorageLengthInBytes.ToString(), ", UsageHint=", UsageHint.ToString());
+            return string.Concat(
+                nameof(Handle) + "=", Handle.ToString(),
+                ", " + nameof(StorageLengthInBytes) + "=", StorageLengthInBytes.ToString(),
+                ", " + nameof(UsageHint) + "=", UsageHint.ToString()
+            );
         }
 
         /// <summary>
-        /// This should always be called just before a read operation from this BufferObject.
+        /// This should always be called just before a read operation from this <see cref="BufferObject"/>.
         /// If the operation can't occur for any reason, an exception is thrown.
         /// </summary>
         internal void ValidateReadOperation()
@@ -90,7 +96,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This should always be called just before a write operation from this BufferObject.
+        /// This should always be called just before a write operation from this <see cref="BufferObject"/>.
         /// If the operation can't occur for any reason, an exception is thrown.
         /// </summary>
         internal void ValidateWriteOperation()
@@ -99,12 +105,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Checks that the buffer sizeInBytes parameter is valid and throws an exception if it's not.
+        /// Checks that the buffer size in bytes parameter is valid and throws an exception if it's not.
         /// </summary>
         private static void ValidateBufferSize(int sizeInBytes)
         {
             if (sizeInBytes <= 0)
-                throw new ArgumentOutOfRangeException("sizeInBytes", sizeInBytes, "sizeInBytes must be greater than 0");
+                throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, nameof(sizeInBytes) + " must be greater than 0");
         }
 
         /// <summary>

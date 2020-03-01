@@ -55,7 +55,7 @@ namespace TrippyTesting
 
             texture = new Texture2D(graphicsDevice, "data4/jeru.png");
             whitepx = new Texture2D(graphicsDevice, 1, 1);
-            whitepx.SetData(new Color4b[] { Color4b.White });
+            whitepx.SetData(new Color4b[] { Color4b.White }.AsSpan());
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data4/vs.glsl"));
@@ -93,8 +93,8 @@ namespace TrippyTesting
             int uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
             buffer = new BufferObject(graphicsDevice, uboSizeBytes + vertexPositions.Length * VertexColorTexture.SizeInBytes, BufferUsageHint.DynamicDraw);
             positionSubset = new VertexDataBufferSubset<Vector3>(buffer, uboSizeBytes, vertexPositions.Length, vertexPositions);
-            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.StorageNextInBytes, vertexColors.Length, vertexColors);
-            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, colorSubset.StorageNextInBytes, vertexTexCoords.Length, vertexTexCoords);
+            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.NextByteInBuffer, vertexColors.Length, vertexColors);
+            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, colorSubset.NextByteInBuffer, vertexTexCoords.Length, vertexTexCoords);
 
             const int JEJJEJJEJJ = 523152;
 

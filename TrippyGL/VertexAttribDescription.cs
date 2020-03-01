@@ -6,7 +6,7 @@ namespace TrippyGL
     /// <summary>
     /// Describes a vertex attribute. This is, both how it is declared in the shader and how it will be read from a buffer.
     /// </summary>
-    public struct VertexAttribDescription
+    public readonly struct VertexAttribDescription
     {
         /// <summary>The size of the attribute. A float or int would be 1, a vec2 would be 2, a vec3i would be 3, etc.</summary>
         public readonly int Size;
@@ -29,17 +29,17 @@ namespace TrippyGL
         /// <summary>Defines the rate at which this attribute advances when rendering. If 0, it advances once per vertex. Otherwise, it advances once every AttribDivisor instance/s.</summary>
         public readonly int AttribDivisor;
 
-        /// <summary>Gets whether this VertexAttribDescription is only used to indicate padding.</summary>
+        /// <summary>Gets whether this <see cref="VertexAttribDescription"/> is only used to indicate padding.</summary>
         public bool IsPadding => AttribIndicesUseCount == 0;
 
         /// <summary>
-        /// Creates a VertexAttribDescription where the format of the data declared in the shader is the same as present in the buffer and no conversion needs to be done.
+        /// Creates a <see cref="VertexAttribDescription"/> where the format of the data declared
+        /// in the shader is the same as present in the buffer and no conversion needs to be done.
         /// </summary>
         /// <param name="attribType">The type of attribute declared in the shader.</param>
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribDescription(ActiveAttribType attribType, int attribDivisor = 0)
         {
-            EnsureDefined(attribType);
             CheckAttribDivisor(attribDivisor);
 
             AttribType = attribType;
@@ -50,7 +50,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexAttribDescription where the data format declared in the shader isn't the same as the format the data will be read as.
+        /// Creates a <see cref="VertexAttribDescription"/> where the format of the data declared
+        /// in the shader isn't the same as the format the data will be read as.
         /// </summary>
         /// <param name="attribType">The type of the attribute declared in the shader.</param>
         /// <param name="normalized">Whether the vertex data should be normalized before being loaded into the shader.</param>
@@ -58,8 +59,6 @@ namespace TrippyGL
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType, int attribDivisor = 0)
         {
-            EnsureDefined(attribType);
-            EnsureDefined(dataBaseType);
             CheckAttribDivisor(attribDivisor);
 
             Normalized = normalized;
@@ -81,10 +80,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Used internally by VertexAttribSource and VertexArray to indicate padding (unused, ignored buffer memory in between other vertex attribs).
-        /// The values given to the VertexAttribDescription by this constructor might not make sense.
+        /// Creates a <see cref="VertexAttribDescription"/> that represents no real attributes and is
+        /// used to indicate padding (unused, ignored buffer memory in between other vertex attribs).
         /// </summary>
-        /// <param name="paddingBytes">The size in bytes for this vertex attrib description.</param>
+        /// <param name="paddingBytes">The amount of padding in bytes.</param>
         public VertexAttribDescription(int paddingBytes)
         {
             Size = 0;
@@ -98,7 +97,15 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat(Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(), " baseType ", AttribBaseType.ToString());
+            if (IsPadding)
+                return string.Concat("Padding=", SizeInBytes.ToString(), " bytes");
+
+            return string.Concat(
+                Normalized ? "Normalized " : "Unnormalized ", AttribType.ToString(),
+                ", " + nameof(AttribBaseType) + "=", AttribBaseType.ToString(),
+                ", " + nameof(AttribIndicesUseCount) + "=", AttribIndicesUseCount.ToString(),
+                ", " + nameof(AttribDivisor) + "=", AttribDivisor.ToString()
+            );
         }
 
         public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, int size)
@@ -111,22 +118,10 @@ namespace TrippyGL
             return CreatePadding(TrippyUtils.GetVertexAttribBaseType(attribType), TrippyUtils.GetVertexAttribTypeSize(attribType));
         }
 
-        private static void EnsureDefined(ActiveAttribType attribType)
-        {
-            if (!Enum.IsDefined(typeof(ActiveAttribType), attribType))
-                throw new FormatException("The specified attribType is invalid");
-        }
-
-        private static void EnsureDefined(VertexAttribPointerType dataBaseType)
-        {
-            if (!Enum.IsDefined(typeof(VertexAttribPointerType), dataBaseType))
-                throw new FormatException("The specified dataBaseType is invalid");
-        }
-
         private static void CheckAttribDivisor(int attribDivisor)
         {
             if (attribDivisor < 0)
-                throw new ArgumentOutOfRangeException("AttribDivisor", attribDivisor, "AttribDivisor must be greater than 0");
+                throw new ArgumentOutOfRangeException(nameof(attribDivisor), attribDivisor, nameof(attribDivisor) + " must be greater than 0");
         }
     }
 }

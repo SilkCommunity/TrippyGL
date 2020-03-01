@@ -78,7 +78,12 @@ namespace TrippyGL
             if (!DepthTestingEnabled)
                 return "Disabled";
 
-            return string.Concat("DepthComparison=\"", DepthComparison.ToString(), "\", ClearDepth=\"", ClearDepth.ToString(), "\", DepthRange=[", depthNear.ToString(), ", ", depthFar.ToString(), "],  DepthBufferWrittingEnabled=", DepthBufferWrittingEnabled.ToString());
+            return string.Concat(
+                nameof(DepthComparison) + "=\"", DepthComparison.ToString(), "\"",
+                ", " + nameof(ClearDepth) + "=\"", ClearDepth.ToString(), "\"",
+                ", DepthRange=[", depthNear.ToString(), ", ", depthFar.ToString(), "]",
+                ", " + nameof(DepthBufferWrittingEnabled) + "=", DepthBufferWrittingEnabled.ToString()
+            );
         }
 
         #region Static Members

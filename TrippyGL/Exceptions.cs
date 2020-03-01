@@ -11,7 +11,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a ShaderProgram didn't link properly.
+    /// An exception thrown when a <see cref="ShaderProgram"/> didn't link properly.
     /// </summary>
     public class ProgramLinkException : Exception
     {
@@ -19,7 +19,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a Framebuffer fails to be updated.
+    /// An exception thrown when a <see cref="FramebufferObject"/> fails to be updated.
     /// </summary>
     public class FramebufferException : Exception
     {
@@ -30,7 +30,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a blit operation between two framebuffers is invalid.
+    /// An exception thrown when a blit operation is invalid.
     /// </summary>
     public class InvalidBlitException : Exception
     {
@@ -41,7 +41,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// An exception thrown when a framebuffer can't attach a resource to an attachment point.
+    /// An exception thrown when a <see cref="FramebufferObject"/> can't attach a resource to an attachment point.
     /// </summary>
     public class InvalidFramebufferAttachmentException : Exception
     {

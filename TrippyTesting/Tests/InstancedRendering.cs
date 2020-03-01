@@ -59,14 +59,14 @@ namespace TrippyTesting.Tests
             for (int i = 0; i < maxvert; i++)
             {
                 float rot = i * MathHelper.TwoPi / maxvert;
-                float scale = (i * 10f / maxvert) % 0.5f + 0.5f;
+                float scale = i * 10f / maxvert % 0.5f + 0.5f;
                 scale = 3f * scale * scale - 2f * scale * scale * scale;
                 vertices[i+1] = new VertexColor(new Vector3((float)Math.Cos(rot) * scale, (float)Math.Sin(rot) * scale, 0f), Color4b.Multiply(randomCol(), 0.1f));
             }
 
             ptcBuffer = new BufferObject(graphicsDevice, MaxParticles * 64 + VertexColor.SizeInBytes * vertices.Length, BufferUsageHint.StaticDraw);
             matSubset = new VertexDataBufferSubset<Matrix4>(ptcBuffer, 0, MaxParticles);
-            vertexSubset = new VertexDataBufferSubset<VertexColor>(ptcBuffer, matSubset.StorageNextInBytes, vertices.Length, vertices);
+            vertexSubset = new VertexDataBufferSubset<VertexColor>(ptcBuffer, matSubset.NextByteInBuffer, vertices.Length, vertices);
 
             ptcArray = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {

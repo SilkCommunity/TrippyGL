@@ -11,34 +11,35 @@ namespace TrippyGL
     /// </summary>
     public class FramebufferObject : GraphicsResource
     {
-        /// <summary>The framebuffer's handle.</summary>
+        /// <summary>The handle for the GL Framebuffer Object.</summary>
         public readonly int Handle;
 
-        /// <summary>The width of this renderbuffer's image.</summary>
+        /// <summary>The width of this <see cref="FramebufferObject"/>'s image.</summary>
         public int Width { get; private set; }
 
-        /// <summary>The height of this renderbuffer's image.</summary>
+        /// <summary>The height of this <see cref="FramebufferObject"/>'s image.</summary>
         public int Height { get; private set; }
 
-        /// <summary>The amount of samples this framebuffer has.</summary>
+        /// <summary>The amount of samples this <see cref="FramebufferObject"/> has.</summary>
         public int Samples { get; private set; }
 
         private List<FramebufferTextureAttachment> textureAttachments;
         private List<FramebufferRenderbufferAttachment> renderbufferAttachments;
 
-        /// <summary>The amount of texture attachments this framebuffer has.</summary>
-        public int TextureAttachmentCount { get { return textureAttachments.Count; } }
+        /// <summary>The amount of <see cref="Texture"/> attachments this framebuffer has.</summary>
+        public int TextureAttachmentCount => textureAttachments.Count;
 
-        /// <summary>The amount of renderbuffer attachments this framebuffer has.</summary>
-        public int RenderbufferAttachmentCount { get { return renderbufferAttachments.Count; } }
+        /// <summary>The amount of <see cref="RenderbufferObject"/> attachments this framebuffer has.</summary>
+        public int RenderbufferAttachmentCount => renderbufferAttachments.Count;
 
         /// <summary>
-        /// Creates a FramebufferObject.
+        /// Creates a <see cref="FramebufferObject"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
-        /// <param name="initialTextureAttachments">The initial length of the texture attachments list.</param>
-        /// <param name="initialRenderbufferAttachments">The initial length of the renderbuffer attachments list.</param>
-        public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 1, int initialRenderbufferAttachments = 1) : base(graphicsDevice)
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="initialTextureAttachments">An estimate of how many texture attachments will be used.</param>
+        /// <param name="initialRenderbufferAttachments">An estimate of how many renderbuffer attachments will be used.</param>
+        public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 1, int initialRenderbufferAttachments = 1)
+            : base(graphicsDevice)
         {
             Samples = 0;
             Width = 0;
@@ -49,10 +50,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Attaches a texture to this framebuffer in a specified attachment point.
+        /// Attaches a texture to this <see cref="FramebufferObject"/> in a specified attachment point.
         /// </summary>
-        /// <param name="texture">The texture to attach.</param>
-        /// <param name="attachmentPoint">The attachment point to attach the texture to.</param>
+        /// <param name="texture">The <see cref="Texture"/> to attach.</param>
+        /// <param name="attachmentPoint">The attachment point to attach the <see cref="Texture"/> to.</param>
         public void Attach(Texture texture, FramebufferAttachmentPoint attachmentPoint)
         {
             ValidateAttachmentTypeExists(attachmentPoint);
@@ -85,10 +86,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Attaches a renderbuffer to this framebuffer in a specified attachment point.
+        /// Attaches a <see cref="RenderbufferObject"/> to this <see cref="FramebufferObject"/> in a specified attachment point.
         /// </summary>
-        /// <param name="renderbuffer">The renderbuffer to attach.</param>
-        /// <param name="attachmentPoint">The attachment point to attach the renderbuffer to.</param>
+        /// <param name="renderbuffer">The <see cref="RenderbufferObject"/> to attach.</param>
+        /// <param name="attachmentPoint">The attachment point to attach the <see cref="RenderbufferObject"/> to.</param>
         public void Attach(RenderbufferObject renderbuffer, FramebufferAttachmentPoint attachmentPoint)
         {
             ValidateAttachmentTypeExists(attachmentPoint);
@@ -112,7 +113,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Detaches whatever is in an attachment point. Throws an exception if there is no such attachment.
+        /// Detaches whatever is in an attachment point.
+        /// Throws an exception if there is no such attachment.
         /// </summary>
         /// <param name="attachmentPoint">The attachment point to clear.</param>
         public void Detach(FramebufferAttachmentPoint attachmentPoint)
@@ -123,10 +125,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Tries to detach a texture attached to the specified point. Returns whether the operation succeeded.
+        /// Tries to detach a <see cref="Texture"/> attached to the specified attachment point.
+        /// Returns whether the operation succeeded.
         /// </summary>
         /// <param name="point">The attachment point to check.</param>
-        /// <param name="attachment">The detached attachment, if the method returns true.</param>
+        /// <param name="attachment">The detached <see cref="Texture"/> attachment, if the method returned true.</param>
         public bool TryDetachTexture(FramebufferAttachmentPoint point, out FramebufferTextureAttachment attachment)
         {
             for (int i = 0; i < textureAttachments.Count; i++)
@@ -138,15 +141,17 @@ namespace TrippyGL
                     textureAttachments.RemoveAt(i);
                     return true;
                 }
+
             attachment = default;
             return false;
         }
 
         /// <summary>
-        /// Tries to detach a renderbuffer attached to the specified point. Returns whether the operation succeded.
+        /// Tries to detach a <see cref="RenderbufferObject"/> attached to the specified point.
+        /// Returns whether the operation succeded.
         /// </summary>
         /// <param name="point">The attachment point to check.</param>
-        /// <param name="attachment">The detached attachment, if the method returns true.</param>
+        /// <param name="attachment">The detached <see cref="RenderbufferObject"/> attachment, if the method returned true.</param>
         public bool TryDetachRenderbuffer(FramebufferAttachmentPoint point, out FramebufferRenderbufferAttachment attachment)
         {
             for (int i = 0; i < renderbufferAttachments.Count; i++)
@@ -158,6 +163,7 @@ namespace TrippyGL
                     renderbufferAttachments.RemoveAt(i);
                     return true;
                 }
+
             attachment = default;
             return false;
         }
@@ -171,14 +177,16 @@ namespace TrippyGL
             for (int i = 0; i < textureAttachments.Count; i++)
                 if (textureAttachments[i].AttachmentPoint == attachmentType)
                     return true;
+
             for (int i = 0; i < renderbufferAttachments.Count; i++)
                 if (renderbufferAttachments[i].AttachmentPoint == attachmentType)
                     return true;
+
             return false;
         }
 
         /// <summary>
-        /// Gets the status of the framebuffer. 
+        /// Gets the status of the <see cref="FramebufferObject"/>. 
         /// </summary>
         public FramebufferErrorCode GetStatus()
         {
@@ -187,7 +195,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Updates the framebuffer's parameters and checks that the framebuffer is valid.
+        /// Updates the <see cref="FramebufferObject"/>'s parameters and checks that the framebuffer is valid.
         /// This should always be called after being done attaching or detaching resources.
         /// </summary>
         public void UpdateFramebufferData()
@@ -199,17 +207,14 @@ namespace TrippyGL
             for (int i = 0; i < textureAttachments.Count; i++)
             {
                 Texture tex = textureAttachments[i].Texture;
-                if (tex is Texture1D)
-                    ValidateSize(((Texture1D)tex).Width, 1);
+                if (tex is Texture1D tex1d)
+                    ValidateSize(tex1d.Width, 1);
                 else if (tex is Texture2D tex2d)
-                {
                     ValidateSize(tex2d.Width, tex2d.Height);
-                }
                 else
                     throw new FramebufferException("The texture format cannot be attached: " + tex.TextureType);
 
-                IMultisamplableTexture ms = tex as IMultisamplableTexture;
-                ValidateSamples(ms == null ? 0 : ms.Samples);
+                ValidateSamples(tex is IMultisamplableTexture ms ? ms.Samples : 0);
             }
 
             for (int i = 0; i < renderbufferAttachments.Count; i++)
@@ -228,12 +233,12 @@ namespace TrippyGL
                 if (width == -1)
                     width = w;
                 else if (width != w)
-                    throw new FramebufferException("All the framebuffer's attachments must be the same size");
+                    throw new FramebufferException("All the attachments must be the same size");
 
                 if (height == -1)
                     height = h;
                 else if (height != h)
-                    throw new FramebufferException("All the framebuffer's attachments must be the same size");
+                    throw new FramebufferException("All the attachments must be the same size");
             }
 
             void ValidateSamples(int s)
@@ -241,41 +246,41 @@ namespace TrippyGL
                 if (samples == -1)
                     samples = s;
                 else if (samples != s)
-                    throw new FramebufferException("All the framebuffer attachments must have the same amount of samples");
+                    throw new FramebufferException("All the attachments must have the same amount of samples");
             }
 
             FramebufferErrorCode c = GetStatus();
             if (c != FramebufferErrorCode.FramebufferComplete)
-                throw new FramebufferException("The framebuffer is not complete: " + c);
+                throw new FramebufferException("The " + nameof(FramebufferObject) + " is not complete: " + c);
         }
 
         /// <summary>
-        /// Gets a texture attachment from this framebuffer.
+        /// Gets a <see cref="Texture"/> attachment from this <see cref="FramebufferObject"/>.
         /// </summary>
-        /// <param name="index">The enumeration index for the texture attachment.</param>
+        /// <param name="index">The enumeration index for the <see cref="Texture"/> attachment.</param>
         public FramebufferTextureAttachment GetTextureAttachment(int index)
         {
             return textureAttachments[index];
         }
 
         /// <summary>
-        /// Gets a renderbuffer attachment from this framebuffer.
+        /// Gets a <see cref="RenderbufferObject"/> attachment from this <see cref="FramebufferObject"/>.
         /// </summary>
-        /// <param name="index">The enumeration index for the renderbuffer attachment.</param>
+        /// <param name="index">The enumeration index for the <see cref="RenderbufferObject"/> attachment.</param>
         public FramebufferRenderbufferAttachment GetRenderbufferAttachment(int index)
         {
             return renderbufferAttachments[index];
         }
 
         /// <summary>
-        /// Saves this texture as an image file. You can't save multisampled textures.
+        /// Saves this <see cref="FramebufferObject"/>'s texture as an image file. You can't save multisampled textures.
         /// </summary>
         /// <param name="file">The location in which to store the file.</param>
         /// <param name="imageFormat">The format.</param>
         public void SaveAsImage(string file, SaveImageFormat imageFormat)
         {
             if (string.IsNullOrEmpty(file))
-                throw new ArgumentException("You must specify a file name", "file");
+                throw new ArgumentException("You must specify a file name", nameof(file));
 
             ImageFormat format;
 
@@ -294,7 +299,7 @@ namespace TrippyGL
                     format = ImageFormat.Tiff;
                     break;
                 default:
-                    throw new ArgumentException("You must use a proper value from SaveImageFormat", "imageFormat");
+                    throw new ArgumentException("You must use a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
             }
 
             using (Bitmap b = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
@@ -310,7 +315,14 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat("Handle=", Handle, ", Width=", Width, ", Height=", Height, ", Samples=", Samples, ", TextureAttachments=", TextureAttachmentCount, ", RenderbufferAttachments=", RenderbufferAttachmentCount);
+            return string.Concat(
+                nameof(Handle) + "=", Handle.ToString(),
+                ", " + nameof(Width) + "=", Width.ToString(),
+                ", " + nameof(Height) + "=", Height.ToString(),
+                ", " + nameof(Samples) + "=", Samples.ToString(),
+                ", " + nameof(TextureAttachmentCount) + "=", TextureAttachmentCount.ToString(),
+                ", " + nameof(RenderbufferAttachmentCount) + "=", RenderbufferAttachmentCount.ToString()
+            );
         }
 
         protected override void Dispose(bool isManualDispose)

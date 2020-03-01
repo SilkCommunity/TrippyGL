@@ -73,9 +73,9 @@ namespace TrippyTesting.Tests
             buffer1 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
             buffer2 = new BufferObject(graphicsDevice, vertices.Length * VertexNormal.SizeInBytes, BufferUsageHint.DynamicDraw);
             subsetPositionRead = new VertexDataBufferSubset<Vector3>(buffer1, 0, positions.Length, positions);
-            subsetNormalRead = new VertexDataBufferSubset<Vector3>(buffer1, subsetPositionRead.StorageNextInBytes, normals.Length, positions);
+            subsetNormalRead = new VertexDataBufferSubset<Vector3>(buffer1, subsetPositionRead.NextByteInBuffer, normals.Length, positions);
             subsetPositionWrite = new VertexDataBufferSubset<Vector3>(buffer2, 0, normals.Length, new Vector3[positions.Length]);
-            subsetNormalWrite = new VertexDataBufferSubset<Vector3>(buffer2, subsetPositionWrite.StorageNextInBytes, normals.Length, new Vector3[normals.Length]);
+            subsetNormalWrite = new VertexDataBufferSubset<Vector3>(buffer2, subsetPositionWrite.NextByteInBuffer, normals.Length, new Vector3[normals.Length]);
             arrayRead = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
                 new VertexAttribSource(subsetPositionRead, ActiveAttribType.FloatVec3),

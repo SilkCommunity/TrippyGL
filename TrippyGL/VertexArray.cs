@@ -4,12 +4,12 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// Vertex arrays are used for specifying the way vertex attributes are laid out in memory and 
-    /// from which buffer object each data attribute comes from. Also stores an index buffers, if wanted.
+    /// Used for specifying the way vertex attributes are laid out in memory and from which
+    /// <see cref="BufferObjectSubset"/> each vertex attribute comes from. Also stores an optional index buffers.
     /// </summary>
     public class VertexArray : GraphicsResource
     {
-        /// <summary>The GL VertexArrayObject's name.</summary>
+        /// <summary>The handle for the GL Vertex Array Object.</summary>
         public readonly int Handle;
 
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>

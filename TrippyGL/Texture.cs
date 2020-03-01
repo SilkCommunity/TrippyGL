@@ -11,49 +11,49 @@ namespace TrippyGL
         private protected const TextureMinFilter DefaultMinFilter = TextureMinFilter.Nearest, DefaultMipmapMinFilter = TextureMinFilter.NearestMipmapNearest;
         private protected const TextureMagFilter DefaultMagFilter = TextureMagFilter.Nearest;
 
-        /// <summary>The GL Texture's name.</summary>
+        /// <summary>The handle for the GL Texture Object.</summary>
         public readonly int Handle;
 
-        /// <summary>The type of texture, such as 1D, 2D, Multisampled 2D, Array 2D, CubeMap, etc.</summary>
+        /// <summary>The type of this <see cref="Texture"/>, such as 1D, 2D, Multisampled 2D, Array 2D, CubeMap, etc.</summary>
         public readonly TextureTarget TextureType;
 
         /// <summary>The format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats.</summary>
         internal readonly PixelInternalFormat PixelInternalFormat;
 
-        /// <summary>The data type of the components of the texture's pixels, such as UnsignedByte (typical), Float, Int, HalfFloat, etc.</summary>
+        /// <summary>The data type of the components of the <see cref="Texture"/>'s pixels.</summary>
         internal readonly PixelType PixelType;
 
         /// <summary>The format of the pixel data.</summary>
         internal readonly PixelFormat PixelFormat;
 
-        /// <summary>The format for this texture's image.</summary>
+        /// <summary>The format for this <see cref="Texture"/>'s image.</summary>
         public readonly TextureImageFormat ImageFormat;
 
-        /// <summary>Gets whether this texture is mipmapped.</summary>
+        /// <summary>Gets whether this <see cref="Texture"/> is mipmapped.</summary>
         public bool IsMipmapped { get; private set; }
 
-        /// <summary>False if the texture can be mipmapped (depends on texture type).</summary>
+        /// <summary>False if this <see cref="Texture"/> can be mipmapped (depends on texture type).</summary>
         private readonly bool isNotMipmappable;
 
-        /// <summary>Gets whether this texture can be mipmapped (depends on texture type).</summary>
-        public bool IsMipmappable { get { return !isNotMipmappable; } }
+        /// <summary>Gets whether this <see cref="Texture"/> can be mipmapped (depends on texture type).</summary>
+        public bool IsMipmappable => !isNotMipmappable;
 
-        /// <summary>Gets whether this texture is currently bound to a unit.</summary>
-        public bool IsBound { get { return GraphicsDevice.IsTextureBound(this); } }
+        /// <summary>Gets whether this <see cref="Texture"/> is currently bound to a unit.</summary>
+        public bool IsBound => GraphicsDevice.IsTextureBound(this);
 
-        /// <summary>Gets whether this texture is currently bound to the currently active texture unit.</summary>
-        public bool IsBoundAndActive { get { return GraphicsDevice.IsTextureBound(this) && lastBindUnit == GraphicsDevice.ActiveTextureUnit; } }
+        /// <summary>Gets whether this <see cref="Texture"/> is currently bound to the currently active texture unit.</summary>
+        public bool IsBoundAndActive => GraphicsDevice.IsTextureBound(this) && lastBindUnit == GraphicsDevice.ActiveTextureUnit;
 
-        /// <summary>Gets the texture unit to which this texture is currently bound, or -1 if it's not bound anywhere.</summary>
-        public int CurrentlyBoundUnit { get { return IsBound ? lastBindUnit : -1; } }
+        /// <summary>Gets the texture unit to which this <see cref="Texture"/> is currently bound, or -1 if it's not bound anywhere.</summary>
+        public int CurrentlyBoundUnit => IsBound ? lastBindUnit : -1;
 
-        /// <summary>The last texture unit to which this texture was bound. This value is used by binding functions.</summary>
+        /// <summary>The last texture unit to which this <see cref="Texture"/> was bound. This value is used by binding functions.</summary>
         internal int lastBindUnit;
 
         /// <summary>
-        /// Creates a texture with specified TextureTarget and TextureImageFormat.
+        /// Creates a <see cref="Texture"/> with specified <see cref="TextureTarget"/> and <see cref="TextureImageFormat"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="type">The type of texture (or texture target) the texture will be.</param>
         /// <param name="imageFormat">The type of image format this texture will store.</param>
         internal Texture(GraphicsDevice graphicsDevice, TextureTarget type, TextureImageFormat imageFormat) : base(graphicsDevice)
@@ -74,10 +74,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets this texture's minifying and magnifying filters.
+        /// Sets this <see cref="Texture"/>'s minifying and magnifying filters.
         /// </summary>
-        /// <param name="minFilter">The texture's minifying filter.</param>
-        /// <param name="magFilter">The texture's magnifying filter.</param>
+        /// <param name="minFilter">The desired minifying filter for the <see cref="Texture"/>.</param>
+        /// <param name="magFilter">The desired magnifying filter for the <see cref="Texture"/>.</param>
         public void SetTextureFilters(TextureMinFilter minFilter, TextureMagFilter magFilter)
         {
             GraphicsDevice.BindTextureSetActive(this);
@@ -86,7 +86,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Generates mipmaps for this texture.
+        /// Generates mipmaps for this <see cref="Texture"/>.
         /// </summary>
         public void GenerateMipmaps()
         {
@@ -106,7 +106,14 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat("Handle=", Handle.ToString(), ", Type=", TextureType.ToString(), ", ImageFormat=", ImageFormat.ToString(), ", Mipmapped=", IsMipmapped.ToString(), ", Bound=", IsBound.ToString(), ", BoundAndActive=", IsBoundAndActive.ToString());
+            return string.Concat(
+                nameof(Handle) + "=", Handle.ToString(),
+                ", " + nameof(TextureType) + "=", TextureType.ToString(),
+                ", " + nameof(ImageFormat) + "=", ImageFormat.ToString(),
+                ", " + nameof(IsMipmapped) + "=", IsMipmapped.ToString(),
+                ", " + nameof(IsBound) + "=", IsBound.ToString(),
+                ", " + nameof(IsBoundAndActive) + "=", IsBoundAndActive.ToString()
+            );
         }
     }
 

@@ -6,26 +6,23 @@ using System.Drawing.Imaging;
 namespace TrippyGL
 {
     /// <summary>
-    /// A 1D OpenGL texture.
+    /// A <see cref="Texture"/> whose image has only one dimension.
     /// </summary>
     public class Texture1D : Texture
     {
-        /// <summary>The width of the texture.</summary>
+        /// <summary>The size of the <see cref="Texture1D"/>.</summary>
         public int Width { get; private set; }
 
         /// <summary>
-        /// Creates a Texture1D with the desired parameters.
+        /// Creates a <see cref="Texture1D"/> with the desired parameters.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
-        /// <param name="width">The width of the texture.</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture.</param>
-        /// <param name="imageFormat">The image format for this texture.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="width">The size of the <see cref="Texture1D"/>.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture1D"/>.</param>
+        /// <param name="imageFormat">The image format for this <see cref="Texture1D"/>.</param>
         public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, TextureTarget.Texture1D, imageFormat)
         {
-            Width = width;
-            ValidateTextureSize(width);
-
             RecreateImage(width);
 
             if (generateMipmaps)
@@ -36,12 +33,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a Texture1D from an image from a file.
+        /// Creates a <see cref="Texture1D"/> from an image from a file.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="file">The file containing the texture pixels data.</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this texture.</param>
-        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false) : base(graphicsDevice, TextureTarget.Texture1D, TextureImageFormat.Color4b)
+        /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture1D"/>.</param>
+        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false)
+            : base(graphicsDevice, TextureTarget.Texture1D, TextureImageFormat.Color4b)
         {
             using (Bitmap bitmap = new Bitmap(file))
             {
@@ -62,71 +60,57 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of part of the texture by copying it from the specified pointer.
+        /// Sets the data of part of the <see cref="Texture1D"/> by copying it from the specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the data.</param>
-        /// <param name="x">The X coordinate of the first pixel to write.</param>
-        /// <param name="width">The width of the rectangle of pixels to write.</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex.</param>
-        public void SetData<T>(IntPtr data, int x, int width)
+        /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
+        /// <param name="width">The amount of pixels to write.</param>
+        public void SetData(IntPtr data, int xOffset, int width)
         {
-            ValidateRectOperation(x, width);
+            ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
+            GL.TexSubImage1D(TextureType, 0, xOffset, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the texture, copying the new data from a specified array.
+        /// Sets the data of a specified area of the <see cref="Texture1D"/>. The amount of pixels written
+        /// is the length of the given <see cref="Span{T}"/>
         /// </summary>
-        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data.</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start reading from.</param>
-        /// <param name="x">The X coordinate of the first pixel to write.</param>
-        /// <param name="width">The width of the area of pixels to write.</param>
-        public void SetData<T>(T[] data, int dataOffset, int x, int width) where T : struct
+        /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
+        /// <param name="data">A <see cref="Span{T}"/> containing the texture data.</param>
+        /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
+        public void SetData<T>(Span<T> data, int xOffset = 0) where T : struct
         {
-            ValidateSetOperation(data, dataOffset, x, width);
+            ValidateRectOperation(xOffset, data.Length);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, x, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[dataOffset]);
+            GL.TexSubImage1D(TextureType, 0, xOffset, data.Length, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[0]);
         }
 
         /// <summary>
-        /// Sets the data of the entire texture, copying the new data from a given array.
-        /// </summary>
-        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array containing the new texture data.</param>
-        /// <param name="dataOffset">The index of the first element in the array to start reading from.</param>
-        public void SetData<T>(T[] data, int dataOffset = 0) where T : struct
-        {
-            SetData(data, dataOffset, 0, Width);
-        }
-
-        /// <summary>
-        /// Gets the data of the entire texture and copies it to a specified pointer.
+        /// Gets the data of the entire <see cref="Texture1D"/> and copies it to a specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for writting the data.</param>
-        /// <param name="pixelDataFormat">The format of the pixel data in dataPtr. Accepted values are: Red, Rg, Rgb, Bgr, Rgba, Bgra, DepthComponent and StencilIndex.</param>
-        public void GetData<T>(IntPtr data)
+        /// <param name="data">The pointer for writting the data.</param>
+        public void GetData(IntPtr data)
         {
             GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
-        /// Gets the data of the entire texture, copying the texture data to a specified array.
+        /// Gets the data of the entire <see cref="Texture"/>, copying the texture data to a specified array.
         /// </summary>
-        /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format</typeparam>
-        /// <param name="data">The array in which to write the texture data.</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start writing from.</param>
-        public void GetData<T>(T[] data, int dataOffset = 0) where T : struct
+        /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
+        /// <param name="data">The <see cref="Span{T}"/> in which to write the texture data.</param>
+        public void GetData<T>(Span<T> data) where T : struct
         {
-            ValidateGetOperation(data, dataOffset);
+            if (data.Length < Width)
+                throw new ArgumentException(nameof(data) + " must be large enough as to hold " + nameof(Width) + " pixels", nameof(data));
+
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
+            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[0]);
         }
 
         /// <summary>
@@ -140,15 +124,15 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreates this texture's image with a new size, resizing the texture but losing the image data.
+        /// Recreates this <see cref="Texture1D"/>'s image with a new size,
+        /// resizing the <see cref="Texture1D"/> but losing the image data.
         /// </summary>
-        /// <param name="width">The new width for the texture.</param>
+        /// <param name="width">The new size for the <see cref="Texture1D"/>.</param>
         public void RecreateImage(int width)
         {
             ValidateTextureSize(width);
 
             Width = width;
-
             GraphicsDevice.BindTextureSetActive(this);
             GL.TexImage1D(TextureType, 0, PixelInternalFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, IntPtr.Zero);
         }
@@ -156,45 +140,19 @@ namespace TrippyGL
         private protected void ValidateTextureSize(int width)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
-                throw new ArgumentOutOfRangeException("width", width, "Texture width must be in the range (0, MAX_TEXTURE_SIZE]");
+                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
         }
 
-        private protected void ValidateSetOperation<T>(T[] data, int dataOffset, int x, int width) where T : struct
+        private protected void ValidateRectOperation(int xOffset, int width)
         {
-            if (data == null)
-                throw new ArgumentNullException("data", "Data array can't be null");
-
-            if (dataOffset < 0 || dataOffset >= data.Length)
-                throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
-
-            ValidateRectOperation(x, width);
-
-            if (data.Length - dataOffset > width)
-                throw new ArgumentException("Too much data was specified for the texture area to write", "data");
-        }
-
-        private protected void ValidateGetOperation<T>(T[] data, int dataOffset) where T : struct
-        {
-            if (data == null)
-                throw new ArgumentNullException("data", "Data array can't be null");
-
-            if (dataOffset < 0 || dataOffset >= data.Length)
-                throw new ArgumentOutOfRangeException("dataOffset", "dataOffset must be in the range [0, data.Length)");
-
-            if (data.Length - dataOffset < Width)
-                throw new ArgumentException("The provided data array isn't big enough for the specified texture area starting from dataOffset", "data");
-        }
-
-        private protected void ValidateRectOperation(int x, int width)
-        {
-            if (x < 0 || x >= Width)
-                throw new ArgumentOutOfRangeException("x", x, "X must be in the range [0, this.Width)");
+            if (xOffset < 0 || xOffset >= Width)
+                throw new ArgumentOutOfRangeException(nameof(xOffset), xOffset, nameof(xOffset) + " must be in the range [0, " + nameof(Width) + ")");
 
             if (width <= 0)
-                throw new ArgumentOutOfRangeException("width", width, "Width must be greater than 0");
+                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be greater than 0");
 
-            if (width > Width - x)
-                throw new ArgumentOutOfRangeException("width", width, "Width is too large");
+            if (xOffset + width > Width)
+                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " is too large");
         }
     }
 }

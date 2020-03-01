@@ -176,7 +176,7 @@ namespace TrippyGL
         public void AddQuads(ReadOnlySpan<T> vertex)
         {
             int max = vertex.Length / 4 * 4;
-            EnsureTriangleSpace(TriangleVertexCount + (max / 4) * 6);
+            EnsureTriangleSpace(TriangleVertexCount + max / 4 * 6);
             for (int i = 0; i < max; i += 4)
             {
                 // Writting them this way ensures the orientation of the vertex is the right

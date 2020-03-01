@@ -12,13 +12,13 @@ namespace TrippyGL
         private const int SizeOfUshort = sizeof(ushort);
         private const int SizeOfByte = sizeof(byte);
 
-        /// <summary>The length of the buffer subset's storage measured in elements.</summary>
+        /// <summary>The length of the subset's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
         /// <summary>The size of each element in the buffer subset's storage measured in bytes.</summary>
         public readonly int ElementSize;
 
-        /// <summary>Gets the amount of bytes each element occupies.</summary>
+        /// <summary>The size of each element in the subset's storage measured in bytes.</summary>
         public readonly DrawElementsType ElementType;
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace TrippyGL
             : base(bufferObject, BufferTarget.ElementArrayBuffer)
         {
             ElementType = elementType;
-            ElementSize = TrippyUtils.GetSizeInBytesOfElementType(elementType);
+            ElementSize = GetSizeInBytesOfElementType(elementType);
             ResizeSubset(storageOffsetBytes, storageLength);
         }
 
@@ -237,7 +237,27 @@ namespace TrippyGL
         /// <param name="storageLength">The desired length for the subset measured in elements.</param>
         public static int CalculateRequiredSizeInBytes(DrawElementsType elementType, int storageLength)
         {
-            return TrippyUtils.GetSizeInBytesOfElementType(elementType) * storageLength;
+            return GetSizeInBytesOfElementType(elementType) * storageLength;
+        }
+
+        /// <summary>
+        /// Gets the size in bytes for one element of the specified type.
+        /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception.
+        /// </summary>
+        /// <param name="type">The type of element.</param>
+        private static int GetSizeInBytesOfElementType(DrawElementsType elementType)
+        {
+            switch (elementType)
+            {
+                case DrawElementsType.UnsignedByte:
+                    return SizeOfByte;
+                case DrawElementsType.UnsignedShort:
+                    return SizeOfUshort;
+                case DrawElementsType.UnsignedInt:
+                    return SizeOfUint;
+            }
+
+            throw new ArgumentException("Invalid " + nameof(DrawElementsType) + " value");
         }
     }
 }

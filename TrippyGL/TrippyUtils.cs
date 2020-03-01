@@ -82,7 +82,7 @@ namespace TrippyGL
                 return VertexAttribPointerType.Double;
 
             if (attribType == ActiveAttribType.UnsignedInt
-                || (attribType >= ActiveAttribType.UnsignedIntVec2 || attribType <= ActiveAttribType.UnsignedIntVec4))
+                || attribType >= ActiveAttribType.UnsignedIntVec2 || attribType <= ActiveAttribType.UnsignedIntVec4)
                 return VertexAttribPointerType.UnsignedInt;
 
             throw new ArgumentException("The provided value is not a valid enum value", "attribType");
@@ -205,9 +205,6 @@ namespace TrippyGL
                 case VertexAttribPointerType.Double:
                     return 8;
 
-                //case VertexAttribPointerType.Int2101010Rev:
-                //case VertexAttribPointerType.UnsignedInt10F11F11FRev:
-                //case VertexAttribPointerType.UnsignedInt2101010Rev:
                 default:
                     throw new NotSupportedException("The specified vertex attribute format's size in bytes cannot be deciphered by the pointer type.");
 
@@ -231,27 +228,6 @@ namespace TrippyGL
                     res[index++] = descriptions[i];
 
             return res; // Finally we return the new array
-        }
-
-
-        /// <summary>
-        /// Gets the size in bytes for one element of the specified type.
-        /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception.
-        /// </summary>
-        /// <param name="type">The type of element.</param>
-        public static int GetSizeInBytesOfElementType(DrawElementsType type)
-        {
-            switch (type)
-            {
-                case DrawElementsType.UnsignedByte:
-                    return 1;
-                case DrawElementsType.UnsignedShort:
-                    return 2;
-                case DrawElementsType.UnsignedInt:
-                    return 4;
-            }
-
-            throw new ArgumentException("Invalid " + nameof(DrawElementsType) + " value");
         }
 
 

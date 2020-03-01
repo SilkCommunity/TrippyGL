@@ -10,10 +10,10 @@ namespace TrippyGL
     /// <typeparam name="T">The type of struct (element) type this <see cref="DataBufferSubset{T}"/> will manage.</typeparam>
     public abstract class DataBufferSubset<T> : BufferObjectSubset, IDataBufferSubset where T : struct
     {
-        /// <summary>The length of the buffer object's storage measured in elements.</summary>
+        /// <summary>The length of the subset's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
-        /// <summary>The size of each element in the buffer object's storage measured in bytes.</summary>
+        /// <summary>The size of each element in the subset's storage measured in bytes.</summary>
         public int ElementSize { get; }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLength)
             : base(bufferObject, bufferTarget)
@@ -38,7 +38,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
@@ -112,6 +112,7 @@ namespace TrippyGL
         // and in VertexDataBufferSubset's constructors!
         // Also, doing ref data[0] will throw an IndexOutOfRange if data has a length of 0
         // Also change these in IndexBufferSubset
+        // Also change in all textures SetData()
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
