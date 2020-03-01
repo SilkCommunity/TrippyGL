@@ -8,7 +8,7 @@ namespace TrippyGL
     /// Provides a limited but much simpler way to store vertex data in a single buffer.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
-    public class VertexBuffer<T> : IDisposable where T : struct, IVertex
+    public readonly struct VertexBuffer<T> : IDisposable where T : struct, IVertex
     {
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex data.</summary>
         public readonly BufferObject Buffer;
@@ -23,7 +23,7 @@ namespace TrippyGL
         public readonly int ElementSize;
 
         /// <summary>The length of the buffer's storage measured in vertices.</summary>
-        public int StorageLength { get; private set; }
+        public int StorageLength => DataSubset.StorageLength;
 
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified initial data and length.
@@ -36,7 +36,6 @@ namespace TrippyGL
         public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
         {
             ValidateStorageLength(storageLength);
-            StorageLength = storageLength;
             ElementSize = Marshal.SizeOf<T>();
 
             Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
@@ -68,7 +67,6 @@ namespace TrippyGL
             ValidateStorageLength(storageLength);
             ElementSize = Marshal.SizeOf<T>();
 
-            StorageLength = storageLength;
             Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
             DataSubset = new VertexDataBufferSubset<T>(Buffer);
             VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
@@ -85,7 +83,6 @@ namespace TrippyGL
 
             Buffer.RecreateStorage(storageLength * ElementSize);
             DataSubset.ResizeSubset(0, storageLength);
-            StorageLength = storageLength;
         }
 
         /// <summary>
@@ -100,7 +97,6 @@ namespace TrippyGL
 
             Buffer.RecreateStorage(storageLength * ElementSize, usageHint);
             DataSubset.ResizeSubset(0, storageLength);
-            StorageLength = storageLength;
         }
 
         /// <summary>
