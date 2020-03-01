@@ -66,7 +66,7 @@ namespace TrippyTesting.Tests
                 new WeirdAssVertex(new Vector3(0.8f, 0.8f, 0), new Vector2(1, 1)),
             };
             buffer = new VertexBuffer<WeirdAssVertex>(graphicsDevice, data, BufferUsageHint.StaticDraw);
-            
+
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -179,6 +179,32 @@ namespace TrippyTesting.Tests
             static int toint(float v)
             {
                 return (int)(v * int.MaxValue);
+            }
+
+            public int AttribDescriptionCount => 15;
+
+            public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
+            {
+                descriptions[0] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //x
+                descriptions[1] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort); //y
+                descriptions[2] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //z
+
+                descriptions[3] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort); //x2
+                descriptions[4] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //y2
+                descriptions[5] = new VertexAttribDescription(1); //LMAObyte0 padding
+                descriptions[6] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //z2
+
+                descriptions[7] = new VertexAttribDescription(ActiveAttribType.FloatMat4); //mat4
+                descriptions[8] = VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec4); //LMAOvec4 padding
+
+                descriptions[9] = new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short); //w
+                descriptions[10] = new VertexAttribDescription(1); //LMAObyte1 padding
+
+                descriptions[11] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //cx
+                descriptions[12] = VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec3); //LMAOvec3 padding
+                descriptions[13] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort);  //cy
+
+                descriptions[14] = new VertexAttribDescription(193); //mainkra1-4 padding (3 matrices and a single byte
             }
 
             public VertexAttribDescription[] AttribDescriptions

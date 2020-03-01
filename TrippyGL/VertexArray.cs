@@ -38,7 +38,7 @@ namespace TrippyGL
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
-        public VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        public VertexArray(GraphicsDevice graphicsDevice, ReadOnlySpan<VertexAttribSource> attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : this(graphicsDevice, new VertexAttribSourceList(attribSources), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
@@ -53,7 +53,7 @@ namespace TrippyGL
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, VertexAttribDescription[] attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : this(graphicsDevice, new VertexAttribSourceList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
@@ -172,8 +172,13 @@ namespace TrippyGL
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true) where T : struct, IVertex
         {
-            VertexAttribDescription[] desc = new T().AttribDescriptions;
-            return new VertexArray(graphicsDevice, dataBuffer, desc, indexBuffer, compensateStructPadding);
+            T t = default;
+            int attribCount = t.AttribDescriptionCount;
+            Span<VertexAttribDescription> attribDescriptions = attribCount > 256 ?
+                new VertexAttribDescription[attribCount] : stackalloc VertexAttribDescription[attribCount];
+            t.WriteAttribDescriptions(attribDescriptions);
+
+            return new VertexArray(graphicsDevice, dataBuffer, attribDescriptions, indexBuffer, compensateStructPadding);
         }
 
         private void EnsureAttribsValid()

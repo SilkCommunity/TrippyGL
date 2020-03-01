@@ -1,4 +1,5 @@
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 
 namespace TrippyGL
@@ -21,6 +22,24 @@ namespace TrippyGL
         /// <summary>This array contains only the sampler array <see cref="ShaderUniform"/>-s.</summary>
         private readonly ShaderSamplerArrayUniform[] samplerArrayUniforms;
 
+        /// <summary>The amount of <see cref="ShaderUniform"/>-s in the <see cref="ShaderProgram"/>.</summary>
+        public int Count => uniforms.Length;
+
+        /// <summary>Gets the unsorted <see cref="ShaderUniform"/>-s from this list.</summary>
+        public ReadOnlyMemory<ShaderUniform> Uniforms => uniforms;
+
+        /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
+        private readonly List<Texture> textureList;
+
+        /// <summary>
+        /// Whether the <see cref="textureList"/> is correct or not.<para/>
+        /// <see cref="ShaderSamplerUniform"/>-s set this to true when their value has changed.
+        /// </summary>
+        internal bool isTextureListDirty = true;
+
+        /// <summary>Whether there is at least one sampler-type (or sampler-array-type) <see cref="ShaderUniform"/>.</summary>
+        private readonly bool hasSamplerUniforms;
+
         /// <summary>
         /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns null.
         /// </summary>
@@ -35,21 +54,6 @@ namespace TrippyGL
                 return null;
             }
         }
-
-        /// <summary>The amount of <see cref="ShaderUniform"/>-s in the <see cref="ShaderProgram"/>.</summary>
-        public int Count => uniforms.Length;
-
-        /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
-        private readonly List<Texture> textureList;
-
-        /// <summary>
-        /// Whether the <see cref="textureList"/> is correct or not.<para/>
-        /// <see cref="ShaderSamplerUniform"/>-s set this to true when their value has changed.
-        /// </summary>
-        internal bool isTextureListDirty = true;
-
-        /// <summary>Whether there is at least one sampler-type (or sampler-array-type) <see cref="ShaderUniform"/>.</summary>
-        private readonly bool hasSamplerUniforms;
 
         private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {

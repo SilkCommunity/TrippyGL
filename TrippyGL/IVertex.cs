@@ -1,3 +1,5 @@
+using System;
+
 namespace TrippyGL
 {
     /// <summary>
@@ -7,9 +9,18 @@ namespace TrippyGL
     /// </summary>
     public interface IVertex
     {
+        /// <summary>The amount of attributes this type vertex has.</summary>
+        int AttribDescriptionCount { get; }
+
+        /// <summary>
+        /// Gets the vertex attrib descriptors by writting them into a <see cref="Span{T}"/>.
+        /// The span must have a length of <see cref="AttribDescriptionCount"/>.
+        /// </summary>
+        void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions);
+
         /// <summary>
         /// An array with the descriptions of all the vertex attributes present in this vertex.
         /// </summary>
-        VertexAttribDescription[] AttribDescriptions { get; }
+        //VertexAttribDescription[] AttribDescriptions { get; }
     }
 }

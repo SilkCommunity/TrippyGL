@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -37,20 +38,13 @@ namespace TrippyGL
             return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Normal.X.ToString(), ", ", Normal.Y.ToString(), ", ", Normal.Z.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
         }
 
-        /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexNormalTexture"/>.
-        /// </summary>
-        public VertexAttribDescription[] AttribDescriptions
+        public int AttribDescriptionCount => 3;
+
+        public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
         {
-            get
-            {
-                return new VertexAttribDescription[]
-                {
-                    new VertexAttribDescription(ActiveAttribType.FloatVec3),
-                    new VertexAttribDescription(ActiveAttribType.FloatVec3),
-                    new VertexAttribDescription(ActiveAttribType.FloatVec2)
-                };
-            }
+            descriptions[0] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
+            descriptions[1] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
+            descriptions[2] = new VertexAttribDescription(ActiveAttribType.FloatVec2);
         }
     }
 }

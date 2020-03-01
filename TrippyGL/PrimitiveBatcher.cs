@@ -8,7 +8,7 @@ namespace TrippyGL
     /// The result of the batcher is always triangle/line list (GL_TRIANGLES or GL_LINES).
     /// </summary>
     /// <typeparam name="T">The type of vertex to batch.</typeparam>
-    public class PrimitiveBatcher<T> where T : struct, IVertex
+    public class PrimitiveBatcher<T> where T : struct
     {
         //TODO: Optimize all add operations by making them unsafe & utilizing pointers
 

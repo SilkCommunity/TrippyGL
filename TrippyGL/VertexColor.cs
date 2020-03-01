@@ -1,6 +1,7 @@
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Runtime.InteropServices;
 
 namespace TrippyGL
@@ -43,19 +44,12 @@ namespace TrippyGL
             return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), "), (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ")");
         }
 
-        /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexColor"/>.
-        /// </summary>
-        public VertexAttribDescription[] AttribDescriptions
+        public int AttribDescriptionCount => 2;
+
+        public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
         {
-            get
-            {
-                return new VertexAttribDescription[]
-                {
-                    new VertexAttribDescription(ActiveAttribType.FloatVec3),
-                    new VertexAttribDescription(ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte)
-                };
-            }
+            descriptions[0] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
+            descriptions[1] = new VertexAttribDescription(ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte);
         }
     }
 }

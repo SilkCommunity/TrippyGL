@@ -273,18 +273,12 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribData">The input attributes's descriptions, ordered by attribute index.</param>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
-        public void SpecifyVertexAttribs(VertexAttribDescription[] attribData, string[] attribNames)
+        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribDescription> attribData, ReadOnlySpan<string> attribNames)
         {
             ValidateUnlinked();
 
             if (givenAttribNames != null)
                 throw new InvalidOperationException("Attributes have already been specified for this program");
-
-            if (attribData == null)
-                throw new ArgumentNullException("attribData");
-
-            if (attribNames == null)
-                throw new ArgumentNullException("attribNames");
 
             attribData = TrippyUtils.CopyVertexAttribDescriptionsWithoutPaddingDescriptors(attribData);
 
@@ -306,10 +300,8 @@ namespace TrippyGL
 
             // The following stored arrays are copies of the ones provided by the user.
             // This way we ensure the user can't modify these
-            givenAttribDescriptions = attribData;
-            givenAttribNames = new string[attribNames.Length];
-            for (int i = 0; i < attribNames.Length; i++)
-                givenAttribNames[i] = attribNames[i];
+            givenAttribDescriptions = attribData.ToArray();
+            givenAttribNames = attribNames.ToArray();
         }
 
         /// <summary>
@@ -317,9 +309,11 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index.</param>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
-        public void SpecifyVertexAttribs(VertexAttribSource[] attribSources, string[] attribNames)
+        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribSource> attribSources, ReadOnlySpan<string> attribNames)
         {
-            VertexAttribDescription[] attribData = new VertexAttribDescription[attribSources.Length];
+            Span<VertexAttribDescription> attribData = attribSources.Length > 256 ?
+                new VertexAttribDescription[attribSources.Length] : stackalloc VertexAttribDescription[attribSources.Length];
+
             for (int i = 0; i < attribData.Length; i++)
                 attribData[i] = attribSources[i].AttribDescription;
             SpecifyVertexAttribs(attribData, attribNames);
@@ -330,7 +324,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index.</param>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
-        public void SpecifyVertexAttribs(VertexAttribSourceList attribSources, string[] attribNames)
+        public void SpecifyVertexAttribs(VertexAttribSourceList attribSources, ReadOnlySpan<string> attribNames)
         {
             SpecifyVertexAttribs(attribSources.sources, attribNames);
         }
@@ -340,9 +334,15 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex this ShaderProgram will use as input.</typeparam>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
-        public void SpecifyVertexAttribs<T>(string[] attribNames) where T : struct, IVertex
+        public void SpecifyVertexAttribs<T>(ReadOnlySpan<string> attribNames) where T : struct, IVertex
         {
-            SpecifyVertexAttribs(new T().AttribDescriptions, attribNames);
+            T t = default;
+            int attribCount = t.AttribDescriptionCount;
+            Span<VertexAttribDescription> attribDescriptions = attribCount > 256 ?
+                new VertexAttribDescription[attribCount] : stackalloc VertexAttribDescription[attribCount];
+            t.WriteAttribDescriptions(attribDescriptions);
+
+            SpecifyVertexAttribs(attribDescriptions, attribNames);
         }
 
         public void ConfigureTransformFeedback(TransformFeedbackObject transformFeedbackObject, string[] feedbackOutputNames)
