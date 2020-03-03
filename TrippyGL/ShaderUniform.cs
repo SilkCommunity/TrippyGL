@@ -8,7 +8,7 @@ namespace TrippyGL
     /// <summary>
     /// Represents a shader uniform from a <see cref="ShaderProgram"/> and allows control over that uniform.
     /// </summary>
-    public readonly struct ShaderUniform
+    public readonly struct ShaderUniform : IEquatable<ShaderUniform>
     {
         /// <summary>The name with which this uniform is declared on the <see cref="ShaderProgram"/>.</summary>
         public readonly string Name;
@@ -28,9 +28,16 @@ namespace TrippyGL
         /// <summary>Gets whether this <see cref="ShaderUniform"/> is of a sampler or sampler-array type.</summary>
         public readonly bool IsSamplerType;
 
+        /// <summary>For sampler uniforms, the <see cref="Texture"/>/s the user set to this <see cref="ShaderUniform"/>.</summary>
         private readonly Texture[] textureValues;
+        /// <summary>For sampler uniforms, the texture units last set as the uniform's value/s.</summary>
         private readonly int[] textureLastAppliedUnits;
 
+        /// <summary>
+        /// Provides direct read-only access to this <see cref="ShaderUniform"/>'s set textures.
+        /// These are not bound to the <see cref="GraphicsDevice"/> until needed.<para/>
+        /// If this <see cref="ShaderUniform"/> is not of sampler type, accesing this will fail.
+        /// </summary>
         public ReadOnlySpan<Texture> Textures => textureValues;
 
         internal ShaderUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
@@ -40,13 +47,34 @@ namespace TrippyGL
             Size = size;
             UniformType = type;
 
+            // The name might come as array name for array uniforms.
+            // We need to turn the name "arrayUniform[0]" into just "arrayUniform"
             int nameIndexOfThing = name.LastIndexOf('[');
             Name = nameIndexOfThing > 0 ? name.Substring(0, name.Length - nameIndexOfThing + 1) : name;
 
             IsSamplerType = TrippyUtils.IsUniformSamplerType(type);
 
-            textureValues = IsSamplerType ? new Texture[size] : null;
-            textureLastAppliedUnits = IsSamplerType ? new int[size] : null;
+            if (IsSamplerType)
+            {
+                textureValues = new Texture[size];
+                textureLastAppliedUnits = new int[size];
+                textureLastAppliedUnits.AsSpan().Fill(-1);
+            }
+            else
+            {
+                textureValues = null;
+                textureLastAppliedUnits = null;
+            }
+        }
+
+        public static bool operator ==(ShaderUniform left, ShaderUniform right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ShaderUniform left, ShaderUniform right)
+        {
+            return !left.Equals(right);
         }
 
         #region SetValue1
@@ -547,6 +575,35 @@ namespace TrippyGL
                 nameof(Name) + "=\"", Name, "\"",
                 nameof(UniformType) + "=", UniformType.ToString()
             );
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = UniformLocation.GetHashCode();
+                hashCode = (hashCode * 397) ^ Size.GetHashCode();
+                hashCode = (hashCode * 397) ^ UniformType.GetHashCode();
+                hashCode = (hashCode * 397) ^ OwnerProgram.GetHashCode();
+                hashCode = (hashCode * 397) ^ Name.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(ShaderUniform other)
+        {
+            return OwnerProgram == other.OwnerProgram
+                && UniformLocation == other.UniformLocation
+                && Size == other.Size
+                && UniformType == other.UniformType
+                && Name == other.Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ShaderUniform shaderUniform)
+                return Equals(shaderUniform);
+            return false;
         }
     }
 }

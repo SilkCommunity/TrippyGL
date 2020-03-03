@@ -8,7 +8,7 @@ namespace TrippyGL
     /// Shaders define how things are processed in the graphics card,
     /// from calculating vertex positions to choosing the color of each fragment.
     /// </summary>
-    public class ShaderProgram : GraphicsResource
+    public sealed class ShaderProgram : GraphicsResource
     {
         // TODO: Change this to internal!!!
         /// <summary>The handle for the OpenGL Program object.</summary>

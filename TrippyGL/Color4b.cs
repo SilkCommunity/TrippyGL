@@ -9,7 +9,7 @@ namespace OpenTK.Graphics
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct Color4b
+    public struct Color4b : IEquatable<Color4b>
     {
         /// <summary>
         /// The red component of this Color4b structure.
@@ -63,7 +63,7 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Compares the specified Color4 structures for equality.
+        /// Compares the specified <see cref="Color4b"/> structures for equality.
         /// </summary>
         /// <param name="left">The left-hand side of the comparison.</param>
         /// <param name="right">The right-hand side of the comparison.</param>
@@ -74,7 +74,7 @@ namespace OpenTK.Graphics
         }
 
         /// <summary>
-        /// Compares the specified Color4b structures for inequality.
+        /// Compares the specified <see cref="Color4b"/> structures for inequality.
         /// </summary>
         /// <param name="left">The left-hand side of the comparison.</param>
         /// <param name="right">The right-hand side of the comparison.</param>
@@ -121,12 +121,9 @@ namespace OpenTK.Graphics
         /// <returns>True obj is a Color4b structure with the same components as this Color4; false otherwise.</returns>
         public override bool Equals(object obj)
         {
-            if (!(obj is Color4b))
-            {
-                return false;
-            }
-
-            return Equals((Color4b)obj);
+            if (obj is Color4b color4b)
+                return Equals(color4b);
+            return false;
         }
 
         /// <summary>

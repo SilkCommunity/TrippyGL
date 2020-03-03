@@ -7,7 +7,7 @@ namespace TrippyGL
     /// A buffer optimized to be rendered to. The only way to use a <see cref="RenderbufferObject"/>
     /// is to attach it to a <see cref="FramebufferObject"/>.
     /// </summary>
-    public class RenderbufferObject : GraphicsResource
+    public sealed class RenderbufferObject : GraphicsResource
     {
         /// <summary>The handle for the GL Renderbuffer Object.</summary>
         public readonly int Handle;

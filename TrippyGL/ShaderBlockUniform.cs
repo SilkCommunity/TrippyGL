@@ -5,7 +5,7 @@ namespace TrippyGL
     /// <summary>
     /// A buffer-backed block of uniforms. That is, a block of uniforms that get their value from a <see cref="BufferObject"/>.
     /// </summary>
-    public class ShaderBlockUniform
+    public sealed class ShaderBlockUniform
     {
         /// <summary>The name with which this <see cref="ShaderBlockUniform"/> is declared in the shader.</summary>
         public readonly string Name;

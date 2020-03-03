@@ -8,7 +8,7 @@ namespace TrippyGL
     /// Provides a limited but much simpler way to store vertex data in a single buffer.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
-    public readonly struct VertexBuffer<T> : IDisposable where T : struct, IVertex
+    public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : struct, IVertex
     {
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex data.</summary>
         public readonly BufferObject Buffer;
@@ -72,6 +72,16 @@ namespace TrippyGL
             VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
         }
 
+        public static bool operator ==(VertexBuffer<T> left, VertexBuffer<T> right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VertexBuffer<T> left, VertexBuffer<T> right)
+        {
+            return !left.Equals(right);
+        }
+
         /// <summary>
         /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size.
         /// The contents of the new storage are undefined after this operation.
@@ -116,6 +126,23 @@ namespace TrippyGL
         {
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException(nameof(storageLength), storageLength, nameof(storageLength) + " must be greater than 0");
+        }
+
+        public override int GetHashCode()
+        {
+            return Buffer.GetHashCode();
+        }
+
+        public bool Equals(VertexBuffer<T> other)
+        {
+            return Buffer == other.Buffer;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexBuffer<T> vertexBuffer)
+                return Equals(vertexBuffer);
+            return false;
         }
     }
 }

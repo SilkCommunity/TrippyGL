@@ -6,7 +6,7 @@ namespace TrippyGL
     /// <summary>
     /// A <see cref="BufferObjectSubset"/> whose purpose is to store index data.
     /// </summary>
-    public class IndexBufferSubset : BufferObjectSubset
+    public sealed class IndexBufferSubset : BufferObjectSubset
     {
         private const int SizeOfUint = sizeof(uint);
         private const int SizeOfUshort = sizeof(ushort);

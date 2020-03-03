@@ -8,7 +8,7 @@ namespace TrippyGL
     /// A BufferObjectSubset whose purpose is to store uniform block values for shaders to read from.
     /// </summary>
     /// <typeparam name="T">The type of sturct the uniform block will use. This must match the uniform block's format</typeparam>
-    public class UniformBufferSubset<T> : BufferObjectSubset, IBufferRangeBindable where T : struct
+    public sealed class UniformBufferSubset<T> : BufferObjectSubset, IBufferRangeBindable where T : struct
     {
         /// <summary>The size of a single uniform block value, measured in bytes.</summary>
         public readonly int ElementSize;

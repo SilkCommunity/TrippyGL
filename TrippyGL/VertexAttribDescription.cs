@@ -6,7 +6,7 @@ namespace TrippyGL
     /// <summary>
     /// Describes a vertex attribute. This is, both how it is declared in the shader and how it will be read from a buffer.
     /// </summary>
-    public readonly struct VertexAttribDescription
+    public readonly struct VertexAttribDescription : IEquatable<VertexAttribDescription>
     {
         /// <summary>The size of the attribute. A float or int would be 1, a vec2 would be 2, a vec3i would be 3, etc.</summary>
         public readonly int Size;
@@ -42,11 +42,11 @@ namespace TrippyGL
         {
             CheckAttribDivisor(attribDivisor);
 
+            TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
             AttribType = attribType;
             Normalized = false;
             AttribDivisor = attribDivisor;
-            TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
-            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
         }
 
         /// <summary>
@@ -61,6 +61,15 @@ namespace TrippyGL
         {
             CheckAttribDivisor(attribDivisor);
 
+            if (normalized)
+            {
+                if (!TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
+                    throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", nameof(dataBaseType));
+
+                if (!(TrippyUtils.IsVertexAttribFloatType(attribType) || TrippyUtils.IsVertexAttribDoubleType(attribType)))
+                    throw new ArgumentException("For normalized vertex attributes, the attribType must be a float or a double", nameof(attribType));
+            }
+
             Normalized = normalized;
             AttribDivisor = attribDivisor;
             AttribBaseType = dataBaseType;
@@ -68,15 +77,6 @@ namespace TrippyGL
             Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
             AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
             SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * Size * AttribIndicesUseCount;
-
-            if (normalized)
-            {
-                if (!TrippyUtils.IsVertexAttribIntegerType(dataBaseType))
-                    throw new ArgumentException("For normalized vertex attributes, the dataBaseType must be an integer", "dataBaseType");
-
-                if (!(TrippyUtils.IsVertexAttribFloatType(attribType) || TrippyUtils.IsVertexAttribDoubleType(attribType)))
-                    throw new ArgumentException("For normalized vertex attributes, the attribType must be a float or a double", "attribType");
-            }
         }
 
         /// <summary>
@@ -86,6 +86,9 @@ namespace TrippyGL
         /// <param name="paddingBytes">The amount of padding in bytes.</param>
         public VertexAttribDescription(int paddingBytes)
         {
+            if (paddingBytes <= 0)
+                throw new ArgumentOutOfRangeException(nameof(paddingBytes), paddingBytes, nameof(paddingBytes) + " must be greater than 0");
+
             Size = 0;
             AttribBaseType = 0;
             SizeInBytes = paddingBytes; // The only non-zero field when a VertexAttribDescription is used for padding, stores the padding in bytes
@@ -93,6 +96,16 @@ namespace TrippyGL
             AttribIndicesUseCount = 0; // We'll use this value to be the one that decides whether this is padding. If it uses 0 indices, it's padding.
             AttribType = ActiveAttribType.None;
             AttribDivisor = 0;
+        }
+
+        public static bool operator ==(VertexAttribDescription left, VertexAttribDescription right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VertexAttribDescription left, VertexAttribDescription right)
+        {
+            return !(left == right);
         }
 
         public override string ToString()
@@ -122,6 +135,33 @@ namespace TrippyGL
         {
             if (attribDivisor < 0)
                 throw new ArgumentOutOfRangeException(nameof(attribDivisor), attribDivisor, nameof(attribDivisor) + " must be greater than 0");
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = AttribType.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttribBaseType.GetHashCode();
+                hashCode = (hashCode * 397) ^ Normalized.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttribDivisor.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(VertexAttribDescription other)
+        {
+            return AttribType == other.AttribType
+                && AttribBaseType == other.AttribBaseType
+                && Normalized == other.Normalized
+                && AttribDivisor == other.AttribDivisor;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexAttribDescription vertexAttribDescription)
+                return Equals(vertexAttribDescription);
+            return false;
         }
     }
 }

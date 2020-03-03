@@ -9,7 +9,7 @@ namespace TrippyGL
     /// <summary>
     /// A configurable framebuffer that can be used to perform offscreen drawing operations.
     /// </summary>
-    public class FramebufferObject : GraphicsResource
+    public sealed class FramebufferObject : GraphicsResource
     {
         /// <summary>The handle for the GL Framebuffer Object.</summary>
         public readonly int Handle;

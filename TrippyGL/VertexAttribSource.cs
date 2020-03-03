@@ -7,7 +7,7 @@ namespace TrippyGL
     /// Describes the source for a vertex attribute's data. This stores a <see cref="VertexAttribDescription"/>
     /// about the attribute and a buffer subset from which the attrib data will come from.
     /// </summary>
-    public readonly struct VertexAttribSource
+    public readonly struct VertexAttribSource : IEquatable<VertexAttribSource>
     {
         /// <summary>The buffer subset from which the vertex attributes will be read.</summary>
         public readonly BufferObjectSubset BufferSubset;
@@ -75,6 +75,16 @@ namespace TrippyGL
             AttribDescription = new VertexAttribDescription(paddingBytes);
         }
 
+        public static bool operator ==(VertexAttribSource left, VertexAttribSource right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VertexAttribSource left, VertexAttribSource right)
+        {
+            return !left.Equals(right);
+        }
+
         public override string ToString()
         {
             return string.Concat(AttribDescription.ToString(), " bufferHandle=", BufferSubset?.BufferHandle.ToString());
@@ -88,6 +98,28 @@ namespace TrippyGL
         public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, ActiveAttribType attribType)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(attribType));
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = BufferSubset.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttribDescription.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexAttribSource vertexAttribSource)
+                return Equals(vertexAttribSource);
+            return false;
+        }
+
+        public bool Equals(VertexAttribSource other)
+        {
+            return BufferSubset == other.BufferSubset && AttribDescription.Equals(other.AttribDescription);
         }
     }
 }

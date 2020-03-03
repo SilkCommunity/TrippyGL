@@ -7,7 +7,7 @@ namespace TrippyGL
     /// A <see cref="VertexDataBufferSubset{T}"/> whose purpose is to store vertex data.
     /// </summary>
     /// <typeparam name="T">The type of struct (element) type this <see cref="VertexDataBufferSubset{T}"/> will manage.</typeparam>
-    public class VertexDataBufferSubset<T> : DataBufferSubset<T> where T : struct
+    public sealed class VertexDataBufferSubset<T> : DataBufferSubset<T> where T : struct
     {
         /// <summary>
         /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/>

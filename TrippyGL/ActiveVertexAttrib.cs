@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using OpenTK.Graphics.OpenGL4;
 
 namespace TrippyGL
@@ -6,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// Stores data about an active vertex attribute from a <see cref="ShaderProgram"/>.
     /// </summary>
-    public readonly struct ActiveVertexAttrib
+    public readonly struct ActiveVertexAttrib : IEquatable<ActiveVertexAttrib>
     {
         /// <summary>The attribute's location.</summary>
         public readonly int Location;
@@ -34,6 +35,16 @@ namespace TrippyGL
             Location = GL.GetAttribLocation(program.Handle, Name);
         }
 
+        public static bool operator ==(ActiveVertexAttrib left, ActiveVertexAttrib right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ActiveVertexAttrib left, ActiveVertexAttrib right)
+        {
+            return !left.Equals(right);
+        }
+
         public override string ToString()
         {
             return string.Concat(
@@ -42,6 +53,33 @@ namespace TrippyGL
                 ", " + nameof(Size) + "=", Size.ToString(),
                 ", " + nameof(AttribType) + "=", AttribType.ToString()
             );
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Location.GetHashCode();
+                hashCode = (hashCode * 397) ^ Size.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttribType.GetHashCode();
+                hashCode = (hashCode * 397) ^ Name.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(ActiveVertexAttrib other)
+        {
+            return Location == other.Location
+                && Size == other.Size
+                && AttribType == other.AttribType
+                && Name == other.Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ActiveVertexAttrib activeVertexAttrib)
+                return Equals(activeVertexAttrib);
+            return false;
         }
     }
 }

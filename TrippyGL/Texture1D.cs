@@ -8,7 +8,7 @@ namespace TrippyGL
     /// <summary>
     /// A <see cref="Texture"/> whose image has only one dimension.
     /// </summary>
-    public class Texture1D : Texture
+    public sealed class Texture1D : Texture
     {
         /// <summary>The size of the <see cref="Texture1D"/>.</summary>
         public int Width { get; private set; }

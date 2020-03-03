@@ -6,7 +6,7 @@ namespace TrippyGL
     /// A list of <see cref="ShaderBlockUniform"/>-s belonging to a <see cref="ShaderProgram"/>.
     /// This class also does some controlling over these uniform blocks to make everything run nicely.
     /// </summary>
-    public class ShaderBlockUniformList
+    public sealed class ShaderBlockUniformList
     {
         /// <summary>The <see cref="ShaderProgram"/> the uniform blocks belong to.</summary>
         public readonly ShaderProgram Program;

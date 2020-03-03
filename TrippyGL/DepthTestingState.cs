@@ -1,5 +1,6 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace TrippyGL
 {
@@ -7,7 +8,7 @@ namespace TrippyGL
     /// Represents a way to use depth testing. The depth testing function can be configured to obtain
     /// different results, such as discarding faraway fragments or discarding the nearest ones.
     /// </summary>
-    public class DepthTestingState
+    public sealed class DepthTestingState : IEquatable<DepthTestingState>
     {
         /// <summary>
         /// Whether depth testing is enabled for this depth state.
@@ -84,6 +85,16 @@ namespace TrippyGL
                 ", DepthRange=[", depthNear.ToString(), ", ", depthFar.ToString(), "]",
                 ", " + nameof(DepthBufferWrittingEnabled) + "=", DepthBufferWrittingEnabled.ToString()
             );
+        }
+
+        public bool Equals(DepthTestingState other)
+        {
+            return DepthTestingEnabled == other.DepthTestingEnabled
+                && DepthComparison == other.DepthComparison
+                && ClearDepth == other.ClearDepth
+                && depthNear == other.depthNear
+                && depthFar == other.depthFar
+                && DepthBufferWrittingEnabled == other.DepthBufferWrittingEnabled;
         }
 
         #region Static Members

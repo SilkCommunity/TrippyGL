@@ -139,7 +139,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="ShaderUniformList"/> and queries the uniforms for a given <see cref="ShaderProgram"/>.<para/>
         /// The <see cref="ShaderProgram"/> must already have had it's block uniforms queried prior to this.
-        /// If there are no uniforms, this method returns null instead of an empty list.
+        /// If there are no uniforms, this method returns 
         /// </summary>
         internal static ShaderUniformList CreateForProgram(ShaderProgram program)
         {

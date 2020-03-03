@@ -10,7 +10,7 @@ namespace TrippyGL
     /// Represents a vertex with <see cref="Vector3"/> Position, <see cref="Color4b"/> Color and <see cref="Vector2"/> TexCoords.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexColorTexture : IVertex
+    public struct VertexColorTexture : IVertex, IEquatable<VertexColorTexture>
     {
         /// <summary>The size of a <see cref="VertexColorTexture"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 1 + 2) * 4;
@@ -44,9 +44,14 @@ namespace TrippyGL
             TexCoords = texCoords;
         }
 
-        public override string ToString()
+        public static bool operator ==(VertexColorTexture left, VertexColorTexture right)
         {
-            return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VertexColorTexture left, VertexColorTexture right)
+        {
+            return !left.Equals(right);
         }
 
         public int AttribDescriptionCount => 3;
@@ -58,17 +63,34 @@ namespace TrippyGL
             descriptions[2] = new VertexAttribDescription(ActiveAttribType.FloatVec2);
         }
 
-        /// <summary>
-        /// Creates an array with the descriptions of all the vertex attributes present in a <see cref="VertexColorTexture"/>.
-        /// </summary>
-        public VertexAttribDescription[] AttribDescriptions
+        public override string ToString()
         {
-            get
+            return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
             {
-                return new VertexAttribDescription[]
-                {
-                };
+                int hashCode = Position.GetHashCode();
+                hashCode = (hashCode * 397) ^ Color.GetHashCode();
+                hashCode = (hashCode * 397) ^ TexCoords.GetHashCode();
+                return hashCode;
             }
+        }
+
+        public bool Equals(VertexColorTexture other)
+        {
+            return Position == other.Position
+                && Color == other.Color
+                && TexCoords == other.TexCoords;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexColorTexture vertexColorTexture)
+                return Equals(vertexColorTexture);
+            return false;
         }
     }
 }

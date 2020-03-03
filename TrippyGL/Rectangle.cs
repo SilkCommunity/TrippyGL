@@ -1,6 +1,8 @@
+using System;
+
 namespace TrippyGL
 {
-    public struct Rectangle
+    public struct Rectangle : IEquatable<Rectangle>
     {
         public int X;
         public int Y;

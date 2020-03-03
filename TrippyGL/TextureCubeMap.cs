@@ -5,7 +5,7 @@ using System.Drawing.Imaging;
 
 namespace TrippyGL
 {
-    public class TextureCubemap : Texture
+    public sealed class TextureCubemap : Texture
     {
         /// <summary>The size of a face from this cubemap.</summary>
         public int Size { get; private set; }

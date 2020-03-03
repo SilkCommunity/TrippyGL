@@ -1,5 +1,6 @@
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Text;
 
 namespace TrippyGL
@@ -8,7 +9,7 @@ namespace TrippyGL
     /// Represents a way to blend colors together when rendering. The blending function uses various parameters
     /// such as the output fragment color and the current pixel color, allowing you to define your own way to blend.
     /// </summary>
-    public sealed class BlendState
+    public sealed class BlendState : IEquatable<BlendState>
     {
         /// <summary>Whether the blend mode is opaque. If this is true, all other <see cref="BlendState"/> properties are irrelevant.</summary>
         public bool IsOpaque;
@@ -106,10 +107,11 @@ namespace TrippyGL
         }
 
         // TODO: Change last constructor to Clone() (implement IClonable interface?)
+        // Whatever you do, also do it in DepthTestingState.
 
         public override string ToString()
         {
-            // TODO: Optimize?
+            // TODO: Optimize
 
             if (IsOpaque)
                 return "Opaque";
@@ -161,17 +163,29 @@ namespace TrippyGL
             return builder.ToString();
         }
 
+        public bool Equals(BlendState other)
+        {
+            return IsOpaque == other.IsOpaque
+                && EquationModeRGB == other.EquationModeRGB
+                && EquationModeAlpha == other.EquationModeAlpha
+                && SourceFactorRGB == other.SourceFactorRGB
+                && SourceFactorAlpha == other.SourceFactorAlpha
+                && DestFactorRGB == other.DestFactorRGB
+                && DestFactorAlpha == other.DestFactorAlpha
+                && BlendColor == other.BlendColor;
+        }
+
         #region Static Members
 
         // TODO: Add documentation for static BlendState fields
 
-        public static BlendState Opaque { get { return new BlendState(true); } }
+        public static BlendState Opaque => new BlendState(true);
 
-        public static BlendState AlphaBlend { get { return new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One); } }
+        public static BlendState AlphaBlend => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One);
 
-        public static BlendState Additive { get { return new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One); } }
+        public static BlendState Additive => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
 
-        public static BlendState Substractive { get { return new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One); } }
+        public static BlendState Substractive => new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
 
         #endregion
     }

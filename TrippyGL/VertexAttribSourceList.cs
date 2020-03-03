@@ -6,7 +6,7 @@ namespace TrippyGL
     /// <summary>
     /// A read-only list of <see cref="VertexAttribSource"/>-s.
     /// </summary>
-    public class VertexAttribSourceList
+    public sealed class VertexAttribSourceList
     {
         /// <summary>The internal <see cref="VertexAttribSource"/> array. Marked internal for convenience, this should only be read.</summary>
         internal readonly VertexAttribSource[] sources;

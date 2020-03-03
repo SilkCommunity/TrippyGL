@@ -7,7 +7,7 @@ namespace TrippyGL
     /// Used for specifying the way vertex attributes are laid out in memory and from which
     /// <see cref="BufferObjectSubset"/> each vertex attribute comes from. Also stores an optional index buffers.
     /// </summary>
-    public class VertexArray : GraphicsResource
+    public sealed class VertexArray : GraphicsResource
     {
         /// <summary>The handle for the GL Vertex Array Object.</summary>
         public readonly int Handle;

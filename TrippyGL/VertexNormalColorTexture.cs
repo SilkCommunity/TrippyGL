@@ -11,7 +11,7 @@ namespace TrippyGL
     /// <see cref="Color4b"/> Color and <see cref="Vector2"/> TexCoords.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct VertexNormalColorTexture : IVertex
+    public struct VertexNormalColorTexture : IVertex, IEquatable<VertexNormalColorTexture>
     {
         /// <summary>The size of a <see cref="VertexNormalColorTexture"/> measured in bytes.</summary>
         public const int SizeInBytes = (3 + 3 + 1 + 2) * 4;
@@ -39,9 +39,14 @@ namespace TrippyGL
             TexCoords = texCoords;
         }
 
-        public override string ToString()
+        public static bool operator ==(VertexNormalColorTexture left, VertexNormalColorTexture right)
         {
-            return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Normal.X.ToString(), ", ", Normal.Y.ToString(), ", ", Normal.Z.ToString(), ") (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(VertexNormalColorTexture left, VertexNormalColorTexture right)
+        {
+            return !left.Equals(right);
         }
 
         public int AttribDescriptionCount => 4;
@@ -52,6 +57,38 @@ namespace TrippyGL
             descriptions[1] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
             descriptions[2] = new VertexAttribDescription(ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte);
             descriptions[3] = new VertexAttribDescription(ActiveAttribType.FloatVec2);
+        }
+
+        public override string ToString()
+        {
+            return string.Concat("(", Position.X.ToString(), ", ", Position.Y.ToString(), ", ", Position.Z.ToString(), ") (", Normal.X.ToString(), ", ", Normal.Y.ToString(), ", ", Normal.Z.ToString(), ") (", Color.R.ToString(), ", ", Color.G.ToString(), ", ", Color.B.ToString(), ", ", Color.A.ToString(), ") (", TexCoords.X.ToString(), ", ", TexCoords.Y.ToString(), ")");
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Position.GetHashCode();
+                hashCode = (hashCode * 397) ^ Normal.GetHashCode();
+                hashCode = (hashCode * 397) ^ Color.GetHashCode();
+                hashCode = (hashCode * 397) ^ TexCoords.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(VertexNormalColorTexture other)
+        {
+            return Position == other.Position
+                && Normal == other.Normal
+                && Color == other.Color
+                && TexCoords == other.TexCoords;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexNormalColorTexture vertexNormalColorTexture)
+                return Equals(vertexNormalColorTexture);
+            return false;
         }
     }
 }

@@ -135,7 +135,7 @@ namespace TrippyGL
                     return 4;
             }
 
-            throw new ArgumentException("The provided value is not a valid enum value", "attribType");
+            throw new ArgumentException("The provided value is not a valid enum value", nameof(attribType));
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace TrippyGL
                     return 4;
             }
 
-            throw new ArgumentException("The provided value is not a valid enum value", "attribType");
+            throw new ArgumentException("The provided value is not a valid enum value", nameof(attribType));
         }
 
         /// <summary>

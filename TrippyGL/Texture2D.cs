@@ -8,7 +8,7 @@ namespace TrippyGL
     /// <summary>
     /// A <see cref="Texture"/> whose image has two dimensions and support for multisampling.
     /// </summary>
-    public class Texture2D : Texture, IMultisamplableTexture
+    public sealed class Texture2D : Texture, IMultisamplableTexture
     {
         /// <summary>The width of this <see cref="Texture2D"/>.</summary>
         public int Width { get; private set; }

@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// A readonly list containing the active attributes of a <see cref="ShaderProgram"/>.
     /// </summary>
-    public class ActiveAttribList
+    public sealed class ActiveAttribList
     {
         /// <summary>The internal <see cref="ActiveVertexAttrib"/> array.</summary>
         private readonly ActiveVertexAttrib[] attributes;
