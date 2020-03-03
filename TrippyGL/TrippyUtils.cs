@@ -264,7 +264,7 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Returns whether the given ActiveUniformType is a sampler type.
+        /// Returns whether the given ActiveUniformType is a sampler type. This includes sampler-array types.
         /// </summary>
         /// <param name="type">The type of uniform to compare.</param>
         public static bool IsUniformSamplerType(ActiveUniformType type)

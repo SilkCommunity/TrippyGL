@@ -821,9 +821,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all of the given textures are bound to a texture unit.
+        /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit.
         /// </summary>
-        /// <param name="textures">The textures to ensure are bound.</param>
+        /// <param name="textures">The <see cref="Texture"/>-s to ensure are bound.</param>
         public void BindAllTextures(List<Texture> textures)
         {
             if (textures.Count > textureBindings.Length)

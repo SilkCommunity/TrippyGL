@@ -101,8 +101,6 @@
     <Compile Include="ShaderBlockUniform.cs" />
     <Compile Include="ShaderBlockUniformList.cs" />
     <Compile Include="ShaderProgram.cs" />
-    <Compile Include="ShaderSamplerArrayUniform.cs" />
-    <Compile Include="ShaderSamplerUniform.cs" />
     <Compile Include="ShaderUniform.cs" />
     <Compile Include="ShaderUniformList.cs" />
     <Compile Include="Texture.cs" />

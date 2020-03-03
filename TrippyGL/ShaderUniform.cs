@@ -8,7 +8,7 @@ namespace TrippyGL
     /// <summary>
     /// Represents a shader uniform from a <see cref="ShaderProgram"/> and allows control over that uniform.
     /// </summary>
-    public class ShaderUniform
+    public readonly struct ShaderUniform
     {
         /// <summary>The name with which this uniform is declared on the <see cref="ShaderProgram"/>.</summary>
         public readonly string Name;
@@ -25,13 +25,28 @@ namespace TrippyGL
         /// <summary>For array uniforms, this is the length of the array. 1 for non-arrays.</summary>
         public readonly int Size;
 
+        /// <summary>Gets whether this <see cref="ShaderUniform"/> is of a sampler or sampler-array type.</summary>
+        public readonly bool IsSamplerType;
+
+        private readonly Texture[] textureValues;
+        private readonly int[] textureLastAppliedUnits;
+
+        public ReadOnlySpan<Texture> Textures => textureValues;
+
         internal ShaderUniform(ShaderProgram owner, int uniformLoc, string name, int size, ActiveUniformType type)
         {
             OwnerProgram = owner;
             UniformLocation = uniformLoc;
-            Name = name;
             Size = size;
             UniformType = type;
+
+            int nameIndexOfThing = name.LastIndexOf('[');
+            Name = nameIndexOfThing > 0 ? name.Substring(0, name.Length - nameIndexOfThing + 1) : name;
+
+            IsSamplerType = TrippyUtils.IsUniformSamplerType(type);
+
+            textureValues = IsSamplerType ? new Texture[size] : null;
+            textureLastAppliedUnits = IsSamplerType ? new int[size] : null;
         }
 
         #region SetValue1
@@ -231,13 +246,42 @@ namespace TrippyGL
         #endregion
 
         #region SetValueSamplers
-        public virtual void SetValueTexture(Texture texture)
+        public void SetValueTexture(Texture texture)
         {
-            throw new InvalidOperationException("You tried to set a uniform with an incorrect type");
+            ValidateIsSampler();
+
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            if (textureValues[0] != texture)
+            {
+                textureValues[0] = texture;
+                OwnerProgram.Uniforms.isTextureListDirty = true;
+            }
         }
-        public virtual void SetValueTextureArray(Span<Texture> textures, int startUniformIndex = 0)
+
+        public void SetValueTextureArray(Span<Texture> textures, int startUniformIndex = 0)
         {
-            throw new InvalidOperationException("You tried to set a uniform with an incorrect type");
+            ValidateIsSampler();
+
+            if (startUniformIndex < 0 || startUniformIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(startUniformIndex), nameof(startUniformIndex) + " must be in the range [0, " + nameof(Size) + ")");
+
+            if (startUniformIndex + textures.Length > Size)
+                throw new ArgumentOutOfRangeException("Tried to set too many textures");
+
+            bool isDirty = false;
+            for (int i = 0; i < textures.Length; i++)
+            {
+                int uniformIndex = startUniformIndex + i;
+                if (textureValues[uniformIndex] != textures[i])
+                {
+                    textureValues[uniformIndex] = textures[i];
+                    isDirty = true;
+                }
+            }
+
+            OwnerProgram.Uniforms.isTextureListDirty |= isDirty;
         }
         #endregion
 
@@ -439,6 +483,37 @@ namespace TrippyGL
         }
         #endregion
 
+        /// <summary>
+        /// This is called by <see cref="ShaderUniformList.EnsureSamplerUniformsSet"/> after all the required sampler uniform
+        /// textures have been bound to different texture units.<para/>
+        /// This method assumes that the <see cref="textureValues"/> textures are all bound to texture units and ready to be used.
+        /// This method also assumes that the <see cref="ShaderProgram"/> that owns this uniform is the one currently in use.
+        /// </summary>
+        internal void ApplyUniformTextureValues()
+        {
+            if (Size == 1)
+            {
+                int unit = textureValues[0] == null ? 0 : textureValues[0].lastBindUnit;
+                textureLastAppliedUnits[0] = unit;
+                GL.Uniform1(UniformLocation, unit);
+            }
+            else
+            {
+                bool isSetRequired = false;
+                for (int i = 0; i < Size; i++)
+                {
+                    if (textureLastAppliedUnits[i] != textureValues[i].lastBindUnit)
+                    {
+                        textureLastAppliedUnits[i] = textureValues[i].lastBindUnit;
+                        isSetRequired = true;
+                    }
+                }
+
+                if (isSetRequired)
+                    GL.Uniform1(UniformLocation, Size, textureLastAppliedUnits);
+            }
+        }
+
         // TODO: region SetValueMatrix2Array or god knows what the fuck WHY ARE THERE SO MANY SET VALUES
         // TODO: Should we validate array sets to make sure the indices are OK and such?
         // Also, Should we even check that the type is OK?
@@ -446,18 +521,24 @@ namespace TrippyGL
         /// <summary>
         /// Checks that <see cref="UniformType"/> is the correct type and throws an exception otherwise.
         /// </summary>
-        private protected void ValidateUniformType(ActiveUniformType type)
+        private void ValidateUniformType(ActiveUniformType type)
         {
             if (UniformType != type)
-                throw new InvalidOperationException(string.Concat("You tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
+                throw new InvalidOperationException(string.Concat("Tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
         }
 
-        private protected void ValidateArrayAndType(ActiveUniformType type, int valueLength)
+        private void ValidateArrayAndType(ActiveUniformType type, int valueLength)
         {
             ValidateUniformType(type);
 
             if (valueLength > Size)
                 throw new ArgumentOutOfRangeException("value.Length", valueLength, "You tried to set too many elements for this uniform");
+        }
+
+        private void ValidateIsSampler()
+        {
+            if (!IsSamplerType)
+                throw new InvalidOperationException("Tried to set a texture on a non-sampler uniform");
         }
 
         public override string ToString()
