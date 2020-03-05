@@ -5,22 +5,24 @@ namespace TrippyGL
 {
     /// <summary>
     /// Used for specifying the way vertex attributes are laid out in memory and from which
-    /// <see cref="BufferObjectSubset"/> each vertex attribute comes from. Also stores an optional index buffers.
+    /// <see cref="BufferObjectSubset"/> each vertex attribute comes from. Also stores an optional index buffer.
     /// </summary>
     public sealed class VertexArray : GraphicsResource
     {
         /// <summary>The handle for the GL Vertex Array Object.</summary>
         public readonly int Handle;
 
+        private readonly VertexAttribSource[] attribSources;
+
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>
-        public readonly VertexAttribSourceList AttribSources;
+        public ReadOnlySpan<VertexAttribSource> AttribSources => attribSources;
 
         public readonly IndexBufferSubset IndexBuffer;
 
-        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSourceList attribSourceList, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSourceList, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
-            AttribSources = attribSourceList;
+            attribSources = attribSourceList;
             EnsureAttribsValid();
 
             Handle = GL.GenVertexArray();
@@ -39,7 +41,7 @@ namespace TrippyGL
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
         public VertexArray(GraphicsDevice graphicsDevice, ReadOnlySpan<VertexAttribSource> attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : this(graphicsDevice, new VertexAttribSourceList(attribSources), indexBuffer, compensateStructPadding, paddingPackValue)
+            : this(graphicsDevice, attribSources.ToArray(), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
         }
@@ -54,7 +56,7 @@ namespace TrippyGL
         /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
         public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
-            : this(graphicsDevice, new VertexAttribSourceList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
+            : this(graphicsDevice, MakeAttribList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
         }
@@ -71,14 +73,15 @@ namespace TrippyGL
 
             GraphicsDevice.VertexArray = this;
 
-            AttribCallDesc[] calls = new AttribCallDesc[AttribSources.Length];
+            // TODO use Span<AttribCallDesc> calls = stackalloc AttribCallDesc[that];
+            AttribCallDesc[] calls = new AttribCallDesc[attribSources.Length];
 
             int attribIndex = 0;
             for (int i = 0; i < calls.Length; i++)
             {
                 calls[i] = new AttribCallDesc
                 {
-                    source = AttribSources[i],
+                    source = attribSources[i],
                     index = attribIndex
                 };
                 attribIndex += calls[i].source.AttribDescription.AttribIndicesUseCount;
@@ -159,7 +162,16 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat("AttribSources: {", AttribSources.ToString(), "}");
+            // TODO: VertexArray.ToString()
+            return string.Concat("AttribSources: {", attribSources.ToString(), "}");
+        }
+
+        private static VertexAttribSource[] MakeAttribList(BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions)
+        {
+            VertexAttribSource[] sources = new VertexAttribSource[attribDescriptions.Length];
+            for (int i = 0; i < sources.Length; i++)
+                sources[i] = new VertexAttribSource(bufferSubset, attribDescriptions[i]);
+            return sources;
         }
 
         /// <summary>
@@ -183,15 +195,15 @@ namespace TrippyGL
 
         private void EnsureAttribsValid()
         {
-            if (AttribSources.Length == 0)
+            if (attribSources.Length == 0)
                 throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
 
             int attribIndexCount = 0;
-            for (int i = 0; i < AttribSources.Length; i++)
+            for (int i = 0; i < attribSources.Length; i++)
             {
-                attribIndexCount += AttribSources[i].AttribDescription.AttribIndicesUseCount;
+                attribIndexCount += attribSources[i].AttribDescription.AttribIndicesUseCount;
 
-                if (AttribSources[i].AttribDescription.AttribDivisor != 0)
+                if (attribSources[i].AttribDescription.AttribDivisor != 0)
                 {
                     if (!GraphicsDevice.IsVertexAttribDivisorAvailable)
                         throw new PlatformNotSupportedException("Vertex attribute divisors are notsupported on this system");
@@ -200,8 +212,8 @@ namespace TrippyGL
 
             if (!GraphicsDevice.IsDoublePrecisionVertexAttribsAvailable)
             {
-                for (int i = 0; i < AttribSources.Length; i++)
-                    if (TrippyUtils.IsVertexAttribDoubleType(AttribSources[i].AttribDescription.AttribType))
+                for (int i = 0; i < attribSources.Length; i++)
+                    if (TrippyUtils.IsVertexAttribDoubleType(attribSources[i].AttribDescription.AttribType))
                         throw new PlatformNotSupportedException("Double precition vertex attributes are not supported on this system");
             }
 
@@ -213,7 +225,7 @@ namespace TrippyGL
         /// Manages the calls for a single vertex attribute.
         /// This is a helper class for VertexArray.UpdateVertexAttributes().
         /// </summary>
-        private class AttribCallDesc
+        private struct AttribCallDesc
         {
             public VertexAttribSource source;
             public int index, offset;

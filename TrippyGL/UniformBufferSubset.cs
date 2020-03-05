@@ -48,7 +48,7 @@ namespace TrippyGL
             {
                 storageLength = bufferObject.StorageLengthInBytes / ElementSize;
                 if (storageLength == 0)
-                    throw new ArgumentException("The provided BufferObject doesn't have enough capacity for even one uniform");
+                    throw new ArgumentException(nameof(bufferObject) + " doesn't have enough capacity for even one uniform", nameof(bufferObject));
             }
 
             InitializeUniformStorage(0, storageLength);

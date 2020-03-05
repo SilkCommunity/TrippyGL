@@ -322,16 +322,6 @@ namespace TrippyGL
         /// <summary>
         /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
         /// </summary>
-        /// <param name="attribSources">The input attribute's descriptions, ordered by attribute index.</param>
-        /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
-        public void SpecifyVertexAttribs(VertexAttribSourceList attribSources, ReadOnlySpan<string> attribNames)
-        {
-            SpecifyVertexAttribs(attribSources.sources, attribNames);
-        }
-
-        /// <summary>
-        /// Specifies the input vertex attributes for this ShaderProgram declared on the vertex shader.
-        /// </summary>
         /// <typeparam name="T">The type of vertex this ShaderProgram will use as input.</typeparam>
         /// <param name="attribNames">The input attribute's names, ordered by attribute index.</param>
         public void SpecifyVertexAttribs<T>(ReadOnlySpan<string> attribNames) where T : struct, IVertex
@@ -398,7 +388,7 @@ namespace TrippyGL
             }
 
             ActiveAttribs = new ActiveAttribList(this);
-            BlockUniforms = ShaderBlockUniformList.CreateForProgram(this);
+            BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);
             if (givenTransformFeedbackVariableNames != null)
             {
@@ -431,7 +421,7 @@ namespace TrippyGL
         internal void EnsurePreDrawStates()
         {
             Uniforms?.EnsureSamplerUniformsSet();
-            BlockUniforms?.EnsureAllSet();
+            BlockUniforms.EnsureBufferBindingsSet();
         }
 
         /// <summary>

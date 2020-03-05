@@ -46,7 +46,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This is called by <see cref="ShaderBlockUniformList.EnsureAllSet"/> to ensure the buffer backing
+        /// This is called by <see cref="ShaderBlockUniformList.EnsureBufferBindingsSet"/> to ensure the buffer backing
         /// this uniform block is bound to the right index and range on the uniform buffer target.
         /// </summary>
         internal void ApplyUniformValue()

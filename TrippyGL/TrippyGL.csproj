@@ -119,7 +119,6 @@
     <Compile Include="VertexArray.cs" />
     <Compile Include="VertexAttribDescription.cs" />
     <Compile Include="VertexAttribSource.cs" />
-    <Compile Include="VertexAttribSourceList.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="VertexColor.cs" />
     <Compile Include="VertexColorTexture.cs" />
