@@ -61,9 +61,8 @@ namespace TrippyGL
         /// <param name="index">The index in which to store the uniform value.</param>
         public void SetValue(ref T value, int index = 0)
         {
-            Buffer.ValidateWriteOperation();
             if (index < 0 || index > StorageLength)
-                throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, this.StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be in the range [0, " + nameof(StorageLength) + ")");
 
             Buffer.GraphicsDevice.BindBuffer(this);
             GL.BufferSubData(BufferTarget, (IntPtr)(index * ElementStride + StorageOffsetInBytes), ElementSize, ref value);
@@ -86,9 +85,8 @@ namespace TrippyGL
         /// <param name="index">The array index of the value to read.</param>
         public void GetValue(ref T value, int index = 0)
         {
-            Buffer.ValidateReadOperation();
             if (index < 0 || index > StorageLength)
-                throw new ArgumentOutOfRangeException("index", index, "Index must be in the range [0, this.StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be in the range [0, " + nameof(StorageLength) + ")");
 
             Buffer.GraphicsDevice.BindBuffer(this);
             GL.GetBufferSubData(BufferTarget, (IntPtr)(index * ElementStride + StorageOffsetInBytes), ElementSize, ref value);
@@ -161,7 +159,7 @@ namespace TrippyGL
         public static int CalculateRequiredSizeInBytes(GraphicsDevice graphicsDevice, int storageLength)
         {
             if (storageLength <= 0)
-                throw new ArgumentOutOfRangeException("storageLength", storageLength, "storageLength must be greater than 0");
+                throw new ArgumentOutOfRangeException(nameof(storageLength), storageLength, nameof(storageLength) + " must be greater than 0");
 
             int elementSize = Marshal.SizeOf<T>();
             int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;

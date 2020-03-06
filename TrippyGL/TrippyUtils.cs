@@ -619,10 +619,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the specified transform feedback variable type is a double-precition type.
+        /// Returns whether the specified transform feedback variable type is a double-precision type.
         /// </summary>
         /// <param name="type">The variable type to check.</param>
-        public static bool IsTransformFeedbackTypeDoublePrecition(TransformFeedbackType type)
+        public static bool IsTransformFeedbackTypeDoublePrecision(TransformFeedbackType type)
         {
             return type == TransformFeedbackType.Double || type >= TransformFeedbackType.DoubleMat2;
         }

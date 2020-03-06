@@ -99,7 +99,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public void SetData(Span<uint> data, int storageOffset = 0)
         {
-            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateSetParams(data.Length, storageOffset);
 
@@ -114,7 +113,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public void SetData(Span<ushort> data, int storageOffset = 0)
         {
-            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateSetParams(data.Length, storageOffset);
 
@@ -129,7 +127,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public void SetData(Span<byte> data, int storageOffset = 0)
         {
-            Buffer.ValidateWriteOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateSetParams(data.Length, storageOffset);
 
@@ -144,7 +141,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<uint> data, int storageOffset = 0)
         {
-            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateGetParams(data.Length, storageOffset);
 
@@ -159,7 +155,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<ushort> data, int storageOffset = 0)
         {
-            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateGetParams(data.Length, storageOffset);
 
@@ -174,7 +169,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<byte> data, int storageOffset = 0)
         {
-            Buffer.ValidateReadOperation();
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateGetParams(data.Length, storageOffset);
 

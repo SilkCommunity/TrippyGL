@@ -603,7 +603,6 @@ namespace TrippyGL
         #region ShaderProgramBindingStates
 
         private ShaderProgram shaderProgram;
-        private TransformFeedbackObject transformFeedback;
 
         /// <summary>Gets or sets (binds) the currently bound <see cref="TrippyGL.ShaderProgram"/>.</summary>
         public ShaderProgram ShaderProgram
@@ -616,47 +615,14 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the current <see cref="TransformFeedbackObject"/>.</summary>
-        public TransformFeedbackObject TransformFeedback
-        {
-            get { return transformFeedback; }
-            set
-            {
-                if (transformFeedback != value)
-                {
-                    if (transformFeedback == null)
-                        TransformFeedbackObject.PerformUnbindOperation(this);
-                    else
-                        value.PerformBindOperation();
-                    transformFeedback = value;
-                }
-            }
-        }
-
         /// <summary>
         /// Installs the given program into the rendering pipeline without first checking whether it's already in use.
         /// </summary>
         /// <param name="program">The shader program to use.</param>
         internal void ForceUseShaderProgram(ShaderProgram program)
         {
-            if (transformFeedback != null && transformFeedback.IsActive)
-                throw new InvalidOperationException("You can't change the shader program while a transform feedback operation is active");
-
             GL.UseProgram(program == null ? 0 : program.Handle);
             shaderProgram = program;
-        }
-
-        /// <summary>
-        /// Sets the current transform feedback without first checking whether it's already the currently bound transform feedback object.
-        /// </summary>
-        /// <param name="transformFeedback">The transform feedback object to bind.</param>
-        internal void ForceBindTransformFeedback(TransformFeedbackObject transformFeedback)
-        {
-            if (transformFeedback == null)
-                TransformFeedbackObject.PerformUnbindOperation(this);
-            else
-                transformFeedback.PerformBindOperation();
-            this.transformFeedback = transformFeedback;
         }
 
         /// <summary>
@@ -667,8 +633,6 @@ namespace TrippyGL
         {
             GL.UseProgram(0);
             shaderProgram = null;
-            TransformFeedbackObject.PerformUnbindOperation(this);
-            transformFeedback = null;
         }
 
         #endregion ShaderProgramBindingStates

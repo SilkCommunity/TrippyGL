@@ -107,11 +107,6 @@
     <Compile Include="Texture2D.cs" />
     <Compile Include="Texture2DArray.cs" />
     <Compile Include="TextureCubeMap.cs" />
-    <Compile Include="TransformFeedbackObject.cs" />
-    <Compile Include="TransformFeedbackProgramVariable.cs" />
-    <Compile Include="TransformFeedbackProgramVariableList.cs" />
-    <Compile Include="TransformFeedbackVariableDescription.cs" />
-    <Compile Include="TransformFeedbackVariableDescriptionList.cs" />
     <Compile Include="TrippyMath.cs" />
     <Compile Include="TrippyUtils.cs" />
     <Compile Include="UniformBufferSubset.cs" />

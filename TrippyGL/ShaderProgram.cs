@@ -22,9 +22,6 @@ namespace TrippyGL
         private string[] givenAttribNames = null;
         private VertexAttribDescription[] givenAttribDescriptions = null;
 
-        // This stores the provided names for transform feedback variables to compare that they actually exist and match after linking
-        private string[] givenTransformFeedbackVariableNames = null;
-
         /// <summary>Gets data about the geometry shader in this <see cref="ShaderProgram"/>, if there is one.</summary>
         public GeometryShaderData GeometryShader { get; private set; }
 
@@ -39,9 +36,6 @@ namespace TrippyGL
 
         /// <summary>Gets the input attributes on this program, once it's been linked.</summary>
         public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => activeAttribs;
-
-        /// <summary>Gets the output transform feedback attributes on this program, if there is transform feedback.</summary>
-        public TransformFeedbackProgramVariableList TransformFeedbackVariables { get; private set; }
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has been linked.</summary>
         public bool IsLinked { get; private set; } = false;
@@ -338,21 +332,6 @@ namespace TrippyGL
             SpecifyVertexAttribs(attribDescriptions, attribNames);
         }
 
-        public void ConfigureTransformFeedback(TransformFeedbackObject transformFeedbackObject, string[] feedbackOutputNames)
-        {
-            ValidateUnlinked();
-
-            if (givenTransformFeedbackVariableNames != null)
-                throw new InvalidOperationException("Transform feedback has already been configured on this ShaderProgram");
-
-            transformFeedbackObject.PerformConfigureShaderProgram(this, feedbackOutputNames);
-
-            // We copy all the strings into a new array so the user can't modify them if he still has a reference to the array
-            givenTransformFeedbackVariableNames = new string[feedbackOutputNames.Length];
-            for (int i = 0; i < feedbackOutputNames.Length; i++)
-                givenTransformFeedbackVariableNames[i] = feedbackOutputNames[i];
-        }
-
         /// <summary>
         /// Links the program.
         /// Once the program has been linked, it cannot be modifyed anymore, so make sure you add all your necessary shaders and specify vertex attributes.
@@ -393,13 +372,6 @@ namespace TrippyGL
             activeAttribs = CreateActiveAttribsArray(this);
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);
-            if (givenTransformFeedbackVariableNames != null)
-            {
-                TransformFeedbackVariables = new TransformFeedbackProgramVariableList(this);
-                if (!TransformFeedbackVariables.DoVariablesMatch(givenTransformFeedbackVariableNames))
-                    throw new InvalidOperationException("The specified transform feedback output variables names don't match the shader-defined ones");
-                givenTransformFeedbackVariableNames = null;
-            }
 
             if (!DoVertexAttributesMatch(activeAttribs, givenAttribDescriptions, givenAttribNames))
                 throw new InvalidOperationException("The vertex attributes specified on SpecifyVertexAttribs() don't match the shader-defined attributes either in name or type");

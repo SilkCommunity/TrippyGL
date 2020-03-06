@@ -87,24 +87,6 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// This should always be called just before a read operation from this <see cref="BufferObject"/>.
-        /// If the operation can't occur for any reason, an exception is thrown.
-        /// </summary>
-        internal void ValidateReadOperation()
-        {
-
-        }
-
-        /// <summary>
-        /// This should always be called just before a write operation from this <see cref="BufferObject"/>.
-        /// If the operation can't occur for any reason, an exception is thrown.
-        /// </summary>
-        internal void ValidateWriteOperation()
-        {
-
-        }
-
-        /// <summary>
         /// Checks that the buffer size in bytes parameter is valid and throws an exception if it's not.
         /// </summary>
         private static void ValidateBufferSize(int sizeInBytes)

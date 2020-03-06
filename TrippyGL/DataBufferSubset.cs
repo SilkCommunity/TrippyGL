@@ -122,7 +122,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
         public void SetData(Span<T> data, int storageOffset = 0)
         {
-            Buffer.ValidateWriteOperation();
             if (storageOffset < 0 || storageOffset >= StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
@@ -141,7 +140,6 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from, measured in elements.</param>
         public void GetData(Span<T> data, int storageOffset = 0)
         {
-            Buffer.ValidateReadOperation();
             if (storageOffset < 0 || storageOffset >= StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
@@ -153,7 +151,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Changes the subset location of this DataBufferSubset.
+        /// Changes the subset location of this <see cref="DataBufferSubset{T}"/>.
         /// </summary>
         /// <param name="storageOffsetBytes">The offset into the buffer object's storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
