@@ -25,34 +25,37 @@ namespace TrippyGL
         // This stores the provided names for transform feedback variables to compare that they actually exist and match after linking
         private string[] givenTransformFeedbackVariableNames = null;
 
-        /// <summary>Gets data about the geometry shader in this program, if there is one.</summary>
+        /// <summary>Gets data about the geometry shader in this <see cref="ShaderProgram"/>, if there is one.</summary>
         public GeometryShaderData GeometryShader { get; private set; }
 
-        /// <summary>The list of uniforms in this program.</summary>
+        /// <summary>The list of uniforms in this <see cref="ShaderProgram"/>.</summary>
         public ShaderUniformList Uniforms { get; private set; }
 
-        /// <summary>The list of block uniforms in this program.</summary>
+        /// <summary>The list of block uniforms in this <see cref="ShaderProgram"/>.</summary>
         public ShaderBlockUniformList BlockUniforms { get; private set; }
 
-        /// <summary>Gets the input attributes on this program.</summary>
-        public ActiveAttribList ActiveAttribs { get; private set; }
+        /// <summary>The vertex attributes for this <see cref="ShaderProgram"/> queried from OpenGL at program linking.</summary>
+        private ActiveVertexAttrib[] activeAttribs;
+
+        /// <summary>Gets the input attributes on this program, once it's been linked.</summary>
+        public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => activeAttribs;
 
         /// <summary>Gets the output transform feedback attributes on this program, if there is transform feedback.</summary>
         public TransformFeedbackProgramVariableList TransformFeedbackVariables { get; private set; }
 
-        /// <summary>Whether this ShaderProgram has been linked.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> has been linked.</summary>
         public bool IsLinked { get; private set; } = false;
 
-        /// <summary>Whether this ShaderProgram is the one currently in use.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> is the one currently in use.</summary>
         public bool IsCurrentlyInUse => GraphicsDevice.ShaderProgram == this;
 
-        /// <summary>Whether this ShaderProgram has a vertex shader attached.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> has a vertex shader attached.</summary>
         public bool HasVertexShader => vsHandle != -1;
 
-        /// <summary>Whether this ShaderProgram has a geometry shader attached.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> has a geometry shader attached.</summary>
         public bool HasGeometryShader => gsHandle != -1;
 
-        /// <summary>Whether this ShaderProgram has a fragment shader attached.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> has a fragment shader attached.</summary>
         public bool HasFragmentShader => fsHandle != -1;
 
         /// <summary>
@@ -387,7 +390,7 @@ namespace TrippyGL
                 GeometryShader = new GeometryShaderData(Handle);
             }
 
-            ActiveAttribs = new ActiveAttribList(this);
+            activeAttribs = CreateActiveAttribsArray(this);
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);
             if (givenTransformFeedbackVariableNames != null)
@@ -398,7 +401,7 @@ namespace TrippyGL
                 givenTransformFeedbackVariableNames = null;
             }
 
-            if (!ActiveAttribs.DoAttributesMatch(givenAttribDescriptions, givenAttribNames))
+            if (!DoVertexAttributesMatch(activeAttribs, givenAttribDescriptions, givenAttribNames))
                 throw new InvalidOperationException("The vertex attributes specified on SpecifyVertexAttribs() don't match the shader-defined attributes either in name or type");
             givenAttribNames = null;
             givenAttribDescriptions = null;
@@ -451,6 +454,64 @@ namespace TrippyGL
             base.Dispose(isManualDispose);
         }
 
+        private static ActiveVertexAttrib[] CreateActiveAttribsArray(ShaderProgram program)
+        {
+            // We query the total amount of attributes we'll be reading from OpenGL
+            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveAttributes, out int attribCount);
+
+            // We'll be storing the attributes in this list and then turning it into an array, because we can't
+            // know for sure how many attributes we'll have at the end, we just know it's be <= than attribCount
+            System.Collections.Generic.List<ActiveVertexAttrib> attribList = new System.Collections.Generic.List<ActiveVertexAttrib>(attribCount);
+
+            // We query all the ShaderProgram's attributes one by one and add them to attribList
+            for (int i = 0; i < attribCount; i++)
+            {
+                ActiveVertexAttrib a = new ActiveVertexAttrib(program, i);
+                if (a.Location >= 0)    // Sometimes other stuff shows up, such as gl_InstanceID with location -1.
+                    attribList.Add(a);  // We should, of course, filter these out.
+            }
+
+            ActiveVertexAttrib[] attributes = attribList.ToArray();
+
+            // The attributes don't always appear ordered by location, so let's order them now
+            Array.Sort(attributes, (x, y) => x.Location.CompareTo(y.Location));
+            return attributes;
+        }
+
+        /// <summary>
+        /// Checks that the names given for some vertex attributes match the names actually found for the vertex attributes.
+        /// </summary>
+        /// <param name="attributes">The active <see cref="ActiveVertexAttrib"/>-s found by querying them from OpenGL.</param>
+        /// <param name="providedDesc">The <see cref="VertexAttribDescription"/>-s provided by the user of the library.</param>
+        /// <param name="providedNames">The names of the <see cref="VertexAttribDescription"/>-s provided by the user of the library.</param>
+        internal bool DoVertexAttributesMatch(ReadOnlySpan<ActiveVertexAttrib> attributes, ReadOnlySpan<VertexAttribDescription> providedDesc, ReadOnlySpan<string> providedNames)
+        {
+            // While all of the attribute names are provided by the user, that doesn't mean all of them are in here.
+            // The GLSL compiler may not make an attribute ACTIVE if, for example, it is never used.
+            // So, if we see a provided name doesn't match, maybe it isn't active, so let's skip that name and check the next.
+            // That said, both arrays are indexed in the same way. So if all attributes are active, we'll basically just
+            // check one-by-one, index-by-index that the names on attributes[i] match providedNames[i]
+
+            int nameIndex = 0;
+
+            if (providedNames.Length == 0)
+                return attributes.Length == 0;
+
+            for (int i = 0; i < attributes.Length; i++)
+            {
+                if (nameIndex == providedNames.Length)
+                    return false;
+
+                while (providedDesc[nameIndex].AttribType != attributes[i].AttribType || attributes[i].Name != providedNames[nameIndex])
+                {
+                    if (++nameIndex == providedNames.Length)
+                        return false;
+                }
+                nameIndex++;
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Stores data about a geometry shader.

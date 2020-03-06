@@ -78,7 +78,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveAttribList.cs" />
     <Compile Include="ActiveVertexAttrib.cs" />
     <Compile Include="BlendState.cs" />
     <Compile Include="BufferObject.cs" />
