@@ -2,3 +2,9 @@
 
 # CA1051: Do not declare visible instance fields
 dotnet_diagnostic.CA1051.severity = none
+
+# CA2225: Operator overloads have named alternates
+dotnet_diagnostic.CA2225.severity = none
+
+# CA1067: Override Object.Equals(object) when implementing IEquatable<T>
+dotnet_diagnostic.CA1067.severity = none

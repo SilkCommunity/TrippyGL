@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// A BufferObjectSubset whose purpose is to store uniform block values for shaders to read from.
+    /// A <see cref="BufferObjectSubset"/> whose purpose is to store uniform block values for shaders to read from.
     /// </summary>
     /// <typeparam name="T">The type of sturct the uniform block will use. This must match the uniform block's format</typeparam>
     public sealed class UniformBufferSubset<T> : BufferObjectSubset, IBufferRangeBindable where T : struct
@@ -20,12 +20,14 @@ namespace TrippyGL
         public int StorageLength { get; private set; }
 
         /// <summary>
-        /// Creates a UniformBufferSubset with the given BufferObject, offset into the buffer in bytes and storage length in elements.
+        /// Creates a <see cref="UniformBufferSubset{T}"/> with the given <see cref="BufferObject"/>,
+        /// offset into the buffer in bytes and storage length in elements.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins. Must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment.</param>
-        /// <param name="storageLength">The amount of elements this subset will be able to store.</param>
-        public UniformBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength) : base(bufferObject, BufferTarget.UniformBuffer)
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins. Must be a multiple of <see cref="GraphicsDevice.UniformBufferOffsetAlignment"/>.</param>
+        /// <param name="storageLength">The amount of elements this <see cref="UniformBufferSubset{T}"/> will be able to store.</param>
+        public UniformBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength)
+            : base(bufferObject, BufferTarget.UniformBuffer)
         {
             ElementSize = Marshal.SizeOf<T>();
             int uniformOffsetAlignment = bufferObject.GraphicsDevice.UniformBufferOffsetAlignment;
@@ -34,9 +36,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a UniformBufferSubset with the given BufferObject, with the subset covering the entire buffer's storage.
+        /// Creates a <see cref="UniformBufferSubset{T}"/> with the given <see cref="UniformBufferSubset{T}"/>,
+        /// with the subset covering the entire <see cref="BufferObject"/>'s storage.
         /// </summary>
-        /// <param name="bufferObject">The BufferObject this subset will belong to.</param>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         public UniformBufferSubset(BufferObject bufferObject) : base(bufferObject, BufferTarget.UniformBuffer)
         {
             ElementSize = Marshal.SizeOf<T>();
@@ -48,7 +51,7 @@ namespace TrippyGL
             {
                 storageLength = bufferObject.StorageLengthInBytes / ElementSize;
                 if (storageLength == 0)
-                    throw new ArgumentException(nameof(bufferObject) + " doesn't have enough capacity for even one uniform", nameof(bufferObject));
+                    throw new ArgumentException(nameof(bufferObject) + " must have enough capacity for at least one uniform", nameof(bufferObject));
             }
 
             InitializeUniformStorage(0, storageLength);
@@ -93,7 +96,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets a value from the buffer's storage.
+        /// Gets a value from the subset's storage.
         /// </summary>
         /// <param name="index">The array index of the value to read.</param>
         public T GetValue(int index = 0)
@@ -104,7 +107,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Changes the subset location of this UniformBufferSubset.
+        /// Changes the subset location of this <see cref="UniformBufferSubset{T}"/>.
         /// </summary>
         /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins. Must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment.</param>
         /// <param name="storageLength">The length of this subset measured in elements. The final length in bytes may vary between machines.</param>

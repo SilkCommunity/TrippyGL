@@ -68,10 +68,7 @@ namespace OpenTK.Graphics
         /// <param name="left">The left-hand side of the comparison.</param>
         /// <param name="right">The right-hand side of the comparison.</param>
         /// <returns>True if left is equal to right; false otherwise.</returns>
-        public static bool operator ==(Color4b left, Color4b right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
 
         /// <summary>
         /// Compares the specified <see cref="Color4b"/> structures for inequality.
@@ -79,10 +76,7 @@ namespace OpenTK.Graphics
         /// <param name="left">The left-hand side of the comparison.</param>
         /// <param name="right">The right-hand side of the comparison.</param>
         /// <returns>True if left is not equal to right; false otherwise.</returns>
-        public static bool operator !=(Color4b left, Color4b right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
 
         /// <summary>
         /// Converts the specified System.Drawing.Color to a Color4b structure.

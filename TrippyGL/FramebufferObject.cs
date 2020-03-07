@@ -26,10 +26,10 @@ namespace TrippyGL
         private List<FramebufferTextureAttachment> textureAttachments;
         private List<FramebufferRenderbufferAttachment> renderbufferAttachments;
 
-        /// <summary>The amount of <see cref="Texture"/> attachments this framebuffer has.</summary>
+        /// <summary>The amount of <see cref="Texture"/> attachments this <see cref="FramebufferObject"/> has.</summary>
         public int TextureAttachmentCount => textureAttachments.Count;
 
-        /// <summary>The amount of <see cref="RenderbufferObject"/> attachments this framebuffer has.</summary>
+        /// <summary>The amount of <see cref="RenderbufferObject"/> attachments this <see cref="FramebufferObject"/> has.</summary>
         public int RenderbufferAttachmentCount => renderbufferAttachments.Count;
 
         /// <summary>

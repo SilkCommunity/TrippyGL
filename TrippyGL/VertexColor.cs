@@ -39,15 +39,9 @@ namespace TrippyGL
             Color = new Color4b(255, 255, 255, 255);
         }
 
-        public static bool operator ==(VertexColor left, VertexColor right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VertexColor left, VertexColor right) => left.Equals(right);
 
-        public static bool operator !=(VertexColor left, VertexColor right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(VertexColor left, VertexColor right) => !left.Equals(right);
 
         public int AttribDescriptionCount => 2;
 

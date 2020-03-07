@@ -75,19 +75,13 @@ namespace TrippyGL
             AttribDescription = new VertexAttribDescription(paddingBytes);
         }
 
-        public static bool operator ==(VertexAttribSource left, VertexAttribSource right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VertexAttribSource left, VertexAttribSource right) => left.Equals(right);
 
-        public static bool operator !=(VertexAttribSource left, VertexAttribSource right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(VertexAttribSource left, VertexAttribSource right) => !left.Equals(right);
 
         public override string ToString()
         {
-            return string.Concat(AttribDescription.ToString(), " bufferHandle=", BufferSubset?.BufferHandle.ToString());
+            return string.Concat(AttribDescription.ToString(), ", bufferHandle=", BufferSubset?.BufferHandle.ToString());
         }
 
         public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, VertexAttribPointerType baseType, int size)

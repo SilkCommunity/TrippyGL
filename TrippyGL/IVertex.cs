@@ -3,7 +3,7 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// This interface is used by different classes that need vertex specification (<see cref="VertexArray"/>, <see cref="ShaderProgram"/>)
+    /// This interface is used by different classes that need vertex specification (<see cref="VertexBuffer{T}"/>, <see cref="VertexArray"/>)
     /// to be able to handle vertex specification work in a more convenient way.<para/>
     /// All vertex structs that properly implement this interface can be easily used with these classes.
     /// </summary>

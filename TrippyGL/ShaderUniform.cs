@@ -67,15 +67,9 @@ namespace TrippyGL
             }
         }
 
-        public static bool operator ==(ShaderUniform left, ShaderUniform right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(ShaderUniform left, ShaderUniform right) => left.Equals(right);
 
-        public static bool operator !=(ShaderUniform left, ShaderUniform right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(ShaderUniform left, ShaderUniform right) => !left.Equals(right);
 
         #region SetValue1
         public void SetValue1(float value)

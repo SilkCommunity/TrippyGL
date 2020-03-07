@@ -153,7 +153,7 @@ namespace TrippyGL
         /// <summary>
         /// Changes the subset location of this <see cref="DataBufferSubset{T}"/>.
         /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer object's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
@@ -170,44 +170,44 @@ namespace TrippyGL
         /// Calculates the required storage length in bytes required for a
         /// <see cref="DataBufferSubset{T}"/> with the specified storage length.
         /// </summary>
-        /// <param name="storageLength">The desired length for the subset measured in elements.</param>
+        /// <param name="storageLength">The desired length for the <see cref="DataBufferSubset{T}"/> measured in elements.</param>
         public static int CalculateRequiredSizeInBytes(int storageLength)
         {
             return Marshal.SizeOf<T>() * storageLength;
         }
 
         /// <summary>
-        /// Copies data from a source buffer to a destination buffer.
+        /// Copies data from a source <see cref="DataBufferSubset{T}"/> to a destination <see cref="DataBufferSubset{T}"/>.
         /// </summary>
-        /// <param name="source">The buffer to copy data from.</param>
-        /// <param name="sourceOffset">The index of the first element to copy from the source buffer.</param>
-        /// <param name="dest">The buffer to write data to.</param>
-        /// <param name="destOffset">The index of of the first element to write on the dest buffer.</param>
+        /// <param name="source">The <see cref="DataBufferSubset{T}"/> to copy data from.</param>
+        /// <param name="sourceOffset">The index of the first element to copy from the source subset.</param>
+        /// <param name="dest">The <see cref="DataBufferSubset{T}"/> to write data to.</param>
+        /// <param name="destOffset">The index of of the first element to write on the dest subset.</param>
         /// <param name="dataLength">The amount of elements to copy.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, int sourceOffset, DataBufferSubset<T> dest, int destOffset, int dataLength)
         {
             GraphicsDevice g = source.Buffer.GraphicsDevice;
             if (g != dest.Buffer.GraphicsDevice)
-                throw new InvalidOperationException("You can't copy data between buffers from different GraphicsDevice-s");
+                throw new InvalidOperationException("You can't copy data between buffers from different " + nameof(GraphicsDevice) + "-s");
 
             if (sourceOffset < 0 || sourceOffset > source.StorageLength)
-                throw new ArgumentOutOfRangeException("sourceOffset", sourceOffset, "sourceOffset must be in the range [0, source.StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(sourceOffset), sourceOffset, nameof(sourceOffset) + " must be in the range [0, " + nameof(source.StorageLength) + ")");
 
             if (destOffset < 0 || destOffset > dest.StorageLength)
-                throw new ArgumentOutOfRangeException("destOffset", destOffset, "destOffset must be in the range [0, dest.StorageLength)");
+                throw new ArgumentOutOfRangeException(nameof(destOffset), destOffset, nameof(destOffset) + " must be in the range [0, " + nameof(dest.StorageLength) + ")");
 
             if (sourceOffset + dataLength > source.StorageLength)
-                throw new BufferCopyException("There isn't enough data in the source buffer to copy dataLength elements");
+                throw new BufferCopyException("There isn't enough data in the source buffer to copy " + nameof(dataLength) + " elements");
 
             if (destOffset + dataLength > dest.StorageLength)
-                throw new BufferCopyException("There isn't enough data in the dest buffer to copy dataLength elements");
+                throw new BufferCopyException("There isn't enough data in the dest buffer to copy " + nameof(dataLength) + " elements");
 
             if (source == dest)
             {
                 // We're copying from and to the same buffer? Let's ensure the sections don't overlap then
 
                 if ((destOffset + dataLength <= sourceOffset) || (destOffset > sourceOffset + dataLength))
-                    throw new BufferCopyException("When copying to and from the same buffer, the ranges must not overlap");
+                    throw new BufferCopyException("When copying to and from the same " + nameof(BufferObject) + ", the ranges must not overlap");
                 // This checks that the dest range is either fully to the left or fully to the right of the source range
             }
 
@@ -219,10 +219,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Copies all the data from a source buffer to a destination buffer.
+        /// Copies all the data from a source <see cref="DataBufferSubset{T}"/> to a destination <see cref="DataBufferSubset{T}"/>.
         /// </summary>
-        /// <param name="source">The buffer to copy data from.</param>
-        /// <param name="dest">The buffer to write data to.</param>
+        /// <param name="source">The <see cref="DataBufferSubset{T}"/> to copy data from.</param>
+        /// <param name="dest">The <see cref="DataBufferSubset{T}"/> to write data to.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, DataBufferSubset<T> dest)
         {
             CopyBuffers(source, 0, dest, 0, source.StorageLength);

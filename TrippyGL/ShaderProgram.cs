@@ -433,17 +433,26 @@ namespace TrippyGL
 
             // We'll be storing the attributes in this list and then turning it into an array, because we can't
             // know for sure how many attributes we'll have at the end, we just know it's be <= than attribCount
-            System.Collections.Generic.List<ActiveVertexAttrib> attribList = new System.Collections.Generic.List<ActiveVertexAttrib>(attribCount);
+            ActiveVertexAttrib[] attribList = new ActiveVertexAttrib[attribCount];
+            int attribListIndex = 0;
 
             // We query all the ShaderProgram's attributes one by one and add them to attribList
             for (int i = 0; i < attribCount; i++)
             {
                 ActiveVertexAttrib a = new ActiveVertexAttrib(program, i);
                 if (a.Location >= 0)    // Sometimes other stuff shows up, such as gl_InstanceID with location -1.
-                    attribList.Add(a);  // We should, of course, filter these out.
+                    attribList[attribListIndex++] = a;  // We should, of course, filter these out.
             }
 
-            ActiveVertexAttrib[] attributes = attribList.ToArray();
+            ActiveVertexAttrib[] attributes;
+            if (attribListIndex == attribList.Length)
+                attributes = attribList;
+            else
+            {
+                attributes = new ActiveVertexAttrib[attribListIndex];
+                Array.Copy(attribList, attributes, attribListIndex);
+                attributes = attribList;
+            }
 
             // The attributes don't always appear ordered by location, so let's order them now
             Array.Sort(attributes, (x, y) => x.Location.CompareTo(y.Location));
@@ -453,10 +462,10 @@ namespace TrippyGL
         /// <summary>
         /// Checks that the names given for some vertex attributes match the names actually found for the vertex attributes.
         /// </summary>
-        /// <param name="attributes">The active <see cref="ActiveVertexAttrib"/>-s found by querying them from OpenGL.</param>
+        /// <param name="attributes">The active <see cref="ActiveVertexAttrib"/>-s found by querying them from OpenGL, sorted by location.</param>
         /// <param name="providedDesc">The <see cref="VertexAttribDescription"/>-s provided by the user of the library.</param>
         /// <param name="providedNames">The names of the <see cref="VertexAttribDescription"/>-s provided by the user of the library.</param>
-        internal bool DoVertexAttributesMatch(ReadOnlySpan<ActiveVertexAttrib> attributes, ReadOnlySpan<VertexAttribDescription> providedDesc, ReadOnlySpan<string> providedNames)
+        private static bool DoVertexAttributesMatch(ReadOnlySpan<ActiveVertexAttrib> attributes, ReadOnlySpan<VertexAttribDescription> providedDesc, ReadOnlySpan<string> providedNames)
         {
             // While all of the attribute names are provided by the user, that doesn't mean all of them are in here.
             // The GLSL compiler may not make an attribute ACTIVE if, for example, it is never used.

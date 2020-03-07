@@ -1082,10 +1082,10 @@ namespace TrippyGL
 
         #region BlendState
 
-        /// <summary>The current blend state.</summary>
+        /// <summary>The currently applied <see cref="TrippyGL.BlendState"/> values.</summary>
         private BlendState blendState = BlendState.Opaque;
 
-        /// <summary>Gets or sets the blend state for drawing.</summary>
+        /// <summary>Gets or sets the <see cref="TrippyGL.BlendState"/> used for drawing.</summary>
         public BlendState BlendState
         {
             set
@@ -1117,7 +1117,8 @@ namespace TrippyGL
                             blendState.EquationModeAlpha = value.EquationModeAlpha;
                         }
 
-                        if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
+                        if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha
+                            || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
                         {
                             GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
                             blendState.SourceFactorRGB = value.SourceFactorRGB;

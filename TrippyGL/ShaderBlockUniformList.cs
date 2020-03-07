@@ -64,15 +64,9 @@ namespace TrippyGL
             }
         }
 
-        public static bool operator ==(ShaderBlockUniformList left, ShaderBlockUniformList right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(ShaderBlockUniformList left, ShaderBlockUniformList right) => left.Equals(right);
 
-        public static bool operator !=(ShaderBlockUniformList left, ShaderBlockUniformList right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(ShaderBlockUniformList left, ShaderBlockUniformList right) => !left.Equals(right);
 
         /// <summary>
         /// Ensures the buffer bindings for the uniform blocks are correctly set for a drawing operation.

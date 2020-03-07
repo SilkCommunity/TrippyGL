@@ -9,7 +9,7 @@ namespace TrippyGL
     /// </summary>
     public readonly struct ActiveVertexAttrib : IEquatable<ActiveVertexAttrib>
     {
-        /// <summary>The attribute's location.</summary>
+        /// <summary>The attribute's location in the shader.</summary>
         public readonly int Location;
 
         /// <summary>The name with which the attribute is declared.</summary>
@@ -35,15 +35,9 @@ namespace TrippyGL
             Location = GL.GetAttribLocation(program.Handle, Name);
         }
 
-        public static bool operator ==(ActiveVertexAttrib left, ActiveVertexAttrib right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(ActiveVertexAttrib left, ActiveVertexAttrib right) => left.Equals(right);
 
-        public static bool operator !=(ActiveVertexAttrib left, ActiveVertexAttrib right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(ActiveVertexAttrib left, ActiveVertexAttrib right) => !left.Equals(right);
 
         public override string ToString()
         {

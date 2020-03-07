@@ -98,15 +98,9 @@ namespace TrippyGL
             AttribDivisor = 0;
         }
 
-        public static bool operator ==(VertexAttribDescription left, VertexAttribDescription right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VertexAttribDescription left, VertexAttribDescription right) => left.Equals(right);
 
-        public static bool operator !=(VertexAttribDescription left, VertexAttribDescription right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(VertexAttribDescription left, VertexAttribDescription right) => !(left == right);
 
         public override string ToString()
         {

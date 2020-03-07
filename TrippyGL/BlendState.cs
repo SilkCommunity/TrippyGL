@@ -109,6 +109,33 @@ namespace TrippyGL
         // TODO: Change last constructor to Clone() (implement IClonable interface?)
         // Whatever you do, also do it in DepthTestingState.
 
+        /// <summary>
+        /// Sets <see cref="EquationModeRGB"/> and <see cref="EquationModeAlpha"/>.
+        /// </summary>
+        public void SetEquationModeRgba(BlendEquationMode equationModeRgba)
+        {
+            EquationModeRGB = equationModeRgba;
+            EquationModeAlpha = equationModeRgba;
+        }
+
+        /// <summary>
+        /// Sets <see cref="SourceFactorRGB"/> and <see cref="SourceFactorAlpha"/>.
+        /// </summary>
+        public void SetSourceFactorRgba(BlendingFactorSrc sourceFactorRgba)
+        {
+            SourceFactorRGB = sourceFactorRgba;
+            SourceFactorAlpha = sourceFactorRgba;
+        }
+
+        /// <summary>
+        /// Sets <see cref="DestFactorRGB"/> and <see cref="DestFactorAlpha"/>.
+        /// </summary>
+        public void SetDestFactorRgba(BlendingFactorDest destFactorRgba)
+        {
+            DestFactorRGB = destFactorRgba;
+            DestFactorAlpha = destFactorRgba;
+        }
+
         public override string ToString()
         {
             // TODO: Optimize
@@ -181,11 +208,14 @@ namespace TrippyGL
 
         public static BlendState Opaque => new BlendState(true);
 
-        public static BlendState AlphaBlend => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState AlphaBlend => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd,
+            BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One);
 
-        public static BlendState Additive => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState Additive => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd,
+            BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
 
-        public static BlendState Substractive => new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract, BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState Substractive => new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract,
+            BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
 
         #endregion
     }

@@ -14,7 +14,7 @@ namespace TrippyGL
         /// and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         public VertexDataBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength)
             : base(bufferObject, BufferTarget.ArrayBuffer, storageOffsetBytes, storageLength)
@@ -27,7 +27,7 @@ namespace TrippyGL
         /// and target, offset into the buffer in bytes and storage length in elements.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>

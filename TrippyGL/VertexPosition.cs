@@ -26,15 +26,9 @@ namespace TrippyGL
             Position = position;
         }
 
-        public static bool operator ==(VertexPosition left, VertexPosition right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VertexPosition left, VertexPosition right) => left.Equals(right);
 
-        public static bool operator !=(VertexPosition left, VertexPosition right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(VertexPosition left, VertexPosition right) => !left.Equals(right);
 
         public int AttribDescriptionCount => 1;
 

@@ -5,11 +5,13 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Provides a limited but much simpler way to store vertex data in a single buffer.
+    /// Provides a limited but much simpler way to store vertex data in a single <see cref="BufferObject"/>.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
     public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : struct, IVertex
     {
+        // TODO: Add support for an Index Buffer
+
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex data.</summary>
         public readonly BufferObject Buffer;
 
@@ -72,21 +74,17 @@ namespace TrippyGL
             VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
         }
 
-        public static bool operator ==(VertexBuffer<T> left, VertexBuffer<T> right)
-        {
-            return left.Equals(right);
-        }
+        public static implicit operator VertexArray(VertexBuffer<T> vertexBuffer) => vertexBuffer.VertexArray;
 
-        public static bool operator !=(VertexBuffer<T> left, VertexBuffer<T> right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator ==(VertexBuffer<T> left, VertexBuffer<T> right) => left.Equals(right);
+
+        public static bool operator !=(VertexBuffer<T> left, VertexBuffer<T> right) => !left.Equals(right);
 
         /// <summary>
-        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size.
+        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size.<para/>
         /// The contents of the new storage are undefined after this operation.
         /// </summary>
-        /// <param name="storageLength">The desired new length for the storage.</param>
+        /// <param name="storageLength">The desired new length for the storage measured in elements.</param>
         public void RecreateStorage(int storageLength)
         {
             ValidateStorageLength(storageLength);
@@ -96,11 +94,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size.
+        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size and <see cref="BufferUsageHint"/>.<para/>
         /// The contents of the new storage are undefined after this operation.
         /// </summary>
-        /// <param name="storageLength">The desired new length for the storage.</param>
-        /// <param name="usageHint">The new usage hint for the buffer.</param>
+        /// <param name="storageLength">The desired new length for the storage measured in elements.</param>
+        /// <param name="usageHint">The new <see cref="BufferUsageHint"/> for the buffer.</param>
         public void RecreateStorage(int storageLength, BufferUsageHint usageHint)
         {
             ValidateStorageLength(storageLength);
@@ -121,7 +119,6 @@ namespace TrippyGL
         /// <summary>
         /// Checks that the given storage length value is valid and throws an exception if it's not.
         /// </summary>
-        /// <param name="storageLength">The storage length value to check.</param>
         private static void ValidateStorageLength(int storageLength)
         {
             if (storageLength <= 0)

@@ -63,7 +63,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="DepthTestingState"/> with the same values as another specified <see cref="DepthTestingState"/>.
         /// </summary>
-        /// <param name="copy">The DepthTestingState whose values to copy.</param>
+        /// <param name="copy">The <see cref="DepthTestingState"/> whose values to copy.</param>
         public DepthTestingState(DepthTestingState copy)
         {
             DepthTestingEnabled = copy.DepthTestingEnabled;
@@ -79,7 +79,7 @@ namespace TrippyGL
             if (!DepthTestingEnabled)
                 return "Disabled";
 
-            return string.Concat(
+            return string.Concat("Enabled, ",
                 nameof(DepthComparison) + "=\"", DepthComparison.ToString(), "\"",
                 ", " + nameof(ClearDepth) + "=\"", ClearDepth.ToString(), "\"",
                 ", DepthRange=[", depthNear.ToString(), ", ", depthFar.ToString(), "]",

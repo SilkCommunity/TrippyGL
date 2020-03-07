@@ -12,6 +12,7 @@ namespace TrippyGL
         /// <summary>The handle for the GL Vertex Array Object.</summary>
         public readonly int Handle;
 
+        /// <summary>A copy of the <see cref="VertexAttribSource"/>-s provided to the constructor. Should only be read.</summary>
         private readonly VertexAttribSource[] attribSources;
 
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>
@@ -19,11 +20,11 @@ namespace TrippyGL
 
         public readonly IndexBufferSubset IndexBuffer;
 
-        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSourceList, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
             : base(graphicsDevice)
         {
-            attribSources = attribSourceList;
-            EnsureAttribsValid();
+            EnsureAttribsValid(attribSources);
+            this.attribSources = attribSources;
 
             Handle = GL.GenVertexArray();
 
@@ -73,7 +74,6 @@ namespace TrippyGL
 
             GraphicsDevice.VertexArray = this;
 
-            // TODO use Span<AttribCallDesc> calls = stackalloc AttribCallDesc[that];
             AttribCallDesc[] calls = new AttribCallDesc[attribSources.Length];
 
             int attribIndex = 0;
@@ -162,8 +162,11 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            // TODO: VertexArray.ToString()
-            return string.Concat("AttribSources: {", attribSources.ToString(), "}");
+            return string.Concat(
+                nameof(Handle) + "=", Handle.ToString(),
+                ", ", attribSources.Length.ToString(), " " + nameof(AttribSources),
+                ", ", IndexBuffer == null ? "no index buffer" : "has index buffer"
+            );
         }
 
         private static VertexAttribSource[] MakeAttribList(BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions)
@@ -193,10 +196,10 @@ namespace TrippyGL
             return new VertexArray(graphicsDevice, dataBuffer, attribDescriptions, indexBuffer, compensateStructPadding);
         }
 
-        private void EnsureAttribsValid()
+        private void EnsureAttribsValid(VertexAttribSource[] attribSources)
         {
             if (attribSources.Length == 0)
-                throw new ArgumentException("You can't create a VertexArray with no attributes", "attribDescriptions");
+                throw new ArgumentException("You can't create a " + nameof(VertexArray) + " with no attributes", nameof(attribSources));
 
             int attribIndexCount = 0;
             for (int i = 0; i < attribSources.Length; i++)
@@ -218,7 +221,7 @@ namespace TrippyGL
             }
 
             if (attribIndexCount > GraphicsDevice.MaxVertexAttribs)
-                throw new PlatformNotSupportedException("The current system doesn't support the specified amount of vertex attributes");
+                throw new PlatformNotSupportedException("The current system doesn't support this many vertex attributes");
         }
 
         /// <summary>

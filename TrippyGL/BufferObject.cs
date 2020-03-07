@@ -11,10 +11,10 @@ namespace TrippyGL
         /// <summary>The handle for the GL Buffer Object.</summary>
         public readonly int Handle;
 
-        /// <summary>The usage hint for this <see cref="BufferObject"/>.</summary>
+        /// <summary>The usage hint applied for this <see cref="BufferObject"/>.</summary>
         public BufferUsageHint UsageHint { get; private set; }
 
-        /// <summary>The length of this buffer object's storage, measured in bytes.</summary>
+        /// <summary>The length of this <see cref="BufferObject"/>'s storage, measured in bytes.</summary>
         public int StorageLengthInBytes { get; private set; }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="sizeInBytes">The desired size of the <see cref="BufferObject"/>'s storage measured in bytes.</param>
-        /// <param name="usageHint">The usage hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public BufferObject(GraphicsDevice graphicsDevice, int sizeInBytes, BufferUsageHint usageHint) : base(graphicsDevice)
         {
             Handle = GL.GenBuffer();

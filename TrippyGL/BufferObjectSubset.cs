@@ -4,7 +4,7 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// A subset of a buffer object's storage that allows the same buffer to be used for various purposes.
+    /// A subset of a <see cref="BufferObject"/>'s storage that allows the same buffer to be used for various purposes.
     /// </summary>
     public abstract class BufferObjectSubset
     {
@@ -17,7 +17,7 @@ namespace TrippyGL
         /// <summary>The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> to which this subset always binds to.</summary>
         public readonly BufferTarget BufferTarget;
 
-        /// <summary>The offset into the buffer's storage at which this subset starts, measured in bytes.</summary>
+        /// <summary>The offset into this <see cref="Buffer"/>'s storage at which this subset starts, measured in bytes.</summary>
         public int StorageOffsetInBytes { get; private set; }
 
         /// <summary>The length of this subset's storage measured in bytes.</summary>
@@ -42,7 +42,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="bufferTarget">The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> this subset will always bind to.</param>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLengthBytes">The length of this subset measured in bytes.</param>
         internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLengthBytes)
             : this(bufferObject, bufferTarget)
@@ -84,10 +84,10 @@ namespace TrippyGL
         private protected void InitializeStorage(int storageOffsetBytes, int storageLengthBytes)
         {
             if (storageOffsetBytes < 0 || storageOffsetBytes >= Buffer.StorageLengthInBytes)
-                throw new ArgumentOutOfRangeException(nameof(storageOffsetBytes), storageOffsetBytes, "Storage offset must be in the range [0, " + nameof(Buffer.StorageLengthInBytes) + ")");
+                throw new ArgumentOutOfRangeException(nameof(storageOffsetBytes), storageOffsetBytes, nameof(storageOffsetBytes) + " must be in the range [0, " + nameof(Buffer.StorageLengthInBytes) + ")");
 
             if (storageLengthBytes + storageOffsetBytes > Buffer.StorageLengthInBytes)
-                throw new ArgumentException("The given BufferObject isn't big enough for the specified range");
+                throw new ArgumentException("The given " + nameof(BufferObject) + " isn't big enough for the specified range");
 
             StorageOffsetInBytes = storageOffsetBytes;
             StorageLengthInBytes = storageLengthBytes;

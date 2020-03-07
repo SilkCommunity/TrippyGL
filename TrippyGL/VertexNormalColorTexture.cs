@@ -39,15 +39,9 @@ namespace TrippyGL
             TexCoords = texCoords;
         }
 
-        public static bool operator ==(VertexNormalColorTexture left, VertexNormalColorTexture right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(VertexNormalColorTexture left, VertexNormalColorTexture right) => left.Equals(right);
 
-        public static bool operator !=(VertexNormalColorTexture left, VertexNormalColorTexture right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(VertexNormalColorTexture left, VertexNormalColorTexture right) => !left.Equals(right);
 
         public int AttribDescriptionCount => 4;
 
