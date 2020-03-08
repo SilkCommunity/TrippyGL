@@ -5,55 +5,110 @@ using System.Runtime.InteropServices;
 namespace TrippyGL
 {
     /// <summary>
-    /// Provides a limited but much simpler way to store vertex data in a single <see cref="BufferObject"/>.
+    /// Provides a limited but simple way to store vertex data in a single <see cref="BufferObject"/>.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
     public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : struct, IVertex
     {
-        // TODO: Add support for an Index Buffer
-
-        /// <summary>The <see cref="BufferObject"/> that stores all the vertex data.</summary>
+        /// <summary>The <see cref="BufferObject"/> that stores all the vertex and index data.</summary>
         public readonly BufferObject Buffer;
 
-        /// <summary>The <see cref="VertexDataBufferSubset{T}"/> that manages the storage from <see cref="Buffer"/>.</summary>
+        /// <summary>The <see cref="VertexDataBufferSubset{T}"/> that manages the element storage from <see cref="Buffer"/>.</summary>
         public readonly VertexDataBufferSubset<T> DataSubset;
 
-        /// <summary>The <see cref="VertexArray"/> that defines how the vertex attributes are read.</summary>
+        /// <summary>The <see cref="TrippyGL.VertexArray"/> that defines how the vertex attributes are read.</summary>
         public readonly VertexArray VertexArray;
+
+        public IndexBufferSubset IndexSubset => VertexArray.IndexBuffer;
 
         /// <summary>The size of a single vertex measured in bytes.</summary>
         public readonly int ElementSize;
 
-        /// <summary>The length of the buffer's storage measured in vertices.</summary>
+        /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</summary>
         public int StorageLength => DataSubset.StorageLength;
 
+        /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements.</summary>
+        public int IndexStorageLength => IndexSubset.StorageLength;
+
         /// <summary>
-        /// Creates a <see cref="VertexBuffer{T}"/> with specified initial data and length.
+        /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer and usage hint.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="storageLength">The desired length for the buffer's storage measured in vertices.</param>
-        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial buffer data.</param>
-        /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
+        /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
+        /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
+        /// <param name="indexElementType">The type of index element to use.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
+        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, int indexStorageLength, DrawElementsType indexElementType, BufferUsageHint usageHint)
         {
             ValidateStorageLength(storageLength);
             ElementSize = Marshal.SizeOf<T>();
 
-            Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
-            DataSubset = new VertexDataBufferSubset<T>(Buffer);
-            DataSubset.SetData(data, dataWriteOffset);
-            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
+            int bufferStorageLengthBytes;
+            int elementSubsetLengthBytes = storageLength * ElementSize;
+
+            bool hasIndexBuffer = indexStorageLength > 0;
+            int indexSubsetStartBytes;
+
+            if (hasIndexBuffer)
+            {
+                int indexElementSize = IndexBufferSubset.GetSizeInBytesOfElementType(indexElementType);
+                indexSubsetStartBytes = (elementSubsetLengthBytes + indexElementSize - 1) / indexElementSize * indexElementSize;
+
+                bufferStorageLengthBytes = indexSubsetStartBytes + indexElementSize * indexStorageLength;
+            }
+            else
+            {
+                indexSubsetStartBytes = 0;
+                bufferStorageLengthBytes = elementSubsetLengthBytes;
+            }
+
+            Buffer = new BufferObject(graphicsDevice, bufferStorageLengthBytes, usageHint);
+            DataSubset = new VertexDataBufferSubset<T>(Buffer, 0, storageLength);
+            IndexBufferSubset indexSubset = hasIndexBuffer ? new IndexBufferSubset(Buffer, indexSubsetStartBytes, indexStorageLength, indexElementType) : null;
+
+            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset, indexSubset);
         }
 
         /// <summary>
-        /// Creates a <see cref="VertexBuffer{T}"/> with specified initial data and same length as that data <see cref="Span{T}"/>.
+        /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer,
+        /// usage hint and initial vertex data.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial buffer data.</param>
-        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
+        /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
+        /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
+        /// <param name="indexElementType">The type of index element to use.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
+        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, int indexStorageLength, DrawElementsType indexElementType, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
+            : this(graphicsDevice, storageLength, indexStorageLength, indexElementType, usageHint)
+        {
+            DataSubset.SetData(data, dataWriteOffset);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="VertexBuffer{T}"/> with specified initial vertex data and length but no index buffer.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
+        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
+            : this(graphicsDevice, storageLength, 0, default, usageHint, data, dataWriteOffset)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a <see cref="VertexBuffer{T}"/> with specified initial vertex data and
+        /// same length as that data <see cref="Span{T}"/>.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, Span<T> data, BufferUsageHint usageHint)
-            : this(graphicsDevice, data.Length, usageHint, data)
+            : this(graphicsDevice, data.Length, 0, default, usageHint, data)
         {
 
         }
@@ -62,16 +117,12 @@ namespace TrippyGL
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length and undefined initial data.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="storageLength">The desired length for the buffer's storage measured in vertices.</param>
-        /// <param name="usageHint">The buffer hint is used by the graphics driver to optimize performance depending on the use that will be given to the buffer object.</param>
+        /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
+            : this(graphicsDevice, storageLength, 0, default, usageHint)
         {
-            ValidateStorageLength(storageLength);
-            ElementSize = Marshal.SizeOf<T>();
 
-            Buffer = new BufferObject(graphicsDevice, storageLength * ElementSize, usageHint);
-            DataSubset = new VertexDataBufferSubset<T>(Buffer);
-            VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset);
         }
 
         public static implicit operator VertexArray(VertexBuffer<T> vertexBuffer) => vertexBuffer.VertexArray;
@@ -81,30 +132,62 @@ namespace TrippyGL
         public static bool operator !=(VertexBuffer<T> left, VertexBuffer<T> right) => !left.Equals(right);
 
         /// <summary>
-        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size.<para/>
-        /// The contents of the new storage are undefined after this operation.
+        /// Recreates this <see cref="VertexBuffer{T}"/>'s storage with a new size.<para/>
+        /// The contents of the <see cref="VertexBuffer{T}"/>'s storage are undefined after this operation.
         /// </summary>
-        /// <param name="storageLength">The desired new length for the storage measured in elements.</param>
-        public void RecreateStorage(int storageLength)
+        /// <param name="storageLength">The new length for the <see cref="VertexBuffer{T}"/>'s element storage.</param>
+        /// <param name="indexStorageLength">The new length for the <see cref="VertexBuffer{T}"/>'s index storage. 0 means either no index storage or keep previous length.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance. 0 for same as before.</param>
+        public void RecreateStorage(int storageLength, int indexStorageLength = 0, BufferUsageHint usageHint = default)
         {
             ValidateStorageLength(storageLength);
 
-            Buffer.RecreateStorage(storageLength * ElementSize);
+            IndexBufferSubset indexSubset = IndexSubset;
+            bool hasIndexSubset = indexSubset != null;
+
+            int bufferStorageLengthBytes;
+            int elementSubsetLengthBytes = storageLength * ElementSize;
+
+            int indexSubsetStartBytes;
+
+            if (hasIndexSubset)
+            {
+                if (indexStorageLength <= 0)
+                    indexStorageLength = indexSubset.StorageLength;
+
+                int indexElementSize = IndexSubset.ElementSize;
+                indexSubsetStartBytes = (elementSubsetLengthBytes + indexElementSize - 1) / indexElementSize * indexElementSize;
+
+                bufferStorageLengthBytes = indexSubsetStartBytes + indexElementSize * indexStorageLength;
+            }
+            else
+            {
+                if (indexStorageLength > 0)
+                    throw new InvalidOperationException("Resizing index storage only works if the VertexBuffer was created with index storage");
+
+                indexSubsetStartBytes = 0;
+                bufferStorageLengthBytes = elementSubsetLengthBytes;
+            }
+
+            if (usageHint == default)
+                Buffer.RecreateStorage(bufferStorageLengthBytes);
+            else
+                Buffer.RecreateStorage(bufferStorageLengthBytes, usageHint);
+
             DataSubset.ResizeSubset(0, storageLength);
+            indexSubset?.ResizeSubset(indexSubsetStartBytes, indexStorageLength);
+
         }
 
         /// <summary>
         /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size and <see cref="BufferUsageHint"/>.<para/>
-        /// The contents of the new storage are undefined after this operation.
+        /// The contents of the <see cref="VertexBuffer{T}"/>'s storage are undefined after this operation.
         /// </summary>
         /// <param name="storageLength">The desired new length for the storage measured in elements.</param>
-        /// <param name="usageHint">The new <see cref="BufferUsageHint"/> for the buffer.</param>
+        /// <param name="usageHint">Used by the graphics driver to optimize performance. 0 for same as before.</param>
         public void RecreateStorage(int storageLength, BufferUsageHint usageHint)
         {
-            ValidateStorageLength(storageLength);
-
-            Buffer.RecreateStorage(storageLength * ElementSize, usageHint);
-            DataSubset.ResizeSubset(0, storageLength);
+            RecreateStorage(storageLength, 0, usageHint);
         }
 
         /// <summary>

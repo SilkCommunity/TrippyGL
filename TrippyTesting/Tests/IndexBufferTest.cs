@@ -10,15 +10,11 @@ namespace TrippyTesting.Tests
     class IndexBufferTest : GameWindow
     {
         System.Diagnostics.Stopwatch stopwatch;
-        private float time;
+        float time;
         static Random r = new Random();
 
-        private VertexColor[] vertexData;
-
-        BufferObject bufferObject;
-        VertexDataBufferSubset<VertexColor> vertexSubset;
-        IndexBufferSubset indexSubset;
-        VertexArray vertexArray;
+        VertexColor[] vertexData;
+        VertexBuffer<VertexColor> vertexBuffer;
 
         PrimitiveBatcher<VertexColor> extraLinesBatcher;
         VertexBuffer<VertexColor> extraLinesBuffer;
@@ -65,11 +61,7 @@ namespace TrippyTesting.Tests
                 for (int x = 0; x < w; x++)
                     vertexData[x + y * w] = new VertexColor(new Vector3(x / (float)w * 2f - 1 + randomf(-0.2f, 0.2f), y / (float)h * 2f - 1 + randomf(-0.1f, 0.1f), 0), randomCol());
 
-            bufferObject = new BufferObject(graphicsDevice, VertexColor.SizeInBytes * vertexData.Length + 128, BufferUsageHint.DynamicDraw);
-            vertexSubset = new VertexDataBufferSubset<VertexColor>(bufferObject, 0, vertexData.Length, vertexData);
-            indexSubset = new IndexBufferSubset(bufferObject, vertexSubset.NextByteInBuffer, 128, DrawElementsType.UnsignedByte);
-
-            vertexArray = VertexArray.CreateSingleBuffer<VertexColor>(graphicsDevice, vertexSubset, indexSubset);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData.Length, 128, DrawElementsType.UnsignedByte, BufferUsageHint.DynamicDraw, vertexData);
 
             extraLinesBatcher = new PrimitiveBatcher<VertexColor>(0, 32);
             extraLinesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, extraLinesBatcher.LineVertexCapacity, BufferUsageHint.StreamDraw);
@@ -87,25 +79,29 @@ namespace TrippyTesting.Tests
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            // Uncomment the following two lines to test the RecreateStorage feature of VertexBuffer
+            //vertexBuffer.RecreateStorage(vertexBuffer.StorageLength, default);
+            //vertexBuffer.DataSubset.SetData(vertexData);
+
             graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthTestingEnabled = false;
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
-            graphicsDevice.VertexArray = vertexArray;
+            graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;
             Span<byte> indices = stackalloc byte[4]
             {
-                (byte)r.Next(vertexSubset.StorageLength),
+                (byte)r.Next(vertexBuffer.StorageLength),
                 14,
-                (byte)r.Next(vertexSubset.StorageLength),
+                (byte)r.Next(vertexBuffer.StorageLength),
                 15
             };
 
-            indexSubset.SetData(indices);
+            vertexBuffer.IndexSubset.SetData(indices);
             graphicsDevice.DrawElements(PrimitiveType.TriangleStrip, 1, 3);
-            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, vertexSubset.StorageLength);
+            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, vertexBuffer.StorageLength);
 
             for (int i = 1; i < indices.Length; i++)
             {
@@ -131,8 +127,7 @@ namespace TrippyTesting.Tests
         protected override void OnUnload(EventArgs e)
         {
             shaderProgram.Dispose();
-            bufferObject.Dispose();
-            vertexArray.Dispose();
+            vertexBuffer.Dispose();
             extraLinesBuffer.Dispose();
 
             graphicsDevice.Dispose();

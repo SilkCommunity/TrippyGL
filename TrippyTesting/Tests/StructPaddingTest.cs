@@ -206,36 +206,6 @@ namespace TrippyTesting.Tests
 
                 descriptions[14] = new VertexAttribDescription(193); //mainkra1-4 padding (3 matrices and a single byte
             }
-
-            public VertexAttribDescription[] AttribDescriptions
-            {
-                get
-                {
-                    return new VertexAttribDescription[]
-                    {
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //x
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //y
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z
-
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort), //x2
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //y2
-                        new VertexAttribDescription(1), //LMAObyte0 padding
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //z2
-                    
-                        new VertexAttribDescription(ActiveAttribType.FloatMat4), //mat4
-                        VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec4), //LMAOvec4 padding
-
-                        new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short), //w
-                        new VertexAttribDescription(1), //LMAObyte1 padding
-                    
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte), //cx
-                        VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec3), //LMAOvec3 padding
-                        new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort),  //cy
-
-                        new VertexAttribDescription(193) //mainkra1-4 padding (3 matrices and a single byte
-                    };
-                }
-            }
         }
     }
 }
