@@ -32,7 +32,7 @@ namespace TrippyGL
             ElementSize = Marshal.SizeOf<T>();
             int uniformOffsetAlignment = bufferObject.GraphicsDevice.UniformBufferOffsetAlignment;
             ElementStride = (ElementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
-            InitializeUniformStorage(storageOffsetBytes, storageLength);
+            ResizeSubset(storageOffsetBytes, storageLength);
         }
 
         /// <summary>
@@ -54,11 +54,11 @@ namespace TrippyGL
                     throw new ArgumentException(nameof(bufferObject) + " must have enough capacity for at least one uniform", nameof(bufferObject));
             }
 
-            InitializeUniformStorage(0, storageLength);
+            ResizeSubset(0, storageLength);
         }
 
         /// <summary>
-        /// Sets one of the uniform values stored in this subset.
+        /// Sets one of the uniform values stored in this <see cref="UniformBufferSubset{T}"/>.
         /// </summary>
         /// <param name="value">The value to store on the uniform buffer.</param>
         /// <param name="index">The index in which to store the uniform value.</param>
@@ -86,12 +86,13 @@ namespace TrippyGL
         /// </summary>
         /// <param name="value">The value read from the buffer.</param>
         /// <param name="index">The array index of the value to read.</param>
-        public void GetValue(ref T value, int index = 0)
+        public void GetValue(out T value, int index = 0)
         {
             if (index < 0 || index > StorageLength)
-                throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be in the range [0, " + nameof(StorageLength) + ")");
+                throw new ArgumentOutOfRangeException(nameof(index), index, nameof(index) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
             Buffer.GraphicsDevice.BindBuffer(this);
+            value = default;
             GL.GetBufferSubData(BufferTarget, (IntPtr)(index * ElementStride + StorageOffsetInBytes), ElementSize, ref value);
         }
 
@@ -101,30 +102,19 @@ namespace TrippyGL
         /// <param name="index">The array index of the value to read.</param>
         public T GetValue(int index = 0)
         {
-            T value = default;
-            GetValue(ref value, index);
+            GetValue(out T value, index);
             return value;
         }
 
         /// <summary>
         /// Changes the subset location of this <see cref="UniformBufferSubset{T}"/>.
         /// </summary>
-        /// <param name="storageOffsetBytes">The offset into the buffer's storage where this subset begins. Must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment.</param>
+        /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins. Must be a multiple of <see cref="GraphicsDevice.UniformBufferOffsetAlignment"/>.</param>
         /// <param name="storageLength">The length of this subset measured in elements. The final length in bytes may vary between machines.</param>
         public void ResizeSubset(int storageOffsetBytes, int storageLength)
         {
-            InitializeUniformStorage(storageOffsetBytes, storageLength);
-        }
-
-        /// <summary>
-        /// Sets (and checks) the appropiate storage length and offset variables for this subset.
-        /// </summary>
-        /// <param name="storageOffsetBytes".></param>
-        /// <param name="storageLength".></param>
-        private void InitializeUniformStorage(int storageOffsetBytes, int storageLength)
-        {
             if (storageOffsetBytes % Buffer.GraphicsDevice.UniformBufferOffsetAlignment != 0)
-                throw new ArgumentException("storageOffsetBytes must be a multiple of GraphicsDevice.UniformBufferOffsetAlignment", nameof(storageOffsetBytes));
+                throw new ArgumentException(nameof(storageOffsetBytes) + " must be a multiple of " + nameof(GraphicsDevice.UniformBufferOffsetAlignment), nameof(storageOffsetBytes));
 
             InitializeStorage(storageOffsetBytes, (storageLength - 1) * ElementStride + ElementSize);
             StorageLength = storageLength;
@@ -142,7 +132,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the offset and length variables to use on BindBufferRange to bind a specific index of this buffer.
+        /// Gets the offset and length variables to use on <see cref="BindBufferRange(int, int, int)"/>
+        /// to bind a specific index of this buffer.
         /// </summary>
         /// <param name="elementIndex">The index of the element in this buffer to.</param>
         /// <param name="storageOffsetBytes">The offset into this subset's storage where the bind should start measured in bytes.</param>

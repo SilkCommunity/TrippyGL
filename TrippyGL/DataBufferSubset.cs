@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// An abstract class for <see cref="BufferObjectSubset"/>-s that will manage a struct type across the entire subset.
     /// </summary>
-    /// <typeparam name="T">The type of struct (element) type this <see cref="DataBufferSubset{T}"/> will manage.</typeparam>
+    /// <typeparam name="T">The type of struct (element) this <see cref="DataBufferSubset{T}"/> will manage.</typeparam>
     public abstract class DataBufferSubset<T> : BufferObjectSubset, IDataBufferSubset where T : struct
     {
         /// <summary>The length of the subset's storage measured in elements.</summary>

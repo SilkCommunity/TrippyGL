@@ -13,12 +13,13 @@ namespace TrippyGL
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex and index data.</summary>
         public readonly BufferObject Buffer;
 
-        /// <summary>The <see cref="VertexDataBufferSubset{T}"/> that manages the element storage from <see cref="Buffer"/>.</summary>
+        /// <summary>The <see cref="VertexDataBufferSubset{T}"/> that manages the element storage.</summary>
         public readonly VertexDataBufferSubset<T> DataSubset;
 
         /// <summary>The <see cref="TrippyGL.VertexArray"/> that defines how the vertex attributes are read.</summary>
         public readonly VertexArray VertexArray;
 
+        /// <summary>The <see cref="IndexBufferSubset"/> that manages the index storage.</summary>
         public IndexBufferSubset IndexSubset => VertexArray.IndexBuffer;
 
         /// <summary>The size of a single vertex measured in bytes.</summary>
@@ -29,6 +30,9 @@ namespace TrippyGL
 
         /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements.</summary>
         public int IndexStorageLength => IndexSubset.StorageLength;
+
+        /// <summary>Whether this <see cref="VertexBuffer{T}"/> is all null (because, for example, it hasn't been created yet).</summary>
+        public bool IsEmpty => Buffer == null;
 
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer and usage hint.
@@ -125,6 +129,10 @@ namespace TrippyGL
 
         }
 
+        /// <summary>
+        /// Implicit cast to a <see cref="TrippyGL.VertexArray"/> allows a <see cref="VertexBuffer{T}"/>
+        /// to be set directly onto <see cref="GraphicsDevice.VertexArray"/>.
+        /// </summary>
         public static implicit operator VertexArray(VertexBuffer<T> vertexBuffer) => vertexBuffer.VertexArray;
 
         public static bool operator ==(VertexBuffer<T> left, VertexBuffer<T> right) => left.Equals(right);
@@ -197,6 +205,15 @@ namespace TrippyGL
         {
             Buffer.Dispose();
             VertexArray.Dispose();
+        }
+
+        public override string ToString()
+        {
+            return IsEmpty ? "Empty " + nameof(VertexBuffer<T>) : string.Concat(
+                "BufferHandle=", Buffer.Handle.ToString(),
+                ", " + nameof(StorageLength) + "=", StorageLength.ToString(),
+                ", " + nameof(IndexStorageLength) + "=", IndexStorageLength.ToString()
+            );
         }
 
         /// <summary>

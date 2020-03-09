@@ -15,10 +15,10 @@ namespace TrippyGL
         /// <summary>The length of the subset's storage measured in elements.</summary>
         public int StorageLength { get; private set; }
 
-        /// <summary>The size of each element in the buffer subset's storage measured in bytes.</summary>
+        /// <summary>The size of each element in the subset's storage measured in bytes.</summary>
         public readonly int ElementSize;
 
-        /// <summary>The size of each element in the subset's storage measured in bytes.</summary>
+        /// <summary>The type of element this <see cref="IndexBufferSubset"/> stores.</summary>
         public readonly DrawElementsType ElementType;
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="elementType">The type of elements this index buffer will use.</param>
+        /// <param name="elementType">The type of elements this index subset will use.</param>
         public IndexBufferSubset(BufferObject bufferObject, int storageOffsetBytes, int storageLength, DrawElementsType elementType)
             : base(bufferObject, BufferTarget.ElementArrayBuffer)
         {
@@ -39,10 +39,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates an <see cref="IndexBufferSubset"/> with the given <see cref="BufferObject"/>,
-        /// with the subset covering the entire buffer object's storage.
+        /// with the subset covering the entire <see cref="BufferObject"/>'s storage.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="elementType">The type of elements this index buffer will use.</param>
+        /// <param name="elementType">The type of elements this index subset will use.</param>
         public IndexBufferSubset(BufferObject bufferObject, DrawElementsType elementType)
             : this(bufferObject, 0, bufferObject.StorageLengthInBytes, elementType)
         {
@@ -50,7 +50,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedInt element type and initial data.
+        /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
+        ///  storage length,<see cref="DrawElementsType.UnsignedInt"/> element type and initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -64,7 +65,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new IndexBufferSubset with the specified offset into the buffer, storage length, UnsignedShort element type and initial data.
+        /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
+        /// storage length, <see cref="DrawElementsType.UnsignedShort"/> element type and initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -79,7 +81,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
-        /// storage length, <see cref="byte"/> element type and initial data.
+        /// storage length, <see cref="DrawElementsType.UnsignedByte"/> element type and initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>

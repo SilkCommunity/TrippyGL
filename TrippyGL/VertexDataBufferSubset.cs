@@ -4,14 +4,14 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// A <see cref="VertexDataBufferSubset{T}"/> whose purpose is to store vertex data.
+    /// A <see cref="DataBufferSubset{T}"/> whose purpose is to store vertex data.
     /// </summary>
-    /// <typeparam name="T">The type of struct (element) type this <see cref="VertexDataBufferSubset{T}"/> will manage.</typeparam>
+    /// <typeparam name="T">The type of struct (element) this <see cref="VertexDataBufferSubset{T}"/> will manage.</typeparam>
     public sealed class VertexDataBufferSubset<T> : DataBufferSubset<T> where T : struct
     {
         /// <summary>
         /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
-        /// and target, offset into the buffer in bytes and storage length in elements.
+        /// and target, offset into the <see cref="BufferObject"/> in bytes and storage length in elements.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -24,7 +24,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
-        /// and target, offset into the buffer in bytes and storage length in elements.
+        /// and target, offset into the <see cref="BufferObject"/> in bytes and storage length in elements.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -39,7 +39,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
-        /// and target, with the subset covering the entire buffer's storage.
+        /// and target, with the subset covering the entire <see cref="BufferObject"/>'s storage.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         public VertexDataBufferSubset(BufferObject bufferObject) : base(bufferObject, BufferTarget.ArrayBuffer)
@@ -48,8 +48,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/>
-        /// and target, with the subset covering the entire buffer's storage and sets initial data.
+        /// Creates a <see cref="VertexDataBufferSubset{T}"/> with the given <see cref="BufferObject"/> and
+        /// target, with the subset covering the entire <see cref="BufferObject"/>'s storage and sets initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
@@ -59,8 +59,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="VertexDataBufferSubset{T}"/> that occupies the same area in the same buffer as
-        /// another buffer subset.
+        /// Creates a <see cref="VertexDataBufferSubset{T}"/> that occupies the same area in the
+        /// same buffer as another <see cref="BufferObjectSubset"/>.
         /// </summary>
         /// <param name="subsetToCopy">The <see cref="BufferObjectSubset"/> to copy the range form.</param>
         public VertexDataBufferSubset(BufferObjectSubset subsetToCopy) : base(subsetToCopy, BufferTarget.ArrayBuffer)
@@ -69,8 +69,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="VertexDataBufferSubset{T}"/> that occupies the same area in the same buffer and uses the
-        /// same struct type as another <see cref="DataBufferSubset{T}"/>.
+        /// Creates a <see cref="VertexDataBufferSubset{T}"/> that occupies the same area in the
+        ///  same bufferand uses the same struct type as another <see cref="DataBufferSubset{T}"/>.
         /// </summary>
         /// <param name="copy">The <see cref="DataBufferSubset{T}"/> to copy the range from.</param>
         public VertexDataBufferSubset(DataBufferSubset<T> copy) : base(copy, BufferTarget.ArrayBuffer)
