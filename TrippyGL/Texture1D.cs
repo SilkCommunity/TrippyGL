@@ -1,7 +1,8 @@
 using OpenTK.Graphics.OpenGL4;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace TrippyGL
 {
@@ -41,15 +42,13 @@ namespace TrippyGL
         public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false)
             : base(graphicsDevice, TextureTarget.Texture1D, TextureImageFormat.Color4b)
         {
-            using (Bitmap bitmap = new Bitmap(file))
+            using (Image<Rgba32> image = Image.Load<Rgba32>(file))
             {
-                Width = bitmap.Width * bitmap.Height;
+                Width = image.Width * image.Height;
                 ValidateTextureSize(Width);
 
-                BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage1D(TextureType, 0, PixelInternalFormat, Width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, data.Scan0);
-                bitmap.UnlockBits(data);
+                GL.TexImage1D(TextureType, 0, PixelInternalFormat, Width, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
 
             if (generateMipmaps)
@@ -70,7 +69,7 @@ namespace TrippyGL
             ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, xOffset, width, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
+            GL.TexSubImage1D(TextureType, 0, xOffset, width, PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
@@ -85,7 +84,7 @@ namespace TrippyGL
             ValidateRectOperation(xOffset, data.Length);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, xOffset, data.Length, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[0]);
+            GL.TexSubImage1D(TextureType, 0, xOffset, data.Length, PixelFormat.Rgba, PixelType, ref data[0]);
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace TrippyGL
         public void GetData(IntPtr data)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, data);
+            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, data);
         }
 
         /// <summary>
@@ -110,7 +109,7 @@ namespace TrippyGL
                 throw new ArgumentException(nameof(data) + " must be large enough as to hold " + nameof(Width) + " pixels", nameof(data));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Rgba, PixelType, ref data[0]);
+            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, ref data[0]);
         }
 
         /// <summary>
@@ -134,8 +133,10 @@ namespace TrippyGL
 
             Width = width;
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexImage1D(TextureType, 0, PixelInternalFormat, width, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, IntPtr.Zero);
+            GL.TexImage1D(TextureType, 0, PixelInternalFormat, width, 0, PixelFormat.Bgra, PixelType, IntPtr.Zero);
         }
+
+        // TODO: SaveAsImage()
 
         private protected void ValidateTextureSize(int width)
         {

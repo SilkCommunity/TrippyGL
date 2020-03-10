@@ -47,7 +47,7 @@ namespace TrippyGL
 
     public enum SaveImageFormat
     {
-        Png, Jpeg, Tiff, Bmp
+        Png, Jpeg, Bmp
     }
 
     public enum FramebufferAttachmentPoint

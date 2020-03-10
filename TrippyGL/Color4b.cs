@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace OpenTK.Graphics
@@ -77,31 +76,6 @@ namespace OpenTK.Graphics
         /// <param name="right">The right-hand side of the comparison.</param>
         /// <returns>True if left is not equal to right; false otherwise.</returns>
         public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
-
-        /// <summary>
-        /// Converts the specified System.Drawing.Color to a Color4b structure.
-        /// </summary>
-        /// <param name="color">The System.Drawing.Color to convert.</param>
-        /// <returns>A new Color4 structure containing the converted components.</returns>
-        public static implicit operator Color4b(Color color)
-        {
-            return new Color4b(color.R, color.G, color.B, color.A);
-        }
-
-        /// <summary>
-        /// Converts the specified Color4b to a System.Drawing.Color structure.
-        /// </summary>
-        /// <param name="color">The Color4b to convert.</param>
-        /// <returns>A new System.Drawing.Color structure containing the converted components.</returns>
-        public static explicit operator Color(Color4b color)
-        {
-            return Color.FromArgb(
-                color.A,
-                color.R,
-                color.G,
-                color.B
-            );
-        }
 
         public static Color4b Multiply(Color4b color, float scale)
         {

@@ -1,7 +1,11 @@
 using OpenTK.Graphics.OpenGL4;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.IO;
 
 namespace TrippyGL
 {
@@ -50,16 +54,13 @@ namespace TrippyGL
             : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
         {
             Samples = 0;
-            using (Bitmap bitmap = new Bitmap(file))
+            using (Image<Rgba32> image = Image.Load<Rgba32>(file))
             {
-                Width = bitmap.Width;
-                Height = bitmap.Height;
+                Width = image.Width;
+                Height = image.Height;
                 ValidateTextureSize(Width, Height);
-
-                BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage2D(TextureType, 0, PixelInternalFormat, Width, Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, data.Scan0);
-                bitmap.UnlockBits(data);
+                GL.TexImage2D(TextureType, 0, PixelInternalFormat, Width, Height, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
 
             if (generateMipmaps)
@@ -94,7 +95,7 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
+        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, PixelFormat pixelFormat = 0)
         {
             ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
 
@@ -112,7 +113,7 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void SetData<T>(Span<T> data, int rectX, int rectY, int rectWidth, int rectHeight, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
+        public void SetData<T>(Span<T> data, int rectX, int rectY, int rectWidth, int rectHeight, PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateSetOperation(data.Length, rectX, rectY, rectWidth, rectHeight);
 
@@ -126,7 +127,7 @@ namespace TrippyGL
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2D"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="Span{T}"/> containing the new pixel data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void SetData<T>(Span<T> data, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
+        public void SetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : struct
         {
             SetData(data, 0, 0, Width, Height, pixelFormat);
         }
@@ -137,7 +138,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="dataPtr">The pointer for writting the pixel data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void GetData(IntPtr dataPtr, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0)
+        public void GetData(IntPtr dataPtr, PixelFormat pixelFormat = 0)
         {
             ValidateGetOperation();
             GraphicsDevice.BindTextureSetActive(this);
@@ -151,7 +152,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="Span{T}"/> in which to write the pixel data.</param>
         /// <param name="dataOffset">The index of the first element in the data array to start writing from.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void GetData<T>(Span<T> data, OpenTK.Graphics.OpenGL4.PixelFormat pixelFormat = 0) where T : struct
+        public void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : struct
         {
             ValidateGetOperation(data.Length);
 
@@ -175,33 +176,30 @@ namespace TrippyGL
             if (ImageFormat != TextureImageFormat.Color4b)
                 throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
 
-            ImageFormat format;
+            IImageFormat format;
 
             switch (imageFormat)
             {
                 case SaveImageFormat.Png:
-                    format = System.Drawing.Imaging.ImageFormat.Png;
+                    format = SixLabors.ImageSharp.Formats.Png.PngFormat.Instance;
                     break;
                 case SaveImageFormat.Jpeg:
-                    format = System.Drawing.Imaging.ImageFormat.Jpeg;
+                    format = SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance;
                     break;
                 case SaveImageFormat.Bmp:
-                    format = System.Drawing.Imaging.ImageFormat.Bmp;
-                    break;
-                case SaveImageFormat.Tiff:
-                    format = System.Drawing.Imaging.ImageFormat.Tiff;
+                    format = SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance;
                     break;
                 default:
                     throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
             }
 
-            using (Bitmap b = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (Image<Rgba32> image = new Image<Rgba32>(Width, Height))
             {
-                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.BindTextureSetActive(this);
-                GL.GetTexImage(TextureType, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-                b.UnlockBits(data);
-                b.Save(file, System.Drawing.Imaging.ImageFormat.Png);
+                GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ref image.GetPixelSpan()[0]);
+                image.Mutate(x => x.Flip(FlipMode.Vertical));
+                using (FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    image.Save(fileStream, format);
             }
         }
 
@@ -240,7 +238,7 @@ namespace TrippyGL
                 GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, Samples, PixelInternalFormat, Width, Height, true);
         }
 
-        private protected void ValidateTextureSize(int width, int height)
+        private void ValidateTextureSize(int width, int height)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
                 throw new ArgumentOutOfRangeException(nameof(width), width, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
@@ -249,14 +247,14 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(height), height, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
         }
 
-        private protected void ValidateSetOperation(int dataLength, int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateSetOperation(int dataLength, int rectX, int rectY, int rectWidth, int rectHeight)
         {
             ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
             if (dataLength < rectWidth * rectHeight)
                 throw new ArgumentException("The data Span doesn't have enough data to write the requested texture area", "data");
         }
 
-        private protected void ValidateSetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateSetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
             if (Samples != 0)
                 throw new InvalidOperationException("You can't write the pixels of a multisampled texture");
@@ -264,20 +262,20 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
         }
 
-        private protected void ValidateGetOperation(int dataLength)
+        private void ValidateGetOperation(int dataLength)
         {
             ValidateGetOperation();
             if (dataLength < Width * Height)
                 throw new ArgumentException("The data Span isn't large enough to fit the requested texture area", "data");
         }
 
-        private protected void ValidateGetOperation()
+        private void ValidateGetOperation()
         {
             if (Samples != 0)
                 throw new InvalidOperationException("You can't read the pixels of a multisampled texture");
         }
 
-        internal void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
         {
             if (rectX < 0 || rectY >= Height)
                 throw new ArgumentOutOfRangeException(nameof(rectX), rectX, nameof(rectX) + " must be in the range [0, " + nameof(Width) + ")");
@@ -286,7 +284,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(rectY), rectY, nameof(rectY) + " must be in the range [0, " + nameof(Height) + ")");
 
             if (rectWidth <= 0 || rectHeight <= 0)
-                throw new ArgumentOutOfRangeException(nameof(rectWidth) + " and " + nameof(rectHeight) + " must be greater than 0");
+                throw new ArgumentOutOfRangeException("", nameof(rectWidth) + " and " + nameof(rectHeight) + " must be greater than 0");
 
             if (rectWidth > Width - rectX)
                 throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " is too large");
@@ -295,7 +293,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + " is too large");
         }
 
-        internal void ValidateSampleCount(int samples)
+        private void ValidateSampleCount(int samples)
         {
             if (samples < 0 || samples > GraphicsDevice.MaxSamples)
                 throw new ArgumentOutOfRangeException(nameof(samples), samples, nameof(samples) + " must be in the range [0, " + nameof(GraphicsDevice.MaxSamples) + "]");

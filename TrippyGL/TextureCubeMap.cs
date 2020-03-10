@@ -1,7 +1,8 @@
 using OpenTK.Graphics.OpenGL4;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace TrippyGL
 {
@@ -81,14 +82,13 @@ namespace TrippyGL
             if (ImageFormat != TextureImageFormat.Color4b)
                 throw new InvalidOperationException("To set a cubemap's face from a file, the cubemap's format must be " + nameof(TextureImageFormat.Color4b));
 
-            using (Bitmap b = new Bitmap(file))
+            using (Image<Rgba32> image = Image.Load<Rgba32>(file))
             {
-                if (b.Width != Size || b.Height != Size)
+                if (image.Width != Size || image.Height != Size)
                     throw new InvalidOperationException("The size of the image must match the size of the cubemap faces");
-                BitmapData bits = b.LockBits(new System.Drawing.Rectangle(0, 0, Size, Size), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
                 GraphicsDevice.BindTextureSetActive(this);
-                GL.TexSubImage2D((TextureTarget)face, 0, 0, 0, Size, Size, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType, bits.Scan0);
-                b.UnlockBits(bits);
+                GL.TexSubImage2D((TextureTarget)face, 0, 0, 0, Size, Size, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
         }
 

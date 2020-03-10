@@ -84,7 +84,7 @@ namespace TrippyTesting.Tests
             cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
             cubemapProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
             cubemapProgram.LinkProgram();
-            
+
             cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, new VertexPosition[]{
                 new VertexPosition(new Vector3(-0.5f,-0.5f,-0.5f)),//4
                 new VertexPosition(new Vector3(-0.5f,-0.5f,0.5f)),//3
@@ -393,6 +393,15 @@ namespace TrippyTesting.Tests
         {
             if (e.Button == MouseButton.Left)
                 isMouseDown = false;
+        }
+
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                fbo2.SaveAsImage(string.Concat("fbo", Math.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
+                tex2.SaveAsImage(string.Concat("tex", Math.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
+            }
         }
 
         protected override void OnUnload(EventArgs e)

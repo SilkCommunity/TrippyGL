@@ -1,8 +1,12 @@
 using OpenTK.Graphics.OpenGL4;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.IO;
 
 namespace TrippyGL
 {
@@ -282,34 +286,30 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("You must specify a file name", nameof(file));
 
-            ImageFormat format;
+            IImageFormat format;
 
             switch (imageFormat)
             {
                 case SaveImageFormat.Png:
-                    format = ImageFormat.Png;
+                    format = SixLabors.ImageSharp.Formats.Png.PngFormat.Instance;
                     break;
                 case SaveImageFormat.Jpeg:
-                    format = ImageFormat.Jpeg;
+                    format = SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance;
                     break;
                 case SaveImageFormat.Bmp:
-                    format = ImageFormat.Bmp;
-                    break;
-                case SaveImageFormat.Tiff:
-                    format = ImageFormat.Tiff;
+                    format = SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance;
                     break;
                 default:
-                    throw new ArgumentException("You must use a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
+                    throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
             }
 
-            using (Bitmap b = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+            using (Image<Rgba32> image = new Image<Rgba32>(Width, Height))
             {
-                BitmapData data = b.LockBits(new System.Drawing.Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GraphicsDevice.ReadFramebuffer = this;
-                GL.ReadPixels(0, 0, Width, Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-                b.UnlockBits(data);
-                b.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                b.Save(file, ImageFormat.Png);
+                GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.UnsignedByte, ref image.GetPixelSpan()[0]);
+                image.Mutate(x => x.Flip(FlipMode.Vertical));
+                using (FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    image.Save(fileStream, format);
             }
         }
 
