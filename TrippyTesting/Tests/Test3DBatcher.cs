@@ -64,10 +64,12 @@ namespace TrippyTesting.Tests
             rotY = 0.5f;
             rotX = -0.4f;
 
+            string[] vertexAttribNames = new string[3] { "vPosition", "vColor", "vTexCoords" };
+
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("3dbatcher/3dvs.glsl"));
             program.AddFragmentShader(File.ReadAllText("3dbatcher/3dfs.glsl"));
-            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            program.SpecifyVertexAttribs<VertexColor>(vertexAttribNames.AsSpan(0, 2));
             program.LinkProgram();
 
             Matrix4 id = Matrix4.Identity;
@@ -82,25 +84,27 @@ namespace TrippyTesting.Tests
             cubemapProgram = new ShaderProgram(graphicsDevice);
             cubemapProgram.AddVertexShader(File.ReadAllText("cubemap/vs.glsl"));
             cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
-            cubemapProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
+            cubemapProgram.SpecifyVertexAttribs<VertexPosition>(vertexAttribNames.AsSpan(0, 1));
             cubemapProgram.LinkProgram();
 
-            cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, new VertexPosition[]{
-                new VertexPosition(new Vector3(-0.5f,-0.5f,-0.5f)),//4
-                new VertexPosition(new Vector3(-0.5f,-0.5f,0.5f)),//3
-                new VertexPosition(new Vector3(-0.5f,0.5f,-0.5f)),//7
-                new VertexPosition(new Vector3(-0.5f,0.5f,0.5f)),//8
-                new VertexPosition(new Vector3(0.5f,0.5f,0.5f)),//5
-                new VertexPosition(new Vector3(-0.5f,-0.5f,0.5f)),//3
-                new VertexPosition(new Vector3(0.5f,-0.5f,0.5f)),//1
-                new VertexPosition(new Vector3(-0.5f,-0.5f,-0.5f)),//4
-                new VertexPosition(new Vector3(0.5f,-0.5f,-0.5f)),//2
-                new VertexPosition(new Vector3(-0.5f,0.5f,-0.5f)),//7
-                new VertexPosition(new Vector3(0.5f,0.5f,-0.5f)),//6
-                new VertexPosition(new Vector3(0.5f,0.5f,0.5f)),//5
-                new VertexPosition(new Vector3(0.5f,-0.5f,-0.5f)),//2
-                new VertexPosition(new Vector3(0.5f,-0.5f,0.5f)),//1
-            }, BufferUsageHint.StaticDraw);
+            Span<VertexPosition> cubemapBufferData = stackalloc VertexPosition[] {
+                new Vector3(-0.5f, -0.5f, -0.5f), //4
+                new Vector3(-0.5f, -0.5f, 0.5f), //3
+                new Vector3(-0.5f, 0.5f, -0.5f), //7
+                new Vector3(-0.5f, 0.5f, 0.5f), //8
+                new Vector3(0.5f, 0.5f, 0.5f), //5
+                new Vector3(-0.5f, -0.5f, 0.5f), //3
+                new Vector3(0.5f, -0.5f, 0.5f), //1
+                new Vector3(-0.5f, -0.5f, -0.5f), //4
+                new Vector3(0.5f, -0.5f, -0.5f), //2
+                new Vector3(-0.5f, 0.5f, -0.5f), //7
+                new Vector3(0.5f, 0.5f, -0.5f), //6
+                new Vector3(0.5f, 0.5f, 0.5f), //5
+                new Vector3(0.5f, -0.5f, -0.5f), //2
+                new Vector3(0.5f, -0.5f, 0.5f), //1
+            };
+
+            cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cubemapBufferData, BufferUsageHint.StaticDraw);
 
             cubemap = new TextureCubemap(graphicsDevice, 800);
             cubemap.SetData(CubeMapFace.PositiveX, "cubemap/cubemap1_front.png");
@@ -115,17 +119,19 @@ namespace TrippyTesting.Tests
             texProgram = new ShaderProgram(graphicsDevice);
             texProgram.AddVertexShader(File.ReadAllText("3dbatcher/simplevs.glsl"));
             texProgram.AddFragmentShader(File.ReadAllText("3dbatcher/simplefs.glsl"));
-            texProgram.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            texProgram.SpecifyVertexAttribs<VertexColorTexture>(vertexAttribNames);
             texProgram.LinkProgram();
             id = Matrix4.Identity;
             texProgram.Uniforms["World"].SetValueMat4(ref id);
 
-            texBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, new VertexColorTexture[] {
+            Span<VertexColorTexture> texBufferData = stackalloc VertexColorTexture[] {
                 new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 0)),
                 new VertexColorTexture(new Vector3(-0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 1)),
                 new VertexColorTexture(new Vector3(0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 0)),
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(1, 1)),
-            }, BufferUsageHint.StaticDraw);
+            };
+
+            texBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, texBufferData, BufferUsageHint.StaticDraw);
 
             tex1 = null;
             tex2 = null;
@@ -237,7 +243,7 @@ namespace TrippyTesting.Tests
             batcher.AddLine(new VertexColor(center, new Color4b(0, 255, 0, 255)), new VertexColor(new Vector3(0, 0.25f, 0) + center, new Color4b(0, 255, 0, 255)));
             batcher.AddLine(new VertexColor(center, new Color4b(0, 0, 255, 255)), new VertexColor(new Vector3(0, 0, 0.25f) + center, new Color4b(0, 0, 255, 255)));
 
-            VertexColor[] cube = new VertexColor[]{
+            Span<VertexColor> cube = stackalloc VertexColor[]{
                 new VertexColor(new Vector3(-0.5f,-0.5f,-0.5f), Color4b.LightBlue),//4
                 new VertexColor(new Vector3(-0.5f,-0.5f,0.5f), Color4b.Lime),//3
                 new VertexColor(new Vector3(-0.5f,0.5f,-0.5f), Color4b.White),//7
@@ -253,7 +259,8 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(0.5f,-0.5f,-0.5f), Color4b.Yellow),//2
                 new VertexColor(new Vector3(0.5f,-0.5f,0.5f), Color4b.Red),//1
             };
-            VertexColor[] cone = new VertexColor[]
+
+            Span<VertexColor> cone = stackalloc VertexColor[]
             {
                 new VertexColor(new Vector3(-1, 0, -1), new Color4b(255, 0, 0, 255)),
                 new VertexColor(new Vector3(-1, 0, 1), new Color4b(0, 255, 0, 255)),
@@ -263,7 +270,8 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(-1, 0, -1), new Color4b(0, 0, 255, 255)),
                 new VertexColor(new Vector3(0, 1, 0), new Color4b(0, 0, 255, 255)),
             };
-            VertexColor[] circleFan = new VertexColor[12];
+
+            Span<VertexColor> circleFan = stackalloc VertexColor[12];
             circleFan[0] = new VertexColor(new Vector3(0, 0, 0), new Color4b(0, 0, 0, 255));
             for (int i = 1; i < circleFan.Length - 1; i++)
             {
@@ -468,7 +476,7 @@ namespace TrippyTesting.Tests
             return arr;
         }
 
-        public static VertexColor[] MultiplyAllToNew(VertexColor[] vertex, ref Matrix4 mat)
+        public static VertexColor[] MultiplyAllToNew(ReadOnlySpan<VertexColor> vertex, ref Matrix4 mat)
         {
             VertexColor[] arr = new VertexColor[vertex.Length];
             for (int i = 0; i < vertex.Length; i++)
@@ -481,7 +489,7 @@ namespace TrippyTesting.Tests
             return arr;
         }
 
-        public static VertexColor[] SetColorAllToNew(VertexColor[] vertex, Color4b color)
+        public static VertexColor[] SetColorAllToNew(ReadOnlySpan<VertexColor> vertex, Color4b color)
         {
             VertexColor[] arr = new VertexColor[vertex.Length];
             for (int i = 0; i < arr.Length; i++)
