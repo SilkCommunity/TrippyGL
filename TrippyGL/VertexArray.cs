@@ -177,7 +177,7 @@ namespace TrippyGL
             return string.Concat(
                 nameof(Handle) + "=", Handle.ToString(),
                 ", ", attribSources.Length.ToString(), " " + nameof(AttribSources),
-                ", ", IndexBuffer == null ? "no index buffer" : "has index buffer"
+                ", " + nameof(IndexBuffer) + "=", IndexBuffer == null ? "null" : IndexBuffer.ToString()
             );
         }
 

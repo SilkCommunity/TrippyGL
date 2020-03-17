@@ -177,10 +177,7 @@ namespace TrippyGL
                 bufferStorageLengthBytes = elementSubsetLengthBytes;
             }
 
-            if (usageHint == default)
-                Buffer.RecreateStorage(bufferStorageLengthBytes);
-            else
-                Buffer.RecreateStorage(bufferStorageLengthBytes, usageHint);
+            Buffer.RecreateStorage(bufferStorageLengthBytes, usageHint);
 
             DataSubset.ResizeSubset(0, storageLength);
             indexSubset?.ResizeSubset(indexSubsetStartBytes, indexStorageLength);

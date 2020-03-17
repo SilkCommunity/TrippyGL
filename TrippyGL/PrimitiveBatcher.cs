@@ -260,15 +260,7 @@ namespace TrippyGL
         public void EnsureTriangleSpace(int requiredVertexCount)
         {
             if (requiredVertexCount > triangles.Length)
-            {
-                // Finds the smallest number that is greater than requiredVertexCount and satisfies this equation:
-                // " newLength = oldLength * 2 ^ X " where X is an integer
-                // I swear to god I don't know how I came up with this calculation, it literally just came to me
-
-                const double log2 = 0.30102999566398119521373889472449;
-                int power = (int)Math.Ceiling(Math.Log(requiredVertexCount) / log2 - Math.Log(triangles.Length) / log2);
-                ResizeTriangles(triangles.Length * TrippyMath.IntegerPow(2, power));
-            }
+                ResizeTriangles(GetNextCapacity(triangles.Length, requiredVertexCount));
         }
 
         /// <summary>
@@ -279,14 +271,7 @@ namespace TrippyGL
         public void EnsureLineSpace(int requiredVertexCount)
         {
             if (requiredVertexCount > lines.Length)
-            {
-                // Finds the smallest number that is greater than requiredVertexCount and satisfies this equation:
-                // " newLength = oldLength * 2 ^ X " where X is an integer
-
-                const double log2 = 0.30102999566398119521373889472449;
-                int power = (int)Math.Ceiling(Math.Log(requiredVertexCount) / log2 - Math.Log(lines.Length) / log2);
-                ResizeLines(lines.Length * TrippyMath.IntegerPow(2, power));
-            }
+                ResizeLines(GetNextCapacity(lines.Length, requiredVertexCount));
         }
 
         /// <summary>
@@ -365,6 +350,23 @@ namespace TrippyGL
         public void WriteLinesTo(DataBufferSubset<T> buffer, uint storageOffset = 0)
         {
             buffer.SetData(LineVertices, storageOffset);
+        }
+
+        /// <summary>
+        /// Calculates the capacity a <see cref="PrimitiveBatcher{T}"/> will use when it needs
+        /// to resize the internal array.
+        /// </summary>
+        /// <param name="currentCapacity">The current capacity.</param>
+        /// <param name="requiredCapacity">The minimum desired capacity.</param>
+        public static int GetNextCapacity(int currentCapacity, int requiredCapacity)
+        {
+            // Finds the smallest number that is greater than requiredCapacity and satisfies this equation:
+            // " newCapacity = oldCapacity * 2 ^ X " where X is an integer
+            // I swear to god this calculation literally just came to me without consuming any brainpower
+
+            const double log2 = 0.30102999566398119521373889472449;
+            int power = (int)Math.Ceiling(Math.Log(requiredCapacity) / log2 - Math.Log(currentCapacity) / log2);
+            return currentCapacity * TrippyMath.IntegerPow(2, power);
         }
 
         public override string ToString()

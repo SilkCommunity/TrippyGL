@@ -56,7 +56,7 @@ namespace TrippyGL
 
             // We then bind this buffer and specify it's storage to OpenGL
             GraphicsDevice.BindBufferObject(this);
-            GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, (void*)0, usageHint);
+            GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, (void*)0, UsageHint);
         }
 
         protected override void Dispose(bool isManualDispose)

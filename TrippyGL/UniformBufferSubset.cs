@@ -152,14 +152,14 @@ namespace TrippyGL
         /// <typeparam name="U">The struct type to use for the uniform block. This must match the uniform block's format.</typeparam>
         /// <param name="graphicsDevice">The GraphicsDevice the BufferObject will use.</param>
         /// <param name="storageLength">The amount of structs the <see cref="UniformBufferSubset{T}"/> will store.</param>
-        public static int CalculateRequiredSizeInBytes(GraphicsDevice graphicsDevice, int storageLength)
+        public static uint CalculateRequiredSizeInBytes(GraphicsDevice graphicsDevice, uint storageLength)
         {
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException(nameof(storageLength), storageLength, nameof(storageLength) + " must be greater than 0");
 
-            int elementSize = Marshal.SizeOf<T>();
-            int uniformOffsetAlignment = graphicsDevice.UniformBufferOffsetAlignment;
-            int elementStride = (elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
+            uint elementSize = (uint)Marshal.SizeOf<T>();
+            uint uniformOffsetAlignment = (uint)graphicsDevice.UniformBufferOffsetAlignment;
+            uint elementStride = (elementSize + uniformOffsetAlignment - 1) / uniformOffsetAlignment * uniformOffsetAlignment;
             return (storageLength - 1) * elementStride + elementSize;
         }
     }

@@ -28,8 +28,8 @@ namespace TrippyGL
         /// <param name="attribIndex">The attribute index to query the data from.</param>
         internal ActiveVertexAttrib(ShaderProgram program, uint attribIndex)
         {
-            // OpenTK has this glGetActiveAttrib that easily turns the required Name parameters into the function's return value
-            // So we use that one to get the name, size and type and then query the location separately
+            // We use the glGetActiveAttrib that easily turns the required Name parameters into a string
+            // Then we query the size and type and then the location separately
             Name = program.GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
             Location = program.GL.GetAttribLocation(program.Handle, Name);
         }

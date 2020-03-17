@@ -341,7 +341,7 @@ namespace TrippyGL
             bufferRangeBindings = new BufferRangeBinding[3][];
 
             bufferRangeBindings[0] = new BufferRangeBinding[MaxUniformBufferBindings];
-            bufferRangeBindings[1] = new BufferRangeBinding[MaxShaderStorageBufferBindings]; //opentk wtf
+            bufferRangeBindings[1] = new BufferRangeBinding[MaxShaderStorageBufferBindings];
             bufferRangeBindings[2] = new BufferRangeBinding[MaxAtomicCounterBufferBindings];
         }
 
@@ -1335,7 +1335,7 @@ namespace TrippyGL
         /// <summary>
         /// Manages the enabling or disabling of clip distances.
         /// </summary>
-        public readonly struct ClipDistanceManager
+        public class ClipDistanceManager
         {
             private readonly bool[] areEnabled;
 

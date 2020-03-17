@@ -1,4 +1,6 @@
-﻿using Silk.NET.OpenGL;
+﻿using Silk.NET.Input;
+using Silk.NET.Input.Common;
+using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using System;
@@ -6,18 +8,16 @@ using System.IO;
 using System.Numerics;
 using TrippyGL;
 
-namespace TrippyTesting
+namespace TrippyTesting.Tests
 {
-    class SimpleTriangle
+    class WindowTemplate
     {
         IWindow window;
+        IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;
 
-        VertexBuffer<VertexColor> vertexBuffer;
-        ShaderProgram program;
-
-        public SimpleTriangle()
+        public WindowTemplate()
         {
             window = CreateWindow();
 
@@ -43,6 +43,12 @@ namespace TrippyTesting
 
         private void OnWindowLoad()
         {
+            inputContext = window.CreateInput();
+            inputContext.Keyboards[0].KeyDown += OnKeyDown;
+            inputContext.Mice[0].MouseDown += OnMouseDown;
+            inputContext.Mice[0].MouseUp += OnMouseUp;
+            inputContext.Mice[0].MouseMove += OnMouseMove;
+
             graphicsDevice = new GraphicsDevice(GL.GetApi());
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
@@ -56,20 +62,7 @@ namespace TrippyTesting
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
             Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-            Span<VertexColor> vertexData = stackalloc VertexColor[]
-            {
-                new VertexColor(new Vector3(-0.5f, -0.5f, 0f), new Color4b(255, 0, 0, 255)),
-                new VertexColor(new Vector3(0.0f, 0.5f, 0f), new Color4b(0, 255, 0, 255)),
-                new VertexColor(new Vector3(0.5f, -0.5f, 0f), new Color4b(0, 0, 255, 255))
-            };
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
-
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("triangle/vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("triangle/fs.glsl"));
-            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
-            program.LinkProgram();
 
             OnWindowResized(window.Size);
         }
@@ -88,14 +81,29 @@ namespace TrippyTesting
             if (window.IsClosing)
                 return;
 
-            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
-            graphicsDevice.VertexArray = vertexBuffer;
-            graphicsDevice.ShaderProgram = program;
-            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 3);
 
             window.SwapBuffers();
+        }
+
+        private void OnMouseMove(IMouse sender, System.Drawing.PointF position)
+        {
+
+        }
+
+        private void OnMouseUp(IMouse sender, MouseButton btn)
+        {
+
+        }
+
+        private void OnMouseDown(IMouse sender, MouseButton btn)
+        {
+
+        }
+
+        private void OnKeyDown(IKeyboard sender, Key key, int idk)
+        {
+
         }
 
         private void OnWindowResized(System.Drawing.Size size)

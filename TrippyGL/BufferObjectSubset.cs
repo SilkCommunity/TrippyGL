@@ -41,7 +41,7 @@ namespace TrippyGL
         /// target, offset into the buffer and storage length.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLengthBytes">The length of this subset measured in bytes.</param>
         internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLengthBytes)
