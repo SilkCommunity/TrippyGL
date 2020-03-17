@@ -1,7 +1,6 @@
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Text;
+using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -15,22 +14,22 @@ namespace TrippyGL
         public bool IsOpaque;
 
         /// <summary>The equation mode for the RGB color components.</summary>
-        public BlendEquationMode EquationModeRGB;
+        public BlendEquationModeEXT EquationModeRGB;
         /// <summary>The equation mode for the Alpha color component.</summary>
-        public BlendEquationMode EquationModeAlpha;
+        public BlendEquationModeEXT EquationModeAlpha;
 
         /// <summary>The source factor for the RGB color components.</summary>
-        public BlendingFactorSrc SourceFactorRGB;
+        public BlendingFactor SourceFactorRGB;
         /// <summary>The source factor for the Alpha color component.</summary>
-        public BlendingFactorSrc SourceFactorAlpha;
+        public BlendingFactor SourceFactorAlpha;
 
         /// <summary>The destination factor for the RGB color components.</summary>
-        public BlendingFactorDest DestFactorRGB;
+        public BlendingFactor DestFactorRGB;
         /// <summary>The destination factor for the Alpha color components.</summary>
-        public BlendingFactorDest DestFactorAlpha;
+        public BlendingFactor DestFactorAlpha;
 
         /// <summary>This color can be used for blending calculations with the blending factors for constant color.</summary>
-        public Color4 BlendColor;
+        public Vector4 BlendColor;
 
         /// <summary>
         /// Creates a simple <see cref="BlendState"/>
@@ -39,12 +38,12 @@ namespace TrippyGL
         public BlendState(bool isOpaque)
         {
             IsOpaque = isOpaque;
-            EquationModeRGB = BlendEquationMode.FuncAdd;
-            EquationModeAlpha = BlendEquationMode.FuncAdd;
-            SourceFactorRGB = BlendingFactorSrc.Zero;
-            SourceFactorAlpha = BlendingFactorSrc.Zero;
-            DestFactorRGB = BlendingFactorDest.Zero;
-            DestFactorAlpha = BlendingFactorDest.Zero;
+            EquationModeRGB = BlendEquationModeEXT.FuncAdd;
+            EquationModeAlpha = BlendEquationModeEXT.FuncAdd;
+            SourceFactorRGB = BlendingFactor.Zero;
+            SourceFactorAlpha = BlendingFactor.Zero;
+            DestFactorRGB = BlendingFactor.Zero;
+            DestFactorAlpha = BlendingFactor.Zero;
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace TrippyGL
         /// <param name="sourceFactorRgba">The source factor to use for the RGBA values.</param>
         /// <param name="destFactorRgba">The destination factor to use for the RGBA values.</param>
         /// <param name="blendColor">The equation-constant blending color.</param>
-        public BlendState(bool isOpaque, BlendEquationMode equationModeRgba, BlendingFactorSrc sourceFactorRgba, BlendingFactorDest destFactorRgba, Color4 blendColor = default)
+        public BlendState(bool isOpaque, BlendEquationModeEXT equationModeRgba, BlendingFactor sourceFactorRgba, BlendingFactor destFactorRgba, Vector4 blendColor = default)
         {
             IsOpaque = isOpaque;
             EquationModeRGB = equationModeRgba;
@@ -78,7 +77,7 @@ namespace TrippyGL
         /// <param name="sourceFactorAlpha">The source factor to use for the Alpha value.</param>
         /// <param name="destFactorAlpha">The destination factor to use for the Alpha value.</param>
         /// <param name="blendColor">The equation-constant blending color.</param>
-        public BlendState(bool isOpaque, BlendEquationMode equationModeRgb, BlendEquationMode equationModeAlpha, BlendingFactorSrc sourceFactorRgb, BlendingFactorDest destFactorRgb, BlendingFactorSrc sourceFactorAlpha, BlendingFactorDest destFactorAlpha, Color4 blendColor = default)
+        public BlendState(bool isOpaque, BlendEquationModeEXT equationModeRgb, BlendEquationModeEXT equationModeAlpha, BlendingFactor sourceFactorRgb, BlendingFactor destFactorRgb, BlendingFactor sourceFactorAlpha, BlendingFactor destFactorAlpha, Vector4 blendColor = default)
         {
             IsOpaque = isOpaque;
             EquationModeRGB = equationModeRgb;
@@ -112,7 +111,7 @@ namespace TrippyGL
         /// <summary>
         /// Sets <see cref="EquationModeRGB"/> and <see cref="EquationModeAlpha"/>.
         /// </summary>
-        public void SetEquationModeRgba(BlendEquationMode equationModeRgba)
+        public void SetEquationModeRgba(BlendEquationModeEXT equationModeRgba)
         {
             EquationModeRGB = equationModeRgba;
             EquationModeAlpha = equationModeRgba;
@@ -121,7 +120,7 @@ namespace TrippyGL
         /// <summary>
         /// Sets <see cref="SourceFactorRGB"/> and <see cref="SourceFactorAlpha"/>.
         /// </summary>
-        public void SetSourceFactorRgba(BlendingFactorSrc sourceFactorRgba)
+        public void SetSourceFactorRgba(BlendingFactor sourceFactorRgba)
         {
             SourceFactorRGB = sourceFactorRgba;
             SourceFactorAlpha = sourceFactorRgba;
@@ -130,7 +129,7 @@ namespace TrippyGL
         /// <summary>
         /// Sets <see cref="DestFactorRGB"/> and <see cref="DestFactorAlpha"/>.
         /// </summary>
-        public void SetDestFactorRgba(BlendingFactorDest destFactorRgba)
+        public void SetDestFactorRgba(BlendingFactor destFactorRgba)
         {
             DestFactorRGB = destFactorRgba;
             DestFactorAlpha = destFactorRgba;
@@ -143,7 +142,7 @@ namespace TrippyGL
             if (IsOpaque)
                 return "Opaque";
 
-            StringBuilder builder = new StringBuilder(300);
+            System.Text.StringBuilder builder = new System.Text.StringBuilder(300);
 
             if (EquationModeRGB == EquationModeAlpha)
             {
@@ -208,14 +207,14 @@ namespace TrippyGL
 
         public static BlendState Opaque => new BlendState(true);
 
-        public static BlendState AlphaBlend => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd,
-            BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState AlphaBlend => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,
+            BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.One);
 
-        public static BlendState Additive => new BlendState(false, BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd,
-            BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState Additive => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,
+            BlendingFactor.One, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One);
 
-        public static BlendState Substractive => new BlendState(false, BlendEquationMode.FuncSubtract, BlendEquationMode.FuncSubtract,
-            BlendingFactorSrc.One, BlendingFactorDest.One, BlendingFactorSrc.One, BlendingFactorDest.One);
+        public static BlendState Substractive => new BlendState(false, BlendEquationModeEXT.FuncSubtract,
+            BlendEquationModeEXT.FuncSubtract, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One);
 
         #endregion
     }

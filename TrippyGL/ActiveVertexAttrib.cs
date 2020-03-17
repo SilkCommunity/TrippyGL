@@ -1,5 +1,5 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -18,7 +18,7 @@ namespace TrippyGL
         public readonly int Size;
 
         /// <summary>The type of the attribute declared in the shader.</summary>
-        public readonly ActiveAttribType AttribType;
+        public readonly AttributeType AttribType;
 
         /// <summary>
         /// Creates an <see cref="ActiveVertexAttrib"/> and queries the attribute
@@ -26,12 +26,12 @@ namespace TrippyGL
         /// </summary>
         /// <param name="program">The <see cref="ShaderProgram"/> from which to query the attrib data.</param>
         /// <param name="attribIndex">The attribute index to query the data from.</param>
-        internal ActiveVertexAttrib(ShaderProgram program, int attribIndex)
+        internal ActiveVertexAttrib(ShaderProgram program, uint attribIndex)
         {
             // OpenTK has this glGetActiveAttrib that easily turns the required Name parameters into the function's return value
             // So we use that one to get the name, size and type and then query the location separately
-            Name = GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
-            Location = GL.GetAttribLocation(program.Handle, Name);
+            Name = program.GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
+            Location = program.GL.GetAttribLocation(program.Handle, Name);
         }
 
         public static bool operator ==(ActiveVertexAttrib left, ActiveVertexAttrib right) => left.Equals(right);

@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -20,31 +20,31 @@ namespace TrippyGL
         /// <summary>
         /// Gets whether the specified attrib type is an integer type (such as int, ivecX, uint or uvecX).
         /// </summary>
-        public static bool IsVertexAttribIntegerType(ActiveAttribType attribType)
+        public static bool IsVertexAttribIntegerType(AttributeType attribType)
         {
-            return attribType == ActiveAttribType.Int || attribType == ActiveAttribType.UnsignedInt
-                || (attribType >= ActiveAttribType.IntVec2 && attribType <= ActiveAttribType.IntVec4)
-                || (attribType >= ActiveAttribType.UnsignedIntVec2 && attribType <= ActiveAttribType.UnsignedIntVec4);
+            return attribType == AttributeType.Int || attribType == AttributeType.UnsignedInt
+                || (attribType >= AttributeType.IntVec2 && attribType <= AttributeType.IntVec4)
+                || (attribType >= AttributeType.UnsignedIntVec2 && attribType <= AttributeType.UnsignedIntVec4);
         }
 
         /// <summary>
         /// Gets whether the specified attrib type is a floating point single type (such as float, vecX, matMxN).
         /// </summary>
-        public static bool IsVertexAttribFloatType(ActiveAttribType attribType)
+        public static bool IsVertexAttribFloatType(AttributeType attribType)
         {
-            return attribType == ActiveAttribType.Float
-                || (attribType >= ActiveAttribType.FloatVec2 && attribType <= ActiveAttribType.FloatVec4)
-                || (attribType >= ActiveAttribType.FloatMat2 && attribType <= ActiveAttribType.FloatMat4x3);
+            return attribType == AttributeType.Float
+                || (attribType >= AttributeType.FloatVec2 && attribType <= AttributeType.FloatVec4)
+                || (attribType >= AttributeType.FloatMat2 && attribType <= AttributeType.FloatMat4x3);
         }
 
         /// <summary>
         /// Gets whether the specified attrib type is a floating point double type (such as double, dvecX or dmatMxN).
         /// </summary>
-        public static bool IsVertexAttribDoubleType(ActiveAttribType attribType)
+        public static bool IsVertexAttribDoubleType(AttributeType attribType)
         {
-            return attribType == ActiveAttribType.Double
-                || (attribType >= ActiveAttribType.DoubleVec2 && attribType <= ActiveAttribType.DoubleVec4)
-                || (attribType >= ActiveAttribType.DoubleMat2 && attribType <= ActiveAttribType.DoubleMat4x3);
+            return attribType == AttributeType.Double
+                || (attribType >= AttributeType.DoubleVec2 && attribType <= AttributeType.DoubleVec4)
+                || (attribType >= AttributeType.DoubleMat2 && attribType <= AttributeType.DoubleMat4x3);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace TrippyGL
         /// <param name="indexUseCount">The amount of attribute indices it will need.</param>
         /// <param name="size">The amount of components each index will have.</param>
         /// <param name="type">The base type of each component.</param>
-        public static void GetVertexAttribTypeData(ActiveAttribType attribType, out int indexUseCount, out int size, out VertexAttribPointerType type)
+        public static void GetVertexAttribTypeData(AttributeType attribType, out uint indexUseCount, out int size, out VertexAttribPointerType type)
         {
             indexUseCount = GetVertexAttribTypeIndexCount(attribType);
             size = GetVertexAttribTypeSize(attribType);
@@ -65,73 +65,73 @@ namespace TrippyGL
         /// Gets the base variable type for the specified attribute type
         /// (for example, vec4 would return float. dmat2 would return double, ivec2 returns int).
         /// </summary>
-        public static VertexAttribPointerType GetVertexAttribBaseType(ActiveAttribType attribType)
+        public static VertexAttribPointerType GetVertexAttribBaseType(AttributeType attribType)
         {
-            if (attribType == ActiveAttribType.Float // is it a float?
-                || (attribType >= ActiveAttribType.FloatVec2 && attribType <= ActiveAttribType.FloatVec4) // or is it a float vector?
-                || (attribType >= ActiveAttribType.FloatMat2 && attribType <= ActiveAttribType.FloatMat4x3)) // or is it a float matrix?
+            if (attribType == AttributeType.Float // is it a float?
+                || (attribType >= AttributeType.FloatVec2 && attribType <= AttributeType.FloatVec4) // or is it a float vector?
+                || (attribType >= AttributeType.FloatMat2 && attribType <= AttributeType.FloatMat4x3)) // or is it a float matrix?
                 return VertexAttribPointerType.Float;
 
-            if (attribType == ActiveAttribType.Int
-                || (attribType >= ActiveAttribType.IntVec2 && attribType <= ActiveAttribType.IntVec4))
+            if (attribType == AttributeType.Int
+                || (attribType >= AttributeType.IntVec2 && attribType <= AttributeType.IntVec4))
                 return VertexAttribPointerType.Int;
 
-            if (attribType == ActiveAttribType.Double
-                || (attribType >= ActiveAttribType.DoubleVec2 && attribType <= ActiveAttribType.DoubleVec4)
-                || (attribType >= ActiveAttribType.DoubleMat2 && attribType <= ActiveAttribType.DoubleMat4x3))
+            if (attribType == AttributeType.Double
+                || (attribType >= AttributeType.DoubleVec2 && attribType <= AttributeType.DoubleVec4)
+                || (attribType >= AttributeType.DoubleMat2 && attribType <= AttributeType.DoubleMat4x3))
                 return VertexAttribPointerType.Double;
 
-            if (attribType == ActiveAttribType.UnsignedInt
-                || attribType >= ActiveAttribType.UnsignedIntVec2 || attribType <= ActiveAttribType.UnsignedIntVec4)
+            if (attribType == AttributeType.UnsignedInt
+                || attribType >= AttributeType.UnsignedIntVec2 || attribType <= AttributeType.UnsignedIntVec4)
                 return VertexAttribPointerType.UnsignedInt;
 
-            throw new ArgumentException("The provided value is not a valid enum value", "attribType");
+            throw new ArgumentException("The provided value is not a valid enum value", nameof(attribType));
         }
 
         /// <summary>
         /// Gets the attribute's size. By size, this means "vector size" (float is 1, vec2i is 2, bvec4 is 4, etc).
         /// </summary>
-        public static int GetVertexAttribTypeSize(ActiveAttribType attribType)
+        public static int GetVertexAttribTypeSize(AttributeType attribType)
         {
-            if ((attribType >= ActiveAttribType.Int && attribType <= ActiveAttribType.Float) || attribType == ActiveAttribType.Double)
+            if ((attribType >= AttributeType.Int && attribType <= AttributeType.Float) || attribType == AttributeType.Double)
                 return 1;
 
-            if (attribType >= ActiveAttribType.FloatVec2 && attribType <= ActiveAttribType.FloatVec4)
-                return attribType - ActiveAttribType.FloatVec2 + 2;
+            if (attribType >= AttributeType.FloatVec2 && attribType <= AttributeType.FloatVec4)
+                return attribType - AttributeType.FloatVec2 + 2;
 
-            if (attribType >= ActiveAttribType.IntVec2 && attribType <= ActiveAttribType.IntVec4)
-                return attribType - ActiveAttribType.IntVec2 + 2;
+            if (attribType >= AttributeType.IntVec2 && attribType <= AttributeType.IntVec4)
+                return attribType - AttributeType.IntVec2 + 2;
 
-            if (attribType >= ActiveAttribType.UnsignedIntVec2 && attribType <= ActiveAttribType.UnsignedIntVec4)
-                return attribType - ActiveAttribType.UnsignedIntVec2 + 2;
+            if (attribType >= AttributeType.UnsignedIntVec2 && attribType <= AttributeType.UnsignedIntVec4)
+                return attribType - AttributeType.UnsignedIntVec2 + 2;
 
-            if (attribType >= ActiveAttribType.DoubleVec2 && attribType <= ActiveAttribType.DoubleVec4)
-                return attribType - ActiveAttribType.DoubleVec2 + 2;
+            if (attribType >= AttributeType.DoubleVec2 && attribType <= AttributeType.DoubleVec4)
+                return attribType - AttributeType.DoubleVec2 + 2;
 
             switch (attribType)
             {
-                case ActiveAttribType.FloatMat2:
-                case ActiveAttribType.FloatMat3x2:
-                case ActiveAttribType.FloatMat4x2:
-                case ActiveAttribType.DoubleMat2:
-                case ActiveAttribType.DoubleMat3x2:
-                case ActiveAttribType.DoubleMat4x2:
+                case AttributeType.FloatMat2:
+                case AttributeType.FloatMat3x2:
+                case AttributeType.FloatMat4x2:
+                case AttributeType.DoubleMat2:
+                case AttributeType.DoubleMat3x2:
+                case AttributeType.DoubleMat4x2:
                     return 2;
 
-                case ActiveAttribType.FloatMat3:
-                case ActiveAttribType.FloatMat2x3:
-                case ActiveAttribType.FloatMat4x3:
-                case ActiveAttribType.DoubleMat3:
-                case ActiveAttribType.DoubleMat2x3:
-                case ActiveAttribType.DoubleMat4x3:
+                case AttributeType.FloatMat3:
+                case AttributeType.FloatMat2x3:
+                case AttributeType.FloatMat4x3:
+                case AttributeType.DoubleMat3:
+                case AttributeType.DoubleMat2x3:
+                case AttributeType.DoubleMat4x3:
                     return 3;
 
-                case ActiveAttribType.FloatMat4:
-                case ActiveAttribType.FloatMat2x4:
-                case ActiveAttribType.FloatMat3x4:
-                case ActiveAttribType.DoubleMat4:
-                case ActiveAttribType.DoubleMat2x4:
-                case ActiveAttribType.DoubleMat3x4:
+                case AttributeType.FloatMat4:
+                case AttributeType.FloatMat2x4:
+                case AttributeType.FloatMat3x4:
+                case AttributeType.DoubleMat4:
+                case AttributeType.DoubleMat2x4:
+                case AttributeType.DoubleMat3x4:
                     return 4;
             }
 
@@ -141,39 +141,39 @@ namespace TrippyGL
         /// <summary>
         /// Gets the amount of indices the vertex attribute occupies.
         /// </summary>
-        public static int GetVertexAttribTypeIndexCount(ActiveAttribType attribType)
+        public static uint GetVertexAttribTypeIndexCount(AttributeType attribType)
         {
-            if ((attribType >= ActiveAttribType.Int && attribType <= ActiveAttribType.Float)
-                || attribType == ActiveAttribType.Double
-                || (attribType >= ActiveAttribType.FloatVec2 && attribType <= ActiveAttribType.IntVec4)
-                || (attribType >= ActiveAttribType.UnsignedIntVec2 && attribType <= ActiveAttribType.UnsignedIntVec4)
-                || (attribType >= ActiveAttribType.DoubleVec2 && attribType <= ActiveAttribType.DoubleVec4))
+            if ((attribType >= AttributeType.Int && attribType <= AttributeType.Float)
+                || attribType == AttributeType.Double
+                || (attribType >= AttributeType.FloatVec2 && attribType <= AttributeType.IntVec4)
+                || (attribType >= AttributeType.UnsignedIntVec2 && attribType <= AttributeType.UnsignedIntVec4)
+                || (attribType >= AttributeType.DoubleVec2 && attribType <= AttributeType.DoubleVec4))
                 return 1;
 
             switch (attribType)
             {
-                case ActiveAttribType.FloatMat2:
-                case ActiveAttribType.FloatMat2x3:
-                case ActiveAttribType.FloatMat2x4:
-                case ActiveAttribType.DoubleMat2:
-                case ActiveAttribType.DoubleMat2x3:
-                case ActiveAttribType.DoubleMat2x4:
+                case AttributeType.FloatMat2:
+                case AttributeType.FloatMat2x3:
+                case AttributeType.FloatMat2x4:
+                case AttributeType.DoubleMat2:
+                case AttributeType.DoubleMat2x3:
+                case AttributeType.DoubleMat2x4:
                     return 2;
 
-                case ActiveAttribType.FloatMat3:
-                case ActiveAttribType.FloatMat3x2:
-                case ActiveAttribType.FloatMat3x4:
-                case ActiveAttribType.DoubleMat3:
-                case ActiveAttribType.DoubleMat3x2:
-                case ActiveAttribType.DoubleMat3x4:
+                case AttributeType.FloatMat3:
+                case AttributeType.FloatMat3x2:
+                case AttributeType.FloatMat3x4:
+                case AttributeType.DoubleMat3:
+                case AttributeType.DoubleMat3x2:
+                case AttributeType.DoubleMat3x4:
                     return 3;
 
-                case ActiveAttribType.FloatMat4:
-                case ActiveAttribType.FloatMat4x2:
-                case ActiveAttribType.FloatMat4x3:
-                case ActiveAttribType.DoubleMat4:
-                case ActiveAttribType.DoubleMat4x2:
-                case ActiveAttribType.DoubleMat4x3:
+                case AttributeType.FloatMat4:
+                case AttributeType.FloatMat4x2:
+                case AttributeType.FloatMat4x3:
+                case AttributeType.DoubleMat4:
+                case AttributeType.DoubleMat4x2:
+                case AttributeType.DoubleMat4x3:
                     return 4;
             }
 
@@ -183,7 +183,7 @@ namespace TrippyGL
         /// <summary>
         /// Gets the size in bytes of an attribute type.
         /// </summary>
-        public static int GetVertexAttribSizeInBytes(VertexAttribPointerType type)
+        public static uint GetVertexAttribSizeInBytes(VertexAttribPointerType type)
         {
             switch (type)
             {
@@ -267,13 +267,13 @@ namespace TrippyGL
         /// Returns whether the given ActiveUniformType is a sampler type. This includes sampler-array types.
         /// </summary>
         /// <param name="type">The type of uniform to compare.</param>
-        public static bool IsUniformSamplerType(ActiveUniformType type)
+        public static bool IsUniformSamplerType(UniformType type)
         {
-            return (type >= ActiveUniformType.Sampler1D && type <= ActiveUniformType.Sampler2DRectShadow)
-                || (type >= ActiveUniformType.Sampler1DArray && type <= ActiveUniformType.SamplerCubeShadow)
-                || (type >= ActiveUniformType.IntSampler1D && type <= ActiveUniformType.UnsignedIntSamplerBuffer)
-                || (type >= ActiveUniformType.SamplerCubeMapArray && type <= ActiveUniformType.UnsignedIntSamplerCubeMapArray)
-                || (type >= ActiveUniformType.Sampler2DMultisample && type <= ActiveUniformType.UnsignedIntSampler2DMultisampleArray);
+            return (type >= UniformType.Sampler1D && type <= UniformType.Sampler2DRectShadow)
+                || (type >= UniformType.Sampler1DArray && type <= UniformType.SamplerCubeShadow)
+                || (type >= UniformType.IntSampler1D && type <= UniformType.UnsignedIntSamplerBuffer)
+                || (type >= UniformType.SamplerCubeMapArray && type <= UniformType.UnsignedIntSamplerCubeMapArray)
+                || (type >= UniformType.Sampler2DMultisample && type <= UniformType.UnsignedIntSampler2DMultisampleArray);
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace TrippyGL
         /// <param name="imageFormat">The requested image format.</param>
         /// <param name="pixelInternalFormat">The pixel's internal format.</param>
         /// <param name="pixelType">The pixel's type.</param>
-        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out PixelInternalFormat pixelInternalFormat, out PixelType pixelType, out PixelFormat pixelFormat)
+        public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out InternalFormat pixelInternalFormat, out PixelType pixelType, out PixelFormat pixelFormat)
         {
             // The workings of this function are related to the numbers assigned to each enum value
             int b = (int)imageFormat / 32;
@@ -295,7 +295,7 @@ namespace TrippyGL
                     switch ((int)imageFormat - b * 32)
                     {
                         case 5:
-                            pixelInternalFormat = PixelInternalFormat.Rgba8;
+                            pixelInternalFormat = InternalFormat.Rgba8;
                             pixelFormat = PixelFormat.Rgba;
                             return;
                     }
@@ -307,31 +307,31 @@ namespace TrippyGL
                     switch ((int)imageFormat - b * 32)
                     {
                         case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32f;
+                            pixelInternalFormat = InternalFormat.R32f;
                             pixelFormat = PixelFormat.Red;
                             return;
                         case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32f;
-                            pixelFormat = PixelFormat.Rg;
+                            pixelInternalFormat = InternalFormat.RG32f;
+                            pixelFormat = PixelFormat.RG;
                             return;
                         case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32f;
+                            pixelInternalFormat = InternalFormat.Rgb32f;
                             pixelFormat = PixelFormat.Rgb;
                             return;
                         case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32f;
+                            pixelInternalFormat = InternalFormat.Rgba32f;
                             pixelFormat = PixelFormat.Rgba;
                             return;
                         case 5:
-                            pixelInternalFormat = PixelInternalFormat.DepthComponent16;
+                            pixelInternalFormat = InternalFormat.DepthComponent16;
                             pixelFormat = PixelFormat.DepthComponent;
                             return;
                         case 6:
-                            pixelInternalFormat = PixelInternalFormat.DepthComponent24;
+                            pixelInternalFormat = InternalFormat.DepthComponent24Arb;
                             pixelFormat = PixelFormat.DepthComponent;
                             return;
                         case 7:
-                            pixelInternalFormat = PixelInternalFormat.DepthComponent32f;
+                            pixelInternalFormat = InternalFormat.DepthComponent32f;
                             pixelFormat = PixelFormat.DepthComponent;
                             return;
                     }
@@ -343,19 +343,19 @@ namespace TrippyGL
                     switch ((int)imageFormat - b * 32)
                     {
                         case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32i;
+                            pixelInternalFormat = InternalFormat.R32i;
                             pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32i;
+                            pixelInternalFormat = InternalFormat.RG32i;
                             pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32i;
+                            pixelInternalFormat = InternalFormat.Rgb32i;
                             pixelFormat = PixelFormat.RgbaInteger;
                             return;
                         case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32i;
+                            pixelInternalFormat = InternalFormat.Rgba32i;
                             pixelFormat = PixelFormat.RgbaInteger;
                             return;
                     }
@@ -367,19 +367,19 @@ namespace TrippyGL
                     switch ((int)imageFormat - b * 32)
                     {
                         case 1:
-                            pixelInternalFormat = PixelInternalFormat.R32ui;
+                            pixelInternalFormat = InternalFormat.R32ui;
                             pixelFormat = PixelFormat.RedInteger;
                             return;
                         case 2:
-                            pixelInternalFormat = PixelInternalFormat.Rg32ui;
-                            pixelFormat = PixelFormat.RgInteger;
+                            pixelInternalFormat = InternalFormat.RG32ui;
+                            pixelFormat = PixelFormat.RGInteger;
                             return;
                         case 3:
-                            pixelInternalFormat = PixelInternalFormat.Rgb32ui;
+                            pixelInternalFormat = InternalFormat.Rgb32ui;
                             pixelFormat = PixelFormat.RgbInteger;
                             return;
                         case 4:
-                            pixelInternalFormat = PixelInternalFormat.Rgba32ui;
+                            pixelInternalFormat = InternalFormat.Rgba32ui;
                             pixelFormat = PixelFormat.RgbaInteger;
                             return;
                     }
@@ -390,8 +390,8 @@ namespace TrippyGL
                     switch ((int)imageFormat - b * 32)
                     {
                         case 1:
-                            pixelType = PixelType.UnsignedInt248;
-                            pixelInternalFormat = PixelInternalFormat.Depth24Stencil8;
+                            pixelType = (PixelType)GLEnum.UnsignedInt248;
+                            pixelInternalFormat = InternalFormat.Depth24Stencil8;
                             pixelFormat = PixelFormat.DepthStencil;
                             return;
                     }
@@ -399,7 +399,7 @@ namespace TrippyGL
                     #endregion
             }
 
-            throw new ArgumentException("Image format is not a valid TextureImageFormat value", "imageFormat");
+            throw new ArgumentException("Image format is not a valid TextureImageFormat value", nameof(imageFormat));
         }
 
         /// <summary>
@@ -546,85 +546,6 @@ namespace TrippyGL
             if (IsRenderbufferFormatStencilOnly(format))
                 return FramebufferAttachmentPoint.Stencil;
             throw new ArgumentException("The specified format appears to be invalid");
-        }
-
-
-
-        /// <summary>
-        /// Returns the amount of components used by a specified type of transform feedback variable.
-        /// </summary>
-        /// <param name="type">The variable type to check.</param>
-        public static int GetTransformFeedbackTypeComponentCount(TransformFeedbackType type)
-        {
-            if (type >= TransformFeedbackType.Int && type <= TransformFeedbackType.Float) //UnsignedInt is in between these
-                return 1;
-
-            switch (type)
-            {
-                case TransformFeedbackType.Double:
-                case TransformFeedbackType.FloatVec2:
-                case TransformFeedbackType.IntVec2:
-                case TransformFeedbackType.UnsignedIntVec2:
-                    return 2;
-
-                case TransformFeedbackType.FloatVec3:
-                case TransformFeedbackType.IntVec3:
-                case TransformFeedbackType.UnsignedIntVec3:
-                    return 3;
-
-                case TransformFeedbackType.FloatVec4:
-                case TransformFeedbackType.IntVec4:
-                case TransformFeedbackType.UnsignedIntVec4:
-                case TransformFeedbackType.FloatMat2:
-                case TransformFeedbackType.DoubleVec2:
-                    return 4;
-
-                case TransformFeedbackType.FloatMat2x3:
-                case TransformFeedbackType.FloatMat3x2:
-                case TransformFeedbackType.DoubleVec3:
-                    return 6;
-
-                case TransformFeedbackType.FloatMat2x4:
-                case TransformFeedbackType.FloatMat4x2:
-                case TransformFeedbackType.DoubleVec4:
-                case TransformFeedbackType.DoubleMat2:
-                    return 8;
-
-                case TransformFeedbackType.FloatMat3x4:
-                case TransformFeedbackType.FloatMat4x3:
-                case TransformFeedbackType.DoubleMat2x3:
-                case TransformFeedbackType.DoubleMat3x2:
-                    return 12;
-
-                case TransformFeedbackType.FloatMat3:
-                    return 9;
-
-                case TransformFeedbackType.FloatMat4:
-                case TransformFeedbackType.DoubleMat2x4:
-                case TransformFeedbackType.DoubleMat4x2:
-                    return 16;
-
-                case TransformFeedbackType.DoubleMat3:
-                    return 18;
-
-                case TransformFeedbackType.DoubleMat4x3:
-                case TransformFeedbackType.DoubleMat3x4:
-                    return 24;
-
-                case TransformFeedbackType.DoubleMat4:
-                    return 32;
-            }
-
-            throw new ArgumentException("The specified TransformFeedbackType value is invalid", "type");
-        }
-
-        /// <summary>
-        /// Returns whether the specified transform feedback variable type is a double-precision type.
-        /// </summary>
-        /// <param name="type">The variable type to check.</param>
-        public static bool IsTransformFeedbackTypeDoublePrecision(TransformFeedbackType type)
-        {
-            return type == TransformFeedbackType.Double || type >= TransformFeedbackType.DoubleMat2;
         }
     }
 }

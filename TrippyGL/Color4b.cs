@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace OpenTK.Graphics
+namespace TrippyGL
 {
     /// <summary>
     /// Represents a color with 4 byte components (R, G, B, A).

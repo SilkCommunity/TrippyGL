@@ -8,7 +8,7 @@ namespace TrippyGL
     /// The result of the batcher is always triangle/line list (GL_TRIANGLES or GL_LINES).
     /// </summary>
     /// <typeparam name="T">The type of vertex to batch.</typeparam>
-    public sealed class PrimitiveBatcher<T> where T : struct
+    public sealed class PrimitiveBatcher<T> where T : unmanaged
     {
         //TODO: Optimize all add operations by making them unsafe & utilizing pointers
 
@@ -352,7 +352,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="buffer">The buffer where the triangle vertices will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
-        public void WriteTrianglesTo(DataBufferSubset<T> buffer, int storageOffset = 0)
+        public void WriteTrianglesTo(DataBufferSubset<T> buffer, uint storageOffset = 0)
         {
             buffer.SetData(TriangleVertices, storageOffset);
         }
@@ -362,7 +362,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="buffer">The buffer where the line vertices will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
-        public void WriteLinesTo(DataBufferSubset<T> buffer, int storageOffset = 0)
+        public void WriteLinesTo(DataBufferSubset<T> buffer, uint storageOffset = 0)
         {
             buffer.SetData(LineVertices, storageOffset);
         }

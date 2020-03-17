@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -10,7 +10,7 @@ namespace TrippyGL
     public sealed class VertexArray : GraphicsResource
     {
         /// <summary>The handle for the GL Vertex Array Object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
         /// <summary>A copy of the <see cref="VertexAttribSource"/>-s provided to the constructor. Should only be read.</summary>
         private readonly VertexAttribSource[] attribSources;
@@ -20,7 +20,18 @@ namespace TrippyGL
 
         public readonly IndexBufferSubset IndexBuffer;
 
-        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        /// <summary>
+        /// Creates a <see cref="VertexArray"/>
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="attribSources">
+        /// The <see cref="VertexAttribSource"/> array that will be stored by this <see cref="VertexArray"/>.
+        /// The library user must NOT have a reference to this array!
+        /// </param>
+        /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
+        /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
+        internal VertexArray(GraphicsDevice graphicsDevice, VertexAttribSource[] attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4)
             : base(graphicsDevice)
         {
             EnsureAttribsValid(attribSources);
@@ -34,40 +45,41 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexArray with the specified attribute sources.
+        /// Creates a <see cref="VertexArray"/> with the specified attribute sources.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="attribSources">The sources from which the data of the vertex attributes will come from.</param>
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
-        public VertexArray(GraphicsDevice graphicsDevice, ReadOnlySpan<VertexAttribSource> attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
+        public VertexArray(GraphicsDevice graphicsDevice, ReadOnlySpan<VertexAttribSource> attribSources, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4)
             : this(graphicsDevice, attribSources.ToArray(), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
         }
 
         /// <summary>
-        /// Creates a VertexArray in which all the vertex attributes come from the same data buffer.
+        /// Creates a <see cref="VertexArray"/> in which all the vertex attributes come from the same data buffer.
         /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="bufferSubset">The data buffer that stores all the vertex attributes.</param>
         /// <param name="attribDescriptions">The descriptions of the vertex attributes.</param>
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, int paddingPackValue = 4)
+        /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
+        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4)
             : this(graphicsDevice, MakeAttribList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
         }
 
         /// <summary>
-        /// Updates the places where vertex data is read from for this VertexArray. Call this whenever you change a buffer subset.
+        /// Updates the places where vertex data is read from for this <see cref="VertexArray"/>.
+        /// Call this whenever you modify a buffer subset used by this <see cref="VertexArray"/>.
         /// </summary>
-        /// <param name="compensateStructPadding">Whether to automatically compensate for C#'s padding on structs.</param>
-        /// <param name="paddingPackValue">The struct packing value for compensating for padding. C#'s default is 4.</param>
-        public void UpdateVertexAttributes(bool compensateStructPadding = true, int paddingPackValue = 4)
+        /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
+        public void UpdateVertexAttributes(bool compensateStructPadding = true, uint paddingPackValue = 4)
         {
             // Makes all glVertexAttribPointer calls to specify the vertex attrib data on the VAO and enables the vertex attributes.
             // The parameters of glVertexAttribPointer are calculated based on the VertexAttribSource-s from AttribSources
@@ -76,7 +88,7 @@ namespace TrippyGL
 
             AttribCallDesc[] calls = new AttribCallDesc[attribSources.Length];
 
-            int attribIndex = 0;
+            uint attribIndex = 0;
             for (int i = 0; i < calls.Length; i++)
             {
                 calls[i] = new AttribCallDesc
@@ -96,8 +108,8 @@ namespace TrippyGL
             if (compensateStructPadding)
             {
                 #region CalculateOffsetsWithPadding
-                int offset = 0;
-                BufferObjectSubset prevSubset = null; //setting this to null ensures the first for loop will enter the "different subset" if and initialize these variables
+                uint offset = 0;
+                BufferObjectSubset prevSubset = null; // Setting this to null ensures the first for loop will enter the "different subset" if and initialize these variables
                 VertexAttribPointerType currentBaseType = 0;
 
                 for (int i = 0; i < calls.Length; i++)
@@ -116,7 +128,7 @@ namespace TrippyGL
                         currentBaseType = calls[i].source.AttribDescription.AttribBaseType;
                         if (!calls[i].source.IsPadding)
                         { // We add the manual padding, unless it is padding added specifically by the user
-                            int packval = Math.Min(TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType), paddingPackValue); // offset should be aligned by the default packing value or the size of the base type
+                            uint packval = Math.Min(TrippyUtils.GetVertexAttribSizeInBytes(currentBaseType), paddingPackValue); // offset should be aligned by the default packing value or the size of the base type
                             offset = (offset + packval - 1) / packval * packval; // Make offset be greater or equal to offset and divisible by packval
                         }
                     }
@@ -129,8 +141,8 @@ namespace TrippyGL
             else
             {
                 #region CalculateOffsetsWithoutPadding
-                int offset = 0;
-                int prevBufferHandle = -1;
+                uint offset = 0;
+                uint prevBufferHandle = 0;
                 for (int i = 0; i < calls.Length; i++)
                 {
                     if (prevBufferHandle != calls[i].source.BufferSubset.BufferHandle)
@@ -146,9 +158,9 @@ namespace TrippyGL
             }
 
             for (int i = 0; i < calls.Length; i++)
-                calls[i].CallGlVertexAttribPointer();
+                calls[i].CallGlVertexAttribPointer(GL);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBuffer == null ? 0 : IndexBuffer.BufferHandle);
+            GL.BindBuffer(BufferTargetARB.ElementArrayBuffer, IndexBuffer == null ? 0 : IndexBuffer.BufferHandle);
         }
 
         protected override void Dispose(bool isManualDispose)
@@ -180,12 +192,13 @@ namespace TrippyGL
         /// <summary>
         /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer.
         /// </summary>
-        /// <typeparam name="T">The type of vertex to use</typeparam>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <typeparam name="T">The type of vertex to use.</typeparam>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="dataBuffer">The buffer from which all attributes come from.</param>
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
-        /// <param name="compensateStructPadding">Whether to compensate for C#'s struct padding. Default is true.</param>
-        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true) where T : struct, IVertex
+        /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
+        /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
+        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4) where T : struct, IVertex
         {
             T t = default;
             int attribCount = t.AttribDescriptionCount;
@@ -193,7 +206,7 @@ namespace TrippyGL
                 new VertexAttribDescription[attribCount] : stackalloc VertexAttribDescription[attribCount];
             t.WriteAttribDescriptions(attribDescriptions);
 
-            return new VertexArray(graphicsDevice, dataBuffer, attribDescriptions, indexBuffer, compensateStructPadding);
+            return new VertexArray(graphicsDevice, dataBuffer, attribDescriptions, indexBuffer, compensateStructPadding, paddingPackValue);
         }
 
         private void EnsureAttribsValid(VertexAttribSource[] attribSources)
@@ -201,7 +214,7 @@ namespace TrippyGL
             if (attribSources.Length == 0)
                 throw new ArgumentException("You can't create a " + nameof(VertexArray) + " with no attributes", nameof(attribSources));
 
-            int attribIndexCount = 0;
+            uint attribIndexCount = 0;
             for (int i = 0; i < attribSources.Length; i++)
             {
                 attribIndexCount += attribSources[i].AttribDescription.AttribIndicesUseCount;
@@ -226,30 +239,30 @@ namespace TrippyGL
 
         /// <summary>
         /// Manages the calls for a single vertex attribute.
-        /// This is a helper class for VertexArray.UpdateVertexAttributes().
+        /// This is a helper struct used in <see cref="VertexArray.UpdateVertexAttributes(bool, int)"/>
         /// </summary>
         private struct AttribCallDesc
         {
             public VertexAttribSource source;
-            public int index, offset;
+            public uint index, offset;
 
-            public void CallGlVertexAttribPointer()
+            public unsafe void CallGlVertexAttribPointer(GL gl)
             {
                 source.BufferSubset.Buffer.GraphicsDevice.BindBuffer(source.BufferSubset);
-                int offs = offset + source.BufferSubset.StorageOffsetInBytes;
-                int stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
-                for (int i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
+                uint offs = offset + source.BufferSubset.StorageOffsetInBytes;
+                uint stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
+                for (uint i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
-                        GL.VertexAttribLPointer(index + i, source.AttribDescription.Size, VertexAttribDoubleType.Double, stride, (IntPtr)offs);
+                        gl.VertexAttribLPointer(index + i, source.AttribDescription.Size, VertexAttribPointerType.Double, stride, (void*)offs);
                     else if (!source.AttribDescription.Normalized && TrippyUtils.IsVertexAttribIntegerType(source.AttribDescription.AttribType))
-                        GL.VertexAttribIPointer(index + i, source.AttribDescription.Size, (VertexAttribIntegerType)source.AttribDescription.AttribBaseType, stride, (IntPtr)offs);
+                        gl.VertexAttribIPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, stride, (void*)offs);
                     else
-                        GL.VertexAttribPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, stride, offs);
+                        gl.VertexAttribPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, stride, (void*)offs);
 
-                    GL.EnableVertexAttribArray(index + i);
+                    gl.EnableVertexAttribArray(index + i);
                     if (source.AttribDescription.AttribDivisor != 0)
-                        GL.VertexAttribDivisor(index + i, source.AttribDescription.AttribDivisor);
+                        gl.VertexAttribDivisor(index + i, source.AttribDescription.AttribDivisor);
                     offs += source.AttribDescription.SizeInBytes / source.AttribDescription.AttribIndicesUseCount;
                 }
             }

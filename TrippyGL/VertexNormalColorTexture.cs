@@ -1,7 +1,6 @@
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace TrippyGL
@@ -47,10 +46,10 @@ namespace TrippyGL
 
         public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
         {
-            descriptions[0] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
-            descriptions[1] = new VertexAttribDescription(ActiveAttribType.FloatVec3);
-            descriptions[2] = new VertexAttribDescription(ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte);
-            descriptions[3] = new VertexAttribDescription(ActiveAttribType.FloatVec2);
+            descriptions[0] = new VertexAttribDescription(AttributeType.FloatVec3);
+            descriptions[1] = new VertexAttribDescription(AttributeType.FloatVec3);
+            descriptions[2] = new VertexAttribDescription(AttributeType.FloatVec4, true, VertexAttribPointerType.UnsignedByte);
+            descriptions[3] = new VertexAttribDescription(AttributeType.FloatVec2);
         }
 
         public override string ToString()

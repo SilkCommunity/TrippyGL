@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using System;
 
 namespace TrippyGL
@@ -10,16 +10,16 @@ namespace TrippyGL
     public sealed class RenderbufferObject : GraphicsResource
     {
         /// <summary>The handle for the GL Renderbuffer Object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
         /// <summary>The width of this <see cref="RenderbufferObject"/>.</summary>
-        public readonly int Width;
+        public readonly uint Width;
 
         /// <summary>The height of this <see cref="RenderbufferObject"/>.</summary>
-        public readonly int Height;
+        public readonly uint Height;
 
         /// <summary>The amount of samples this <see cref="RenderbufferObject"/> has.</summary>
-        public readonly int Samples;
+        public readonly uint Samples;
 
         /// <summary>The format for this <see cref="RenderbufferObject"/>.</summary>
         public readonly RenderbufferFormat Format;
@@ -44,7 +44,7 @@ namespace TrippyGL
         /// <param name="height">The height for the <see cref="RenderbufferObject"/>.</param>
         /// <param name="format">The format for the <see cref="RenderbufferObject"/>'s storage.</param>
         /// <param name="samples">The amount of samples the <see cref="RenderbufferObject"/> will have.</param>
-        public RenderbufferObject(GraphicsDevice graphicsDevice, int width, int height, RenderbufferFormat format, int samples = 0)
+        public RenderbufferObject(GraphicsDevice graphicsDevice, uint width, uint height, RenderbufferFormat format, uint samples = 0)
             : base(graphicsDevice)
         {
             if (!Enum.IsDefined(typeof(RenderbufferFormat), format))
@@ -64,7 +64,7 @@ namespace TrippyGL
             Height = height;
             Samples = samples;
             graphicsDevice.ForceBindRenderbuffer(this);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Samples, (RenderbufferStorage)format, Width, Height);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, Samples, (InternalFormat)format, Width, Height);
         }
 
         protected override void Dispose(bool isManualDispose)
@@ -73,7 +73,7 @@ namespace TrippyGL
             base.Dispose(isManualDispose);
         }
 
-        internal void ValidateSampleCount(int samples)
+        internal void ValidateSampleCount(uint samples)
         {
             if (samples < 0 || samples > GraphicsDevice.MaxSamples)
                 throw new ArgumentOutOfRangeException(nameof(samples), samples, "The sample count must be in the range [0, " + nameof(GraphicsDevice.MaxSamples) + "]");

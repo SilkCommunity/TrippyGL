@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -15,19 +15,19 @@ namespace TrippyGL
         public readonly VertexAttribPointerType AttribBaseType;
 
         /// <summary>The size in bytes of the attribute. A float is 4, a ivec2 is 8, a vec4 is 16, a double is 8, a mat3 is 36, etc.</summary>
-        public readonly int SizeInBytes;
+        public readonly uint SizeInBytes;
 
         /// <summary>Whether the attrib data should be normalized when loaded into shaders.</summary>
         public readonly bool Normalized;
 
         /// <summary>The amount of attribute indices this specific attribute occupies. Usually 1, but float matrices for example use one for each row.</summary>
-        public readonly int AttribIndicesUseCount;
+        public readonly uint AttribIndicesUseCount;
 
         /// <summary>The type of the attribute declared in the shader.</summary>
-        public readonly ActiveAttribType AttribType;
+        public readonly AttributeType AttribType;
 
         /// <summary>Defines the rate at which this attribute advances when rendering. If 0, it advances once per vertex. Otherwise, it advances once every AttribDivisor instance/s.</summary>
-        public readonly int AttribDivisor;
+        public readonly uint AttribDivisor;
 
         /// <summary>Gets whether this <see cref="VertexAttribDescription"/> is only used to indicate padding.</summary>
         public bool IsPadding => AttribIndicesUseCount == 0;
@@ -38,12 +38,12 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribType">The type of attribute declared in the shader.</param>
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
-        public VertexAttribDescription(ActiveAttribType attribType, int attribDivisor = 0)
+        public VertexAttribDescription(AttributeType attribType, uint attribDivisor = 0)
         {
             CheckAttribDivisor(attribDivisor);
 
             TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
-            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * Size * AttribIndicesUseCount;
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * (uint)Size * AttribIndicesUseCount;
             AttribType = attribType;
             Normalized = false;
             AttribDivisor = attribDivisor;
@@ -57,7 +57,7 @@ namespace TrippyGL
         /// <param name="normalized">Whether the vertex data should be normalized before being loaded into the shader.</param>
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer.</param>
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
-        public VertexAttribDescription(ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType, int attribDivisor = 0)
+        public VertexAttribDescription(AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
         {
             CheckAttribDivisor(attribDivisor);
 
@@ -76,7 +76,7 @@ namespace TrippyGL
             AttribType = attribType;
             Size = TrippyUtils.GetVertexAttribTypeSize(attribType);
             AttribIndicesUseCount = TrippyUtils.GetVertexAttribTypeIndexCount(attribType);
-            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * Size * AttribIndicesUseCount;
+            SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(dataBaseType) * (uint)Size * AttribIndicesUseCount;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace TrippyGL
         /// used to indicate padding (unused, ignored buffer memory in between other vertex attribs).
         /// </summary>
         /// <param name="paddingBytes">The amount of padding in bytes.</param>
-        public VertexAttribDescription(int paddingBytes)
+        public VertexAttribDescription(uint paddingBytes)
         {
             if (paddingBytes <= 0)
                 throw new ArgumentOutOfRangeException(nameof(paddingBytes), paddingBytes, nameof(paddingBytes) + " must be greater than 0");
@@ -94,7 +94,7 @@ namespace TrippyGL
             SizeInBytes = paddingBytes; // The only non-zero field when a VertexAttribDescription is used for padding, stores the padding in bytes
             Normalized = false;
             AttribIndicesUseCount = 0; // We'll use this value to be the one that decides whether this is padding. If it uses 0 indices, it's padding.
-            AttribType = ActiveAttribType.None;
+            AttribType = default;
             AttribDivisor = 0;
         }
 
@@ -115,17 +115,17 @@ namespace TrippyGL
             );
         }
 
-        public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, int size)
+        public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, uint size)
         {
             return new VertexAttribDescription(TrippyUtils.GetVertexAttribSizeInBytes(baseType) * size);
         }
 
-        public static VertexAttribDescription CreatePadding(ActiveAttribType attribType)
+        public static VertexAttribDescription CreatePadding(AttributeType attribType)
         {
-            return CreatePadding(TrippyUtils.GetVertexAttribBaseType(attribType), TrippyUtils.GetVertexAttribTypeSize(attribType));
+            return CreatePadding(TrippyUtils.GetVertexAttribBaseType(attribType), (uint)TrippyUtils.GetVertexAttribTypeSize(attribType));
         }
 
-        private static void CheckAttribDivisor(int attribDivisor)
+        private static void CheckAttribDivisor(uint attribDivisor)
         {
             if (attribDivisor < 0)
                 throw new ArgumentOutOfRangeException(nameof(attribDivisor), attribDivisor, nameof(attribDivisor) + " must be greater than 0");

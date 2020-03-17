@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -9,13 +9,13 @@ namespace TrippyGL
     public sealed class BufferObject : GraphicsResource
     {
         /// <summary>The handle for the GL Buffer Object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
         /// <summary>The usage hint applied for this <see cref="BufferObject"/>.</summary>
-        public BufferUsageHint UsageHint { get; private set; }
+        public BufferUsageARB UsageHint { get; private set; }
 
         /// <summary>The length of this <see cref="BufferObject"/>'s storage, measured in bytes.</summary>
-        public int StorageLengthInBytes { get; private set; }
+        public uint StorageLengthInBytes { get; private set; }
 
         /// <summary>
         /// Creates a <see cref="BufferObject"/> with a specified length and usage hint.
@@ -23,8 +23,11 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="sizeInBytes">The desired size of the <see cref="BufferObject"/>'s storage measured in bytes.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        public BufferObject(GraphicsDevice graphicsDevice, int sizeInBytes, BufferUsageHint usageHint) : base(graphicsDevice)
+        public BufferObject(GraphicsDevice graphicsDevice, uint sizeInBytes, BufferUsageARB usageHint) : base(graphicsDevice)
         {
+            if (usageHint == default)
+                throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageARB) + " value");
+
             Handle = GL.GenBuffer();
             RecreateStorage(sizeInBytes, usageHint);
         }
@@ -37,38 +40,23 @@ namespace TrippyGL
         /// The contents of the new storage are undefined after this operation.
         /// </summary>
         /// <param name="sizeInBytes">The new size for the <see cref="BufferObject"/> measured in bytes.</param>
-        /// <param name="usageHint">The new usage hint for the <see cref="BufferObject"/>.</param>
-        public void RecreateStorage(int sizeInBytes, BufferUsageHint usageHint)
+        /// <param name="usageHint">The new usage hint for the <see cref="BufferObject"/>, or default to keep the previous hint.</param>
+        public unsafe void RecreateStorage(uint sizeInBytes, BufferUsageARB usageHint = default)
         {
-            // We check that the parameters are valid
+            // We check that the parameters are valid, then store them
             ValidateBufferSize(sizeInBytes);
-            ValidateBufferUsage(usageHint);
 
-            // We save these values on this object
-            UsageHint = usageHint;
+            if (usageHint != default)
+            {
+                ValidateBufferUsage(usageHint);
+                UsageHint = usageHint;
+            }
+
             StorageLengthInBytes = sizeInBytes;
 
             // We then bind this buffer and specify it's storage to OpenGL
             GraphicsDevice.BindBufferObject(this);
-            GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, usageHint);
-        }
-
-        /// <summary>
-        /// Recreate this <see cref="BufferObject"/>'s storage with a new size but same usage hint as before.
-        /// The contents of the new storage are undefined after this operation.
-        /// </summary>
-        /// <param name="sizeInBytes">The new size of the <see cref="BufferObject"/> measured in bytes.</param>
-        public void RecreateStorage(int sizeInBytes)
-        {
-            // We check that sizeInBytes is a valid value
-            ValidateBufferSize(sizeInBytes);
-
-            // And save it
-            StorageLengthInBytes = sizeInBytes;
-
-            // We then bind this buffer and specify it's storage to OpenGL
-            GraphicsDevice.BindBufferObject(this);
-            GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, IntPtr.Zero, UsageHint);
+            GL.BufferData(GraphicsDevice.DefaultBufferTarget, sizeInBytes, (void*)0, usageHint);
         }
 
         protected override void Dispose(bool isManualDispose)
@@ -89,7 +77,7 @@ namespace TrippyGL
         /// <summary>
         /// Checks that the buffer size in bytes parameter is valid and throws an exception if it's not.
         /// </summary>
-        private static void ValidateBufferSize(int sizeInBytes)
+        private static void ValidateBufferSize(uint sizeInBytes)
         {
             if (sizeInBytes <= 0)
                 throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, nameof(sizeInBytes) + " must be greater than 0");
@@ -98,10 +86,10 @@ namespace TrippyGL
         /// <summary>
         /// Checks that the usage hint parameter is valid and throws an exception if it's not.
         /// </summary>
-        private static void ValidateBufferUsage(BufferUsageHint usageHint)
+        private static void ValidateBufferUsage(BufferUsageARB usageHint)
         {
-            if (!Enum.IsDefined(typeof(BufferUsageHint), usageHint))
-                throw new FormatException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageHint) + " value");
+            if (!Enum.IsDefined(typeof(BufferUsageARB), usageHint))
+                throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageARB) + " value");
         }
     }
 }

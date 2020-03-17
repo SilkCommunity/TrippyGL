@@ -1,6 +1,5 @@
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -28,14 +27,14 @@ namespace TrippyGL
         public double DepthRangeNear
         {
             get { return depthNear; }
-            set { depthNear = MathHelper.Clamp(value, 0, 1); }
+            set { depthNear = Math.Clamp(value, 0, 1); }
         }
 
         /// <summary>The far depth value for the depth's range. Must be in the [0, 1] range.</summary>
         public double DepthRangeFar
         {
             get { return depthFar; }
-            set { depthFar = MathHelper.Clamp(value, 0, 1); }
+            set { depthFar = Math.Clamp(value, 0, 1); }
         }
 
         /// <summary>Whether the depth buffer will be written to when a depth check succeeds.</summary>

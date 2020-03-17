@@ -1,4 +1,5 @@
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -11,6 +12,8 @@ namespace TrippyGL
         /// <summary>The <see cref="GraphicsDevice"/> that manages this <see cref="GraphicsResource"/>.</summary>
         public GraphicsDevice GraphicsDevice { get; internal set; }
 
+        internal GL GL => GraphicsDevice.GL;
+
         /// <summary>Whether this <see cref="GraphicsResource"/> has been disposed.</summary>
         public bool IsDisposed { get; private set; }
 
@@ -20,10 +23,7 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="TrippyGL.GraphicsDevice"/> for this <see cref="GraphicsResource"/>.</param>
         internal GraphicsResource(GraphicsDevice graphicsDevice)
         {
-            if (graphicsDevice == null)
-                throw new ArgumentNullException(nameof(graphicsDevice));
-
-            GraphicsDevice = graphicsDevice;
+            GraphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
             graphicsDevice.OnResourceAdded(this);
         }
 

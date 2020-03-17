@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using System;
 
 namespace TrippyGL
@@ -12,13 +12,13 @@ namespace TrippyGL
         private protected const TextureMagFilter DefaultMagFilter = TextureMagFilter.Nearest;
 
         /// <summary>The handle for the GL Texture Object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
         /// <summary>The type of this <see cref="Texture"/>, such as 1D, 2D, Multisampled 2D, Array 2D, CubeMap, etc.</summary>
         public readonly TextureTarget TextureType;
 
-        /// <summary>The format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats.</summary>
-        internal readonly PixelInternalFormat PixelInternalFormat;
+        /// <summary>The internal format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats.</summary>
+        internal readonly InternalFormat PixelInternalFormat;
 
         /// <summary>The data type of the components of the <see cref="Texture"/>'s pixels.</summary>
         internal readonly PixelType PixelType;
@@ -94,7 +94,7 @@ namespace TrippyGL
                 throw new InvalidOperationException(string.Concat("This texture type is not mipmappable! Type: ", TextureType.ToString()));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GenerateMipmap((GenerateMipmapTarget)TextureType);
+            GL.GenerateMipmap(TextureType);
             IsMipmapped = true;
         }
 
@@ -122,6 +122,6 @@ namespace TrippyGL
     /// </summary>
     internal interface IMultisamplableTexture
     {
-        int Samples { get; }
+        uint Samples { get; }
     }
 }

@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -26,7 +26,7 @@ namespace TrippyGL
         /// <param name="attribDesc">The <see cref="VertexAttribDescription"/> describing the vertex attribute.</param>
         public VertexAttribSource(BufferObjectSubset bufferSubset, VertexAttribDescription attribDesc)
         {
-            if (bufferSubset.BufferTarget != BufferTarget.ArrayBuffer)
+            if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
                 throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", "bufferSubset");
 
             BufferSubset = bufferSubset;
@@ -39,7 +39,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferSubset">The <see cref="BufferObjectSubset"/> where the vertex attrib data is located. Must be a subset usable for vertex data.</param>
         /// <param name="attribType">The type of attribute declared in the shader.</param>
-        public VertexAttribSource(BufferObjectSubset bufferSubset, ActiveAttribType attribType, int attribDivisor = 0)
+        public VertexAttribSource(BufferObjectSubset bufferSubset, AttributeType attribType, uint attribDivisor = 0)
             : this(bufferSubset, new VertexAttribDescription(attribType, attribDivisor))
         {
 
@@ -53,7 +53,7 @@ namespace TrippyGL
         /// <param name="attribType">The type of attribute declared in the shader.</param>
         /// <param name="normalized">Whether the data needs to be normalized (uint/ushort/byte -> float between 0 and 1, or int/short/sbyte -> float between -1 and 1).</param>
         /// <param name="dataBaseType">The base type of the data found on the buffer. If normalized is true, this must be an integer type.</param>
-        public VertexAttribSource(BufferObjectSubset bufferSubset, ActiveAttribType attribType, bool normalized, VertexAttribPointerType dataBaseType, int attribDivisor = 0)
+        public VertexAttribSource(BufferObjectSubset bufferSubset, AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
             : this(bufferSubset, new VertexAttribDescription(attribType, normalized, dataBaseType, attribDivisor))
         {
 
@@ -66,10 +66,10 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferSubset">The <see cref="BufferObjectSubset"/> where the padding will be added.</param>
         /// <param name="paddingBytes">The amount of space to leave empty, measured in bytes.</param>
-        public VertexAttribSource(BufferObjectSubset bufferSubset, int paddingBytes)
+        public VertexAttribSource(BufferObjectSubset bufferSubset, uint paddingBytes)
         {
-            if (bufferSubset.BufferTarget != BufferTarget.ArrayBuffer)
-                throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", "bufferSubset");
+            if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
+                throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", nameof(bufferSubset));
 
             BufferSubset = bufferSubset;
             AttribDescription = new VertexAttribDescription(paddingBytes);
@@ -84,12 +84,12 @@ namespace TrippyGL
             return string.Concat(AttribDescription.ToString(), ", bufferHandle=", BufferSubset?.BufferHandle.ToString());
         }
 
-        public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, VertexAttribPointerType baseType, int size)
+        public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, VertexAttribPointerType baseType, uint size)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(baseType, size));
         }
 
-        public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, ActiveAttribType attribType)
+        public static VertexAttribSource CreatePadding(BufferObjectSubset bufferSubset, AttributeType attribType)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(attribType));
         }
