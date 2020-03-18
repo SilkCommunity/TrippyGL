@@ -110,6 +110,13 @@ namespace TrippyGL
 
         private bool debugMessagingEnabled = false;
 
+        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
+        public event GLDebugMessageReceivedHandler DebugMessage;
+
+        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
+        private DebugProc debugProcDelegate;
+        private GCHandle debugProcDelegateHandle;
+
         /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
         {
@@ -138,13 +145,6 @@ namespace TrippyGL
                 }
             }
         }
-
-        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
-        public event GLDebugMessageReceivedHandler DebugMessage;
-
-        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
-        private DebugProc debugProcDelegate;
-        private GCHandle debugProcDelegateHandle;
 
         private void OnDebugMessageRecieved(GLEnum src, GLEnum type, int id, GLEnum sev, int length, IntPtr msg, IntPtr param)
         {

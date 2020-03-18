@@ -74,9 +74,9 @@ namespace TrippyTesting.Tests
             });
             program.LinkProgram();
             Matrix4x4 id = Matrix4x4.Identity;
-            program.Uniforms["World"].SetValueMat4(ref id);
-            program.Uniforms["View"].SetValueMat4(ref id);
-            program.Uniforms["Projection"].SetValueMat4(ref id);
+            program.Uniforms["World"].SetValueMat4(id);
+            program.Uniforms["View"].SetValueMat4(id);
+            program.Uniforms["Projection"].SetValueMat4(id);
             program.Uniforms["samp"].SetValueTexture(texture);
 
             WeirdAssVertex[] data = new WeirdAssVertex[]
@@ -121,7 +121,7 @@ namespace TrippyTesting.Tests
         {
             graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
             Matrix4x4 mat = Matrix4x4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
-            program.Uniforms["Projection"].SetValueMat4(ref mat);
+            program.Uniforms["Projection"].SetValueMat4(mat);
         }
 
         private void OnWindowClosing()

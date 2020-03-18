@@ -21,7 +21,7 @@ namespace TrippyGL
         /// <summary>The location of the uniform on the <see cref="ShaderProgram"/>. Used for setting the value.</summary>
         public readonly int UniformLocation;
 
-        /// <summary>For array uniforms, this is the length of the array. 1 for non-arrays.</summary>
+        /// <summary>For array uniforms, this is the length of the array. 1 for non-array uniforms.</summary>
         public readonly int Size;
 
         /// <summary>Gets whether this <see cref="ShaderUniform"/> is of a sampler or sampler-array type.</summary>
@@ -71,178 +71,188 @@ namespace TrippyGL
         public static bool operator !=(ShaderUniform left, ShaderUniform right) => !left.Equals(right);
 
         #region SetValue1
-        public void SetValue1(float value)
+        public void SetValueFloat(float value)
         {
             ValidateUniformType(UniformType.Float);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform1(UniformLocation, value);
         }
-
-        public void SetValue1(double value)
+        public void SetValueDouble(double value)
         {
             ValidateUniformType(UniformType.Double);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform1(UniformLocation, value);
         }
-
-        public void SetValue1(int value)
+        public void SetValueInt(int value)
         {
             ValidateUniformType(UniformType.Int);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform1(UniformLocation, value);
         }
-        public void SetValue1(uint value)
+        public void SetValueUint(uint value)
         {
             ValidateUniformType(UniformType.UnsignedInt);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform1(UniformLocation, value);
         }
+        public void SetValueBool(bool value)
+        {
+            ValidateUniformType(UniformType.Bool);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform1(UniformLocation, value ? (int)GLEnum.True : (int)GLEnum.False);
+        }
         #endregion
 
         #region SetValue2
-        public void SetValue2(ref Vector2 value)
-        {
-            ValidateUniformType(UniformType.FloatVec2);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform2(UniformLocation, ref value);
-        }
-        public void SetValue2(Vector2 value)
-        {
-            SetValue2(ref value);
-        }
-        public void SetValue2(float x, float y)
+        public void SetValueVec2(float x, float y)
         {
             ValidateUniformType(UniformType.FloatVec2);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform2(UniformLocation, x, y);
         }
-
-        public void SetValue2(double x, double y)
+        public void SetValueDVec2(double x, double y)
         {
             ValidateUniformType(UniformType.DoubleVec2);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform2(UniformLocation, x, y);
         }
-
-        public void SetValue2(int x, int y)
+        public void SetValueIVec2(int x, int y)
         {
             ValidateUniformType(UniformType.IntVec2);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform2(UniformLocation, x, y);
         }
-        public void SetValue2(uint x, uint y)
+        public void SetValueUVec2(uint x, uint y)
         {
             ValidateUniformType(UniformType.UnsignedIntVec2);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform2(UniformLocation, x, y);
         }
+        public void SetValueBVec2(bool x, bool y)
+        {
+            ValidateUniformType(UniformType.BoolVec2);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform2(UniformLocation, x ? (int)GLEnum.True : (int)GLEnum.False, y ? (int)GLEnum.True : (int)GLEnum.False);
+        }
+
+        public void SetValueVec2(in Vector2 value)
+        {
+            SetValueVec2(value.X, value.Y);
+        }
         #endregion
 
         #region SetValue3
-        public void SetValue3(ref Vector3 value)
-        {
-            ValidateUniformType(UniformType.FloatVec3);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform3(UniformLocation, ref value);
-        }
-        public void SetValue3(Vector3 value)
-        {
-            SetValue3(ref value);
-        }
-        public void SetValue3(float x, float y, float z)
+        public void SetValueVec3(float x, float y, float z)
         {
             ValidateUniformType(UniformType.FloatVec3);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform3(UniformLocation, x, y, z);
         }
-
-        public void SetValue3(double x, double y, double z)
+        public void SetValueDVec3(double x, double y, double z)
         {
             ValidateUniformType(UniformType.DoubleVec3);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform3(UniformLocation, x, y, z);
         }
-
-        public void SetValue3(int x, int y, int z)
+        public void SetValueIVec3(int x, int y, int z)
         {
             ValidateUniformType(UniformType.IntVec3);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform3(UniformLocation, x, y, z);
         }
-        public void SetValue3(uint x, uint y, uint z)
+        public void SetValueUVec3(uint x, uint y, uint z)
         {
             ValidateUniformType(UniformType.UnsignedIntVec3);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform3(UniformLocation, x, y, z);
         }
+        public void SetValueBVec3(bool x, bool y, bool z)
+        {
+            ValidateUniformType(UniformType.BoolVec3);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform3(UniformLocation,
+                x ? (int)GLEnum.True : (int)GLEnum.False,
+                y ? (int)GLEnum.True : (int)GLEnum.False,
+                z ? (int)GLEnum.True : (int)GLEnum.False
+            );
+        }
+
+        public void SetValueVec3(in Vector3 value)
+        {
+            SetValueVec3(value.X, value.Y, value.Z);
+        }
         #endregion
 
         #region SetValue4
-        public void SetValue4(ref Vector4 value)
-        {
-            ValidateUniformType(UniformType.FloatVec4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform4(UniformLocation, ref value);
-        }
-        public void SetValue4(Vector4 value)
-        {
-            SetValue4(ref value);
-        }
-        public void SetValue4(Color4b value)
-        {
-            ValidateUniformType(UniformType.FloatVec4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform4(UniformLocation, value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f);
-        }
-        public void SetValue4(Quaternion value)
-        {
-            ValidateUniformType(UniformType.FloatVec4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform4(UniformLocation, value);
-        }
-        public void SetValue4(float x, float y, float z, float w)
+        public void SetValueVec4(float x, float y, float z, float w)
         {
             ValidateUniformType(UniformType.FloatVec4);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform4(UniformLocation, x, y, z, w);
         }
-        public void SetValue4(double x, double y, double z, double w)
+        public void SetValueDVec4(double x, double y, double z, double w)
         {
             ValidateUniformType(UniformType.DoubleVec4);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform4(UniformLocation, x, y, z, w);
         }
-
-        public void SetValue4(int x, int y, int z, int w)
+        public void SetValueIVec4(int x, int y, int z, int w)
         {
             ValidateUniformType(UniformType.IntVec4);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform4(UniformLocation, x, y, z, w);
         }
-        public void SetValue4(uint x, uint y, uint z, uint w)
+        public void SetValueUVec4(uint x, uint y, uint z, uint w)
         {
             ValidateUniformType(UniformType.UnsignedIntVec4);
             OwnerProgram.EnsureInUse();
             OwnerProgram.GL.Uniform4(UniformLocation, x, y, z, w);
         }
+        public void SetValueBVec4(bool x, bool y, bool z, bool w)
+        {
+            ValidateUniformType(UniformType.BoolVec4);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform4(UniformLocation,
+                x ? (int)GLEnum.True : (int)GLEnum.False,
+                y ? (int)GLEnum.True : (int)GLEnum.False,
+                z ? (int)GLEnum.True : (int)GLEnum.False,
+                w ? (int)GLEnum.True : (int)GLEnum.False
+            );
+        }
+
+        public void SetValueVec4(in Vector4 value)
+        {
+            SetValueVec4(value.X, value.Y, value.Z, value.W);
+        }
+        public void SetValueVec4(Color4b value)
+        {
+            SetValueVec4(value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f);
+        }
+        public void SetValueVec4(in Quaternion value)
+        {
+            SetValueVec4(value.X, value.Y, value.Z, value.W);
+        }
         #endregion
 
         #region SetValueSamplers
-        public void SetValueTexture(Texture texture)
+        public void SetValueTexture(Texture texture, int uniformIndex = 0)
         {
             ValidateIsSampler();
+
+            if (uniformIndex < 0 || uniformIndex >= Size)
+                throw new ArgumentOutOfRangeException(nameof(uniformIndex), nameof(uniformIndex) + " must be in the range [0, " + nameof(Size) + ")");
 
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture));
 
-            if (textureValues[0] != texture)
+            if (textureValues[uniformIndex] != texture)
             {
-                textureValues[0] = texture;
+                textureValues[uniformIndex] = texture;
                 OwnerProgram.Uniforms.isTextureListDirty = true;
             }
         }
 
-        public void SetValueTextureArray(Span<Texture> textures, int startUniformIndex = 0)
+        public void SetValueTextureArray(ReadOnlySpan<Texture> textures, int startUniformIndex = 0)
         {
             ValidateIsSampler();
 
@@ -268,212 +278,446 @@ namespace TrippyGL
         #endregion
 
         #region SetValueMat2
-        /*
-        public void SetValueMat2(ref Matrix2 value, bool transpose = false)
+        public unsafe void SetValueMat2Ptr(float* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat2);
+            ValidateArrayAndType(UniformType.FloatMat2, count);
             OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2(UniformLocation, transpose, ref value);
+            OwnerProgram.GL.UniformMatrix2(UniformLocation, (uint)count, transpose, ptr);
         }
-        public void SetValueMat2(ref Matrix2x3 value, bool transpose = false)
+        public unsafe void SetValueDMat2Ptr(double* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat2x3);
+            ValidateArrayAndType(UniformType.DoubleMat2, count);
             OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2x3(UniformLocation, 1, transpose, ref value.Row0.X);
+            OwnerProgram.GL.UniformMatrix2(UniformLocation, (uint)count, transpose, ptr);
         }
-        public void SetValueMat2(ref Matrix2x4 value, bool transpose = false)
+        public unsafe void SetValueMat2x4Ptr(float* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat2x4);
+            ValidateArrayAndType(UniformType.FloatMat2x4, count);
             OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2x4(UniformLocation, 1, transpose, ref value.Row0.X);
+            OwnerProgram.GL.UniformMatrix2x4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat2x4Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat2x4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix2x4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueMat2x3Ptr(float* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.FloatMat2x3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix2x3(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat2x3Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat2x3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix2x3(UniformLocation, (uint)count, transpose, ptr);
         }
 
-        public void SetValueMat2(ref Matrix2d value, bool transpose = false)
+        public unsafe void SetValueMat2(ReadOnlySpan<float> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat2);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2(UniformLocation, 1, transpose, ref value.Row0.X);
+            fixed (float* ptr = &value[0])
+                SetValueMat2Ptr(ptr, value.Length / 4, transpose);
         }
-        public void SetValueMat2(ref Matrix2x3d value, bool transpose = false)
+        public unsafe void SetValueDMat2(ReadOnlySpan<double> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat2x3);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2x3(UniformLocation, 1, transpose, ref value.Row0.X);
+            fixed (double* ptr = &value[0])
+                SetValueDMat2Ptr(ptr, value.Length / 4, transpose);
         }
-        public void SetValueMat2(ref Matrix2x4d value, bool transpose = false)
+        public unsafe void SetValueMat2x4(ReadOnlySpan<float> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat2x4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix2x4(UniformLocation, 1, transpose, ref value.Row0.X);
-        }*/
+            fixed (float* ptr = &value[0])
+                SetValueMat2x4Ptr(ptr, value.Length / 8, transpose);
+        }
+        public unsafe void SetValueDMat2x4(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat2x4Ptr(ptr, value.Length / 8, transpose);
+        }
+        public unsafe void SetValueMat2x3(ReadOnlySpan<float> value, bool transpose = false)
+        {
+            fixed (float* ptr = &value[0])
+                SetValueMat2x3Ptr(ptr, value.Length / 6, transpose);
+        }
+        public unsafe void SetValueDMat2x3(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat2x3Ptr(ptr, value.Length / 6, transpose);
+        }
         #endregion
 
-        #region SetValueMat3
-        /*public void SetValueMat3(ref Matrix3 value, bool transpose = false)
+        #region SetValueMat3xX
+        public unsafe void SetValueMat3Ptr(float* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat3);
+            ValidateArrayAndType(UniformType.FloatMat3, count);
             OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix3(UniformLocation, transpose, ref value);
-        }*/
-        public unsafe void SetValueMat3(ref Matrix3x2 value, bool transpose = false)
-        {
-            ValidateUniformType(UniformType.FloatMat3x2);
-            OwnerProgram.EnsureInUse();
-            fixed (float* ptr = &value.M11)
-                OwnerProgram.GL.UniformMatrix3x2(UniformLocation, 1, transpose, ptr);
+            OwnerProgram.GL.UniformMatrix3(UniformLocation, (uint)count, transpose, ptr);
         }
-        /*public void SetValueMat3(ref Matrix3x4 value, bool transpose = false)
+        public unsafe void SetValueDMat3Ptr(double* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat3x4);
+            ValidateArrayAndType(UniformType.DoubleMat3, count);
             OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix3x4(UniformLocation, 1, transpose, ref value.Row0.X);
+            OwnerProgram.GL.UniformMatrix3(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueMat3x4Ptr(float* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.FloatMat3x4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix3x4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat3x4Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat3x4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix3x4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueMat3x2Ptr(float* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.FloatMat3x2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix3x2(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat3x2Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat3x2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix3x2(UniformLocation, (uint)count, transpose, ptr);
         }
 
-        public void SetValueMat3(ref Matrix3d value, bool transpose = false)
+        public unsafe void SetValueMat3(ReadOnlySpan<float> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat3);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix3(UniformLocation, 1, transpose, ref value.Row0.X);
+            fixed (float* ptr = &value[0])
+                SetValueMat3Ptr(ptr, value.Length / 9, transpose);
         }
-        public void SetValueMat3(ref Matrix3x2d value, bool transpose = false)
+        public unsafe void SetValueDMat3(ReadOnlySpan<double> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat3x2);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix3x2(UniformLocation, 1, transpose, ref value.Row0.X);
+            fixed (double* ptr = &value[0])
+                SetValueDMat3Ptr(ptr, value.Length / 9, transpose);
         }
-        public void SetValueMat3(ref Matrix3x4d value, bool transpose = false)
+        public unsafe void SetValueMat3x4(ReadOnlySpan<float> value, bool transpose = false)
         {
-            ValidateUniformType((UniformType)All.DoubleMat3x4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix3x4(UniformLocation, 1, transpose, ref value.Row0.X);
-        }*/
+            fixed (float* ptr = &value[0])
+                SetValueMat3x4Ptr(ptr, value.Length / 12, transpose);
+        }
+        public unsafe void SetValueDMat3x4(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat3x4Ptr(ptr, value.Length / 12, transpose);
+        }
+        public unsafe void SetValueMat3x2(ReadOnlySpan<float> value, bool transpose = false)
+        {
+            fixed (float* ptr = &value[0])
+                SetValueMat3x2Ptr(ptr, value.Length / 6, transpose);
+        }
+        public unsafe void SetValueDMat3x2(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat3x2Ptr(ptr, value.Length / 6, transpose);
+        }
+
+        public unsafe void SetValueMat3x2(in Matrix3x2 value, bool transpose = false)
+        {
+            fixed (float* ptr = &value.M11)
+                SetValueMat3x2Ptr(ptr, 1, transpose);
+        }
+        public unsafe void SetValueMat3x2Array(ReadOnlySpan<Matrix3x2> value, bool transpose)
+        {
+            fixed (float* ptr = &value[0].M11)
+                SetValueMat3x2Ptr(ptr, value.Length, transpose);
+        }
         #endregion
 
-        #region SetValueMat4
-        public unsafe void SetValueMat4(ref Matrix4x4 value, bool transpose = false)
+        #region SetValueMat4xX
+        public unsafe void SetValueMat4Ptr(float* ptr, int count = 1, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat4);
-
+            ValidateArrayAndType(UniformType.FloatMat4, count);
             OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat4Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueMat4x3Ptr(float* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.FloatMat4x3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4x3(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat4x3Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat4x3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4x3(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueMat4x2Ptr(float* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.FloatMat4x2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4x2(UniformLocation, (uint)count, transpose, ptr);
+        }
+        public unsafe void SetValueDMat4x2Ptr(double* ptr, int count = 1, bool transpose = false)
+        {
+            ValidateArrayAndType(UniformType.DoubleMat4x2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.UniformMatrix4x2(UniformLocation, (uint)count, transpose, ptr);
+        }
+
+        public unsafe void SetValueMat4(ReadOnlySpan<float> value, bool transpose = false)
+        {
+            fixed (float* ptr = &value[0])
+                SetValueMat4Ptr(ptr, value.Length / 16, transpose);
+        }
+        public unsafe void SetValueDMat4(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat4Ptr(ptr, value.Length / 16, transpose);
+        }
+        public unsafe void SetValueMat4x3(ReadOnlySpan<float> value, bool transpose = false)
+        {
+            fixed (float* ptr = &value[0])
+                SetValueMat4x3Ptr(ptr, value.Length / 12, transpose);
+        }
+        public unsafe void SetValueDMat4x3(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat4x3Ptr(ptr, value.Length / 12, transpose);
+        }
+        public unsafe void SetValueMat4x2(ReadOnlySpan<float> value, bool transpose = false)
+        {
+            fixed (float* ptr = &value[0])
+                SetValueMat4x2Ptr(ptr, value.Length / 8, transpose);
+        }
+        public unsafe void SetValueDMat4x2(ReadOnlySpan<double> value, bool transpose = false)
+        {
+            fixed (double* ptr = &value[0])
+                SetValueDMat4x2Ptr(ptr, value.Length / 8, transpose);
+        }
+
+        public unsafe void SetValueMat4(in Matrix4x4 value, bool transpose = false)
+        {
             fixed (float* ptr = &value.M11)
-                OwnerProgram.GL.UniformMatrix4(UniformLocation, 1, transpose, ptr);
+                SetValueMat4Ptr(ptr, 1, transpose);
         }
-        /*public void SetValueMat4(ref Matrix4x2 value, bool transpose = false)
+        public unsafe void SetValueMat4Array(ReadOnlySpan<Matrix4x4> value, bool transpose = false)
         {
-            ValidateUniformType(UniformType.FloatMat4x2);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix4x2(UniformLocation, 1, transpose, ref value.Row0.X);
-        }
-        public void SetValueMat4(ref Matrix4x3 value, bool transpose = false)
-        {
-            ValidateUniformType(UniformType.FloatMat4x3);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix4x3(UniformLocation, 1, transpose, ref value.Row0.X);
-        }
+            fixed (float* ptr = &value[0].M11)
+                SetValueMat4Ptr(ptr, value.Length, transpose);
 
-        public void SetValueMat4(ref Matrix4d value, bool transpose = false)
-        {
-            ValidateUniformType((UniformType)All.DoubleMat4);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix4(UniformLocation, 1, transpose, ref value.Row0.X);
         }
-        public void SetValueMat4(ref Matrix4x2d value, bool transpose = false)
-        {
-            ValidateUniformType((UniformType)All.DoubleMat4x2);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix4x2(UniformLocation, 1, transpose, ref value.Row0.X);
-        }
-        public void SetValueMat4(ref Matrix4x3d value, bool transpose = false)
-        {
-            ValidateUniformType((UniformType)All.DoubleMat4x3);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.UniformMatrix4x3(UniformLocation, 1, transpose, ref value.Row0.X);
-        }*/
         #endregion
 
         #region SetValue1Array
+        public unsafe void SetValue1ArrayPtr(float* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.Float, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform1(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue1ArrayPtr(double* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.Double, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform1(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue1ArrayPtr(int* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.Int, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform1(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue1ArrayPtr(uint* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.UnsignedInt, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform1(UniformLocation, (uint)count, ptr);
+        }
+
         public unsafe void SetValue1Array(ReadOnlySpan<float> value)
         {
-            ValidateArrayAndType(UniformType.Float, value.Length);
-            OwnerProgram.EnsureInUse();
             fixed (float* ptr = &value[0])
-                OwnerProgram.GL.Uniform1(UniformLocation, (uint)value.Length, ptr);
+                SetValue1ArrayPtr(ptr, value.Length);
         }
-
         public unsafe void SetValue1Array(ReadOnlySpan<double> value)
         {
-            ValidateArrayAndType(UniformType.Double, value.Length);
-            OwnerProgram.EnsureInUse();
             fixed (double* ptr = &value[0])
-                OwnerProgram.GL.Uniform1(UniformLocation, (uint)value.Length, ptr);
+                SetValue1ArrayPtr(ptr, value.Length);
         }
-
         public unsafe void SetValue1Array(ReadOnlySpan<int> value)
         {
-            ValidateArrayAndType(UniformType.Int, value.Length);
-            OwnerProgram.EnsureInUse();
             fixed (int* ptr = &value[0])
-                OwnerProgram.GL.Uniform1(UniformLocation, (uint)value.Length, ptr);
+                SetValue1ArrayPtr(ptr, value.Length);
         }
-
         public unsafe void SetValue1Array(ReadOnlySpan<uint> value)
         {
-            ValidateArrayAndType(UniformType.UnsignedInt, value.Length);
-            OwnerProgram.EnsureInUse();
             fixed (uint* ptr = &value[0])
-                OwnerProgram.GL.Uniform1(UniformLocation, (uint)value.Length, ptr);
+                SetValue1ArrayPtr(ptr, value.Length);
         }
         #endregion
 
         #region SetValue2Array
-        public unsafe void SetValue2Array(ReadOnlySpan<Vector2> value)
+        public unsafe void SetValue2ArrayPtr(float* ptr, int count)
         {
-            ValidateArrayAndType(UniformType.FloatVec2, value.Length);
+            ValidateArrayAndType(UniformType.FloatVec2, count);
             OwnerProgram.EnsureInUse();
-            fixed (float* ptr = &value[0].X)
-                OwnerProgram.GL.Uniform2(UniformLocation, (uint)value.Length, ptr);
+            OwnerProgram.GL.Uniform2(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue2ArrayPtr(double* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.DoubleVec2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform2(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue2ArrayPtr(int* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.IntVec2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform2(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue2ArrayPtr(uint* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.UnsignedIntVec2, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform2(UniformLocation, (uint)count, ptr);
         }
 
-        /*public void SetValue2Array(Span<Vector2d> value)
+        public unsafe void SetValue2Array(ReadOnlySpan<Vector2> value)
         {
-            ValidateArrayAndType(UniformType.DoubleVec2, value.Length);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform2(UniformLocation, value.Length, ref value[0].X);
-        }*/
+            fixed (float* ptr = &value[0].X)
+                SetValue2ArrayPtr(ptr, value.Length);
+        }
+
+        public unsafe void SetValue2Array(ReadOnlySpan<float> value)
+        {
+            fixed (float* ptr = &value[0])
+                SetValue2ArrayPtr(ptr, value.Length / 2);
+        }
+        public unsafe void SetValue2Array(ReadOnlySpan<double> value)
+        {
+            fixed (double* ptr = &value[0])
+                SetValue2ArrayPtr(ptr, value.Length / 2);
+        }
+        public unsafe void SetValue2Array(ReadOnlySpan<int> value)
+        {
+            fixed (int* ptr = &value[0])
+                SetValue2ArrayPtr(ptr, value.Length / 2);
+        }
+        public unsafe void SetValue2Array(ReadOnlySpan<uint> value)
+        {
+            fixed (uint* ptr = &value[0])
+                SetValue2ArrayPtr(ptr, value.Length / 2);
+        }
         #endregion
 
         #region SetValue3Array
-        public unsafe void SetValue3Array(ReadOnlySpan<Vector3> value)
+        public unsafe void SetValue3ArrayPtr(float* ptr, int count)
         {
-            ValidateArrayAndType(UniformType.FloatVec3, value.Length);
+            ValidateArrayAndType(UniformType.FloatVec3, count);
             OwnerProgram.EnsureInUse();
-            fixed (float* ptr = &value[0].X)
-                OwnerProgram.GL.Uniform3(UniformLocation, (uint)value.Length, ptr);
+            OwnerProgram.GL.Uniform3(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue3ArrayPtr(double* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.DoubleVec3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform3(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue3ArrayPtr(int* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.IntVec3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform3(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue3ArrayPtr(uint* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.UnsignedIntVec3, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform3(UniformLocation, (uint)count, ptr);
         }
 
-        /*public unsafe void SetValue3Array(ReadOnlySpan<Vector3d> value)
+        public unsafe void SetValue3Array(ReadOnlySpan<Vector3> value)
         {
-            ValidateArrayAndType(UniformType.DoubleVec3, value.Length);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform3(UniformLocation, value.Length, ref value[0].X);
-        }*/
+            fixed (float* ptr = &value[0].X)
+                SetValue3ArrayPtr(ptr, value.Length);
+        }
+
+        public unsafe void SetValue3Array(ReadOnlySpan<float> value)
+        {
+            fixed (float* ptr = &value[0])
+                SetValue3ArrayPtr(ptr, value.Length / 3);
+        }
+        public unsafe void SetValue3Array(ReadOnlySpan<double> value)
+        {
+            fixed (double* ptr = &value[0])
+                SetValue3ArrayPtr(ptr, value.Length / 3);
+        }
+        public unsafe void SetValue3Array(ReadOnlySpan<int> value)
+        {
+            fixed (int* ptr = &value[0])
+                SetValue3ArrayPtr(ptr, value.Length / 3);
+        }
+        public unsafe void SetValue3Array(ReadOnlySpan<uint> value)
+        {
+            fixed (uint* ptr = &value[0])
+                SetValue3ArrayPtr(ptr, value.Length / 3);
+        }
         #endregion
 
         #region SetValue4Array
-        public unsafe void SetValue4Array(ReadOnlySpan<Vector4> value)
+        public unsafe void SetValue4ArrayPtr(float* ptr, int count)
         {
-            ValidateArrayAndType(UniformType.FloatVec4, value.Length);
+            ValidateArrayAndType(UniformType.FloatVec4, count);
             OwnerProgram.EnsureInUse();
-            fixed (float* ptr = &value[0].X)
-                OwnerProgram.GL.Uniform4(UniformLocation, (uint)value.Length, ptr);
+            OwnerProgram.GL.Uniform4(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue4ArrayPtr(double* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.DoubleVec4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform4(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue4ArrayPtr(int* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.IntVec4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform4(UniformLocation, (uint)count, ptr);
+        }
+        public unsafe void SetValue4ArrayPtr(uint* ptr, int count)
+        {
+            ValidateArrayAndType(UniformType.UnsignedIntVec4, count);
+            OwnerProgram.EnsureInUse();
+            OwnerProgram.GL.Uniform4(UniformLocation, (uint)count, ptr);
         }
 
-        /*public unsafe void SetValue4Array(Span<Vector4d> value)
+        public unsafe void SetValue4Array(ReadOnlySpan<Vector4> value)
         {
-            ValidateArrayAndType(UniformType.DoubleVec4, value.Length);
-            OwnerProgram.EnsureInUse();
-            OwnerProgram.GL.Uniform4(UniformLocation, value.Length, ref value[0].X);
-        }*/
+            fixed (float* ptr = &value[0].X)
+                SetValue4ArrayPtr(ptr, value.Length);
+        }
+
+        public unsafe void SetValue4Array(ReadOnlySpan<float> value)
+        {
+            fixed (float* ptr = &value[0])
+                SetValue4ArrayPtr(ptr, value.Length / 4);
+        }
+        public unsafe void SetValue4Array(ReadOnlySpan<double> value)
+        {
+            fixed (double* ptr = &value[0])
+                SetValue4ArrayPtr(ptr, value.Length / 4);
+        }
+        public unsafe void SetValue4Array(ReadOnlySpan<int> value)
+        {
+            fixed (int* ptr = &value[0])
+                SetValue4ArrayPtr(ptr, value.Length / 4);
+        }
+        public unsafe void SetValue4Array(ReadOnlySpan<uint> value)
+        {
+            fixed (uint* ptr = &value[0])
+                SetValue4ArrayPtr(ptr, value.Length / 4);
+        }
         #endregion
 
         /// <summary>
@@ -506,12 +750,6 @@ namespace TrippyGL
                     OwnerProgram.GL.Uniform1(UniformLocation, (uint)Size, textureLastAppliedUnits);
             }
         }
-
-        // TODO: Add missing SetValue-s
-
-        // TODO: region SetValueMatrix2Array or god knows what the fuck WHY ARE THERE SO MANY SET VALUES
-        // TODO: Should we validate array sets to make sure the indices are OK and such?
-        // Also, Should we even check that the type is OK?
 
         /// <summary>
         /// Checks that <see cref="UniformType"/> is the correct type and throws an exception otherwise.

@@ -118,7 +118,7 @@ namespace TrippyTesting.Tests
             terrProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
             terrProgram.LinkProgram();
             Matrix4x4 identity = Matrix4x4.Identity;
-            terrProgram.Uniforms["World"].SetValueMat4(ref identity);
+            terrProgram.Uniforms["World"].SetValueMat4(identity);
 
             #endregion
 
@@ -129,7 +129,7 @@ namespace TrippyTesting.Tests
             waterProgram.AddFragmentShader(File.ReadAllText("terrain/waterfs.glsl"));
             waterProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             waterProgram.LinkProgram();
-            waterProgram.Uniforms["World"].SetValueMat4(ref identity);
+            waterProgram.Uniforms["World"].SetValueMat4(identity);
 
             waterBuffer = new VertexBuffer<VertexColor>(graphicsDevice, new VertexColor[]
             {
@@ -261,7 +261,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.ClearColor = new Vector4(0f, 0f, 0f, 1f);
 
-            waterProgram.Uniforms["time"].SetValue1(time);
+            waterProgram.Uniforms["time"].SetValueFloat(time);
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -271,52 +271,52 @@ namespace TrippyTesting.Tests
             Matrix4x4 view = Matrix4x4.CreateLookAt(cameraPos, cameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(rotX), MathF.Sin(rotY)), Vector3.UnitY);
             Vector3 invertedCameraPos = new Vector3(cameraPos.X, WATER_TOP * 2 - cameraPos.Y, cameraPos.Z);
             Matrix4x4 waterInvertedView = Matrix4x4.CreateLookAt(invertedCameraPos, invertedCameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(-rotX), MathF.Sin(rotY)), Vector3.UnitY);
-            terrProgram.Uniforms["View"].SetValueMat4(ref view);
-            waterProgram.Uniforms["View"].SetValueMat4(ref view);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
-            waterProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            terrProgram.Uniforms["View"].SetValueMat4(view);
+            waterProgram.Uniforms["View"].SetValueMat4(view);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
+            waterProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
 
             Matrix4x4 world = Matrix4x4.CreateTranslation((int)cameraPos.X, 0, (int)cameraPos.Z);
-            terrProgram.Uniforms["World"].SetValueMat4(ref world);
-            waterProgram.Uniforms["World"].SetValueMat4(ref world);
+            terrProgram.Uniforms["World"].SetValueMat4(world);
+            waterProgram.Uniforms["World"].SetValueMat4(world);
 
             graphicsDevice.DrawFramebuffer = refractionFbo;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP + 0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(-1.0f); //render only below the water
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP + 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(-1.0f); //render only below the water
             graphicsDevice.VertexArray = terrBuffer;
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
             graphicsDevice.DrawFramebuffer = reflectionFbo;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
-            cubemapProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref invertedCameraPos);
+            cubemapProgram.Uniforms["View"].SetValueMat4(waterInvertedView);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(invertedCameraPos);
             graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP - 0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
-            terrProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP - 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(1.0f); //render only above the water
+            terrProgram.Uniforms["View"].SetValueMat4(waterInvertedView);
             graphicsDevice.VertexArray = terrBuffer;
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
-            terrProgram.Uniforms["View"].SetValueMat4(ref view);
+            terrProgram.Uniforms["View"].SetValueMat4(view);
 
             graphicsDevice.DrawFramebuffer = null;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
-            cubemapProgram.Uniforms["View"].SetValueMat4(ref view);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            cubemapProgram.Uniforms["View"].SetValueMat4(view);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
             graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = terrBuffer;
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP - 0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP - 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(1.0f); //render only above the water
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
@@ -372,9 +372,9 @@ namespace TrippyTesting.Tests
             float wid = size.Width / (float)size.Height;
             wid *= 0.5f;
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI*0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
-            terrProgram.Uniforms["Projection"].SetValueMat4(ref proj);
-            waterProgram.Uniforms["Projection"].SetValueMat4(ref proj);
-            cubemapProgram.Uniforms["Projection"].SetValueMat4(ref proj);
+            terrProgram.Uniforms["Projection"].SetValueMat4(proj);
+            waterProgram.Uniforms["Projection"].SetValueMat4(proj);
+            cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
 
             FramebufferObject.Resize2D(refractionFbo, (uint)size.Width, (uint)size.Height);
             FramebufferObject.Resize2D(reflectionFbo, (uint)size.Width, (uint)size.Height);

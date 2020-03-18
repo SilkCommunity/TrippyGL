@@ -4,7 +4,7 @@ using System;
 namespace TrippyGL
 {
     /// <summary>
-    /// A <see cref="Texture"/> containing an array of images with two dimensions and support for multisampling
+    /// A <see cref="Texture"/> containing an array of two-dimensional images and support for multisampling
     /// </summary>
     public sealed class Texture2DArray : Texture, IMultisamplableTexture
     {
@@ -14,7 +14,7 @@ namespace TrippyGL
         /// <summary>The height of this <see cref="Texture2DArray"/>.</summary>
         public uint Height { get; private set; }
 
-        /// <summary>The amount of images this <see cref="Texture2DArray"/> has.</summary>
+        /// <summary>The amount of images or array length of this <see cref="Texture2DArray"/>.</summary>
         public uint Depth { get; private set; }
 
         /// <summary>The amount of samples this <see cref="Texture2DArray"/> has.</summary>
@@ -57,7 +57,7 @@ namespace TrippyGL
         /// Sets the data of a specified area of the <see cref="Texture2DArray"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2DArray"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the new pixel data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
         /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
         /// <param name="rectZ">The Z coordinate of the first pixel to write.</param>
@@ -65,22 +65,23 @@ namespace TrippyGL
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
-        public void SetData<T>(Span<T> data, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0) where T : unmanaged
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             ValidateSetOperation(data.Length, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
         /// Sets the data of an entire array layer of the <see cref="Texture2DArray"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2DArray"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the new pixel data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="depthLevel">The array layer to set the data for.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
-        public void SetData<T>(Span<T> data, int depthLevel, PixelFormat pixelFormat = 0) where T : unmanaged
+        public void SetData<T>(ReadOnlySpan<T> data, int depthLevel, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             SetData(data, 0, 0, depthLevel, Width, Height, 1, pixelFormat);
         }

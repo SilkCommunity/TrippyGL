@@ -40,9 +40,9 @@ namespace TrippyGL
         /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLength, Span<T> data, uint dataWriteOffset = 0)
+        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<T> data, uint dataWriteOffset = 0)
             : this(bufferObject, bufferTarget, storageOffsetBytes, storageLength)
         {
             SetData(data, dataWriteOffset);
@@ -53,7 +53,7 @@ namespace TrippyGL
         /// and target, with the subset covering the entire buffer's storage.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget) : base(bufferObject, bufferTarget)
         {
             ElementSize = (uint)Marshal.SizeOf<T>();
@@ -70,10 +70,10 @@ namespace TrippyGL
         /// and target, with the subset covering the entire buffer's storage and sets initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, Span<T> data, uint dataWriteOffset = 0)
+        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, ReadOnlySpan<T> data, uint dataWriteOffset = 0)
             : this(bufferObject, bufferTarget)
         {
             SetData(data, dataWriteOffset);
@@ -81,10 +81,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="DataBufferSubset{T}"/> that occupies the same area in the same buffer as
-        /// another buffer subset but has another <see cref="BufferTarget"/>.
+        /// another buffer subset but has another <see cref="BufferTargetARB"/>.
         /// </summary>
         /// <param name="subsetToCopy">The <see cref="BufferObjectSubset"/> to copy the range form.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         internal DataBufferSubset(BufferObjectSubset subsetToCopy, BufferTargetARB bufferTarget) : base(subsetToCopy, bufferTarget)
         {
             ElementSize = (uint)Marshal.SizeOf<T>();
@@ -97,10 +97,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="DataBufferSubset{T}"/> that occupies the same area in the same buffer and uses the
-        /// same struct type as another <see cref="DataBufferSubset{T}"/> but has different <see cref="BufferTarget"/>.
+        /// same struct type as another <see cref="DataBufferSubset{T}"/> but has different <see cref="BufferTargetARB"/>.
         /// </summary>
         /// <param name="copy">The <see cref="DataBufferSubset{T}"/> to copy the range from.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         internal DataBufferSubset(DataBufferSubset<T> copy, BufferTargetARB bufferTarget) : base(copy, bufferTarget)
         {
             ElementSize = copy.ElementSize;
@@ -116,11 +116,11 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
-        /// The amount of elements written is the length of the given <see cref="Span{T}"/>.
+        /// The amount of elements written is the length of the given <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
-        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
-        public void SetData(Span<T> data, uint storageOffset = 0)
+        public unsafe void SetData(ReadOnlySpan<T> data, uint storageOffset = 0)
         {
             if (storageOffset < 0 || storageOffset >= StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
@@ -129,7 +129,8 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException("Tried to write past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            Buffer.GL.BufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, data);
+            fixed (void* ptr = &data[0])
+                Buffer.GL.BufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="data">The <see cref="Span{T}"/> to which the returned data will be written to.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start reading from, measured in elements.</param>
-        public void GetData(Span<T> data, uint storageOffset = 0)
+        public unsafe void GetData(Span<T> data, uint storageOffset = 0)
         {
             if (storageOffset < 0 || storageOffset >= StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
@@ -147,7 +148,8 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException("Tried to read past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            Buffer.GL.GetBufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, data);
+            fixed (void* ptr = &data[0])
+                Buffer.GL.GetBufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 
         /// <summary>

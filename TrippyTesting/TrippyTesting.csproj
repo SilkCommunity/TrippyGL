@@ -6,15 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Core" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.GLFW" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Input" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Input.Common" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Input.Desktop" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.OpenGL" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Windowing" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Windowing.Common" Version="1.0.0" />
-    <PackageReference Include="Silk.NET.Windowing.Desktop" Version="1.0.0" />
+    <PackageReference Include="Silk.NET.Core" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.GLFW" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Input" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Input.Common" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Input.Desktop" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Windowing" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Windowing.Common" Version="1.0.1" />
+    <PackageReference Include="Silk.NET.Windowing.Desktop" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

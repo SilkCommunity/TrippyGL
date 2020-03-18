@@ -73,7 +73,7 @@ namespace TrippyTesting.Tests
             shaderProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             shaderProgram.LinkProgram();
             Matrix4x4 mat = Matrix4x4.CreateScale(0.9f);
-            shaderProgram.Uniforms["mat"].SetValueMat4(ref mat);
+            shaderProgram.Uniforms["mat"].SetValueMat4(mat);
 
             const int w = 5, h = 5;
             vertexData = new VertexColor[w * h];

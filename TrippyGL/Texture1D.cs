@@ -75,17 +75,15 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of a specified area of the <see cref="Texture1D"/>. The amount of pixels written
-        /// is the length of the given <see cref="Span{T}"/>
+        /// is the length of the given <see cref="ReadOnlySpan{T}"/>
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the texture data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the texture data.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
-        public void SetData<T>(Span<T> data, uint xOffset = 0) where T : unmanaged
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, uint xOffset = 0) where T : unmanaged
         {
-            ValidateRectOperation(xOffset, (uint)data.Length);
-
-            GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, (int)xOffset, (uint)data.Length, PixelFormat.Rgba, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                SetData(ptr, xOffset, (uint)data.Length);
         }
 
         /// <summary>

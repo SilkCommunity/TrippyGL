@@ -78,7 +78,7 @@ namespace TrippyTesting
 
             texture = new Texture2D(graphicsDevice, "data4/jeru.png");
             whitepx = new Texture2D(graphicsDevice, 1, 1);
-            whitepx.SetData(new Color4b[] { Color4b.White }.AsSpan());
+            whitepx.SetData((ReadOnlySpan<Color4b>)new Color4b[] { Color4b.White });
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data4/vs.glsl"));

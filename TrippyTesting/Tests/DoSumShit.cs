@@ -113,9 +113,9 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = program;
 
             Matrix4x4 mat = Matrix4x4.Identity;
-            program.Uniforms["World"].SetValueMat4(ref mat);
-            program.Uniforms["View"].SetValueMat4(ref mat);
-            program.Uniforms["Projection"].SetValueMat4(ref mat);
+            program.Uniforms["World"].SetValueMat4(mat);
+            program.Uniforms["View"].SetValueMat4(mat);
+            program.Uniforms["Projection"].SetValueMat4(mat);
             program.Uniforms["tex"].SetValueTexture(texture);
 
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);

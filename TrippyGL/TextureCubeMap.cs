@@ -49,30 +49,31 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the texture, copying the new data from a specified array.
+        /// Sets the data of a specified area of the texture, copying the new data from a specified <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format.</typeparam>
-        /// <param name="data">The <see cref="Span{T}"/> containing the new pixel data.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
         /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public void SetData<T>(CubeMapFace face, Span<T> data, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0) where T : unmanaged
+        public unsafe void SetData<T>(CubeMapFace face, ReadOnlySpan<T> data, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             ValidateSetOperation(data.Length, rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                GL.TexSubImage2D((TextureTarget)face, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
-        /// Sets the data of the entire texture, copying the new data from a given array.
+        /// Sets the data of the entire texture, copying the new data from a specified <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format.</typeparam>
-        /// <param name="data">The array containing the new texture data.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public void SetData<T>(CubeMapFace face, Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
+        public void SetData<T>(CubeMapFace face, ReadOnlySpan<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             SetData(face, data, 0, 0, Size, Size, pixelFormat);
         }
@@ -108,12 +109,14 @@ namespace TrippyGL
         /// <typeparam name="T">The type of struct to save the data as. This struct's format should match the texture pixel's format.</typeparam>
         /// <param name="data">The array in which to write the texture data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public void GetData<T>(CubeMapFace face, Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
+        public unsafe void GetData<T>(CubeMapFace face, Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             ValidateGetOperation(data.Length);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, out data[0]);
+
+            fixed (void* ptr = &data[0])
+                GL.GetTexImage((TextureTarget)face, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
 

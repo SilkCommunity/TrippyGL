@@ -56,9 +56,9 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, Span<uint> data, uint dataWriteOffset = 0)
+        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<uint> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedInt)
         {
             SetData(data, dataWriteOffset);
@@ -71,9 +71,9 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, Span<ushort> data, uint dataWriteOffset = 0)
+        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<ushort> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedShort)
         {
             SetData(data, dataWriteOffset);
@@ -86,9 +86,9 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, Span<byte> data, uint dataWriteOffset = 0)
+        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<byte> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
         {
             SetData(data, dataWriteOffset);
@@ -97,43 +97,46 @@ namespace TrippyGL
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        public void SetData(Span<uint> data, uint storageOffset = 0)
+        public unsafe void SetData(ReadOnlySpan<uint> data, uint storageOffset = 0)
         {
             ValidateCorrectElementType(DrawElementsType.UnsignedInt);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, data);
+            fixed (void* ptr = &data[0])
+                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, ptr);
         }
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        public void SetData(Span<ushort> data, uint storageOffset = 0)
+        public unsafe void SetData(ReadOnlySpan<ushort> data, uint storageOffset = 0)
         {
             ValidateCorrectElementType(DrawElementsType.UnsignedShort);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, data);
+            fixed (void* ptr = &data[0])
+                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, ptr);
         }
 
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// </summary>
-        /// <param name="data">The <see cref="Span{T}"/> containing the data to set.</param>
+        /// <param name="data">The <see cref="ReadOnlySpan{T}"/> containing the data to set.</param>
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
-        public void SetData(Span<byte> data, uint storageOffset = 0)
+        public unsafe void SetData(ReadOnlySpan<byte> data, uint storageOffset = 0)
         {
             ValidateCorrectElementType(DrawElementsType.UnsignedByte);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, data);
+            fixed (void* ptr = &data[0])
+                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, ptr);
         }
 
         /// <summary>

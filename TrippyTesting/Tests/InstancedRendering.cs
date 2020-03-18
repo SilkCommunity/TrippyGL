@@ -164,7 +164,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = ptcArray;
-            ptcProgram.Uniforms["time"].SetValue1(time);
+            ptcProgram.Uniforms["time"].SetValueFloat(time);
             graphicsDevice.ShaderProgram = ptcProgram;
             //matSubset.SetData(new Matrix4[] { Matrix4.CreateScale(24f) * Matrix4.CreateRotationZ(time) *  Matrix4.CreateTranslation(64, 24, 0) });
             //graphicsDevice.DrawArrays(PrimitiveType.TriangleFan, 0, vertexSubset.StorageLength);
@@ -181,10 +181,10 @@ namespace TrippyTesting.Tests
             float ratio = size.Width / (float)size.Height;
 
             Matrix4x4 view = Matrix4x4.Identity;
-            ptcProgram.Uniforms["View"].SetValueMat4(ref view);
+            ptcProgram.Uniforms["View"].SetValueMat4(view);
 
             Matrix4x4 proj = Matrix4x4.CreateOrthographicOffCenter(0, 128, 0, 128f / ratio, 0, 1);
-            ptcProgram.Uniforms["Projection"].SetValueMat4(ref proj);
+            ptcProgram.Uniforms["Projection"].SetValueMat4(proj);
         }
 
         private void OnWindowClosing()

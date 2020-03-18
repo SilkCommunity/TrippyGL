@@ -101,9 +101,9 @@ namespace TrippyTesting.Tests
             program.LinkProgram();
 
             Matrix4x4 id = Matrix4x4.Identity;
-            program.Uniforms["World"].SetValueMat4(ref id);
-            program.Uniforms["View"].SetValueMat4(ref id);
-            program.Uniforms["Projection"].SetValueMat4(ref id);
+            program.Uniforms["World"].SetValueMat4(id);
+            program.Uniforms["View"].SetValueMat4(id);
+            program.Uniforms["Projection"].SetValueMat4(id);
 
             batcher = new PrimitiveBatcher<VertexColor>(512, 128);
             triangleBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)batcher.TriangleVertexCapacity, BufferUsageARB.StreamDraw);
@@ -150,7 +150,7 @@ namespace TrippyTesting.Tests
             texProgram.SpecifyVertexAttribs<VertexColorTexture>(vertexAttribNames);
             texProgram.LinkProgram();
             id = Matrix4x4.Identity;
-            texProgram.Uniforms["World"].SetValueMat4(ref id);
+            texProgram.Uniforms["World"].SetValueMat4(id);
 
             Span<VertexColorTexture> texBufferData = stackalloc VertexColorTexture[] {
                 new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 255, 255, 255), new Vector2(0, 0)),
@@ -276,12 +276,12 @@ namespace TrippyTesting.Tests
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Matrix4x4 mat = Matrix4x4.CreateLookAt(cameraPos, cameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(rotX), MathF.Sin(rotY)), Vector3.UnitY);
-            program.Uniforms["View"].SetValueMat4(ref mat);
-            cubemapProgram.Uniforms["View"].SetValueMat4(ref mat);
-            texProgram.Uniforms["View"].SetValueMat4(ref mat);
+            program.Uniforms["View"].SetValueMat4(mat);
+            cubemapProgram.Uniforms["View"].SetValueMat4(mat);
+            texProgram.Uniforms["View"].SetValueMat4(mat);
 
             graphicsDevice.VertexArray = cubemapBuffer.VertexArray;
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
             graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
@@ -417,7 +417,7 @@ namespace TrippyTesting.Tests
 
             float ratio = fbo1.Width / (float)fbo1.Height;
             mat = Matrix4x4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4x4.CreateTranslation(2.5f, 2, 12);
-            texProgram.Uniforms["World"].SetValueMat4(ref mat);
+            texProgram.Uniforms["World"].SetValueMat4(mat);
             texProgram.Uniforms["samp"].SetValueTexture(tex2);
             graphicsDevice.ShaderProgram = texProgram;
             graphicsDevice.VertexArray = texBuffer.VertexArray;
@@ -444,9 +444,9 @@ namespace TrippyTesting.Tests
             float wid = size.Width / (float)size.Height;
             wid *= 0.5f;
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * 0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
-            program.Uniforms["Projection"].SetValueMat4(ref proj);
-            cubemapProgram.Uniforms["Projection"].SetValueMat4(ref proj);
-            texProgram.Uniforms["Projection"].SetValueMat4(ref proj);
+            program.Uniforms["Projection"].SetValueMat4(proj);
+            cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
+            texProgram.Uniforms["Projection"].SetValueMat4(proj);
 
             FramebufferObject.Resize2D(fbo1, (uint)size.Width, (uint)size.Height);
             FramebufferObject.Resize2D(fbo2, (uint)size.Width, (uint)size.Height);
