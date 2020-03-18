@@ -7,6 +7,6 @@ namespace TrippyGL
     /// </summary>
     internal interface IBufferRangeBindable
     {
-        void BindBufferRange(int bindingIndex, int storageOffsetBytes, int storageLengthBytes);
+        void BindBufferRange(uint bindingIndex, uint storageOffsetBytes, uint storageLengthBytes);
     }
 }

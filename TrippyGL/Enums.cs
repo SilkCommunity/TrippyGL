@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -37,12 +37,12 @@ namespace TrippyGL
     public enum DepthStencilFormat
     {
         None = 0,
-        Depth24Stencil8 = RenderbufferStorage.Depth24Stencil8,
-        Depth32fStencil8 = RenderbufferStorage.Depth32fStencil8,
-        Depth16 = RenderbufferStorage.DepthComponent16,
-        Depth24 = RenderbufferStorage.DepthComponent24,
-        Depth32f = RenderbufferStorage.DepthComponent32f,
-        Stencil8 = RenderbufferStorage.StencilIndex8, //not a recommended format though, better to use Depth24Stencil8
+        Depth24Stencil8 = InternalFormat.Depth24Stencil8,
+        Depth32fStencil8 = InternalFormat.Depth32fStencil8,
+        Depth16 = InternalFormat.DepthComponent16,
+        Depth24 = InternalFormat.DepthComponent24Arb,
+        Depth32f = InternalFormat.DepthComponent32f,
+        Stencil8 = InternalFormat.StencilIndex8, //not a recommended format though, better to use Depth24Stencil8
     }
 
     public enum SaveImageFormat
@@ -68,33 +68,33 @@ namespace TrippyGL
         Color13 = FramebufferAttachment.ColorAttachment13,
         Color14 = FramebufferAttachment.ColorAttachment14,
         Color15 = FramebufferAttachment.ColorAttachment15,
-        Depth = FramebufferAttachment.DepthAttachment,
+        Depth = GLEnum.DepthAttachment,
         Stencil = FramebufferAttachment.StencilAttachment,
-        DepthStencil = FramebufferAttachment.DepthStencilAttachment,
+        DepthStencil = GLEnum.DepthStencilAttachment,
     }
 
     public enum RenderbufferFormat
     {
-        Color4b = RenderbufferStorage.Rgba8,
+        Color4b = InternalFormat.Rgba8,
 
-        Float = RenderbufferStorage.R32f,
-        Float2 = RenderbufferStorage.Rg32f,
-        Float4 = RenderbufferStorage.Rgba32f,
+        Float = InternalFormat.R32f,
+        Float2 = InternalFormat.RG32f,
+        Float4 = InternalFormat.Rgba32f,
 
-        Int = RenderbufferStorage.R32i,
-        Int2 = RenderbufferStorage.Rg32i,
-        Int4 = RenderbufferStorage.Rgba32i,
+        Int = InternalFormat.R32i,
+        Int2 = InternalFormat.RG32i,
+        Int4 = InternalFormat.Rgba32i,
 
-        UnsignedInt = RenderbufferStorage.R32ui,
-        UnsignedInt2 = RenderbufferStorage.Rg32ui,
-        UnsignedInt4 = RenderbufferStorage.Rgba32ui,
+        UnsignedInt = InternalFormat.R32ui,
+        UnsignedInt2 = InternalFormat.RG32ui,
+        UnsignedInt4 = InternalFormat.Rgba32ui,
 
-        Depth16 = RenderbufferStorage.DepthComponent16,
-        Depth24 = RenderbufferStorage.DepthComponent24,
-        Depth32f = RenderbufferStorage.DepthComponent32f,
-        Depth24Stencil8 = RenderbufferStorage.Depth24Stencil8,
-        Depth32fStencil8 = RenderbufferStorage.Depth32fStencil8,
-        Stencil8 = RenderbufferStorage.StencilIndex8,
+        Depth16 = InternalFormat.DepthComponent16,
+        Depth24 = InternalFormat.DepthComponent24Arb,
+        Depth32f = InternalFormat.DepthComponent32f,
+        Depth24Stencil8 = InternalFormat.Depth24Stencil8,
+        Depth32fStencil8 = InternalFormat.Depth32fStencil8,
+        Stencil8 = InternalFormat.StencilIndex8,
     }
 
     public enum CubeMapFace

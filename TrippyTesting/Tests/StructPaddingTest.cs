@@ -1,29 +1,54 @@
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-using TrippyGL;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using TrippyGL;
 
 namespace TrippyTesting.Tests
 {
-    class StructPaddingTest : GameWindow
+    class StructPaddingTest
     {
         System.Diagnostics.Stopwatch stopwatch;
-        float time;
         Random r = new Random();
+
+        IWindow window;
+
+        GraphicsDevice graphicsDevice;
 
         ShaderProgram program;
         VertexBuffer<WeirdAssVertex> buffer;
         Texture2D texture;
 
-        GraphicsDevice graphicsDevice;
-
-        public StructPaddingTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 8, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        public StructPaddingTest()
         {
-            VSync = VSyncMode.On;
-            graphicsDevice = new GraphicsDevice(Context);
+            window = CreateWindow();
+
+            window.Load += OnWindowLoad;
+            window.Update += OnWindowUpdate;
+            window.Render += OnWindowRender;
+            window.Resize += OnWindowResized;
+            window.Closing += OnWindowClosing;
+        }
+
+        private IWindow CreateWindow()
+        {
+            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
+            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            return Window.Create(new WindowOptions(viewOpts));
+        }
+
+        public void Run()
+        {
+            window.Run();
+        }
+
+        private void OnWindowLoad()
+        {
+            graphicsDevice = new GraphicsDevice(GL.GetApi());
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
@@ -34,13 +59,9 @@ namespace TrippyTesting.Tests
             Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
             Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
-        }
+            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-        protected override void OnLoad(EventArgs e)
-        {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            time = 0;
 
             texture = new Texture2D(graphicsDevice, "data4/jeru.png");
 
@@ -52,10 +73,10 @@ namespace TrippyTesting.Tests
                 "x", "y", "z", "x2", "y2", "z2", "mat", "w", "cx", "cy"
             });
             program.LinkProgram();
-            Matrix4 id = Matrix4.Identity;
-            program.Uniforms["World"].SetValueMat4(ref id);
-            program.Uniforms["View"].SetValueMat4(ref id);
-            program.Uniforms["Projection"].SetValueMat4(ref id);
+            Matrix4x4 id = Matrix4x4.Identity;
+            program.Uniforms["World"].SetValueMat4(id);
+            program.Uniforms["View"].SetValueMat4(id);
+            program.Uniforms["Projection"].SetValueMat4(id);
             program.Uniforms["samp"].SetValueTexture(texture);
 
             WeirdAssVertex[] data = new WeirdAssVertex[]
@@ -65,23 +86,26 @@ namespace TrippyTesting.Tests
                 new WeirdAssVertex(new Vector3(0.2f, 0.8f, 0), new Vector2(0, 1)),
                 new WeirdAssVertex(new Vector3(0.8f, 0.8f, 0), new Vector2(1, 1)),
             };
-            buffer = new VertexBuffer<WeirdAssVertex>(graphicsDevice, data, BufferUsageHint.StaticDraw);
+            buffer = new VertexBuffer<WeirdAssVertex>(graphicsDevice, data, BufferUsageARB.StaticDraw);
 
+            OnWindowResized(window.Size);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        private void OnWindowUpdate(double dtSeconds)
         {
-            time = (float)stopwatch.Elapsed.TotalSeconds;
-            ErrorCode c;
-            while ((c = GL.GetError()) != ErrorCode.NoError)
+            GLEnum c;
+            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
             {
                 Console.WriteLine("Error found: " + c);
             }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        private void OnWindowRender(double dtSeconds)
         {
-            graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
+            if (window.IsClosing)
+                return;
+
+            graphicsDevice.ClearColor = new Vector4(0f, 0f, 0f, 1f);
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthTestingEnabled = false;
 
@@ -90,22 +114,18 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = program;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            SwapBuffers();
+            window.SwapBuffers();
         }
 
-        protected override void OnResize(EventArgs e)
+        private void OnWindowResized(System.Drawing.Size size)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
-            Matrix4 mat = Matrix4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
-            program.Uniforms["Projection"].SetValueMat4(ref mat);
+            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
+            Matrix4x4 mat = Matrix4x4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
+            program.Uniforms["Projection"].SetValueMat4(mat);
         }
 
-        protected override void OnUnload(EventArgs e)
+        private void OnWindowClosing()
         {
-            program.Dispose();
-            texture.Dispose();
-            buffer.Dispose();
-
             graphicsDevice.Dispose();
         }
 
@@ -122,7 +142,7 @@ namespace TrippyTesting.Tests
             private byte LMAObyte0;
             public byte z2;
 
-            public Matrix4 mat4;
+            public Matrix4x4 mat4;
             private Vector4 LMAOvec4;
 
             public short w;
@@ -132,9 +152,9 @@ namespace TrippyTesting.Tests
             private Vector3 LMAOvec3;
             public ushort cy;
 
-            private Matrix4 mainkra1;
-            private Matrix4 mainkra2;
-            private Matrix4 mainkra3;
+            private Matrix4x4 mainkra1;
+            private Matrix4x4 mainkra2;
+            private Matrix4x4 mainkra3;
             private byte mainkra4;
 
             // "x", "y", "z", "x2", "y2", "z2", "w", "cx", "cy"
@@ -149,7 +169,7 @@ namespace TrippyTesting.Tests
                 y2 = tobyte(0.1f);
                 z2 = tobyte(0);
 
-                mat4 = Matrix4.Identity;
+                mat4 = Matrix4x4.Identity;
 
                 w = 1;
 
@@ -160,9 +180,9 @@ namespace TrippyTesting.Tests
                 LMAObyte1 = 0;
                 LMAOvec3 = new Vector3();
                 LMAObyte0 = 0;
-                mainkra1 = new Matrix4();
-                mainkra2 = new Matrix4();
-                mainkra3 = new Matrix4();
+                mainkra1 = new Matrix4x4();
+                mainkra2 = new Matrix4x4();
+                mainkra3 = new Matrix4x4();
                 mainkra4 = 0;
             }
 
@@ -185,24 +205,24 @@ namespace TrippyTesting.Tests
 
             public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
             {
-                descriptions[0] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //x
-                descriptions[1] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort); //y
-                descriptions[2] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //z
+                descriptions[0] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //x
+                descriptions[1] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedShort); //y
+                descriptions[2] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //z
 
-                descriptions[3] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort); //x2
-                descriptions[4] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //y2
+                descriptions[3] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedShort); //x2
+                descriptions[4] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //y2
                 descriptions[5] = new VertexAttribDescription(1); //LMAObyte0 padding
-                descriptions[6] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //z2
+                descriptions[6] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //z2
 
-                descriptions[7] = new VertexAttribDescription(ActiveAttribType.FloatMat4); //mat4
-                descriptions[8] = VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec4); //LMAOvec4 padding
+                descriptions[7] = new VertexAttribDescription(AttributeType.FloatMat4); //mat4
+                descriptions[8] = VertexAttribDescription.CreatePadding(AttributeType.FloatVec4); //LMAOvec4 padding
 
-                descriptions[9] = new VertexAttribDescription(ActiveAttribType.Float, false, VertexAttribPointerType.Short); //w
+                descriptions[9] = new VertexAttribDescription(AttributeType.Float, false, VertexAttribPointerType.Short); //w
                 descriptions[10] = new VertexAttribDescription(1); //LMAObyte1 padding
 
-                descriptions[11] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedByte); //cx
-                descriptions[12] = VertexAttribDescription.CreatePadding(ActiveAttribType.FloatVec3); //LMAOvec3 padding
-                descriptions[13] = new VertexAttribDescription(ActiveAttribType.Float, true, VertexAttribPointerType.UnsignedShort);  //cy
+                descriptions[11] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //cx
+                descriptions[12] = VertexAttribDescription.CreatePadding(AttributeType.FloatVec3); //LMAOvec3 padding
+                descriptions[13] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedShort);  //cy
 
                 descriptions[14] = new VertexAttribDescription(193); //mainkra1-4 padding (3 matrices and a single byte
             }

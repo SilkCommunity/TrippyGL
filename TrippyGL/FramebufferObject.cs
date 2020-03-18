@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
@@ -16,16 +16,16 @@ namespace TrippyGL
     public sealed class FramebufferObject : GraphicsResource
     {
         /// <summary>The handle for the GL Framebuffer Object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
         /// <summary>The width of this <see cref="FramebufferObject"/>'s image.</summary>
-        public int Width { get; private set; }
+        public uint Width { get; private set; }
 
         /// <summary>The height of this <see cref="FramebufferObject"/>'s image.</summary>
-        public int Height { get; private set; }
+        public uint Height { get; private set; }
 
         /// <summary>The amount of samples this <see cref="FramebufferObject"/> has.</summary>
-        public int Samples { get; private set; }
+        public uint Samples { get; private set; }
 
         private List<FramebufferTextureAttachment> textureAttachments;
         private List<FramebufferRenderbufferAttachment> renderbufferAttachments;
@@ -192,10 +192,10 @@ namespace TrippyGL
         /// <summary>
         /// Gets the status of the <see cref="FramebufferObject"/>. 
         /// </summary>
-        public FramebufferErrorCode GetStatus()
+        public FramebufferStatus GetStatus()
         {
             GraphicsDevice.Framebuffer = this;
-            return GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            return (FramebufferStatus)GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
         }
 
         /// <summary>
@@ -204,9 +204,9 @@ namespace TrippyGL
         /// </summary>
         public void UpdateFramebufferData()
         {
-            int width = -1;
-            int height = -1;
-            int samples = -1;
+            uint width = uint.MaxValue;
+            uint height = uint.MaxValue;
+            uint samples = uint.MaxValue;
 
             for (int i = 0; i < textureAttachments.Count; i++)
             {
@@ -232,29 +232,29 @@ namespace TrippyGL
             Height = height;
             Samples = samples;
 
-            void ValidateSize(int w, int h)
+            void ValidateSize(uint w, uint h)
             {
-                if (width == -1)
+                if (width == uint.MaxValue)
                     width = w;
                 else if (width != w)
                     throw new FramebufferException("All the attachments must be the same size");
 
-                if (height == -1)
+                if (height == uint.MaxValue)
                     height = h;
                 else if (height != h)
                     throw new FramebufferException("All the attachments must be the same size");
             }
 
-            void ValidateSamples(int s)
+            void ValidateSamples(uint s)
             {
-                if (samples == -1)
+                if (samples == uint.MaxValue)
                     samples = s;
                 else if (samples != s)
                     throw new FramebufferException("All the attachments must have the same amount of samples");
             }
 
-            FramebufferErrorCode c = GetStatus();
-            if (c != FramebufferErrorCode.FramebufferComplete)
+            FramebufferStatus c = GetStatus();
+            if (c != FramebufferStatus.FramebufferComplete)
                 throw new FramebufferException("The " + nameof(FramebufferObject) + " is not complete: " + c);
         }
 
@@ -285,32 +285,19 @@ namespace TrippyGL
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentException("You must specify a file name", nameof(file));
-
-            IImageFormat format;
-
-            switch (imageFormat)
+            IImageFormat format = imageFormat switch
             {
-                case SaveImageFormat.Png:
-                    format = SixLabors.ImageSharp.Formats.Png.PngFormat.Instance;
-                    break;
-                case SaveImageFormat.Jpeg:
-                    format = SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance;
-                    break;
-                case SaveImageFormat.Bmp:
-                    format = SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance;
-                    break;
-                default:
-                    throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
-            }
-
-            using (Image<Rgba32> image = new Image<Rgba32>(Width, Height))
-            {
-                GraphicsDevice.ReadFramebuffer = this;
-                GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.UnsignedByte, ref image.GetPixelSpan()[0]);
-                image.Mutate(x => x.Flip(FlipMode.Vertical));
-                using (FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    image.Save(fileStream, format);
-            }
+                SaveImageFormat.Png => SixLabors.ImageSharp.Formats.Png.PngFormat.Instance,
+                SaveImageFormat.Jpeg => SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance,
+                SaveImageFormat.Bmp => SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance,
+                _ => throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat)),
+            };
+            using Image<Rgba32> image = new Image<Rgba32>((int)Width, (int)Height);
+            GraphicsDevice.ReadFramebuffer = this;
+            GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.UnsignedByte, out image.GetPixelSpan()[0]);
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+            image.Save(fileStream, format);
         }
 
         public override string ToString()
@@ -386,7 +373,7 @@ namespace TrippyGL
         /// <param name="depthStencilFormat">The desired depth-stencil format for the framebuffer, which will be attached as a renderbuffer.</param>
         /// <param name="samples">The amount of samples for the framebuffer.</param>
         /// <param name="imageFormat">The image format for this framebuffer's texture.</param>
-        public static FramebufferObject Create2D(ref Texture2D texture, GraphicsDevice graphicsDevice, int width, int height, DepthStencilFormat depthStencilFormat, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+        public static FramebufferObject Create2D(ref Texture2D texture, GraphicsDevice graphicsDevice, uint width, uint height, DepthStencilFormat depthStencilFormat, uint samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
         {
             if (texture == null)
                 texture = new Texture2D(graphicsDevice, width, height, false, samples, imageFormat);
@@ -412,7 +399,7 @@ namespace TrippyGL
         /// <param name="framebuffer">The framebuffer to resize.</param>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
-        public static void Resize2D(FramebufferObject framebuffer, int width, int height)
+        public static void Resize2D(FramebufferObject framebuffer, uint width, uint height)
         {
             for (int i = 0; i < framebuffer.textureAttachments.Count; i++)
             {

@@ -1,8 +1,8 @@
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -17,12 +17,11 @@ namespace TrippyGL
     public delegate void GLDebugMessageReceivedHandler(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
 
     /// <summary>
-    /// Manages an OpenGL Context and it's <see cref="graphicsResource"/>-s.
+    /// Manages an OpenGL Context and it's <see cref="GraphicsResource"/>-s.
     /// </summary>
     public sealed class GraphicsDevice : IDisposable
     {
-        /// <summary>The OpenGL Context for this <see cref="GraphicsDevice"/>.</summary>
-        public IGraphicsContext Context { get; private set; }
+        public readonly GL GL;
 
         /// <summary>Whether this <see cref="GraphicsDevice"/> instance has been disposed.</summary>
         public bool IsDisposed { get; private set; }
@@ -32,9 +31,9 @@ namespace TrippyGL
         /// </summary>
         /// <param name="context">The OpenGL Context for this <see cref="GraphicsDevice"/>.</param>
         /// <param name="resourceCount">An estimate of how many <see cref="GraphicsResource"/>-s you intend to use.</param>
-        public GraphicsDevice(IGraphicsContext context, int resourceCount = 128)
+        public GraphicsDevice(GL gl, int resourceCount = 128)
         {
-            Context = context;
+            GL = gl;
 
             GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
             GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
@@ -66,11 +65,11 @@ namespace TrippyGL
             ResetFramebufferStates();
             ClipDistances.ResetStates();
 
-            GL.ClearColor(clearColor);
+            GL.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
 
-            GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            GL.Viewport(viewport.X, viewport.Y, (uint)viewport.Width, (uint)viewport.Height);
 
-            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
+            GL.Scissor(scissorRect.X, scissorRect.Y, (uint)scissorRect.Width, (uint)scissorRect.Height);
             if (scissorTestEnabled)
                 GL.Enable(EnableCap.ScissorTest);
             else
@@ -82,7 +81,7 @@ namespace TrippyGL
                 GL.Enable(EnableCap.Blend);
             GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
             GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
-            GL.BlendColor(blendState.BlendColor);
+            GL.BlendColor(blendState.BlendColor.X, blendState.BlendColor.Y, blendState.BlendColor.Z, blendState.BlendColor.W);
 
             if (depthState.DepthTestingEnabled)
                 GL.Enable(EnableCap.DepthTest);
@@ -111,6 +110,13 @@ namespace TrippyGL
 
         private bool debugMessagingEnabled = false;
 
+        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
+        public event GLDebugMessageReceivedHandler DebugMessage;
+
+        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
+        private DebugProc debugProcDelegate;
+        private GCHandle debugProcDelegateHandle;
+
         /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
         {
@@ -125,7 +131,7 @@ namespace TrippyGL
                         GL.Enable(EnableCap.DebugOutputSynchronous);
                         debugProcDelegate = OnDebugMessageRecieved;
                         debugProcDelegateHandle = GCHandle.Alloc(debugProcDelegate);
-                        GL.DebugMessageCallback(debugProcDelegate, IntPtr.Zero);
+                        unsafe { GL.DebugMessageCallback(debugProcDelegate, (void*)0); }
                         debugMessagingEnabled = true;
                     }
                 }
@@ -140,16 +146,9 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
-        public event GLDebugMessageReceivedHandler DebugMessage;
-
-        /// <summary>If we don't store this delegate it gets garbage collected and dies and omg that's so sad alexa play despacito.</summary>
-        private DebugProc debugProcDelegate;
-        private GCHandle debugProcDelegateHandle;
-
-        private void OnDebugMessageRecieved(DebugSource src, DebugType type, int id, DebugSeverity sev, int length, IntPtr msg, IntPtr param)
+        private void OnDebugMessageRecieved(GLEnum src, GLEnum type, int id, GLEnum sev, int length, IntPtr msg, IntPtr param)
         {
-            DebugMessage?.Invoke(src, type, id, sev, Marshal.PtrToStringAnsi(msg));
+            DebugMessage?.Invoke((DebugSource)src, (DebugType)type, id, (DebugSeverity)sev, Marshal.PtrToStringAnsi(msg));
         }
 
         #endregion DebugMessaging
@@ -161,7 +160,7 @@ namespace TrippyGL
             UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
             MaxUniformBufferBindings = GL.GetInteger(GetPName.MaxUniformBufferBindings);
             MaxUniformBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
-            MaxSamples = GL.GetInteger(GetPName.MaxSamples);
+            MaxSamples = GL.GetInteger(GLEnum.MaxSamples);
             MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
             MaxTextureImageUnits = GL.GetInteger(GetPName.MaxTextureImageUnits);
             MaxTextureBufferSize = GL.GetInteger(GetPName.MaxTextureBufferSize);
@@ -171,15 +170,15 @@ namespace TrippyGL
             MaxRenderbufferSize = GL.GetInteger(GetPName.MaxRenderbufferSize);
             MaxVertexAttribs = GL.GetInteger(GetPName.MaxVertexAttribs);
             MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
-            MaxFramebufferColorAttachments = GL.GetInteger(GetPName.MaxColorAttachments);
+            MaxFramebufferColorAttachments = GL.GetInteger(GLEnum.MaxColorAttachments);
             MaxDrawBuffers = GL.GetInteger(GetPName.MaxDrawBuffers);
             MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
-            MaxTransformFeedbackBuffers = GL.GetInteger(GetPName.MaxTransformFeedbackBuffers);
-            MaxTransformFeedbackInterleavedComponents = GL.GetInteger(GetPName.MaxTransformFeedbackInterleavedComponents);
-            MaxTransformFeedbackSeparateComponents = GL.GetInteger(GetPName.MaxTransformFeedbackSeparateComponents);
-            MaxTransformFeedbackSeparateAttribs = GL.GetInteger(GetPName.MaxTransformFeedbackSeparateAttribs);
-            MaxShaderStorageBufferBindings = GL.GetInteger((GetPName)All.MaxShaderStorageBufferBindings);
-            MaxAtomicCounterBufferBindings = GL.GetInteger((GetPName)All.MaxAtomicCounterBufferBindings);
+            MaxTransformFeedbackBuffers = GL.GetInteger(GLEnum.MaxTransformFeedbackBuffers);
+            MaxTransformFeedbackInterleavedComponents = GL.GetInteger(GLEnum.MaxTransformFeedbackInterleavedComponents);
+            MaxTransformFeedbackSeparateComponents = GL.GetInteger(GLEnum.MaxTransformFeedbackSeparateComponents);
+            MaxTransformFeedbackSeparateAttribs = GL.GetInteger(GLEnum.MaxTransformFeedbackSeparateAttribs);
+            MaxShaderStorageBufferBindings = GL.GetInteger(GLEnum.MaxShaderStorageBufferBindings);
+            MaxAtomicCounterBufferBindings = GL.GetInteger(GLEnum.MaxAtomicCounterBufferBindings);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -294,17 +293,17 @@ namespace TrippyGL
         // GL_ELEMENT_ARRAY_BUFFER is stored on a Vertex Array Object
         // GL_TRANSFORM_FEEDBACK_BUFFER is stored on a Transform Feedback Object
 
-        internal const BufferTarget DefaultBufferTarget = BufferTarget.ArrayBuffer;
+        internal const BufferTargetARB DefaultBufferTarget = BufferTargetARB.ArrayBuffer;
         private const int defaultBufferTargetBindingIndex = arrayBufferIndex;
 
         /// <summary>
-        /// Stores the handle of the last buffer bound to the <see cref="BufferTarget"/>
+        /// Stores the handle of the last buffer bound to the <see cref="BufferTargetARB"/>
         /// found on the same index on the <see cref="bufferBindingTargets"/> array.
         /// </summary>
         private BufferObject[] bufferBindings;
 
         /// <summary>The <see cref="BufferTarget"/>-s for the handles found on the <see cref="bufferBindings"/> array.</summary>
-        private BufferTarget[] bufferBindingTargets;
+        private BufferTargetARB[] bufferBindingTargets;
 
         /// <summary>For the four <see cref="BufferTarget"/>-s that have range bindings, this is an
         /// array of four arrays that contain the bound buffer and the bound range of each binding index.
@@ -316,7 +315,7 @@ namespace TrippyGL
         /// </summary>
         private void InitBufferObjectStates()
         {
-            bufferBindingTargets = new BufferTarget[BufferTargetCount];
+            bufferBindingTargets = new BufferTargetARB[BufferTargetCount];
 
             // The first four targets need to be the ones that are managed with glBindBufferBase/glBindBufferRange
             // because these also have an index, offset and size value to them. So we need to handle more data!
@@ -324,25 +323,25 @@ namespace TrippyGL
             // the buffer target and generic binding id used to get the BufferRangeBinding array.
             // However, trying to do this with any other target will result in an IndexOutOfRangeException
 
-            bufferBindingTargets[uniformBufferIndex] = BufferTarget.UniformBuffer;
-            bufferBindingTargets[shaderStorageBufferIndex] = BufferTarget.ShaderStorageBuffer;
-            bufferBindingTargets[atomicCounterBufferIndex] = BufferTarget.AtomicCounterBuffer;
-            bufferBindingTargets[arrayBufferIndex] = BufferTarget.ArrayBuffer;
-            bufferBindingTargets[textureBufferIndex] = BufferTarget.TextureBuffer;
-            bufferBindingTargets[pixelUnpackBufferIndex] = BufferTarget.PixelUnpackBuffer;
-            bufferBindingTargets[pixelPackBufferIndex] = BufferTarget.PixelPackBuffer;
-            bufferBindingTargets[drawIndirectBufferIndex] = BufferTarget.DrawIndirectBuffer;
-            bufferBindingTargets[dispatchIndirectBufferIndex] = BufferTarget.DispatchIndirectBuffer;
-            bufferBindingTargets[copyWriteBufferIndex] = BufferTarget.CopyWriteBuffer;
-            bufferBindingTargets[copyReadBufferIndex] = BufferTarget.CopyReadBuffer;
-            bufferBindingTargets[queryBufferIndex] = BufferTarget.QueryBuffer;
+            bufferBindingTargets[uniformBufferIndex] = BufferTargetARB.UniformBuffer;
+            bufferBindingTargets[shaderStorageBufferIndex] = BufferTargetARB.ShaderStorageBuffer;
+            bufferBindingTargets[atomicCounterBufferIndex] = BufferTargetARB.AtomicCounterBuffer;
+            bufferBindingTargets[arrayBufferIndex] = BufferTargetARB.ArrayBuffer;
+            bufferBindingTargets[textureBufferIndex] = BufferTargetARB.TextureBuffer;
+            bufferBindingTargets[pixelUnpackBufferIndex] = BufferTargetARB.PixelUnpackBuffer;
+            bufferBindingTargets[pixelPackBufferIndex] = BufferTargetARB.PixelPackBuffer;
+            bufferBindingTargets[drawIndirectBufferIndex] = BufferTargetARB.DrawIndirectBuffer;
+            bufferBindingTargets[dispatchIndirectBufferIndex] = BufferTargetARB.DispatchIndirectBuffer;
+            bufferBindingTargets[copyWriteBufferIndex] = BufferTargetARB.CopyWriteBuffer;
+            bufferBindingTargets[copyReadBufferIndex] = BufferTargetARB.CopyReadBuffer;
+            bufferBindingTargets[queryBufferIndex] = BufferTargetARB.QueryBuffer;
 
             bufferBindings = new BufferObject[BufferTargetCount];
 
             bufferRangeBindings = new BufferRangeBinding[3][];
 
             bufferRangeBindings[0] = new BufferRangeBinding[MaxUniformBufferBindings];
-            bufferRangeBindings[1] = new BufferRangeBinding[MaxShaderStorageBufferBindings]; //opentk wtf
+            bufferRangeBindings[1] = new BufferRangeBinding[MaxShaderStorageBufferBindings];
             bufferRangeBindings[2] = new BufferRangeBinding[MaxAtomicCounterBufferBindings];
         }
 
@@ -354,7 +353,7 @@ namespace TrippyGL
             {
                 if (bufferBindings[arrayBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.ArrayBuffer, value == null ? 0 : value.Handle);
                     bufferBindings[arrayBufferIndex] = value;
                 }
             }
@@ -368,7 +367,7 @@ namespace TrippyGL
             {
                 if (bufferBindings[copyReadBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTarget.CopyReadBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.CopyReadBuffer, value == null ? 0 : value.Handle);
                     bufferBindings[copyReadBufferIndex] = value;
                 }
             }
@@ -382,7 +381,7 @@ namespace TrippyGL
             {
                 if (bufferBindings[copyWriteBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTarget.CopyWriteBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, value == null ? 0 : value.Handle);
                     bufferBindings[copyWriteBufferIndex] = value;
                 }
             }
@@ -436,7 +435,7 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins.</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
-        public void BindBufferRange(BufferObjectSubset bufferSubset, int bindingIndex, int offset, int size)
+        public void BindBufferRange(BufferObjectSubset bufferSubset, uint bindingIndex, uint offset, uint size)
         {
             BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
             if (b.Buffer != bufferSubset.Buffer || b.Size != size || b.Offset != offset + bufferSubset.StorageOffsetInBytes)
@@ -451,10 +450,10 @@ namespace TrippyGL
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins.</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
-        internal void ForceBindBufferRange(BufferObjectSubset buffer, int bindingIndex, int offset, int size)
+        internal void ForceBindBufferRange(BufferObjectSubset buffer, uint bindingIndex, uint offset, uint size)
         {
             offset += buffer.StorageOffsetInBytes;
-            GL.BindBufferRange((BufferRangeTarget)buffer.BufferTarget, bindingIndex, buffer.BufferHandle, (IntPtr)offset, size);
+            GL.BindBufferRange(buffer.BufferTarget, bindingIndex, buffer.BufferHandle, (int)offset, size);
             bufferBindings[buffer.bufferTargetBindingIndex] = buffer.Buffer;
             bufferRangeBindings[buffer.bufferTargetBindingIndex][bindingIndex].SetRange(buffer, offset, size);
         }
@@ -465,7 +464,7 @@ namespace TrippyGL
         /// <param name="buffer">The buffer to bind.</param>
         internal void ForceBindBufferCopyRead(BufferObject buffer)
         {
-            GL.BindBuffer(BufferTarget.CopyReadBuffer, buffer == null ? 0 : buffer.Handle);
+            GL.BindBuffer(BufferTargetARB.CopyReadBuffer, buffer == null ? 0 : buffer.Handle);
             bufferBindings[copyReadBufferIndex] = buffer;
         }
 
@@ -475,7 +474,7 @@ namespace TrippyGL
         /// <param name="buffer">The buffer to bind.</param>
         internal void ForceBindBufferCopyWrite(BufferObject buffer)
         {
-            GL.BindBuffer(BufferTarget.CopyWriteBuffer, buffer == null ? 0 : buffer.Handle);
+            GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, buffer == null ? 0 : buffer.Handle);
             bufferBindings[copyWriteBufferIndex] = buffer;
         }
 
@@ -493,7 +492,7 @@ namespace TrippyGL
         /// If there's no such index, it returns -1, though this won't happen as long as you only use proper <see cref="BufferTarget"/> enum values.
         /// </summary>
         /// <param name="bufferTarget">The <see cref="BufferTarget"/> to get the binds list index for.</param>
-        internal int GetBindingTargetIndex(BufferTarget bufferTarget)
+        internal int GetBindingTargetIndex(BufferTargetARB bufferTarget)
         {
             for (int i = 0; i < BufferTargetCount; i++)
                 if (bufferBindingTargets[i] == bufferTarget)
@@ -526,8 +525,8 @@ namespace TrippyGL
         internal struct BufferRangeBinding
         {
             public BufferObject Buffer;
-            public int Offset;
-            public int Size;
+            public uint Offset;
+            public uint Size;
 
             public void Reset()
             {
@@ -539,7 +538,7 @@ namespace TrippyGL
             /// <summary>
             /// Set the values of this <see cref="BufferRangeBinding"/> to the specified range of the given buffer.
             /// </summary>
-            public void SetRange(BufferObjectSubset buffer, int offset, int size)
+            public void SetRange(BufferObjectSubset buffer, uint offset, uint size)
             {
                 Buffer = buffer.Buffer;
                 Offset = offset;
@@ -640,7 +639,7 @@ namespace TrippyGL
         #region TextureBindingStates
 
         /// <summary>The array containing for each texture unit (that is, the index of the array) which texture handle is bound to it.</summary>
-        private int[] textureBindings;
+        private uint[] textureBindings;
 
         /// <summary>This variable counts which texture unit will be used the next time a texture needs binding.</summary>
         private int nextBindUnit;
@@ -841,7 +840,7 @@ namespace TrippyGL
         /// </summary>
         private void InitTextureStates()
         {
-            textureBindings = new int[MaxTextureImageUnits];
+            textureBindings = new uint[MaxTextureImageUnits];
             ActiveTextureUnit = 0;
             GL.ActiveTexture(TextureUnit.Texture0);
             nextBindUnit = 0;
@@ -976,19 +975,19 @@ namespace TrippyGL
         #region ClearColor
 
         /// <summary>The current clear color.</summary>
-        private Color4 clearColor;
+        private Vector4 clearColor;
 
         /// <summary>
         /// Gets or sets the current color to use on clear operations.
         /// </summary>
-        public Color4 ClearColor
+        public Vector4 ClearColor
         {
             get { return clearColor; }
             set
             {
                 if (clearColor != value)
                 {
-                    GL.ClearColor(value);
+                    GL.ClearColor(value.X, value.Y, value.Z, value.W);
                     clearColor = value;
                 }
             }
@@ -1007,7 +1006,7 @@ namespace TrippyGL
             {
                 if (value != viewport)
                 {
-                    GL.Viewport(value.X, value.Y, value.Width, value.Height);
+                    GL.Viewport(value.X, value.Y, (uint)value.Width, (uint)value.Height);
                     viewport = value;
                 }
             }
@@ -1028,7 +1027,7 @@ namespace TrippyGL
                 viewport.Y = y;
                 viewport.Width = width;
                 viewport.Height = height;
-                GL.Viewport(x, y, width, height);
+                GL.Viewport(x, y, (uint)width, (uint)height);
             }
         }
 
@@ -1072,7 +1071,7 @@ namespace TrippyGL
                     if (value.Width < 0 || value.Height < 0)
                         throw new ArgumentOutOfRangeException("ScissorRectangle Width and Height must be greater or equal to 0");
 
-                    GL.Scissor(value.X, value.Y, value.Width, value.Height);
+                    GL.Scissor(value.X, value.Y, (uint)value.Width, (uint)value.Height);
                     scissorRect = value;
                 }
             }
@@ -1129,7 +1128,7 @@ namespace TrippyGL
 
                         if (blendState.BlendColor != value.BlendColor)
                         {
-                            GL.BlendColor(value.BlendColor);
+                            GL.BlendColor(value.BlendColor.X, value.BlendColor.Y, value.BlendColor.Z, value.BlendColor.W);
                             blendState.BlendColor = value.BlendColor;
                         }
                     }
@@ -1338,10 +1337,12 @@ namespace TrippyGL
         /// </summary>
         public class ClipDistanceManager
         {
-            private bool[] areEnabled;
+            private readonly bool[] areEnabled;
 
             /// <summary>The maximum amount of clip distances you can use.</summary>
-            public int Count { get { return areEnabled.Length; } }
+            public int Count => areEnabled.Length;
+
+            private readonly GL GL;
 
             /// <summary>
             /// Enables or disables a gl_ClipDistance[] index.
@@ -1365,6 +1366,7 @@ namespace TrippyGL
 
             internal ClipDistanceManager(GraphicsDevice device)
             {
+                GL = device.GL;
                 areEnabled = new bool[device.MaxClipDistances];
                 for (int i = 0; i < areEnabled.Length; i++)
                     areEnabled[i] = false;
@@ -1491,7 +1493,7 @@ namespace TrippyGL
         /// <param name="mask">The masks indicating the values to clear, combined using bitwise OR.</param>
         public void Clear(ClearBufferMask mask)
         {
-            GL.Clear(mask);
+            GL.Clear((uint)mask);
         }
 
         /// <summary>
@@ -1500,7 +1502,7 @@ namespace TrippyGL
         /// <param name="primitiveType">The type of primitive to render.</param>
         /// <param name="startIndex">The index of the first vertex to render.</param>
         /// <param name="count">The amount of vertices to render.</param>
-        public void DrawArrays(PrimitiveType primitiveType, int startIndex, int count)
+        public void DrawArrays(PrimitiveType primitiveType, int startIndex, uint count)
         {
             shaderProgram.EnsurePreDrawStates();
             GL.DrawArrays(primitiveType, startIndex, count);
@@ -1512,11 +1514,11 @@ namespace TrippyGL
         /// <param name="primitiveType">The type of primitive to render.</param>
         /// <param name="startIndex">The index of the first element to render.</param>
         /// <param name="count">The amount of elements to render.</param>
-        public void DrawElements(PrimitiveType primitiveType, int startIndex, int count)
+        public unsafe void DrawElements(PrimitiveType primitiveType, int startIndex, uint count)
         {
             shaderProgram.EnsurePreDrawStates();
             IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
-            GL.DrawElements(primitiveType, count, indexSubset.ElementType, indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize);
+            GL.DrawElements(primitiveType, count, indexSubset.ElementType, (void*)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize));
         }
 
         /// <summary>
@@ -1525,8 +1527,8 @@ namespace TrippyGL
         /// <param name="primitiveType">The type of primitive to render.</param>
         /// <param name="startIndex">The index of the first element to render.</param>
         /// <param name="count">The amount of elements to render.</param>
-        /// <param name="instanceCount".></param>
-        public void DrawArraysInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
+        /// <param name="instanceCount">The amount of instances to render.</param>
+        public void DrawArraysInstanced(PrimitiveType primitiveType, int startIndex, uint count, uint instanceCount)
         {
             shaderProgram.EnsurePreDrawStates();
             GL.DrawArraysInstanced(primitiveType, startIndex, count, instanceCount);
@@ -1538,12 +1540,12 @@ namespace TrippyGL
         /// <param name="primitiveType">The type of primitive to render.</param>
         /// <param name="startIndex">The index of the first element to render.</param>
         /// <param name="count">The amount of elements to render.</param>
-        /// <param name="instanceCount".></param>
-        public void DrawElementsInstanced(PrimitiveType primitiveType, int startIndex, int count, int instanceCount)
+        /// <param name="instanceCount">The amount of instances to render.</param>
+        public unsafe void DrawElementsInstanced(PrimitiveType primitiveType, int startIndex, uint count, uint instanceCount)
         {
             shaderProgram.EnsurePreDrawStates();
             IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
-            GL.DrawElementsInstanced(primitiveType, count, indexSubset.ElementType, (IntPtr)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize), instanceCount);
+            GL.DrawElementsInstanced(primitiveType, count, indexSubset.ElementType, (void*)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize), instanceCount);
         }
 
         /// <summary>
@@ -1583,7 +1585,7 @@ namespace TrippyGL
             //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
             //TODO: Check that the sample count for both framebuffers is valid for blitting
 
-            GL.BlitFramebuffer(srcX, srcY, srcWidth, srcHeight, dstX, dstY, dstWidth, dstHeight, mask, filter);
+            GL.BlitFramebuffer(srcX, srcY, srcWidth, srcHeight, dstX, dstY, dstWidth, dstHeight, (uint)mask, filter);
         }
 
         /// <summary>
@@ -1696,7 +1698,7 @@ namespace TrippyGL
                 DisposeAllResources();
                 DebugMessagingEnabled = false; // this makes sure any GCHandle or unmanaged stuff gets released
                 IsDisposed = true;
-                Context.Dispose();
+                GL.Dispose();
             }
         }
     }

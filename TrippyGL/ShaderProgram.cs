@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using System;
 
 namespace TrippyGL
@@ -12,11 +12,11 @@ namespace TrippyGL
     {
         // TODO: Change this to internal!!!
         /// <summary>The handle for the OpenGL Program object.</summary>
-        public readonly int Handle;
+        public readonly uint Handle;
 
-        private int vsHandle = -1;
-        private int gsHandle = -1;
-        private int fsHandle = -1;
+        private uint vsHandle = uint.MaxValue;
+        private uint gsHandle = uint.MaxValue;
+        private uint fsHandle = uint.MaxValue;
 
         // These stores the data of the attributes provided via SpecifyVertexAttribs() to compare that they actually exist and match after linking
         private string[] givenAttribNames = null;
@@ -44,13 +44,13 @@ namespace TrippyGL
         public bool IsCurrentlyInUse => GraphicsDevice.ShaderProgram == this;
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a vertex shader attached.</summary>
-        public bool HasVertexShader => vsHandle != -1;
+        public bool HasVertexShader => vsHandle != uint.MaxValue;
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a geometry shader attached.</summary>
-        public bool HasGeometryShader => gsHandle != -1;
+        public bool HasGeometryShader => gsHandle != uint.MaxValue;
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a fragment shader attached.</summary>
-        public bool HasFragmentShader => fsHandle != -1;
+        public bool HasFragmentShader => fsHandle != uint.MaxValue;
 
         /// <summary>
         /// Creates a <see cref="ShaderProgram"/>.
@@ -83,16 +83,16 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (vsHandle != -1)
+            if (vsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
 
-            int vs = GL.CreateShader(ShaderType.VertexShader);
+            uint vs = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vs, code);
             GL.CompileShader(vs);
-            GL.GetShader(vs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(vs, ShaderParameterName.CompileStatus, out int status);
             shaderLog = GL.GetShaderInfoLog(vs);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             vsHandle = vs;
@@ -111,15 +111,15 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (vsHandle != -1)
+            if (vsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
 
-            int vs = GL.CreateShader(ShaderType.VertexShader);
+            uint vs = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vs, code);
             GL.CompileShader(vs);
-            GL.GetShader(vs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(vs, ShaderParameterName.CompileStatus, out int status);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             vsHandle = vs;
@@ -152,16 +152,16 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (gsHandle != -1)
+            if (gsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
 
-            int gs = GL.CreateShader(ShaderType.GeometryShader);
+            uint gs = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(gs, code);
             GL.CompileShader(gs);
-            GL.GetShader(gs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(gs, ShaderParameterName.CompileStatus, out int status);
             shaderLog = GL.GetShaderInfoLog(gs);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             gsHandle = gs;
@@ -183,15 +183,15 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (gsHandle != -1)
+            if (gsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
 
-            int gs = GL.CreateShader(ShaderType.GeometryShader);
+            uint gs = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(gs, code);
             GL.CompileShader(gs);
-            GL.GetShader(gs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(gs, ShaderParameterName.CompileStatus, out int status);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             gsHandle = gs;
@@ -221,16 +221,16 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (fsHandle != -1)
+            if (fsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
 
-            int fs = GL.CreateShader(ShaderType.FragmentShader);
+            uint fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, code);
             GL.CompileShader(fs);
-            GL.GetShader(fs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(fs, ShaderParameterName.CompileStatus, out int status);
             shaderLog = GL.GetShaderInfoLog(fs);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             fsHandle = fs;
@@ -249,15 +249,15 @@ namespace TrippyGL
             if (string.IsNullOrEmpty(code))
                 throw new ArgumentException("You must specify shader code", "code");
 
-            if (fsHandle != -1)
+            if (fsHandle != uint.MaxValue)
                 throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
 
-            int fs = GL.CreateShader(ShaderType.FragmentShader);
+            uint fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, code);
             GL.CompileShader(fs);
-            GL.GetShader(fs, ShaderParameter.CompileStatus, out int status);
+            GL.GetShader(fs, ShaderParameterName.CompileStatus, out int status);
 
-            if (status == (int)All.False)
+            if (status == (int)GLEnum.False)
                 return false;
 
             fsHandle = fs;
@@ -285,7 +285,7 @@ namespace TrippyGL
             if (attribData.Length != attribNames.Length)
                 throw new ArgumentException("The attribData and attribNames arrays must have matching lengths");
 
-            int index = 0;
+            uint index = 0;
             for (int i = 0; i < attribNames.Length; i++)
             {
                 if (string.IsNullOrEmpty(attribNames[i]))
@@ -340,33 +340,33 @@ namespace TrippyGL
         {
             ValidateUnlinked();
 
-            if (vsHandle == -1)
+            if (vsHandle == uint.MaxValue)
                 throw new InvalidOperationException("Shader program must have a vertex shader before linking!");
 
             if (givenAttribNames == null)
                 throw new InvalidOperationException("The vertex attributes's indices have never been specified");
 
             GL.LinkProgram(Handle);
-            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int status);
-            if (status == (int)All.False)
+            GL.GetProgram(Handle, ProgramPropertyARB.LinkStatus, out int status);
+            if (status == (int)GLEnum.False)
                 throw new ProgramLinkException(GL.GetProgramInfoLog(Handle));
             IsLinked = true;
 
             GL.DetachShader(Handle, vsHandle);
             GL.DeleteShader(vsHandle);
 
-            if (fsHandle != -1)
+            if (fsHandle != uint.MaxValue)
             {
                 GL.DetachShader(Handle, fsHandle);
                 GL.DeleteShader(fsHandle);
             }
 
-            if (gsHandle != -1)
+            if (gsHandle != uint.MaxValue)
             {
                 GL.DetachShader(Handle, gsHandle);
                 GL.DeleteShader(gsHandle);
 
-                GeometryShader = new GeometryShaderData(Handle);
+                GeometryShader = new GeometryShaderData(GL, Handle);
             }
 
             activeAttribs = CreateActiveAttribsArray(this);
@@ -429,7 +429,7 @@ namespace TrippyGL
         private static ActiveVertexAttrib[] CreateActiveAttribsArray(ShaderProgram program)
         {
             // We query the total amount of attributes we'll be reading from OpenGL
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveAttributes, out int attribCount);
+            program.GL.GetProgram(program.Handle, ProgramPropertyARB.ActiveAttributes, out int attribCount);
 
             // We'll be storing the attributes in this list and then turning it into an array, because we can't
             // know for sure how many attributes we'll have at the end, we just know it's be <= than attribCount
@@ -437,7 +437,7 @@ namespace TrippyGL
             int attribListIndex = 0;
 
             // We query all the ShaderProgram's attributes one by one and add them to attribList
-            for (int i = 0; i < attribCount; i++)
+            for (uint i = 0; i < attribCount; i++)
             {
                 ActiveVertexAttrib a = new ActiveVertexAttrib(program, i);
                 if (a.Location >= 0)    // Sometimes other stuff shows up, such as gl_InstanceID with location -1.
@@ -511,18 +511,18 @@ namespace TrippyGL
             /// <summary>The maximum amount of vertices the geometry shader can output.</summary>
             public readonly int GeometryVerticesOut;
 
-            internal GeometryShaderData(int programHandle)
+            internal GeometryShaderData(GL gl, uint programHandle)
             {
-                GL.GetProgram(programHandle, GetProgramParameterName.GeometryInputType, out int tmp);
+                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryInputType, out int tmp);
                 GeometryInputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(programHandle, GetProgramParameterName.GeometryOutputType, out tmp);
+                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryOutputType, out tmp);
                 GeometryOutputType = (PrimitiveType)tmp;
 
-                GL.GetProgram(programHandle, GetProgramParameterName.GeometryShaderInvocations, out tmp);
+                gl.GetProgram(programHandle, GLEnum.GeometryShaderInvocations, out tmp);
                 GeometryShaderInvocations = tmp;
 
-                GL.GetProgram(programHandle, GetProgramParameterName.GeometryVerticesOut, out tmp);
+                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryVerticesOut, out tmp);
                 GeometryVerticesOut = tmp;
             }
         }

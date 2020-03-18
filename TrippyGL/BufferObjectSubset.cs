@@ -1,5 +1,5 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -12,27 +12,27 @@ namespace TrippyGL
         public readonly BufferObject Buffer;
 
         /// <summary>The handle of the <see cref="BufferObject"/> that owns this subset.</summary>
-        public readonly int BufferHandle;
+        public readonly uint BufferHandle;
 
-        /// <summary>The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> to which this subset always binds to.</summary>
-        public readonly BufferTarget BufferTarget;
+        /// <summary>The <see cref="BufferTargetARB"/> to which this subset always binds to.</summary>
+        public readonly BufferTargetARB BufferTarget;
 
         /// <summary>The offset into this <see cref="Buffer"/>'s storage at which this subset starts, measured in bytes.</summary>
-        public int StorageOffsetInBytes { get; private set; }
+        public uint StorageOffsetInBytes { get; private set; }
 
         /// <summary>The length of this subset's storage measured in bytes.</summary>
-        public int StorageLengthInBytes { get; private set; }
+        public uint StorageLengthInBytes { get; private set; }
 
         /// <summary>
         /// The index of the next byte in the <see cref="BufferObject"/>'s storage after this subset
         /// (a byte that does NOT belong to this subset but is sequentially next to this subset's end).<para/>
         /// This is equal to (<see cref="StorageOffsetInBytes"/> + <see cref="StorageLengthInBytes"/>).
         /// </summary>
-        public int NextByteInBuffer => StorageOffsetInBytes + StorageLengthInBytes;
+        public uint NextByteInBuffer => StorageOffsetInBytes + StorageLengthInBytes;
 
         /// <summary>
         /// The index in the <see cref="GraphicsDevice.bufferBindings"/> array where this
-        /// <see cref="BufferObjectSubset"/>'s <see cref="BufferTarget"/> last bound handle is stored.
+        /// <see cref="BufferObjectSubset"/>'s <see cref="BufferTargetARB"/> last bound handle is stored.
         /// </summary>
         internal readonly int bufferTargetBindingIndex;
 
@@ -41,10 +41,10 @@ namespace TrippyGL
         /// target, offset into the buffer and storage length.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLengthBytes">The length of this subset measured in bytes.</param>
-        internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget, int storageOffsetBytes, int storageLengthBytes)
+        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLengthBytes)
             : this(bufferObject, bufferTarget)
         {
             InitializeStorage(storageOffsetBytes, storageLengthBytes);
@@ -55,8 +55,8 @@ namespace TrippyGL
         /// target, but storage offset and length are left uninitialized.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> this subset will always bind to.</param>
-        internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget)
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget)
         {
             bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
             Buffer = bufferObject;
@@ -66,11 +66,11 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="BufferObjectSubset"/> that occupies the same area in the same
-        /// buffer as another buffer subset but has another <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/>.
+        /// buffer as another buffer subset but has another <see cref="BufferTargetARB"/>.
         /// </summary>
         /// <param name="copy">The <see cref="BufferObjectSubset"/> to copy.</param>
-        /// <param name="bufferTarget">The <see cref="OpenTK.Graphics.OpenGL4.BufferTarget"/> this subset will always bind to.</param>
-        internal BufferObjectSubset(BufferObjectSubset copy, BufferTarget bufferTarget)
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        internal BufferObjectSubset(BufferObjectSubset copy, BufferTargetARB bufferTarget)
             : this(copy.Buffer, bufferTarget, copy.StorageOffsetInBytes, copy.StorageLengthInBytes)
         {
 
@@ -81,7 +81,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="storageOffsetBytes">The desired offset into the <see cref="BufferObject"/>'s storage for this subset measured in bytes.</param>
         /// <param name="storageLengthBytes">The desired storage length for this subset measured in bytes.</param>
-        private protected void InitializeStorage(int storageOffsetBytes, int storageLengthBytes)
+        private protected void InitializeStorage(uint storageOffsetBytes, uint storageLengthBytes)
         {
             if (storageOffsetBytes < 0 || storageOffsetBytes >= Buffer.StorageLengthInBytes)
                 throw new ArgumentOutOfRangeException(nameof(storageOffsetBytes), storageOffsetBytes, nameof(storageOffsetBytes) + " must be in the range [0, " + nameof(Buffer.StorageLengthInBytes) + ")");

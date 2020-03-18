@@ -1,6 +1,6 @@
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Runtime.InteropServices;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -8,7 +8,7 @@ namespace TrippyGL
     /// Provides a limited but simple way to store vertex data in a single <see cref="BufferObject"/>.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
-    public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : struct, IVertex
+    public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : unmanaged, IVertex
     {
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex and index data.</summary>
         public readonly BufferObject Buffer;
@@ -23,13 +23,13 @@ namespace TrippyGL
         public IndexBufferSubset IndexSubset => VertexArray.IndexBuffer;
 
         /// <summary>The size of a single vertex measured in bytes.</summary>
-        public readonly int ElementSize;
+        public readonly uint ElementSize;
 
         /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</summary>
-        public int StorageLength => DataSubset.StorageLength;
+        public uint StorageLength => DataSubset.StorageLength;
 
         /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements.</summary>
-        public int IndexStorageLength => IndexSubset.StorageLength;
+        public uint IndexStorageLength => IndexSubset.StorageLength;
 
         /// <summary>Whether this <see cref="VertexBuffer{T}"/> is all null (because, for example, it hasn't been created yet).</summary>
         public bool IsEmpty => Buffer == null;
@@ -42,20 +42,20 @@ namespace TrippyGL
         /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
         /// <param name="indexElementType">The type of index element to use.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, int indexStorageLength, DrawElementsType indexElementType, BufferUsageHint usageHint)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, uint indexStorageLength, DrawElementsType indexElementType, BufferUsageARB usageHint)
         {
             ValidateStorageLength(storageLength);
-            ElementSize = Marshal.SizeOf<T>();
+            ElementSize = (uint)Marshal.SizeOf<T>();
 
-            int bufferStorageLengthBytes;
-            int elementSubsetLengthBytes = storageLength * ElementSize;
+            uint bufferStorageLengthBytes;
+            uint elementSubsetLengthBytes = storageLength * ElementSize;
 
             bool hasIndexBuffer = indexStorageLength > 0;
-            int indexSubsetStartBytes;
+            uint indexSubsetStartBytes;
 
             if (hasIndexBuffer)
             {
-                int indexElementSize = IndexBufferSubset.GetSizeInBytesOfElementType(indexElementType);
+                uint indexElementSize = IndexBufferSubset.GetSizeInBytesOfElementType(indexElementType);
                 indexSubsetStartBytes = (elementSubsetLengthBytes + indexElementSize - 1) / indexElementSize * indexElementSize;
 
                 bufferStorageLengthBytes = indexSubsetStartBytes + indexElementSize * indexStorageLength;
@@ -84,7 +84,7 @@ namespace TrippyGL
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
         /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, int indexStorageLength, DrawElementsType indexElementType, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, uint indexStorageLength, DrawElementsType indexElementType, BufferUsageARB usageHint, Span<T> data, uint dataWriteOffset = 0)
             : this(graphicsDevice, storageLength, indexStorageLength, indexElementType, usageHint)
         {
             DataSubset.SetData(data, dataWriteOffset);
@@ -98,7 +98,7 @@ namespace TrippyGL
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
         /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint, Span<T> data, int dataWriteOffset = 0)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, BufferUsageARB usageHint, Span<T> data, uint dataWriteOffset = 0)
             : this(graphicsDevice, storageLength, 0, default, usageHint, data, dataWriteOffset)
         {
 
@@ -111,8 +111,8 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, Span<T> data, BufferUsageHint usageHint)
-            : this(graphicsDevice, data.Length, 0, default, usageHint, data)
+        public VertexBuffer(GraphicsDevice graphicsDevice, Span<T> data, BufferUsageARB usageHint)
+            : this(graphicsDevice, (uint)data.Length, 0, default, usageHint, data)
         {
 
         }
@@ -123,7 +123,7 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, int storageLength, BufferUsageHint usageHint)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, BufferUsageARB usageHint)
             : this(graphicsDevice, storageLength, 0, default, usageHint)
         {
 
@@ -146,24 +146,24 @@ namespace TrippyGL
         /// <param name="storageLength">The new length for the <see cref="VertexBuffer{T}"/>'s element storage.</param>
         /// <param name="indexStorageLength">The new length for the <see cref="VertexBuffer{T}"/>'s index storage. 0 means either no index storage or keep previous length.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance. 0 for same as before.</param>
-        public void RecreateStorage(int storageLength, int indexStorageLength = 0, BufferUsageHint usageHint = default)
+        public void RecreateStorage(uint storageLength, uint indexStorageLength = 0, BufferUsageARB usageHint = default)
         {
             ValidateStorageLength(storageLength);
 
             IndexBufferSubset indexSubset = IndexSubset;
             bool hasIndexSubset = indexSubset != null;
 
-            int bufferStorageLengthBytes;
-            int elementSubsetLengthBytes = storageLength * ElementSize;
+            uint bufferStorageLengthBytes;
+            uint elementSubsetLengthBytes = storageLength * ElementSize;
 
-            int indexSubsetStartBytes;
+            uint indexSubsetStartBytes;
 
             if (hasIndexSubset)
             {
                 if (indexStorageLength <= 0)
                     indexStorageLength = indexSubset.StorageLength;
 
-                int indexElementSize = IndexSubset.ElementSize;
+                uint indexElementSize = IndexSubset.ElementSize;
                 indexSubsetStartBytes = (elementSubsetLengthBytes + indexElementSize - 1) / indexElementSize * indexElementSize;
 
                 bufferStorageLengthBytes = indexSubsetStartBytes + indexElementSize * indexStorageLength;
@@ -177,10 +177,7 @@ namespace TrippyGL
                 bufferStorageLengthBytes = elementSubsetLengthBytes;
             }
 
-            if (usageHint == default)
-                Buffer.RecreateStorage(bufferStorageLengthBytes);
-            else
-                Buffer.RecreateStorage(bufferStorageLengthBytes, usageHint);
+            Buffer.RecreateStorage(bufferStorageLengthBytes, usageHint);
 
             DataSubset.ResizeSubset(0, storageLength);
             indexSubset?.ResizeSubset(indexSubsetStartBytes, indexStorageLength);
@@ -193,7 +190,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="storageLength">The desired new length for the storage measured in elements.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance. 0 for same as before.</param>
-        public void RecreateStorage(int storageLength, BufferUsageHint usageHint)
+        public void RecreateStorage(uint storageLength, BufferUsageARB usageHint)
         {
             RecreateStorage(storageLength, 0, usageHint);
         }
@@ -219,7 +216,7 @@ namespace TrippyGL
         /// <summary>
         /// Checks that the given storage length value is valid and throws an exception if it's not.
         /// </summary>
-        private static void ValidateStorageLength(int storageLength)
+        private static void ValidateStorageLength(uint storageLength)
         {
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException(nameof(storageLength), storageLength, nameof(storageLength) + " must be greater than 0");

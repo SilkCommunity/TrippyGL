@@ -1,4 +1,4 @@
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using System;
@@ -6,26 +6,18 @@ using System.IO;
 using System.Numerics;
 using TrippyGL;
 
-namespace TrippyTesting.Tests
+namespace TrippyTesting
 {
-    class DoSumShit
+    class SimpleTriangle
     {
-        System.Diagnostics.Stopwatch stopwatch;
-        public static Random r = new Random();
-        public static float time;
         IWindow window;
 
         GraphicsDevice graphicsDevice;
 
+        VertexBuffer<VertexColor> vertexBuffer;
         ShaderProgram program;
 
-        BufferObject buffer;
-        VertexDataBufferSubset<VertexColorTexture> bufferSubset;
-        VertexArray vertexArray;
-
-        Texture2D texture;
-
-        public DoSumShit()
+        public SimpleTriangle()
         {
             window = CreateWindow();
 
@@ -64,29 +56,20 @@ namespace TrippyTesting.Tests
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
             Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-
-            stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            time = 0;
-
-            VertexColorTexture[] vertices = new VertexColorTexture[]
+            Span<VertexColor> vertexData = stackalloc VertexColor[]
             {
-                new VertexColorTexture(new Vector3(0, 0, 0), new Color4b(255, 0, 0, 255), new Vector2(0, 1)),
-                new VertexColorTexture(new Vector3(1, 0, 0), new Color4b(0, 255, 0, 255), new Vector2(1, 1)),
-                new VertexColorTexture(new Vector3(0, 1, 0), new Color4b(0, 0, 255, 255), new Vector2(0, 0)),
-                new VertexColorTexture(new Vector3(1, 1, 0), new Color4b(255, 255, 0, 255), new Vector2(1, 0)),
+                new VertexColor(new Vector3(-0.5f, -0.5f, 0f), new Color4b(255, 0, 0, 255)),
+                new VertexColor(new Vector3(0.0f, 0.5f, 0f), new Color4b(0, 255, 0, 255)),
+                new VertexColor(new Vector3(0.5f, -0.5f, 0f), new Color4b(0, 0, 255, 255))
             };
 
-            buffer = new BufferObject(graphicsDevice, (uint)(vertices.Length * VertexColorTexture.SizeInBytes), BufferUsageARB.StaticDraw);
-            bufferSubset = new VertexDataBufferSubset<VertexColorTexture>(buffer, vertices);
-            vertexArray = VertexArray.CreateSingleBuffer<VertexColorTexture>(graphicsDevice, bufferSubset);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
 
             program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("sumshit/simple_vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("sumshit/simple_fs.glsl"));
-            program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            program.AddVertexShader(File.ReadAllText("triangle/vs.glsl"));
+            program.AddFragmentShader(File.ReadAllText("triangle/fs.glsl"));
+            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             program.LinkProgram();
-
-            texture = new Texture2D(graphicsDevice, "data4/jeru.png", true);
 
             OnWindowResized(window.Size);
         }
@@ -105,28 +88,19 @@ namespace TrippyTesting.Tests
             if (window.IsClosing)
                 return;
 
-            graphicsDevice.Framebuffer = null;
-            graphicsDevice.SetViewport(0, 0, window.Size.Width, window.Size.Height);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
-            graphicsDevice.VertexArray = vertexArray;
+            graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = program;
-
-            Matrix4x4 mat = Matrix4x4.Identity;
-            program.Uniforms["World"].SetValueMat4(mat);
-            program.Uniforms["View"].SetValueMat4(mat);
-            program.Uniforms["Projection"].SetValueMat4(mat);
-            program.Uniforms["tex"].SetValueTexture(texture);
-
-            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 3);
 
             window.SwapBuffers();
         }
 
         private void OnWindowResized(System.Drawing.Size size)
         {
-            graphicsDevice.BlendState = BlendState.Additive;
-            graphicsDevice.DepthState = DepthTestingState.None;
+            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
         }
 
         private void OnWindowClosing()

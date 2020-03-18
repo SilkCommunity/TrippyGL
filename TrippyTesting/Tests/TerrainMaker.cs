@@ -1,14 +1,16 @@
+using Silk.NET.Input;
+using Silk.NET.Input.Common;
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
-using OpenTK;
-using OpenTK.Input;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+using System.Numerics;
 using TrippyGL;
 
 namespace TrippyTesting.Tests
 {
-    class TerrainMaker : GameWindow
+    class TerrainMaker
     {
         const float MinX = -25, MaxX = 25, MinY = -25, MaxY = 25;
         const float WATER_TOP = 0.61810450337554419905178858716746f;
@@ -16,6 +18,11 @@ namespace TrippyTesting.Tests
         System.Diagnostics.Stopwatch stopwatch;
         public static Random r = new Random();
         public static float time, deltaTime;
+
+        IWindow window;
+        IInputContext inputContext;
+
+        GraphicsDevice graphicsDevice;
 
         VertexBuffer<VertexPosition> terrBuffer;
         ShaderProgram terrProgram;
@@ -30,19 +37,42 @@ namespace TrippyTesting.Tests
         ShaderProgram cubemapProgram;
         VertexBuffer<VertexPosition> cubemapBuffer;
 
-        GraphicsDevice graphicsDevice;
-
-        bool isMouseDown;
         Vector3 cameraPos;
         float rotY, rotX;
 
-        MouseState ms, oldMs;
-        KeyboardState ks, oldKs;
-
-        public TerrainMaker() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 32, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        public TerrainMaker()
         {
-            VSync = VSyncMode.On;
-            graphicsDevice = new GraphicsDevice(Context);
+            window = CreateWindow();
+
+            window.Load += OnWindowLoad;
+            window.Update += OnWindowUpdate;
+            window.Render += OnWindowRender;
+            window.Resize += OnWindowResized;
+            window.Closing += OnWindowClosing;
+        }
+
+        private IWindow CreateWindow()
+        {
+            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
+            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            return Window.Create(new WindowOptions(viewOpts));
+        }
+
+        public void Run()
+        {
+            window.Run();
+        }
+
+        private void OnWindowLoad()
+        {
+            inputContext = window.CreateInput();
+            inputContext.Keyboards[0].KeyDown += OnKeyDown;
+            inputContext.Mice[0].MouseDown += OnMouseDown;
+            inputContext.Mice[0].MouseUp += OnMouseUp;
+            inputContext.Mice[0].MouseMove += OnMouseMove;
+
+            graphicsDevice = new GraphicsDevice(GL.GetApi());
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
@@ -53,11 +83,9 @@ namespace TrippyTesting.Tests
             Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
             Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
-        }
+            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-        protected override void OnLoad(EventArgs e)
-        {
+
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
@@ -81,7 +109,7 @@ namespace TrippyTesting.Tests
                     );
                 }
 
-            terrBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, batcher.TriangleVertexCount, BufferUsageHint.StaticDraw);
+            terrBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, (uint)batcher.TriangleVertexCount, BufferUsageARB.StaticDraw);
             batcher.WriteTrianglesTo(terrBuffer.DataSubset);
 
             terrProgram = new ShaderProgram(graphicsDevice);
@@ -89,8 +117,8 @@ namespace TrippyTesting.Tests
             terrProgram.AddFragmentShader(File.ReadAllText("terrain/terrfs.glsl"));
             terrProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
             terrProgram.LinkProgram();
-            Matrix4 identity = Matrix4.Identity;
-            terrProgram.Uniforms["World"].SetValueMat4(ref identity);
+            Matrix4x4 identity = Matrix4x4.Identity;
+            terrProgram.Uniforms["World"].SetValueMat4(identity);
 
             #endregion
 
@@ -101,7 +129,7 @@ namespace TrippyTesting.Tests
             waterProgram.AddFragmentShader(File.ReadAllText("terrain/waterfs.glsl"));
             waterProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             waterProgram.LinkProgram();
-            waterProgram.Uniforms["World"].SetValueMat4(ref identity);
+            waterProgram.Uniforms["World"].SetValueMat4(identity);
 
             waterBuffer = new VertexBuffer<VertexColor>(graphicsDevice, new VertexColor[]
             {
@@ -109,7 +137,7 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(MinX, WATER_TOP, MaxY), new Color4b(100, 200, 255, 255)),
                 new VertexColor(new Vector3(MaxX, WATER_TOP, MinY), new Color4b(100, 200, 255, 255)),
                 new VertexColor(new Vector3(MaxX, WATER_TOP, MaxY), new Color4b(100, 200, 255, 255)),
-            }, BufferUsageHint.StaticDraw);
+            }, BufferUsageARB.StaticDraw);
 
             distortMap = new Texture2D(graphicsDevice, "terrain/distortMap.png");
             normalMap = new Texture2D(graphicsDevice, "terrain/normalMap.png");
@@ -122,8 +150,8 @@ namespace TrippyTesting.Tests
 
             refractionTex = null;
             reflectionTex = null;
-            refractionFbo = FramebufferObject.Create2D(ref refractionTex, graphicsDevice, Width, Height, DepthStencilFormat.Depth32f);
-            reflectionFbo = FramebufferObject.Create2D(ref reflectionTex, graphicsDevice, Width, Height, DepthStencilFormat.Depth32f);
+            refractionFbo = FramebufferObject.Create2D(ref refractionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
+            reflectionFbo = FramebufferObject.Create2D(ref reflectionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
             refractionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             reflectionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             refractionTex.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
@@ -149,7 +177,7 @@ namespace TrippyTesting.Tests
                 new VertexPosition(new Vector3(0.5f,0.5f,0.5f)),//5
                 new VertexPosition(new Vector3(0.5f,-0.5f,-0.5f)),//2
                 new VertexPosition(new Vector3(0.5f,-0.5f,0.5f)),//1
-            }, BufferUsageHint.StaticDraw);
+            }, BufferUsageARB.StaticDraw);
 
             cubemapProgram = new ShaderProgram(graphicsDevice);
             cubemapProgram.AddVertexShader(File.ReadAllText("cubemap/vs.glsl"));
@@ -168,132 +196,127 @@ namespace TrippyTesting.Tests
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 
             #endregion LoadCubeMap
+
+            OnWindowResized(window.Size);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        private void OnWindowUpdate(double dtSeconds)
         {
-            oldMs = ms;
-            ms = Mouse.GetState();
-            oldKs = ks;
-            ks = Keyboard.GetState();
-
             float prevTime = time;
             time = (float)stopwatch.Elapsed.TotalSeconds;
             deltaTime = time - prevTime;
-            ErrorCode c;
-            while ((c = GL.GetError()) != ErrorCode.NoError)
+            GLEnum c;
+            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
             {
                 Console.WriteLine("Error found: " + c);
             }
 
-            float CameraMoveSpeed = ks.IsKeyDown(Key.LControl) ? 15 : 1.75f;
-            if (ks.IsKeyDown(Key.Left))
+            IKeyboard kb = inputContext.Keyboards[0];
+
+            float CameraMoveSpeed = kb.IsKeyPressed(Key.ControlLeft) ? 15f : 1.75f;
+            if (kb.IsKeyPressed(Key.Left))
                 cameraPos.X -= CameraMoveSpeed * deltaTime;
-            if (ks.IsKeyDown(Key.Right))
+            if (kb.IsKeyPressed(Key.Right))
                 cameraPos.X += CameraMoveSpeed * deltaTime;
-            if (ks.IsKeyDown(Key.LShift) || ks.IsKeyDown(Key.RShift))
+            if (kb.IsKeyPressed(Key.ShiftLeft) || kb.IsKeyPressed(Key.ShiftRight))
             {
-                if (ks.IsKeyDown(Key.Up))
+                if (kb.IsKeyPressed(Key.E))
                     cameraPos.Z += CameraMoveSpeed * deltaTime;
-                if (ks.IsKeyDown(Key.Down))
+                if (kb.IsKeyPressed(Key.Q))
                     cameraPos.Z -= CameraMoveSpeed * deltaTime;
             }
             else
             {
-                if (ks.IsKeyDown(Key.Up))
+                if (kb.IsKeyPressed(Key.E))
                     cameraPos.Y += CameraMoveSpeed * deltaTime;
-                if (ks.IsKeyDown(Key.Down))
+                if (kb.IsKeyPressed(Key.Q))
                     cameraPos.Y -= CameraMoveSpeed * deltaTime;
             }
 
-            if (ks.IsKeyDown(Key.R))
+            if (kb.IsKeyPressed(Key.R))
                 cameraPos.Y += CameraMoveSpeed * deltaTime;
-            if (ks.IsKeyDown(Key.F))
+            if (kb.IsKeyPressed(Key.F))
                 cameraPos.Y -= CameraMoveSpeed * deltaTime;
 
-            float jejeX = ks.IsKeyDown(Key.LShift) || ks.IsKeyDown(Key.RShift) ? rotX : 0;
-            if (ks.IsKeyDown(Key.W))
-                cameraPos += new Vector3((float)(Math.Cos(rotY) * Math.Cos(jejeX)), (float)Math.Sin(jejeX), (float)(Math.Sin(rotY) * Math.Cos(jejeX))) * CameraMoveSpeed * deltaTime;
-            if (ks.IsKeyDown(Key.S))
-                cameraPos -= new Vector3((float)(Math.Cos(rotY) * Math.Cos(jejeX)), (float)Math.Sin(jejeX), (float)(Math.Sin(rotY) * Math.Cos(jejeX))) * CameraMoveSpeed * deltaTime;
+            float jejeX = kb.IsKeyPressed(Key.ShiftLeft) || kb.IsKeyPressed(Key.ShiftRight) ? rotX : 0;
+            if (kb.IsKeyPressed(Key.W))
+                cameraPos += new Vector3((MathF.Cos(rotY) * MathF.Cos(jejeX)), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
+            if (kb.IsKeyPressed(Key.S))
+                cameraPos -= new Vector3((MathF.Cos(rotY) * MathF.Cos(jejeX)), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
 
-            if (ks.IsKeyDown(Key.A))
-                cameraPos += new Vector3((float)(Math.Sin(rotY) * Math.Cos(jejeX)), (float)Math.Sin(jejeX), (float)(Math.Cos(rotY) * -Math.Cos(jejeX))) * CameraMoveSpeed * deltaTime;
-            if (ks.IsKeyDown(Key.D))
-                cameraPos -= new Vector3((float)(Math.Sin(rotY) * Math.Cos(jejeX)), -(float)Math.Sin(jejeX), (float)(Math.Cos(rotY) * -Math.Cos(jejeX))) * CameraMoveSpeed * deltaTime;
+            if (kb.IsKeyPressed(Key.A))
+                cameraPos += new Vector3(MathF.Sin(rotY) * MathF.Cos(jejeX), MathF.Sin(jejeX), MathF.Cos(rotY) * -MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
+            if (kb.IsKeyPressed(Key.D))
+                cameraPos -= new Vector3(MathF.Sin(rotY) * MathF.Cos(jejeX), -MathF.Sin(jejeX), MathF.Cos(rotY) * -MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
 
-            if (WindowState != WindowState.Minimized && isMouseDown)
-            {
-                rotY += (ms.X - oldMs.X) * 0.005f;
-                rotX += (ms.Y - oldMs.Y) * -0.005f;
-                rotX = MathHelper.Clamp(rotX, -1.57f, 1.57f);
-                Mouse.SetPosition(Width / 2f + X, Height / 2f + Y);
-            }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        private void OnWindowRender(double dtSeconds)
         {
+            if (window.IsClosing)
+                return;
+
             graphicsDevice.ClipDistances[0] = true;
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthState = DepthTestingState.Default;
-            graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
+            graphicsDevice.ClearColor = new Vector4(0f, 0f, 0f, 1f);
 
-            waterProgram.Uniforms["time"].SetValue1(time);
+            waterProgram.Uniforms["time"].SetValueFloat(time);
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Vector3 cameraDir = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
-            Vector3 invertedCameraDir = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(-rotX), (float)Math.Sin(-rotX), (float)Math.Sin(rotY) * (float)Math.Cos(-rotX));
+            Vector3 cameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
+            Vector3 invertedCameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(-rotX), MathF.Sin(-rotX), MathF.Sin(rotY) * MathF.Cos(-rotX));
 
-            Matrix4 view = Matrix4.LookAt(cameraPos, cameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
+            Matrix4x4 view = Matrix4x4.CreateLookAt(cameraPos, cameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(rotX), MathF.Sin(rotY)), Vector3.UnitY);
             Vector3 invertedCameraPos = new Vector3(cameraPos.X, WATER_TOP * 2 - cameraPos.Y, cameraPos.Z);
-            Matrix4 waterInvertedView = Matrix4.LookAt(invertedCameraPos, invertedCameraPos + new Vector3((float)Math.Cos(rotY), (float)Math.Tan(-rotX), (float)Math.Sin(rotY)), Vector3.UnitY);
-            terrProgram.Uniforms["View"].SetValueMat4(ref view);
-            waterProgram.Uniforms["View"].SetValueMat4(ref view);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
-            waterProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            Matrix4x4 waterInvertedView = Matrix4x4.CreateLookAt(invertedCameraPos, invertedCameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(-rotX), MathF.Sin(rotY)), Vector3.UnitY);
+            terrProgram.Uniforms["View"].SetValueMat4(view);
+            waterProgram.Uniforms["View"].SetValueMat4(view);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
+            waterProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
 
-            Matrix4 world = Matrix4.CreateTranslation((int)cameraPos.X, 0, (int)cameraPos.Z);
-            terrProgram.Uniforms["World"].SetValueMat4(ref world);
-            waterProgram.Uniforms["World"].SetValueMat4(ref world);
+            Matrix4x4 world = Matrix4x4.CreateTranslation((int)cameraPos.X, 0, (int)cameraPos.Z);
+            terrProgram.Uniforms["World"].SetValueMat4(world);
+            waterProgram.Uniforms["World"].SetValueMat4(world);
 
             graphicsDevice.DrawFramebuffer = refractionFbo;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP+0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(-1.0f); //render only below the water
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP + 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(-1.0f); //render only below the water
             graphicsDevice.VertexArray = terrBuffer;
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
             graphicsDevice.DrawFramebuffer = reflectionFbo;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
-            cubemapProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref invertedCameraPos);
+            cubemapProgram.Uniforms["View"].SetValueMat4(waterInvertedView);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(invertedCameraPos);
             graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP-0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
-            terrProgram.Uniforms["View"].SetValueMat4(ref waterInvertedView);
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP - 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(1.0f); //render only above the water
+            terrProgram.Uniforms["View"].SetValueMat4(waterInvertedView);
             graphicsDevice.VertexArray = terrBuffer;
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
-            terrProgram.Uniforms["View"].SetValueMat4(ref view);
+            terrProgram.Uniforms["View"].SetValueMat4(view);
 
             graphicsDevice.DrawFramebuffer = null;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
-            cubemapProgram.Uniforms["View"].SetValueMat4(ref view);
-            cubemapProgram.Uniforms["cameraPos"].SetValue3(ref cameraPos);
+            cubemapProgram.Uniforms["View"].SetValueMat4(view);
+            cubemapProgram.Uniforms["cameraPos"].SetValueVec3(cameraPos);
             graphicsDevice.ShaderProgram = cubemapProgram;
             graphicsDevice.VertexArray = cubemapBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubemapBuffer.StorageLength);
             graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = terrBuffer;
-            terrProgram.Uniforms["clipOffset"].SetValue1(WATER_TOP-0.01f);
-            terrProgram.Uniforms["clipMultiplier"].SetValue1(1.0f); //render only above the water
+            terrProgram.Uniforms["clipOffset"].SetValueFloat(WATER_TOP - 0.01f);
+            terrProgram.Uniforms["clipMultiplier"].SetValueFloat(1.0f); //render only above the water
             graphicsDevice.ShaderProgram = terrProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
@@ -303,58 +326,62 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = waterProgram;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            SwapBuffers();
+            window.SwapBuffers();
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        private System.Drawing.PointF oldLocation;
+        private void OnMouseMove(IMouse sender, System.Drawing.PointF location)
         {
-            if (e.Button == MouseButton.Left)
-                isMouseDown = true;
-            else if (e.Button == MouseButton.Right)
+            if (sender.IsButtonPressed(MouseButton.Left))
             {
-                Vector3 forward = new Vector3((float)Math.Cos(rotY) * (float)Math.Cos(rotX), (float)Math.Sin(rotX), (float)Math.Sin(rotY) * (float)Math.Cos(rotX));
-                Vector3 center = cameraPos + forward * MathHelper.Clamp(ms.Scroll.Y * 0.1f, 0.1f, 50f);
+                rotY += (location.X - oldLocation.X) * 0.005f;
+                rotX += (location.Y - oldLocation.Y) * -0.005f;
+                rotX = Math.Clamp(rotX, -1.57f, 1.57f);
+                //inputContext.Mice[0].Position = new System.Drawing.PointF(window.Size.Width / 2f, window.Size.Height / 2f);
+
+                oldLocation = location;
+            }
+        }
+
+        private void OnMouseUp(IMouse sender, MouseButton btn)
+        {
+
+        }
+
+        private void OnMouseDown(IMouse sender, MouseButton btn)
+        {
+            if (btn == MouseButton.Left)
+                oldLocation = sender.Position;
+            if (btn == MouseButton.Right)
+            {
+                Vector3 forward = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
+                Vector3 center = cameraPos + forward * Math.Clamp(sender.ScrollWheels[0].Y * 0.1f, 0.1f, 50f);
                 //fuckables.Add(new Fuckable(getRandMesh(), center));
             }
         }
 
-        protected override void OnMouseUp(MouseButtonEventArgs e)
+        private void OnKeyDown(IKeyboard sender, Key key, int idk)
         {
-            if (e.Button == MouseButton.Left)
-                isMouseDown = false;
+
         }
 
-        protected override void OnResize(EventArgs e)
+        private void OnWindowResized(System.Drawing.Size size)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
+            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
 
-            float wid = Width / (float)Height;
+            float wid = size.Width / (float)size.Height;
             wid *= 0.5f;
-            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver2, Width / (float)Height, 0.0001f, 100f);
-            terrProgram.Uniforms["Projection"].SetValueMat4(ref proj);
-            waterProgram.Uniforms["Projection"].SetValueMat4(ref proj);
-            cubemapProgram.Uniforms["Projection"].SetValueMat4(ref proj);
+            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI*0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
+            terrProgram.Uniforms["Projection"].SetValueMat4(proj);
+            waterProgram.Uniforms["Projection"].SetValueMat4(proj);
+            cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
 
-            FramebufferObject.Resize2D(refractionFbo, Width, Height);
-            FramebufferObject.Resize2D(reflectionFbo, Width, Height);
+            FramebufferObject.Resize2D(refractionFbo, (uint)size.Width, (uint)size.Height);
+            FramebufferObject.Resize2D(reflectionFbo, (uint)size.Width, (uint)size.Height);
         }
 
-        protected override void OnUnload(EventArgs e)
+        private void OnWindowClosing()
         {
-            terrBuffer.Dispose();
-            terrProgram.Dispose();
-            waterBuffer.Dispose();
-            waterProgram.Dispose();
-            reflectionFbo.DisposeAttachments();
-            reflectionFbo.Dispose();
-            refractionFbo.DisposeAttachments();
-            refractionFbo.Dispose();
-            distortMap.Dispose();
-            normalMap.Dispose();
-            cubemap.Dispose();
-            cubemapProgram.Dispose();
-            cubemapBuffer.Dispose();
-
             graphicsDevice.Dispose();
         }
     }

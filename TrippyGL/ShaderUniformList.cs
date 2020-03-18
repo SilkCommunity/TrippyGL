@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 
@@ -20,7 +20,7 @@ namespace TrippyGL
         public int Count => uniforms.Length;
 
         /// <summary>Gets the unsorted <see cref="ShaderUniform"/>-s from this list.</summary>
-        public ReadOnlyMemory<ShaderUniform> Uniforms => uniforms;
+        public ReadOnlySpan<ShaderUniform> Uniforms => uniforms;
 
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
         private readonly List<Texture> textureList;
@@ -57,11 +57,11 @@ namespace TrippyGL
             uniforms = new ShaderUniform[totalUniformCount - totalUniformBlockCount];
 
             int samplerUniformsTextureCount = 0;
-            int arrIndex = 0;
-            for (int i = 0; i < totalUniformCount; i++)
+            uint arrIndex = 0;
+            for (uint i = 0; i < totalUniformCount; i++)
             {
-                string name = GL.GetActiveUniform(program.Handle, i, out int size, out ActiveUniformType type);
-                int location = GL.GetUniformLocation(program.Handle, name);
+                string name = Program.GL.GetActiveUniform(program.Handle, i, out int size, out UniformType type);
+                int location = Program.GL.GetUniformLocation(program.Handle, name);
 
                 if (location < 0) //If the location is -1, then it's probably a uniform block so let's not add it to the uniform list
                     continue;
@@ -143,7 +143,7 @@ namespace TrippyGL
         /// </summary>
         internal static ShaderUniformList CreateForProgram(ShaderProgram program)
         {
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniforms, out int totalUniformCount);
+            program.GL.GetProgram(program.Handle, ProgramPropertyARB.ActiveUniforms, out int totalUniformCount);
             int totalUniformBlockCount = program.BlockUniforms == null ? 0 : program.BlockUniforms.TotalUniformCount;
 
             if (totalUniformCount - totalUniformBlockCount == 0)

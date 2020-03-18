@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -12,7 +12,7 @@ namespace TrippyGL
     public sealed class Texture1D : Texture
     {
         /// <summary>The size of the <see cref="Texture1D"/>.</summary>
-        public int Width { get; private set; }
+        public uint Width { get; private set; }
 
         /// <summary>
         /// Creates a <see cref="Texture1D"/> with the desired parameters.
@@ -21,7 +21,7 @@ namespace TrippyGL
         /// <param name="width">The size of the <see cref="Texture1D"/>.</param>
         /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture1D"/>.</param>
         /// <param name="imageFormat">The image format for this <see cref="Texture1D"/>.</param>
-        public Texture1D(GraphicsDevice graphicsDevice, int width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+        public Texture1D(GraphicsDevice graphicsDevice, uint width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, TextureTarget.Texture1D, imageFormat)
         {
             RecreateImage(width);
@@ -44,11 +44,11 @@ namespace TrippyGL
         {
             using (Image<Rgba32> image = Image.Load<Rgba32>(file))
             {
-                Width = image.Width * image.Height;
+                Width = (uint)(image.Width * image.Height);
                 ValidateTextureSize(Width);
 
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage1D(TextureType, 0, PixelInternalFormat, Width, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
+                GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, Width, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
 
             if (generateMipmaps)
@@ -62,40 +62,39 @@ namespace TrippyGL
         /// Sets the data of part of the <see cref="Texture1D"/> by copying it from the specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
+        /// <param name="dataPtr">The pointer for reading the pixel data.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
         /// <param name="width">The amount of pixels to write.</param>
-        public void SetData(IntPtr data, int xOffset, int width)
+        public unsafe void SetData(void* dataPtr, uint xOffset, uint width)
         {
             ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, xOffset, width, PixelFormat.Rgba, PixelType, data);
+            GL.TexSubImage1D(TextureType, 0, (int)xOffset, width, PixelFormat.Rgba, PixelType, dataPtr);
         }
 
         /// <summary>
         /// Sets the data of a specified area of the <see cref="Texture1D"/>. The amount of pixels written
-        /// is the length of the given <see cref="Span{T}"/>
+        /// is the length of the given <see cref="ReadOnlySpan{T}"/>
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the texture data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the texture data.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
-        public void SetData<T>(Span<T> data, int xOffset = 0) where T : struct
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, uint xOffset = 0) where T : unmanaged
         {
-            ValidateRectOperation(xOffset, data.Length);
-
-            GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, xOffset, data.Length, PixelFormat.Rgba, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                SetData(ptr, xOffset, (uint)data.Length);
         }
 
         /// <summary>
         /// Gets the data of the entire <see cref="Texture1D"/> and copies it to a specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="data">The pointer for writting the data.</param>
-        public void GetData(IntPtr data)
+        /// <param name="dataPtr">The pointer for writting the data.</param>
+        public unsafe void GetData(void* dataPtr)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, data);
+            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, dataPtr);
         }
 
         /// <summary>
@@ -103,13 +102,13 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
         /// <param name="data">The <see cref="Span{T}"/> in which to write the texture data.</param>
-        public void GetData<T>(Span<T> data) where T : struct
+        public void GetData<T>(Span<T> data) where T : unmanaged
         {
             if (data.Length < Width)
                 throw new ArgumentException(nameof(data) + " must be large enough as to hold " + nameof(Width) + " pixels", nameof(data));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, ref data[0]);
+            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, out data[0]);
         }
 
         /// <summary>
@@ -127,24 +126,24 @@ namespace TrippyGL
         /// resizing the <see cref="Texture1D"/> but losing the image data.
         /// </summary>
         /// <param name="width">The new size for the <see cref="Texture1D"/>.</param>
-        public void RecreateImage(int width)
+        public unsafe void RecreateImage(uint width)
         {
             ValidateTextureSize(width);
 
             Width = width;
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexImage1D(TextureType, 0, PixelInternalFormat, width, 0, PixelFormat.Bgra, PixelType, IntPtr.Zero);
+            GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, width, 0, PixelFormat.Rgba, PixelType, (void*)0);
         }
 
         // TODO: SaveAsImage()
 
-        private protected void ValidateTextureSize(int width)
+        private void ValidateTextureSize(uint width)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
                 throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
         }
 
-        private protected void ValidateRectOperation(int xOffset, int width)
+        private void ValidateRectOperation(uint xOffset, uint width)
         {
             if (xOffset < 0 || xOffset >= Width)
                 throw new ArgumentOutOfRangeException(nameof(xOffset), xOffset, nameof(xOffset) + " must be in the range [0, " + nameof(Width) + ")");

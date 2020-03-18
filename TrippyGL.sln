@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{36D837C1-8AC1-4A80-8124-5904B67E9552}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{856112F6-EA43-477E-8362-5A7618A12892}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA56FE6D-2860-410F-8CE7-F29DE9958238}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{6B15A097-205A-494C-98E0-4DC76B5F06EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{71153C4F-A39D-4343-94C8-133919651BD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,14 +18,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36D837C1-8AC1-4A80-8124-5904B67E9552}.Release|Any CPU.Build.0 = Release|Any CPU
-		{856112F6-EA43-477E-8362-5A7618A12892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{856112F6-EA43-477E-8362-5A7618A12892}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{856112F6-EA43-477E-8362-5A7618A12892}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{856112F6-EA43-477E-8362-5A7618A12892}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71153C4F-A39D-4343-94C8-133919651BD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71153C4F-A39D-4343-94C8-133919651BD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
@@ -15,13 +15,13 @@ namespace TrippyGL
     public sealed class Texture2D : Texture, IMultisamplableTexture
     {
         /// <summary>The width of this <see cref="Texture2D"/>.</summary>
-        public int Width { get; private set; }
+        public uint Width { get; private set; }
 
         /// <summary>The height of this <see cref="Texture2D"/>.</summary>
-        public int Height { get; private set; }
+        public uint Height { get; private set; }
 
         /// <summary>The amount of samples this <see cref="Texture2D"/> has.</summary>
-        public int Samples { get; private set; }
+        public uint Samples { get; private set; }
 
         /// <summary>
         /// Creates a <see cref="Texture2D"/> with the desired parameters but no image data.
@@ -32,7 +32,7 @@ namespace TrippyGL
         /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture2D"/>.</param>
         /// <param name="samples">The amount of samples for this <see cref="Texture2D"/>. Default is 0.</param>
         /// <param name="imageFormat">The image format for this <see cref="Texture2D"/>.</param>
-        public Texture2D(GraphicsDevice graphicsDevice, int width, int height, bool generateMipmaps = false, int samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+        public Texture2D(GraphicsDevice graphicsDevice, uint width, uint height, bool generateMipmaps = false, uint samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2D : TextureTarget.Texture2DMultisample, imageFormat)
         {
             ValidateSampleCount(samples);
@@ -56,11 +56,11 @@ namespace TrippyGL
             Samples = 0;
             using (Image<Rgba32> image = Image.Load<Rgba32>(file))
             {
-                Width = image.Width;
-                Height = image.Height;
+                Width = (uint)image.Width;
+                Height = (uint)image.Height;
                 ValidateTextureSize(Width, Height);
                 graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage2D(TextureType, 0, PixelInternalFormat, Width, Height, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
+                GL.TexImage2D(TextureType, 0, (int)PixelInternalFormat, Width, Height, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
 
             if (generateMipmaps)
@@ -95,7 +95,7 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public void SetData(IntPtr dataPtr, int rectX, int rectY, int rectWidth, int rectHeight, PixelFormat pixelFormat = 0)
+        public unsafe void SetDataPtr(void* dataPtr, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0)
         {
             ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
 
@@ -104,30 +104,31 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the <see cref="Texture2D"/>, copying the new data from a specified <see cref="Span{T}"/>.
+        /// Sets the data of a specified area of the <see cref="Texture2D"/>, copying the new data from a specified <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2D"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the new pixel data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
         /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void SetData<T>(Span<T> data, int rectX, int rectY, int rectWidth, int rectHeight, PixelFormat pixelFormat = 0) where T : struct
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             ValidateSetOperation(data.Length, rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                GL.TexSubImage2D(TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
-        /// Sets the data of the entire <see cref="Texture2D"/>, copying the new data from a given <see cref="Span{T}"/>.
+        /// Sets the data of the entire <see cref="Texture2D"/>, copying the new data from a given <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2D"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="Span{T}"/> containing the new pixel data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void SetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : struct
+        public void SetData<T>(ReadOnlySpan<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             SetData(data, 0, 0, Width, Height, pixelFormat);
         }
@@ -138,7 +139,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="dataPtr">The pointer for writting the pixel data.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void GetData(IntPtr dataPtr, PixelFormat pixelFormat = 0)
+        public unsafe void GetDataPtr(void* dataPtr, PixelFormat pixelFormat = 0)
         {
             ValidateGetOperation();
             GraphicsDevice.BindTextureSetActive(this);
@@ -150,14 +151,14 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2D"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="Span{T}"/> in which to write the pixel data.</param>
-        /// <param name="dataOffset">The index of the first element in the data array to start writing from.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : struct
+        public unsafe void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
-            ValidateGetOperation(data.Length);
+            ValidateGetOperation((uint)data.Length);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ref data[0]);
+            fixed (void* ptr = &data[0])
+                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -176,31 +177,20 @@ namespace TrippyGL
             if (ImageFormat != TextureImageFormat.Color4b)
                 throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
 
-            IImageFormat format;
-
-            switch (imageFormat)
+            IImageFormat format = imageFormat switch
             {
-                case SaveImageFormat.Png:
-                    format = SixLabors.ImageSharp.Formats.Png.PngFormat.Instance;
-                    break;
-                case SaveImageFormat.Jpeg:
-                    format = SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance;
-                    break;
-                case SaveImageFormat.Bmp:
-                    format = SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance;
-                    break;
-                default:
-                    throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat));
-            }
+                SaveImageFormat.Png => SixLabors.ImageSharp.Formats.Png.PngFormat.Instance,
+                SaveImageFormat.Jpeg => SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance,
+                SaveImageFormat.Bmp => SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance,
+                _ => throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat)),
+            };
 
-            using (Image<Rgba32> image = new Image<Rgba32>(Width, Height))
-            {
-                GraphicsDevice.BindTextureSetActive(this);
-                GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ref image.GetPixelSpan()[0]);
-                image.Mutate(x => x.Flip(FlipMode.Vertical));
-                using (FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    image.Save(fileStream, format);
-            }
+            using Image<Rgba32> image = new Image<Rgba32>((int)Width, (int)Height);
+            GraphicsDevice.BindTextureSetActive(this);
+            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType.UnsignedByte, out image.GetPixelSpan()[0]);
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
+            image.Save(fileStream, format);
         }
 
         /// <summary>
@@ -224,7 +214,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="width">The new width for the <see cref="Texture2D"/>.</param>
         /// <param name="height">The new height for the <see cref="Texture2D"/>.</param>
-        public void RecreateImage(int width, int height)
+        public unsafe void RecreateImage(uint width, uint height)
         {
             ValidateTextureSize(width, height);
 
@@ -233,12 +223,12 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             if (Samples == 0)
-                GL.TexImage2D(TextureType, 0, PixelInternalFormat, Width, Height, 0, PixelFormat, PixelType, IntPtr.Zero);
+                GL.TexImage2D(TextureType, 0, (int)PixelInternalFormat, Width, Height, 0, PixelFormat, PixelType, (void*)0);
             else
-                GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, Samples, PixelInternalFormat, Width, Height, true);
+                GL.TexImage2DMultisample(TextureTarget.Texture2DMultisample, Samples, PixelInternalFormat, Width, Height, true);
         }
 
-        private void ValidateTextureSize(int width, int height)
+        private void ValidateTextureSize(uint width, uint height)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
                 throw new ArgumentOutOfRangeException(nameof(width), width, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
@@ -247,14 +237,14 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(height), height, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
         }
 
-        private void ValidateSetOperation(int dataLength, int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateSetOperation(int dataLength, int rectX, int rectY, uint rectWidth, uint rectHeight)
         {
             ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
             if (dataLength < rectWidth * rectHeight)
                 throw new ArgumentException("The data Span doesn't have enough data to write the requested texture area", "data");
         }
 
-        private void ValidateSetOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateSetOperation(int rectX, int rectY, uint rectWidth, uint rectHeight)
         {
             if (Samples != 0)
                 throw new InvalidOperationException("You can't write the pixels of a multisampled texture");
@@ -262,7 +252,7 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
         }
 
-        private void ValidateGetOperation(int dataLength)
+        private void ValidateGetOperation(uint dataLength)
         {
             ValidateGetOperation();
             if (dataLength < Width * Height)
@@ -275,7 +265,7 @@ namespace TrippyGL
                 throw new InvalidOperationException("You can't read the pixels of a multisampled texture");
         }
 
-        private void ValidateRectOperation(int rectX, int rectY, int rectWidth, int rectHeight)
+        private void ValidateRectOperation(int rectX, int rectY, uint rectWidth, uint rectHeight)
         {
             if (rectX < 0 || rectY >= Height)
                 throw new ArgumentOutOfRangeException(nameof(rectX), rectX, nameof(rectX) + " must be in the range [0, " + nameof(Width) + ")");
@@ -293,7 +283,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + " is too large");
         }
 
-        private void ValidateSampleCount(int samples)
+        private void ValidateSampleCount(uint samples)
         {
             if (samples < 0 || samples > GraphicsDevice.MaxSamples)
                 throw new ArgumentOutOfRangeException(nameof(samples), samples, nameof(samples) + " must be in the range [0, " + nameof(GraphicsDevice.MaxSamples) + "]");

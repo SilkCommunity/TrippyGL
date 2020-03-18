@@ -1,5 +1,5 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -41,25 +41,25 @@ namespace TrippyGL
         /// </summary>
         internal ShaderBlockUniformList(ShaderProgram program)
         {
-            GL.GetProgram(program.Handle, GetProgramParameterName.ActiveUniformBlocks, out int blockUniformCount);
+            program.GL.GetProgram(program.Handle, ProgramPropertyARB.ActiveUniformBlocks, out int blockUniformCount);
 
             Program = program;
             TotalUniformCount = 0;
 
-            if (blockUniformCount < 0)
+            if (blockUniformCount == 0)
                 uniforms = null;
             else
             {
                 uniforms = new ShaderBlockUniform[blockUniformCount];
-                for (int i = 0; i < blockUniformCount; i++)
+                for (uint i = 0; i < blockUniformCount; i++)
                 {
-                    GL.GetActiveUniformBlock(program.Handle, i, ActiveUniformBlockParameter.UniformBlockNameLength, out int nameLength);
-                    GL.GetActiveUniformBlockName(program.Handle, i, nameLength, out int actualNameLength, out string name);
-                    GL.GetActiveUniformBlock(program.Handle, i, ActiveUniformBlockParameter.UniformBlockBinding, out int bindingIndex);
-                    GL.GetActiveUniformBlock(program.Handle, i, ActiveUniformBlockParameter.UniformBlockActiveUniforms, out int activeUniformCount);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockNameLength, out int nameLength);
+                    program.GL.GetActiveUniformBlockName(program.Handle, i, (uint)nameLength, out uint actualNameLength, out string name);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockBinding, out int bindingIndex);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockActiveUniforms, out int activeUniformCount);
                     TotalUniformCount += activeUniformCount;
 
-                    uniforms[i] = new ShaderBlockUniform(program, bindingIndex, name, activeUniformCount);
+                    uniforms[i] = new ShaderBlockUniform(program, (uint)bindingIndex, name, activeUniformCount);
                 }
             }
         }

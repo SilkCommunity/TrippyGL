@@ -1,17 +1,20 @@
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+using System.Numerics;
 using TrippyGL;
 
 namespace TrippyTesting
 {
-    class Game4 : GameWindow
+    class Game4
     {
         System.Diagnostics.Stopwatch stopwatch;
         float time;
         Random r = new Random();
+
+        IWindow window;
 
         ShaderProgram program;
         BufferObject buffer;
@@ -31,10 +34,33 @@ namespace TrippyTesting
 
         GraphicsDevice graphicsDevice;
 
-        public Game4() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 8, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        public Game4()
         {
-            VSync = VSyncMode.On;
-            graphicsDevice = new GraphicsDevice(Context);
+            window = CreateWindow();
+
+            window.Load += OnWindowLoad;
+            window.Update += OnWindowUpdate;
+            window.Render += OnWindowRender;
+            window.Resize += OnWindowResized;
+            window.Closing += OnWindowClosing;
+        }
+
+        private IWindow CreateWindow()
+        {
+            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(4, 0));
+            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            return Window.Create(new WindowOptions(viewOpts));
+        }
+
+        public void Run()
+        {
+            window.Run();
+        }
+
+        private void OnWindowLoad()
+        {
+            graphicsDevice = new GraphicsDevice(GL.GetApi());
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
@@ -45,17 +71,14 @@ namespace TrippyTesting
             Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
             Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
-        }
+            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-        protected override void OnLoad(EventArgs e)
-        {
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
             texture = new Texture2D(graphicsDevice, "data4/jeru.png");
             whitepx = new Texture2D(graphicsDevice, 1, 1);
-            whitepx.SetData(new Color4b[] { Color4b.White }.AsSpan());
+            whitepx.SetData((ReadOnlySpan<Color4b>)new Color4b[] { Color4b.White });
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("data4/vs.glsl"));
@@ -90,30 +113,30 @@ namespace TrippyTesting
                 new Vector2()
             };
 
-            int uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
-            buffer = new BufferObject(graphicsDevice, uboSizeBytes + vertexPositions.Length * VertexColorTexture.SizeInBytes, BufferUsageHint.DynamicDraw);
-            positionSubset = new VertexDataBufferSubset<Vector3>(buffer, uboSizeBytes, vertexPositions.Length, vertexPositions);
-            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.NextByteInBuffer, vertexColors.Length, vertexColors);
-            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, colorSubset.NextByteInBuffer, vertexTexCoords.Length, vertexTexCoords);
+            uint uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
+            buffer = new BufferObject(graphicsDevice, uboSizeBytes + (uint)(vertexPositions.Length * VertexColorTexture.SizeInBytes), BufferUsageARB.DynamicDraw);
+            positionSubset = new VertexDataBufferSubset<Vector3>(buffer, uboSizeBytes, (uint)vertexPositions.Length, vertexPositions);
+            colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.NextByteInBuffer, (uint)vertexColors.Length, vertexColors);
+            texcoordSubset = new VertexDataBufferSubset<Vector2>(buffer, colorSubset.NextByteInBuffer, (uint)vertexTexCoords.Length, vertexTexCoords);
 
-            const int JEJJEJJEJJ = 523152;
+            const uint JEJJEJJEJJ = 523152;
 
             Span<ushort> indices = stackalloc ushort[] { 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 };
-            indexbuffer = new BufferObject(graphicsDevice, indices.Length * sizeof(ushort) + JEJJEJJEJJ, BufferUsageHint.DynamicDraw);
-            indexsubset = new IndexBufferSubset(indexbuffer, JEJJEJJEJJ, indices.Length, indices);
+            indexbuffer = new BufferObject(graphicsDevice, (uint)indices.Length * sizeof(ushort) + JEJJEJJEJJ, BufferUsageARB.DynamicDraw);
+            indexsubset = new IndexBufferSubset(indexbuffer, JEJJEJJEJJ, (uint)indices.Length, indices);
 
             array = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {
-                new VertexAttribSource(positionSubset, ActiveAttribType.FloatVec3),
-                new VertexAttribSource(colorSubset, ActiveAttribType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
-                new VertexAttribSource(texcoordSubset, ActiveAttribType.FloatVec2)
+                new VertexAttribSource(positionSubset, AttributeType.FloatVec3),
+                new VertexAttribSource(colorSubset, AttributeType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
+                new VertexAttribSource(texcoordSubset, AttributeType.FloatVec2)
             }, indexsubset);
 
             uniformSubset = new UniformBufferSubset<ThreeMat4>(buffer, 0, 1);
             ThreeMat4 m = new ThreeMat4();
-            m.World = Matrix4.Identity;
-            m.View = Matrix4.Identity;
-            m.Projection = Matrix4.Identity;
+            m.World = Matrix4x4.Identity;
+            m.View = Matrix4x4.Identity;
+            m.Projection = Matrix4x4.Identity;
             uniformSubset.SetValue(ref m);
             program.BlockUniforms["MatrixBlock"].SetValue(uniformSubset);
 
@@ -125,22 +148,27 @@ namespace TrippyTesting
                 new VertexColorTexture(new Vector3(0.8f, 0.8f, 0), new Color4b(255, 0, 255, 255), new Vector2(0, 0))
             };
 
-            vertexbuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, vertex, BufferUsageHint.DynamicDraw);
+            vertexbuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, vertex, BufferUsageARB.DynamicDraw);
+
+            OnWindowResized(window.Size);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        private void OnWindowUpdate(double dtSeconds)
         {
             time = (float)stopwatch.Elapsed.TotalSeconds;
-            ErrorCode c;
-            while ((c = GL.GetError()) != ErrorCode.NoError)
+            GLEnum c;
+            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
             {
                 Console.WriteLine("Error found: " + c);
             }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        private void OnWindowRender(double dtSeconds)
         {
-            graphicsDevice.ClearColor = new Color4(0, 0, 0, 1);
+            if (window.IsClosing)
+                return;
+
+            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.BlendState = BlendState.AlphaBlend;
             graphicsDevice.DepthTestingEnabled = false;
 
@@ -156,10 +184,15 @@ namespace TrippyTesting
             graphicsDevice.ShaderProgram = program;
             graphicsDevice.DrawElements(PrimitiveType.TriangleStrip, 0, 3);
 
-            SwapBuffers();
+            window.SwapBuffers();
         }
 
-        protected override void OnUnload(EventArgs e)
+        private void OnWindowResized(System.Drawing.Size size)
+        {
+            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
+        }
+
+        private void OnWindowClosing()
         {
             program.Dispose();
             buffer.Dispose();
@@ -172,22 +205,17 @@ namespace TrippyTesting
             graphicsDevice.Dispose();
         }
 
-        protected override void OnResize(EventArgs e)
-        {
-            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
-        }
-
         float wave(float spd, float amp, float offset = 0f)
         {
-            return (float)Math.Sin(time * spd + offset) * amp;
+            return MathF.Sin(time * spd + offset) * amp;
         }
     }
 
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     struct ThreeMat4
     {
-        public Matrix4 World;
-        public Matrix4 View;
-        public Matrix4 Projection;
+        public Matrix4x4 World;
+        public Matrix4x4 View;
+        public Matrix4x4 Projection;
     }
 }

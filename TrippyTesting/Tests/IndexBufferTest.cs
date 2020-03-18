@@ -1,17 +1,21 @@
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
+using System.Numerics;
 using TrippyGL;
 
 namespace TrippyTesting.Tests
 {
-    class IndexBufferTest : GameWindow
+    class IndexBufferTest
     {
         System.Diagnostics.Stopwatch stopwatch;
-        float time;
         static Random r = new Random();
+
+        IWindow window;
+
+        GraphicsDevice graphicsDevice;
 
         VertexColor[] vertexData;
         VertexBuffer<VertexColor> vertexBuffer;
@@ -21,13 +25,33 @@ namespace TrippyTesting.Tests
 
         ShaderProgram shaderProgram;
 
-        GraphicsDevice graphicsDevice;
-
-        public IndexBufferTest() : base(1280, 720, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 0, 0, 0, ColorFormat.Empty, 2), "haha yes", GameWindowFlags.Default, DisplayDevice.Default, 4, 0, GraphicsContextFlags.Default)
+        public IndexBufferTest()
         {
-            VSync = VSyncMode.On;
+            window = CreateWindow();
 
-            graphicsDevice = new GraphicsDevice(Context);
+            window.Load += OnWindowLoad;
+            window.Update += OnWindowUpdate;
+            window.Render += OnWindowRender;
+            window.Resize += OnWindowResized;
+            window.Closing += OnWindowClosing;
+        }
+
+        private IWindow CreateWindow()
+        {
+            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
+            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
+            ViewOptions viewOpts = new ViewOptions(true, 3.0, 3.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            return Window.Create(new WindowOptions(viewOpts));
+        }
+
+        public void Run()
+        {
+            window.Run();
+        }
+
+        private void OnWindowLoad()
+        {
+            graphicsDevice = new GraphicsDevice(GL.GetApi());
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
@@ -38,22 +62,18 @@ namespace TrippyTesting.Tests
             Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
             Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples:" + graphicsDevice.MaxSamples);
-        }
+            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
-        protected override void OnLoad(EventArgs e)
-        {
-            TargetRenderFrequency = 3;
+
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            time = 0;
 
             shaderProgram = new ShaderProgram(graphicsDevice);
             shaderProgram.AddVertexShader(File.ReadAllText("indextest/vs.glsl"));
             shaderProgram.AddFragmentShader(File.ReadAllText("indextest/fs.glsl"));
             shaderProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             shaderProgram.LinkProgram();
-            Matrix4 mat = Matrix4.CreateScale(0.9f);
-            shaderProgram.Uniforms["mat"].SetValueMat4(ref mat);
+            Matrix4x4 mat = Matrix4x4.CreateScale(0.9f);
+            shaderProgram.Uniforms["mat"].SetValueMat4(mat);
 
             const int w = 5, h = 5;
             vertexData = new VertexColor[w * h];
@@ -61,29 +81,29 @@ namespace TrippyTesting.Tests
                 for (int x = 0; x < w; x++)
                     vertexData[x + y * w] = new VertexColor(new Vector3(x / (float)w * 2f - 1 + randomf(-0.2f, 0.2f), y / (float)h * 2f - 1 + randomf(-0.1f, 0.1f), 0), randomCol());
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData.Length, 128, DrawElementsType.UnsignedByte, BufferUsageHint.DynamicDraw, vertexData);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)vertexData.Length, 128, DrawElementsType.UnsignedByte, BufferUsageARB.DynamicDraw, vertexData);
 
             extraLinesBatcher = new PrimitiveBatcher<VertexColor>(0, 32);
-            extraLinesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, extraLinesBatcher.LineVertexCapacity, BufferUsageHint.StreamDraw);
+            extraLinesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)extraLinesBatcher.LineVertexCapacity, BufferUsageARB.StreamDraw);
+
+            OnWindowResized(window.Size);
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        private void OnWindowUpdate(double dtSeconds)
         {
-            time = (float)stopwatch.Elapsed.TotalSeconds;
-            ErrorCode c;
-            while ((c = GL.GetError()) != ErrorCode.NoError)
+            GLEnum c;
+            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
             {
                 Console.WriteLine("Error found: " + c);
             }
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        private void OnWindowRender(double dtSeconds)
         {
-            // Uncomment the following two lines to test the RecreateStorage feature of VertexBuffer
-            //vertexBuffer.RecreateStorage(vertexBuffer.StorageLength, default);
-            //vertexBuffer.DataSubset.SetData(vertexData);
+            if (window.IsClosing)
+                return;
 
-            graphicsDevice.ClearColor = new Color4(0f, 0f, 0f, 1f);
+            graphicsDevice.ClearColor = new Vector4(0f, 0f, 0f, 1f);
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthTestingEnabled = false;
 
@@ -93,9 +113,9 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = shaderProgram;
             Span<byte> indices = stackalloc byte[4]
             {
-                (byte)r.Next(vertexBuffer.StorageLength),
+                (byte)r.Next((int)vertexBuffer.StorageLength),
                 14,
-                (byte)r.Next(vertexBuffer.StorageLength),
+                (byte)r.Next((int)vertexBuffer.StorageLength),
                 15
             };
 
@@ -110,26 +130,22 @@ namespace TrippyTesting.Tests
             }
 
             if (extraLinesBatcher.LineVertexCount > extraLinesBuffer.StorageLength)
-                extraLinesBuffer.RecreateStorage(extraLinesBatcher.LineVertexCapacity);
+                extraLinesBuffer.RecreateStorage((uint)extraLinesBatcher.LineVertexCapacity);
             extraLinesBatcher.WriteLinesTo(extraLinesBuffer.DataSubset);
             graphicsDevice.VertexArray = extraLinesBuffer.VertexArray;
-            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, extraLinesBatcher.LineVertexCount);
+            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, (uint)extraLinesBatcher.LineVertexCount);
             extraLinesBatcher.ClearLines();
 
-            SwapBuffers();
+            window.SwapBuffers();
         }
 
-        protected override void OnResize(EventArgs e)
+        private void OnWindowResized(System.Drawing.Size size)
         {
-            graphicsDevice.Viewport = new Rectangle(0, 0, Width, Height);
+            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
         }
 
-        protected override void OnUnload(EventArgs e)
+        private void OnWindowClosing()
         {
-            shaderProgram.Dispose();
-            vertexBuffer.Dispose();
-            extraLinesBuffer.Dispose();
-
             graphicsDevice.Dispose();
         }
 

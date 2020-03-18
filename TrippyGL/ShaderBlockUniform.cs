@@ -14,15 +14,15 @@ namespace TrippyGL
         public readonly ShaderProgram OwnerProgram;
 
         /// <summary>The binding index in the uniform buffer target from which this uniform reads buffer data.</summary>
-        public readonly int BindingIndex;
+        public readonly uint BindingIndex;
 
         /// <summary>The amount of active uniforms this uniform block contains.</summary>
         public readonly int ActiveUniformCount;
 
         private IBufferRangeBindable uniformSource;
-        private int uniformBindOffsetBytes, uniformBindLengthBytes;
+        private uint uniformBindOffsetBytes, uniformBindLengthBytes;
 
-        internal ShaderBlockUniform(ShaderProgram owner, int bindingIndex, string name, int activeUniformCount)
+        internal ShaderBlockUniform(ShaderProgram owner, uint bindingIndex, string name, int activeUniformCount)
         {
             OwnerProgram = owner;
             BindingIndex = bindingIndex;
@@ -36,7 +36,7 @@ namespace TrippyGL
         /// <typeparam name="T">A struct with the same format as the uniform.</typeparam>
         /// <param name="buffer">The buffer from which the values will be read.</param>
         /// <param name="elementIndex">The index of the element in the buffer subset whose value should be used.</param>
-        public void SetValue<T>(UniformBufferSubset<T> buffer, int elementIndex = 0) where T : struct
+        public void SetValue<T>(UniformBufferSubset<T> buffer, uint elementIndex = 0) where T : unmanaged
         {
             if (elementIndex < 0 || elementIndex > buffer.StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(elementIndex), nameof(elementIndex) + " must be in the range [0, " + nameof(buffer.StorageLength) + ")");
