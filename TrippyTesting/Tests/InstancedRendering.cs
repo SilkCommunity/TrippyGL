@@ -176,6 +176,9 @@ namespace TrippyTesting.Tests
 
         private void OnWindowResized(System.Drawing.Size size)
         {
+            if (size.Width == 0 || size.Height == 0)
+                return;
+
             graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
 
             float ratio = size.Width / (float)size.Height;

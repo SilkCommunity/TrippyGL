@@ -55,7 +55,7 @@ namespace TrippyTesting.Tests
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
             VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 24);
             return Window.Create(new WindowOptions(viewOpts));
         }
 
@@ -367,11 +367,14 @@ namespace TrippyTesting.Tests
 
         private void OnWindowResized(System.Drawing.Size size)
         {
+            if (size.Width == 0 || size.Height == 0)
+                return;
+
             graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
 
             float wid = size.Width / (float)size.Height;
             wid *= 0.5f;
-            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI*0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
+            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * 0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
             terrProgram.Uniforms["Projection"].SetValueMat4(proj);
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);
             cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);

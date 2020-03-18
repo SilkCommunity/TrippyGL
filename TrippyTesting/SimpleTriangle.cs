@@ -32,7 +32,7 @@ namespace TrippyTesting
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
             VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 0);
             return Window.Create(new WindowOptions(viewOpts));
         }
 
@@ -100,6 +100,9 @@ namespace TrippyTesting
 
         private void OnWindowResized(System.Drawing.Size size)
         {
+            if (size.Width == 0 || size.Height == 0)
+                return;
+
             graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
         }
 
