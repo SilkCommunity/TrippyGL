@@ -32,7 +32,7 @@ namespace TrippyGL
         public Vector4 BlendColor;
 
         /// <summary>
-        /// Creates a simple <see cref="BlendState"/>
+        /// Creates a simple <see cref="BlendState"/> with additive blending equation parameters.
         /// </summary>
         /// <param name="isOpaque">Whether this <see cref="BlendState"/> is opaque.</param>
         public BlendState(bool isOpaque)
@@ -40,10 +40,10 @@ namespace TrippyGL
             IsOpaque = isOpaque;
             EquationModeRGB = BlendEquationModeEXT.FuncAdd;
             EquationModeAlpha = BlendEquationModeEXT.FuncAdd;
-            SourceFactorRGB = BlendingFactor.Zero;
-            SourceFactorAlpha = BlendingFactor.Zero;
-            DestFactorRGB = BlendingFactor.Zero;
-            DestFactorAlpha = BlendingFactor.Zero;
+            SourceFactorRGB = BlendingFactor.One;
+            SourceFactorAlpha = BlendingFactor.One;
+            DestFactorRGB = BlendingFactor.One;
+            DestFactorAlpha = BlendingFactor.One;
         }
 
         /// <summary>
@@ -90,25 +90,6 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="BlendState"/> with the same values as another specified <see cref="BlendState"/>.
-        /// </summary>
-        /// <param name="copy">The <see cref="BlendState"/> whose values to copy.</param>
-        public BlendState(BlendState copy)
-        {
-            IsOpaque = copy.IsOpaque;
-            EquationModeRGB = copy.EquationModeRGB;
-            EquationModeAlpha = copy.EquationModeAlpha;
-            SourceFactorRGB = copy.SourceFactorRGB;
-            SourceFactorAlpha = copy.SourceFactorAlpha;
-            DestFactorRGB = copy.DestFactorRGB;
-            DestFactorAlpha = copy.DestFactorAlpha;
-            BlendColor = copy.BlendColor;
-        }
-
-        // TODO: Change last constructor to Clone() (implement IClonable interface?)
-        // Whatever you do, also do it in DepthTestingState.
-
-        /// <summary>
         /// Sets <see cref="EquationModeRGB"/> and <see cref="EquationModeAlpha"/>.
         /// </summary>
         public void SetEquationModeRgba(BlendEquationModeEXT equationModeRgba)
@@ -133,6 +114,14 @@ namespace TrippyGL
         {
             DestFactorRGB = destFactorRgba;
             DestFactorAlpha = destFactorRgba;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="BlendState"/> instance with the same values as this one.
+        /// </summary>
+        public BlendState Clone()
+        {
+            return new BlendState(IsOpaque, EquationModeRGB, EquationModeAlpha, SourceFactorRGB, DestFactorRGB, SourceFactorAlpha, DestFactorAlpha, BlendColor);
         }
 
         public override string ToString()
@@ -191,7 +180,8 @@ namespace TrippyGL
 
         public bool Equals(BlendState other)
         {
-            return IsOpaque == other.IsOpaque
+            return other != null
+                && IsOpaque == other.IsOpaque
                 && EquationModeRGB == other.EquationModeRGB
                 && EquationModeAlpha == other.EquationModeAlpha
                 && SourceFactorRGB == other.SourceFactorRGB

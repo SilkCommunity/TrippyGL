@@ -55,7 +55,7 @@ namespace TrippyGL
                 int hashCode = Location.GetHashCode();
                 hashCode = (hashCode * 397) ^ Size.GetHashCode();
                 hashCode = (hashCode * 397) ^ AttribType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode();
+                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.InvariantCulture);
                 return hashCode;
             }
         }

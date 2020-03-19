@@ -399,14 +399,14 @@ namespace TrippyTesting.Tests
             graphicsDevice.ShaderProgram = program;
             if (batcher.TriangleVertexCount > triangleBuffer.StorageLength)
                 triangleBuffer.RecreateStorage((uint)batcher.TriangleVertexCapacity);
-            batcher.WriteTrianglesTo(triangleBuffer.DataSubset);
+            triangleBuffer.DataSubset.SetData(batcher.TriangleVertices);
             graphicsDevice.VertexArray = triangleBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, (uint)batcher.TriangleVertexCount);
             batcher.ClearTriangles();
 
             if (batcher.LineVertexCount > lineBuffer.StorageLength)
                 lineBuffer.RecreateStorage((uint)batcher.LineVertexCapacity);
-            batcher.WriteLinesTo(lineBuffer.DataSubset);
+            lineBuffer.DataSubset.SetData(batcher.LineVertices);
             graphicsDevice.VertexArray = lineBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, (uint)batcher.LineVertexCount);
 

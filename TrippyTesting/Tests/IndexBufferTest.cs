@@ -131,7 +131,7 @@ namespace TrippyTesting.Tests
 
             if (extraLinesBatcher.LineVertexCount > extraLinesBuffer.StorageLength)
                 extraLinesBuffer.RecreateStorage((uint)extraLinesBatcher.LineVertexCapacity);
-            extraLinesBatcher.WriteLinesTo(extraLinesBuffer.DataSubset);
+            extraLinesBuffer.DataSubset.SetData(extraLinesBatcher.LineVertices);
             graphicsDevice.VertexArray = extraLinesBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, (uint)extraLinesBatcher.LineVertexCount);
             extraLinesBatcher.ClearLines();

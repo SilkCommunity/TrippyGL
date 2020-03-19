@@ -25,28 +25,25 @@ namespace TrippyGL
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public BufferObject(GraphicsDevice graphicsDevice, uint sizeInBytes, BufferUsageARB usageHint) : base(graphicsDevice)
         {
-            if (usageHint == default)
+            if (usageHint == 0)
                 throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageARB) + " value");
 
             Handle = GL.GenBuffer();
             RecreateStorage(sizeInBytes, usageHint);
         }
 
-        // TODO: If something like a transform feedback operation is active, you can't read/write/reallocate storage for ANY PART OF THE BUFFER
-        // so we need to throw some fucking exceptions (buffer locking?)
-
         /// <summary>
         /// Recreate this <see cref="BufferObject"/>'s storage with a new size and usage hint.
         /// The contents of the new storage are undefined after this operation.
         /// </summary>
         /// <param name="sizeInBytes">The new size for the <see cref="BufferObject"/> measured in bytes.</param>
-        /// <param name="usageHint">The new usage hint for the <see cref="BufferObject"/>, or default to keep the previous hint.</param>
-        public unsafe void RecreateStorage(uint sizeInBytes, BufferUsageARB usageHint = default)
+        /// <param name="usageHint">The new usage hint for the <see cref="BufferObject"/>, or 0 to keep the previous hint.</param>
+        public unsafe void RecreateStorage(uint sizeInBytes, BufferUsageARB usageHint = 0)
         {
             // We check that the parameters are valid, then store them
             ValidateBufferSize(sizeInBytes);
 
-            if (usageHint != default)
+            if (usageHint != 0)
             {
                 ValidateBufferUsage(usageHint);
                 UsageHint = usageHint;
@@ -89,7 +86,7 @@ namespace TrippyGL
         private static void ValidateBufferUsage(BufferUsageARB usageHint)
         {
             if (!Enum.IsDefined(typeof(BufferUsageARB), usageHint))
-                throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageARB) + " value");
+                throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsageARB) + " value", nameof(usageHint));
         }
     }
 }

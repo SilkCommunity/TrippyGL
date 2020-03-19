@@ -1,3 +1,4 @@
+#pragma warning disable CA1062 // Validate arguments of public methods
 using System;
 using System.IO;
 using Silk.NET.OpenGL;
@@ -273,8 +274,11 @@ namespace TrippyGL
             if (rectY < 0 || rectY >= Height)
                 throw new ArgumentOutOfRangeException(nameof(rectY), rectY, nameof(rectY) + " must be in the range [0, " + nameof(Height) + ")");
 
-            if (rectWidth <= 0 || rectHeight <= 0)
-                throw new ArgumentOutOfRangeException("", nameof(rectWidth) + " and " + nameof(rectHeight) + " must be greater than 0");
+            if (rectWidth <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " must be greater than 0");
+
+            if (rectHeight <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + "must be greater than 0");
 
             if (rectWidth > Width - rectX)
                 throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " is too large");

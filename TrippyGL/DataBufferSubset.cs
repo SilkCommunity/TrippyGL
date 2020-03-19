@@ -107,13 +107,6 @@ namespace TrippyGL
             StorageLength = copy.StorageLength;
         }
 
-        // TODO: SetData() should really use ReadOnlySpans<T>... Problem is, we have to pass the span by ref data[0]
-        // Once this is fixed, remember to also change the constructors! And in VertexBuffer's constructors!
-        // and in VertexDataBufferSubset's constructors!
-        // Also, doing ref data[0] will throw an IndexOutOfRange if data has a length of 0
-        // Also change these in IndexBufferSubset
-        // Also change in all textures SetData()
-
         /// <summary>
         /// Sets the data of a specified part of this subset's storage.
         /// The amount of elements written is the length of the given <see cref="ReadOnlySpan{T}"/>.
@@ -126,7 +119,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
             if (data.Length + storageOffset > StorageLength)
-                throw new ArgumentOutOfRangeException("Tried to write past the subset's length");
+                throw new BufferCopyException("Tried to write past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
             fixed (void* ptr = &data[0])
@@ -145,7 +138,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
             if (data.Length + storageOffset > StorageLength)
-                throw new ArgumentOutOfRangeException("Tried to read past the subset's length");
+                throw new BufferCopyException("Tried to read past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
             fixed (void* ptr = &data[0])
@@ -191,6 +184,12 @@ namespace TrippyGL
         /// <param name="dataLength">The amount of elements to copy.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, uint sourceOffset, DataBufferSubset<T> dest, uint destOffset, uint dataLength)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (dest == null)
+                throw new ArgumentNullException(nameof(dest));
+
             GraphicsDevice g = source.Buffer.GraphicsDevice;
             if (g != dest.Buffer.GraphicsDevice)
                 throw new InvalidOperationException("You can't copy data between buffers from different " + nameof(GraphicsDevice) + "-s");
@@ -230,6 +229,9 @@ namespace TrippyGL
         /// <param name="dest">The <see cref="DataBufferSubset{T}"/> to write data to.</param>
         public static void CopyBuffers(DataBufferSubset<T> source, DataBufferSubset<T> dest)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
             CopyBuffers(source, 0, dest, 0, source.StorageLength);
         }
     }

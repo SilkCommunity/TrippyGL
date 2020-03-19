@@ -81,10 +81,10 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (vsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a vertex shader");
 
             uint vs = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vs, code);
@@ -109,10 +109,10 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (vsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a vertex shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a vertex shader");
 
             uint vs = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vs, code);
@@ -150,10 +150,10 @@ namespace TrippyGL
                 throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (gsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a geometry shader");
 
             uint gs = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(gs, code);
@@ -181,10 +181,10 @@ namespace TrippyGL
                 throw new PlatformNotSupportedException("Geometry shaders aren't supported on this system");
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (gsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a geometry shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a geometry shader");
 
             uint gs = GL.CreateShader(ShaderType.GeometryShader);
             GL.ShaderSource(gs, code);
@@ -219,10 +219,10 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (fsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a fragment shader");
 
             uint fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, code);
@@ -247,10 +247,10 @@ namespace TrippyGL
             ValidateUnlinked();
 
             if (string.IsNullOrEmpty(code))
-                throw new ArgumentException("You must specify shader code", "code");
+                throw new ArgumentNullException(nameof(code));
 
             if (fsHandle != uint.MaxValue)
-                throw new InvalidOperationException("This ShaderProgram already has a fragment shader");
+                throw new InvalidOperationException("This " + nameof(ShaderProgram) + " already has a fragment shader");
 
             uint fs = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fs, code);
@@ -280,7 +280,7 @@ namespace TrippyGL
             attribData = TrippyUtils.CopyVertexAttribDescriptionsWithoutPaddingDescriptors(attribData);
 
             if (attribData.Length == 0)
-                throw new ArgumentException("There must be at least one attribute source", "attribData");
+                throw new ArgumentException("There must be at least one attribute source", nameof(attribData));
 
             if (attribData.Length != attribNames.Length)
                 throw new ArgumentException("The attribData and attribNames arrays must have matching lengths");

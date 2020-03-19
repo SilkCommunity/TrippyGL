@@ -38,6 +38,23 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="BufferObjectSubset"/> with the given <see cref="BufferObject"/> and
+        /// target, but storage offset and length are left uninitialized.
+        /// </summary>
+        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget)
+        {
+            if (bufferObject == null)
+                throw new ArgumentNullException(nameof(bufferObject));
+
+            bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
+            Buffer = bufferObject;
+            BufferHandle = Buffer.Handle;
+            BufferTarget = bufferTarget;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="BufferObjectSubset"/> with the given <see cref="BufferObject"/> and
         /// target, offset into the buffer and storage length.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
@@ -48,20 +65,6 @@ namespace TrippyGL
             : this(bufferObject, bufferTarget)
         {
             InitializeStorage(storageOffsetBytes, storageLengthBytes);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="BufferObjectSubset"/> with the given <see cref="BufferObject"/> and
-        /// target, but storage offset and length are left uninitialized.
-        /// </summary>
-        /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
-        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget)
-        {
-            bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
-            Buffer = bufferObject;
-            BufferHandle = Buffer.Handle;
-            BufferTarget = bufferTarget;
         }
 
         /// <summary>

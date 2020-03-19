@@ -60,6 +60,9 @@ namespace TrippyGL
         /// <param name="attachmentPoint">The attachment point to attach the <see cref="Texture"/> to.</param>
         public void Attach(Texture texture, FramebufferAttachmentPoint attachmentPoint)
         {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
             ValidateAttachmentTypeExists(attachmentPoint);
             ValidateAttachmentTypeNotUsed(attachmentPoint);
 
@@ -96,6 +99,9 @@ namespace TrippyGL
         /// <param name="attachmentPoint">The attachment point to attach the <see cref="RenderbufferObject"/> to.</param>
         public void Attach(RenderbufferObject renderbuffer, FramebufferAttachmentPoint attachmentPoint)
         {
+            if (renderbuffer == null)
+                throw new ArgumentNullException(nameof(renderbuffer));
+
             ValidateAttachmentTypeExists(attachmentPoint);
             ValidateAttachmentTypeNotUsed(attachmentPoint);
 
@@ -351,7 +357,7 @@ namespace TrippyGL
             renderbufferAttachments.Clear();
         }
 
-        private void ValidateAttachmentTypeExists(FramebufferAttachmentPoint attachment)
+        private static void ValidateAttachmentTypeExists(FramebufferAttachmentPoint attachment)
         {
             if (!Enum.IsDefined(typeof(FramebufferAttachmentPoint), attachment))
                 throw new FormatException("Invalid attachment point");
@@ -360,7 +366,7 @@ namespace TrippyGL
         private void ValidateAttachmentTypeNotUsed(FramebufferAttachmentPoint attachment)
         {
             if (HasAttachment(attachment))
-                throw new InvalidOperationException("The framebuffer already has this type of attachment");
+                throw new InvalidOperationException("The " + nameof(FramebufferObject) + " already has this type of attachment");
         }
 
         /// <summary>
@@ -401,6 +407,9 @@ namespace TrippyGL
         /// <param name="height">The new height.</param>
         public static void Resize2D(FramebufferObject framebuffer, uint width, uint height)
         {
+            if (framebuffer == null)
+                throw new ArgumentNullException(nameof(framebuffer));
+
             for (int i = 0; i < framebuffer.textureAttachments.Count; i++)
             {
                 if (!(framebuffer.textureAttachments[i].Texture is Texture2D tex2d))
@@ -420,7 +429,7 @@ namespace TrippyGL
         }
     }
 
-    public struct FramebufferTextureAttachment
+    public readonly struct FramebufferTextureAttachment : IEquatable<FramebufferTextureAttachment>
     {
         public readonly Texture Texture;
         public readonly FramebufferAttachmentPoint AttachmentPoint;
@@ -430,9 +439,40 @@ namespace TrippyGL
             Texture = texture;
             AttachmentPoint = attachmentPoint;
         }
+
+        public static bool operator ==(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => left.Equals(right);
+
+        public static bool operator !=(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => !left.Equals(right);
+
+        public override string ToString()
+        {
+            return string.Concat("Texture" + nameof(AttachmentPoint) + "=", AttachmentPoint.ToString());
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Texture.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(FramebufferTextureAttachment other)
+        {
+            return Texture == other.Texture && AttachmentPoint == other.AttachmentPoint;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is FramebufferTextureAttachment framebufferTextureAttachment)
+                return Equals(framebufferTextureAttachment);
+            return false;
+        }
     }
 
-    public struct FramebufferRenderbufferAttachment
+    public readonly struct FramebufferRenderbufferAttachment : IEquatable<FramebufferRenderbufferAttachment>
     {
         public readonly RenderbufferObject Renderbuffer;
         public readonly FramebufferAttachmentPoint AttachmentPoint;
@@ -441,6 +481,37 @@ namespace TrippyGL
         {
             Renderbuffer = renderbuffer;
             AttachmentPoint = attachmentPoint;
+        }
+
+        public static bool operator ==(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => left.Equals(right);
+
+        public static bool operator !=(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => !left.Equals(right);
+
+        public override string ToString()
+        {
+            return string.Concat("Renderbuffer" + nameof(AttachmentPoint) + "=", AttachmentPoint.ToString());
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Renderbuffer.GetHashCode();
+                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(FramebufferRenderbufferAttachment other)
+        {
+            return Renderbuffer == other.Renderbuffer && AttachmentPoint == other.AttachmentPoint;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is FramebufferRenderbufferAttachment framebufferRenderbufferAttachment)
+                return Equals(framebufferRenderbufferAttachment);
+            return false;
         }
     }
 }

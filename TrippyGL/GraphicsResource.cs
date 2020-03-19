@@ -1,3 +1,6 @@
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CA1063 // Implement IDisposable Correctly
+
 using System;
 using Silk.NET.OpenGL;
 

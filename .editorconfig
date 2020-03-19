@@ -8,3 +8,18 @@ dotnet_diagnostic.CA2225.severity = none
 
 # CA1067: Override Object.Equals(object) when implementing IEquatable<T>
 dotnet_diagnostic.CA1067.severity = none
+
+# CA1305: Specify IFormatProvider
+dotnet_diagnostic.CA1305.severity = none
+
+# CA1303: Do not pass literals as localized parameters
+dotnet_diagnostic.CA1303.severity = none
+
+# CA1720: Identifier contains type name
+dotnet_diagnostic.CA1720.severity = none
+
+# CA1044: Properties should not be write only
+dotnet_diagnostic.CA1044.severity = none
+
+# CA2208: Instantiate argument exceptions correctly
+dotnet_diagnostic.CA2208.severity = none

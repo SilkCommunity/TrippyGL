@@ -110,7 +110,7 @@ namespace TrippyTesting.Tests
                 }
 
             terrBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, (uint)batcher.TriangleVertexCount, BufferUsageARB.StaticDraw);
-            batcher.WriteTrianglesTo(terrBuffer.DataSubset);
+            terrBuffer.DataSubset.SetData(batcher.TriangleVertices);
 
             terrProgram = new ShaderProgram(graphicsDevice);
             terrProgram.AddVertexShader(File.ReadAllText("terrain/terrvs.glsl"));

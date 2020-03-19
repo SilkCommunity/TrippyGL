@@ -26,8 +26,11 @@ namespace TrippyGL
         /// <param name="attribDesc">The <see cref="VertexAttribDescription"/> describing the vertex attribute.</param>
         public VertexAttribSource(BufferObjectSubset bufferSubset, VertexAttribDescription attribDesc)
         {
+            if (bufferSubset == null)
+                throw new ArgumentNullException(nameof(bufferSubset));
+
             if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
-                throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", "bufferSubset");
+                throw new ArgumentException("The specified "+nameof(BufferObjectSubset)+" must be usable as vertex attrib data. Try using a VertexDataBufferSubset", nameof(bufferSubset));
 
             BufferSubset = bufferSubset;
             AttribDescription = attribDesc;
@@ -68,6 +71,9 @@ namespace TrippyGL
         /// <param name="paddingBytes">The amount of space to leave empty, measured in bytes.</param>
         public VertexAttribSource(BufferObjectSubset bufferSubset, uint paddingBytes)
         {
+            if (bufferSubset == null)
+                throw new ArgumentNullException(nameof(bufferSubset));
+
             if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
                 throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", nameof(bufferSubset));
 

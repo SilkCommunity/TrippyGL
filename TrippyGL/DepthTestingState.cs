@@ -60,17 +60,11 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="DepthTestingState"/> with the same values as another specified <see cref="DepthTestingState"/>.
+        /// Creates a new <see cref="BlendState"/> instance with the same values as this one.
         /// </summary>
-        /// <param name="copy">The <see cref="DepthTestingState"/> whose values to copy.</param>
-        public DepthTestingState(DepthTestingState copy)
+        public DepthTestingState Clone()
         {
-            DepthTestingEnabled = copy.DepthTestingEnabled;
-            DepthComparison = copy.DepthComparison;
-            ClearDepth = copy.ClearDepth;
-            depthNear = copy.depthNear;
-            depthFar = copy.depthFar;
-            DepthBufferWrittingEnabled = copy.DepthBufferWrittingEnabled;
+            return new DepthTestingState(DepthTestingEnabled, DepthComparison, ClearDepth, depthNear, depthFar, DepthBufferWrittingEnabled);
         }
 
         public override string ToString()
@@ -88,7 +82,8 @@ namespace TrippyGL
 
         public bool Equals(DepthTestingState other)
         {
-            return DepthTestingEnabled == other.DepthTestingEnabled
+            return other != null
+                && DepthTestingEnabled == other.DepthTestingEnabled
                 && DepthComparison == other.DepthComparison
                 && ClearDepth == other.ClearDepth
                 && depthNear == other.depthNear

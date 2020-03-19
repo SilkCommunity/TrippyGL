@@ -154,6 +154,9 @@ namespace TrippyGL
         /// <param name="storageLength">The amount of structs the <see cref="UniformBufferSubset{T}"/> will store.</param>
         public static uint CalculateRequiredSizeInBytes(GraphicsDevice graphicsDevice, uint storageLength)
         {
+            if (graphicsDevice == null)
+                throw new ArgumentNullException(nameof(graphicsDevice));
+
             if (storageLength <= 0)
                 throw new ArgumentOutOfRangeException(nameof(storageLength), storageLength, nameof(storageLength) + " must be greater than 0");
 

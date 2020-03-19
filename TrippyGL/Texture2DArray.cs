@@ -146,8 +146,14 @@ namespace TrippyGL
             if (rectZ < 0 || rectZ >= Depth)
                 throw new ArgumentOutOfRangeException(nameof(rectZ), rectZ, nameof(rectZ) + " must be in the range [0, " + nameof(Depth) + ")");
 
-            if (rectWidth <= 0 || rectHeight <= 0 || rectDepth <= 0)
-                throw new ArgumentOutOfRangeException(null, "rectWidth, rectHeight and rectDepth must be greater than 0");
+            if (rectWidth <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " must be greater than 0");
+
+            if (rectHeight <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + "must be greater than 0");
+
+            if (rectDepth <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectDepth), rectDepth, nameof(rectDepth) + " must be greater than 0");
 
             if (rectWidth > Width - rectX)
                 throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " is too large");

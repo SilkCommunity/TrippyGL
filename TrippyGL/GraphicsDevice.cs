@@ -33,7 +33,9 @@ namespace TrippyGL
         /// <param name="resourceCount">An estimate of how many <see cref="GraphicsResource"/>-s you intend to use.</param>
         public GraphicsDevice(GL gl, int resourceCount = 128)
         {
-            GL = gl;
+            GL = gl ?? throw new ArgumentNullException(nameof(gl));
+            if (resourceCount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(resourceCount));
 
             GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
             GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
@@ -408,17 +410,20 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a buffer subset to it's <see cref="BufferTarget"/>.
+        /// Binds a buffer subset to it's <see cref="BufferTargetARB"/>.
         /// </summary>
         /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null.</param>
         public void BindBuffer(BufferObjectSubset bufferSubset)
         {
+            if (bufferSubset == null)
+                throw new ArgumentNullException(nameof(bufferSubset));
+
             if (bufferBindings[bufferSubset.bufferTargetBindingIndex] != bufferSubset.Buffer)
                 ForceBindBuffer(bufferSubset);
         }
 
         /// <summary>
-        /// Binds a buffer subset to it's <see cref="BufferTarget"/> without first checking whether it's already bound.
+        /// Binds a buffer subset to it's <see cref="BufferTargetARB"/> without first checking whether it's already bound.
         /// </summary>
         /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null.</param>
         internal void ForceBindBuffer(BufferObjectSubset bufferSubset)
@@ -437,6 +442,9 @@ namespace TrippyGL
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
         public void BindBufferRange(BufferObjectSubset bufferSubset, uint bindingIndex, uint offset, uint size)
         {
+            if (bufferSubset == null)
+                throw new ArgumentNullException(nameof(bufferSubset));
+
             BufferRangeBinding b = bufferRangeBindings[bufferSubset.bufferTargetBindingIndex][bindingIndex];
             if (b.Buffer != bufferSubset.Buffer || b.Size != size || b.Offset != offset + bufferSubset.StorageOffsetInBytes)
                 ForceBindBufferRange(bufferSubset, bindingIndex, offset, size);
@@ -484,6 +492,9 @@ namespace TrippyGL
         /// <param name="buffer">The buffer subset to check. This value is assumed not to be null.</param>
         public bool IsBufferCurrentlyBound(BufferObjectSubset buffer)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
             return bufferBindings[buffer.bufferTargetBindingIndex] == buffer.Buffer;
         }
 
@@ -694,6 +705,9 @@ namespace TrippyGL
         /// <param name="texture">The texture to ensure is bound.</param>
         public int BindTexture(Texture texture)
         {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
             if (textureBindings[texture.lastBindUnit] != texture.Handle)
                 return ForceBindTexture(texture);
             return texture.lastBindUnit;
@@ -706,6 +720,9 @@ namespace TrippyGL
         /// <param name="texture">The texture to ensure is bound and active.</param>
         public int BindTextureSetActive(Texture texture)
         {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
             if (texture.Handle == textureBindings[texture.lastBindUnit])
             {
                 SetActiveTexture(texture.lastBindUnit);
@@ -741,10 +758,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all of the given textures are bound to a texture unit.
+        /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
-        /// <param name="textures">The textures to ensure are bound.</param>
-        public void BindAllTextures(Span<Texture> textures)
+        /// <param name="textures">The <see cref="Texture"/>-s to ensure are bound.</param>
+        public void BindAllTextures(ReadOnlySpan<Texture> textures)
         {
             if (textures.Length > textureBindings.Length)
                 throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
@@ -752,7 +769,7 @@ namespace TrippyGL
             for (int i = 0; i < textures.Length; i++)
             {
                 Texture t = textures[i];
-                if (textureBindings[t.lastBindUnit] != t.Handle)
+                if (t != null && textureBindings[t.lastBindUnit] != t.Handle)
                 {
                     SetActiveTexture(FindUnusedTextureUnit(textures));
                     ForceBindTextureToCurrentUnit(t);
@@ -760,7 +777,7 @@ namespace TrippyGL
             }
 
             // Find a texture unit that's not in use by any of the given textures
-            int FindUnusedTextureUnit(Span<Texture> texturesToBind)
+            int FindUnusedTextureUnit(ReadOnlySpan<Texture> texturesToBind)
             {
                 int unit;
                 do
@@ -771,12 +788,12 @@ namespace TrippyGL
             }
 
             // Whether a texture unit is currently in use by any of the specified textures
-            bool IsTextureUnitInUse(int unit, Span<Texture> texturesToBind)
+            bool IsTextureUnitInUse(int unit, ReadOnlySpan<Texture> texturesToBind)
             {
                 for (int i = 0; i < texturesToBind.Length; i++)
                 {
                     Texture t = texturesToBind[i];
-                    if (t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
+                    if (t != null && t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
                         return true;
                 }
                 return false;
@@ -784,18 +801,21 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit.
+        /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
         /// <param name="textures">The <see cref="Texture"/>-s to ensure are bound.</param>
         public void BindAllTextures(List<Texture> textures)
         {
+            if (textures == null)
+                throw new ArgumentNullException(nameof(textures));
+
             if (textures.Count > textureBindings.Length)
                 throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
 
             for (int i = 0; i < textures.Count; i++)
             {
                 Texture t = textures[i];
-                if (textureBindings[t.lastBindUnit] != t.Handle)
+                if (t != null && textureBindings[t.lastBindUnit] != t.Handle)
                 {
                     SetActiveTexture(FindUnusedTextureUnit(textures));
                     ForceBindTextureToCurrentUnit(t);
@@ -819,7 +839,7 @@ namespace TrippyGL
                 for (int i = 0; i < texturesToBind.Count; i++)
                 {
                     Texture t = texturesToBind[i];
-                    if (t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
+                    if (t != null && t.lastBindUnit == unit && textureBindings[unit] == t.Handle)
                         return true;
                 }
                 return false;
@@ -832,7 +852,7 @@ namespace TrippyGL
         /// <param name="texture">The texture to check if it's bound.</param>
         public bool IsTextureBound(Texture texture)
         {
-            return textureBindings[texture.lastBindUnit] == texture.Handle;
+            return texture != null && textureBindings[texture.lastBindUnit] == texture.Handle;
         }
 
         /// <summary>
@@ -1087,83 +1107,54 @@ namespace TrippyGL
         /// <summary>Gets or sets the <see cref="TrippyGL.BlendState"/> used for drawing.</summary>
         public BlendState BlendState
         {
+            get { return blendState.Clone(); }
             set
             {
                 // The specified BlendState's fields are copied into blendState, because we need to store all the
                 // fields of a BlendState but if we save the same BlendState class instance, the user can modify these!
+                bool isValueOpaque = value == null || value.IsOpaque;
 
-                if (!(blendState.IsOpaque && value.IsOpaque)) //if the current and the new blend state are both opaque... Do nothing
+                if (blendState.IsOpaque && isValueOpaque) //if the current and the new blend state are both opaque... Do nothing
+                    return;
+
+                // Either the current or new blend state is not opaque
+                if (isValueOpaque) //blendState.IsOpaque must therefore be false
                 {
-                    // Either the current or new blend state is not opaque
-                    if (value.IsOpaque) //blendState.IsOpaque must therefore be false
+                    GL.Disable(EnableCap.Blend);
+                    blendState.IsOpaque = true;
+                    // If blending is opaque, all other blending parameters don't matter.
+                }
+                else //blendState.IsOpaque must therefore be true
+                {
+                    if (blendState.IsOpaque)
                     {
-                        GL.Disable(EnableCap.Blend);
-                        blendState.IsOpaque = true;
-                        // If blending is opaque, all other blending parameters don't matter.
+                        GL.Enable(EnableCap.Blend);
+                        blendState.IsOpaque = false;
                     }
-                    else //blendState.IsOpaque must therefore be true
+
+                    if (blendState.EquationModeRGB != value.EquationModeRGB || blendState.EquationModeAlpha != value.EquationModeAlpha)
                     {
-                        if (blendState.IsOpaque)
-                        {
-                            GL.Enable(EnableCap.Blend);
-                            blendState.IsOpaque = false;
-                        }
+                        GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
+                        blendState.EquationModeRGB = value.EquationModeRGB;
+                        blendState.EquationModeAlpha = value.EquationModeAlpha;
+                    }
 
-                        if (blendState.EquationModeRGB != value.EquationModeRGB || blendState.EquationModeAlpha != value.EquationModeAlpha)
-                        {
-                            GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
-                            blendState.EquationModeRGB = value.EquationModeRGB;
-                            blendState.EquationModeAlpha = value.EquationModeAlpha;
-                        }
+                    if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha
+                        || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
+                    {
+                        GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
+                        blendState.SourceFactorRGB = value.SourceFactorRGB;
+                        blendState.SourceFactorAlpha = value.SourceFactorAlpha;
+                        blendState.DestFactorRGB = value.DestFactorRGB;
+                        blendState.DestFactorAlpha = value.DestFactorAlpha;
+                    }
 
-                        if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha
-                            || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
-                        {
-                            GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
-                            blendState.SourceFactorRGB = value.SourceFactorRGB;
-                            blendState.SourceFactorAlpha = value.SourceFactorAlpha;
-                            blendState.DestFactorRGB = value.DestFactorRGB;
-                            blendState.DestFactorAlpha = value.DestFactorAlpha;
-                        }
-
-                        if (blendState.BlendColor != value.BlendColor)
-                        {
-                            GL.BlendColor(value.BlendColor.X, value.BlendColor.Y, value.BlendColor.Z, value.BlendColor.W);
-                            blendState.BlendColor = value.BlendColor;
-                        }
+                    if (blendState.BlendColor != value.BlendColor)
+                    {
+                        GL.BlendColor(value.BlendColor.X, value.BlendColor.Y, value.BlendColor.Z, value.BlendColor.W);
+                        blendState.BlendColor = value.BlendColor;
                     }
                 }
-
-                /*if (!(blendState.IsOpaque && value.IsOpaque)) //if the current and new blend state are both opaque... Do nothing
-                {
-                    if (blendState != value)
-                    {
-                        if (value.IsOpaque)
-                        {
-                            // Is the new state opaque? Then, if the old state wasn't opaque too let's disable blending.
-                            if (!blendState.IsOpaque)
-                            { // If the old state was opaque, then blending is already disabled
-                                GL.Disable(EnableCap.Blend);
-                                blendState.IsOpaque = true;
-                            }
-                        }
-                        else
-                        {
-                            if (blendState.IsOpaque) // If the previous blend state was opaque, then blending is disabled.
-                                GL.Enable(EnableCap.Blend); // So we're enable it for the new blend state
-
-                            // We'll ignore comparing these ones... We know there's at least one difference anyway so let's not waste so much time
-                            GL.BlendColor(blendState.BlendColor);
-                            GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
-                            GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
-                            blendState.CopyValuesFrom(value);
-                        }
-                    }
-                }*/
-            }
-            get
-            {
-                return new BlendState(blendState);
             }
         }
 
@@ -1194,9 +1185,10 @@ namespace TrippyGL
         /// <summary>Sets the current depth testing state.</summary>
         public DepthTestingState DepthState
         {
+            get { return depthState.Clone(); }
             set
             {
-                if (value.DepthTestingEnabled)
+                if (value != null && value.DepthTestingEnabled)
                 {
                     if (!depthState.DepthTestingEnabled)
                     {
@@ -1234,10 +1226,6 @@ namespace TrippyGL
                     GL.Disable(EnableCap.DepthTest);
                     depthState.DepthTestingEnabled = false;
                 }
-            }
-            get
-            {
-                return new DepthTestingState(depthState);
             }
         }
 

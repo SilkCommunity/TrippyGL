@@ -1,3 +1,4 @@
+#pragma warning disable CA1062 // Validate arguments of public methods
 using System;
 using Silk.NET.OpenGL;
 
@@ -214,7 +215,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
             if (dataLength + storageOffset > StorageLength)
-                throw new ArgumentOutOfRangeException("Tried to write past the subset's length");
+                throw new BufferCopyException("Tried to write past the subset's length");
         }
 
         /// <summary>
@@ -226,7 +227,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(storageOffset), storageOffset, nameof(storageOffset) + " must be in the range [0, " + nameof(StorageLength) + ")");
 
             if (dataLength + storageOffset > StorageLength)
-                throw new ArgumentOutOfRangeException("Tried to read past the subset's length");
+                throw new BufferCopyException("Tried to read past the subset's length");
         }
 
         /// <summary>

@@ -7,7 +7,12 @@ namespace TrippyGL
     /// </summary>
     public class ShaderCompilationException : Exception
     {
-        internal ShaderCompilationException(string infoLog) : base(string.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog)) { }
+        public ShaderCompilationException() : base() { }
+
+        public ShaderCompilationException(string infoLog) : this(infoLog, null) { }
+
+        public ShaderCompilationException(string infoLog, Exception innerException)
+            : base(string.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog), innerException) { }
     }
 
     /// <summary>
@@ -15,7 +20,12 @@ namespace TrippyGL
     /// </summary>
     public class ProgramLinkException : Exception
     {
-        internal ProgramLinkException(string infoLog) : base(string.Concat("Program didn't link properly: ", Environment.NewLine, infoLog)) { }
+        public ProgramLinkException() : base() { }
+
+        public ProgramLinkException(string infoLog) : this(infoLog, null) { }
+
+        public ProgramLinkException(string infoLog, Exception innerException)
+            : base(string.Concat("Program didn't link properly: ", Environment.NewLine, infoLog), innerException) { }
     }
 
     /// <summary>
@@ -23,10 +33,11 @@ namespace TrippyGL
     /// </summary>
     public class FramebufferException : Exception
     {
-        internal FramebufferException(string message) : base(message)
-        {
+        public FramebufferException() : base() { }
 
-        }
+        public FramebufferException(string message) : base(message) { }
+
+        public FramebufferException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -34,10 +45,11 @@ namespace TrippyGL
     /// </summary>
     public class InvalidBlitException : Exception
     {
-        internal InvalidBlitException(string message) : base(message)
-        {
+        public InvalidBlitException() : base() { }
 
-        }
+        public InvalidBlitException(string message) : base(message) { }
+
+        public InvalidBlitException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -45,10 +57,11 @@ namespace TrippyGL
     /// </summary>
     public class InvalidFramebufferAttachmentException : Exception
     {
-        public InvalidFramebufferAttachmentException(string message) : base(message)
-        {
+        public InvalidFramebufferAttachmentException() : base() { }
 
-        }
+        public InvalidFramebufferAttachmentException(string message) : base(message) { }
+
+        public InvalidFramebufferAttachmentException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -56,9 +69,10 @@ namespace TrippyGL
     /// </summary>
     public class BufferCopyException : Exception
     {
-        public BufferCopyException(string message) : base(message)
-        {
+        public BufferCopyException() : base() { }
 
-        }
+        public BufferCopyException(string message) : base(message) { }
+
+        public BufferCopyException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

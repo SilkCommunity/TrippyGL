@@ -138,7 +138,7 @@ namespace TrippyGL
         private void ValidateTextureSize(uint size)
         {
             if (size <= 0 || size > GraphicsDevice.MaxCubeMapTextureSize)
-                throw new ArgumentOutOfRangeException("size", size, "Cubemap size must be in the range (0, MAX_TEXTURE_CUBEMAP_SIZE]");
+                throw new ArgumentOutOfRangeException(nameof(size), size, "Cubemap size must be in the range (0, MAX_TEXTURE_CUBEMAP_SIZE]");
         }
 
         private void ValidateSetOperation(int dataLength, int rectX, int rectY, uint rectWidth, uint rectHeight)
@@ -146,25 +146,28 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
 
             if (dataLength < rectWidth * rectHeight)
-                throw new ArgumentException("The data array isn't big enough to read the specified amount of data", "data");
+                throw new ArgumentException("The data Span isn't big enough to read the specified amount of data", "data");
         }
 
         private void ValidateGetOperation(int dataLength)
         {
             if (dataLength < Size * Size)
-                throw new ArgumentException("The provided data array isn't big enough for the texture starting from dataOffset", "data");
+                throw new ArgumentException("The provided data Span isn't big enough for the texture data", "data");
         }
 
         private void ValidateRectOperation(int rectX, int rectY, uint rectWidth, uint rectHeight)
         {
             if (rectX < 0 || rectY >= Size)
-                throw new ArgumentOutOfRangeException(nameof(rectX), rectX, nameof(rectX) + " must be in the range [0, this.Size)");
+                throw new ArgumentOutOfRangeException(nameof(rectX), rectX, nameof(rectX) + " must be in the range [0, " + nameof(Size) + ")");
 
             if (rectY < 0 || rectY >= Size)
-                throw new ArgumentOutOfRangeException(nameof(rectY), rectY, nameof(rectY) + " must be in the range [0, this.Size)");
+                throw new ArgumentOutOfRangeException(nameof(rectY), rectY, nameof(rectY) + " must be in the range [0, " + nameof(Size) + ")");
 
-            if (rectWidth <= 0 || rectHeight <= 0)
-                throw new ArgumentOutOfRangeException(nameof(rectWidth) + " and " + nameof(rectHeight) + " must be greater than 0");
+            if (rectWidth <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " must be greater than 0");
+
+            if (rectHeight <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + "must be greater than 0");
 
             if (rectWidth > Size - rectX)
                 throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " is too large");

@@ -82,9 +82,9 @@ namespace TrippyGL
         /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
         /// <param name="indexElementType">The type of index element to use.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial vertex data.</param>
         /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, uint indexStorageLength, DrawElementsType indexElementType, BufferUsageARB usageHint, Span<T> data, uint dataWriteOffset = 0)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, uint indexStorageLength, DrawElementsType indexElementType, BufferUsageARB usageHint, ReadOnlySpan<T> data, uint dataWriteOffset = 0)
             : this(graphicsDevice, storageLength, indexStorageLength, indexElementType, usageHint)
         {
             DataSubset.SetData(data, dataWriteOffset);
@@ -96,9 +96,9 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial vertex data.</param>
         /// <param name="dataWriteOffset">The offset into the vertex subset's storage at which to start writting the initial data.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, BufferUsageARB usageHint, Span<T> data, uint dataWriteOffset = 0)
+        public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, BufferUsageARB usageHint, ReadOnlySpan<T> data, uint dataWriteOffset = 0)
             : this(graphicsDevice, storageLength, 0, default, usageHint, data, dataWriteOffset)
         {
 
@@ -106,12 +106,12 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified initial vertex data and
-        /// same length as that data <see cref="Span{T}"/>.
+        /// same length as that data <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="data">A <see cref="Span{T}"/> containing the initial vertex data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial vertex data.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
-        public VertexBuffer(GraphicsDevice graphicsDevice, Span<T> data, BufferUsageARB usageHint)
+        public VertexBuffer(GraphicsDevice graphicsDevice, ReadOnlySpan<T> data, BufferUsageARB usageHint)
             : this(graphicsDevice, (uint)data.Length, 0, default, usageHint, data)
         {
 
@@ -146,7 +146,7 @@ namespace TrippyGL
         /// <param name="storageLength">The new length for the <see cref="VertexBuffer{T}"/>'s element storage.</param>
         /// <param name="indexStorageLength">The new length for the <see cref="VertexBuffer{T}"/>'s index storage. 0 means either no index storage or keep previous length.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance. 0 for same as before.</param>
-        public void RecreateStorage(uint storageLength, uint indexStorageLength = 0, BufferUsageARB usageHint = default)
+        public void RecreateStorage(uint storageLength, uint indexStorageLength = 0, BufferUsageARB usageHint = 0)
         {
             ValidateStorageLength(storageLength);
 

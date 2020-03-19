@@ -9,7 +9,7 @@ namespace TrippyGL
     public static class TrippyUtils
     {
         /// <summary>
-        /// Returns whether the specified data base type is of integer format (such as byte, ushort, int, uint).
+        /// Returns whether the given <see cref="VertexAttribPointerType"/> is of integer format (such as byte, ushort, int, uint).
         /// </summary>
         public static bool IsVertexAttribIntegerType(VertexAttribPointerType dataBaseType)
         {
@@ -18,7 +18,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets whether the specified attrib type is an integer type (such as int, ivecX, uint or uvecX).
+        /// Gets whether the given <see cref="AttributeType"/> is an integer type (such as int, ivecX, uint or uvecX).
         /// </summary>
         public static bool IsVertexAttribIntegerType(AttributeType attribType)
         {
@@ -28,7 +28,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets whether the specified attrib type is a floating point single type (such as float, vecX, matMxN).
+        /// Gets whether the given <see cref="AttributeType"/> is a floating point single type (such as float, vecX, matMxN).
         /// </summary>
         public static bool IsVertexAttribFloatType(AttributeType attribType)
         {
@@ -38,7 +38,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets whether the specified attrib type is a floating point double type (such as double, dvecX or dmatMxN).
+        /// Gets whether the given <see cref="AttributeType"/> is a floating point double type (such as double, dvecX or dmatMxN).
         /// </summary>
         public static bool IsVertexAttribDoubleType(AttributeType attribType)
         {
@@ -48,9 +48,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the corresponding variables for the specified ActiveAttribType.
+        /// Gets the corresponding variables for the given <see cref="AttributeType"/>.
         /// </summary>
-        /// <param name="attribType">The attribute type to query.</param>
+        /// <param name="attribType">The <see cref="AttributeType"/> type to get variables for.</param>
         /// <param name="indexUseCount">The amount of attribute indices it will need.</param>
         /// <param name="size">The amount of components each index will have.</param>
         /// <param name="type">The base type of each component.</param>
@@ -62,7 +62,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the base variable type for the specified attribute type
+        /// Gets the corresponding <see cref="VertexAttribPointerType"/> for the given <see cref="AttributeType"/>
         /// (for example, vec4 would return float. dmat2 would return double, ivec2 returns int).
         /// </summary>
         public static VertexAttribPointerType GetVertexAttribBaseType(AttributeType attribType)
@@ -89,7 +89,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the attribute's size. By size, this means "vector size" (float is 1, vec2i is 2, bvec4 is 4, etc).
+        /// Gets the <see cref="AttributeType"/>'s size. That is, "vector size" (float is 1, ivec2 is 2, bvec4 is 4, etc).
         /// </summary>
         public static int GetVertexAttribTypeSize(AttributeType attribType)
         {
@@ -139,7 +139,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the amount of indices the vertex attribute occupies.
+        /// Gets the amount of vertex array indices the given <see cref="AttributeType"/> occupies.
         /// </summary>
         public static uint GetVertexAttribTypeIndexCount(AttributeType attribType)
         {
@@ -181,7 +181,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the size in bytes of an attribute type.
+        /// Gets the size in bytes of the given <see cref="VertexAttribPointerType"/>.
         /// </summary>
         public static uint GetVertexAttribSizeInBytes(VertexAttribPointerType type)
         {
@@ -206,13 +206,13 @@ namespace TrippyGL
                     return 8;
 
                 default:
-                    throw new NotSupportedException("The specified vertex attribute format's size in bytes cannot be deciphered by the pointer type.");
+                    throw new NotSupportedException(string.Concat("Cannot get size for " + nameof(VertexAttribPointerType) + ":", type.ToString()));
 
             }
         }
 
         /// <summary>
-        /// Copies the given VertexAttribDescription array into a new array, but doesn't copy the descriptions that are only used for padding.
+        /// Copies the given <see cref="VertexAttribDescription"/>s into a new array, but leaves out the descriptions that are only used for padding.
         /// </summary>
         public static VertexAttribDescription[] CopyVertexAttribDescriptionsWithoutPaddingDescriptors(ReadOnlySpan<VertexAttribDescription> descriptions)
         {
@@ -235,27 +235,24 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Returns whether a DepthStencilFormat is a depth-only format.
+        /// Returns whether a <see cref="DepthStencilFormat"/> is a depth-only format.
         /// </summary>
-        /// <param name="format">The DepthStencilFormat value to check.</param>
         public static bool IsDepthStencilFormatDepthOnly(DepthStencilFormat format)
         {
             return format == DepthStencilFormat.Depth16 || format == DepthStencilFormat.Depth24 || format == DepthStencilFormat.Depth32f;
         }
 
         /// <summary>
-        /// Returns whether a DepthStencilFormat is a depth-and-stencil format.
+        /// Returns whether a <see cref="DepthStencilFormat"/> is a depth-and-stencil format.
         /// </summary>
-        /// <param name="format">The DepthStencilFormat value to check.</param>
         public static bool IsDepthStencilFormatDepthAndStencil(DepthStencilFormat format)
         {
             return format == DepthStencilFormat.Depth24Stencil8 || format == DepthStencilFormat.Depth32fStencil8;
         }
 
         /// <summary>
-        /// Returns whether a DepthStencilFormat is a stencil-only format.
+        /// Returns whether a <see cref="DepthStencilFormat"/> is a stencil-only format.
         /// </summary>
-        /// <param name="format">The DepthStencilFormat value to check.</param>
         public static bool IsDepthStencilFormatStencilOnly(DepthStencilFormat format)
         {
             return format == DepthStencilFormat.Stencil8;
@@ -264,9 +261,8 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Returns whether the given ActiveUniformType is a sampler type. This includes sampler-array types.
+        /// Returns whether the given <see cref="UniformType"/> is a sampler type. This includes sampler-array types.
         /// </summary>
-        /// <param name="type">The type of uniform to compare.</param>
         public static bool IsUniformSamplerType(UniformType type)
         {
             return (type >= UniformType.Sampler1D && type <= UniformType.Sampler2DRectShadow)
@@ -277,11 +273,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Turns a value from the TextureImageFormat enum into the necessary enums to create an OpenGL texture's image storage.
+        /// Turns a value from the <see cref="TextureImageFormat"/> enum into the necessary
+        /// enums to create a <see cref="Texture"/>'s image/storage.
         /// </summary>
         /// <param name="imageFormat">The requested image format.</param>
         /// <param name="pixelInternalFormat">The pixel's internal format.</param>
         /// <param name="pixelType">The pixel's type.</param>
+        /// <param name="pixelFormat">The pixel's format.</param>
         public static void GetTextureFormatEnums(TextureImageFormat imageFormat, out InternalFormat pixelInternalFormat, out PixelType pixelType, out PixelFormat pixelFormat)
         {
             // The workings of this function are related to the numbers assigned to each enum value
@@ -403,9 +401,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the default pixel format for get data texture operations for the specified TextureImageFormat.
+        /// Gets the default <see cref="PixelFormat"/> for get texture data operations for the specified <see cref="TextureImageFormat"/>.
         /// </summary>
-        /// <param name="format">The format to check.</param>
         public static PixelFormat GetDefaultGetDataFormat(TextureImageFormat format)
         {
             if (IsImageFormatColorRenderable(format))
@@ -416,13 +413,12 @@ namespace TrippyGL
                 return PixelFormat.DepthStencil;
             else if (IsImageFormatStencilType(format))
                 return PixelFormat.StencilIndex;
-            throw new ArgumentException("The given TextureImageFormat isn't valid");
+            throw new ArgumentException("The given " + nameof(TextureImageFormat) + " isn't valid");
         }
 
         /// <summary>
-        /// Gets whether the specified texture type is mipmappable.
+        /// Gets whether the specified <see cref="TextureTarget"/> type is mipmappable.
         /// </summary>
-        /// <param name="textureType">The texture type to check.</param>
         public static bool IsTextureTypeMipmappable(TextureTarget textureType)
         {
             return textureType == TextureTarget.Texture1D || textureType == TextureTarget.Texture2D || textureType == TextureTarget.Texture3D
@@ -431,9 +427,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the given TextureImageFormat represents a format with integer base type.
+        /// Returns whether the given <see cref="TextureImageFormat"/> represents a format with integer base type.
         /// </summary>
-        /// <param name="imageFormat">The image format to check.</param>
         public static bool IsImageFormatIntegerType(TextureImageFormat imageFormat)
         {
             return (imageFormat >= TextureImageFormat.Int && imageFormat <= TextureImageFormat.Int4)
@@ -441,36 +436,34 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the given TextureImageFromat represents a depth format.
+        /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-only format.
         /// </summary>
-        /// <param name="imageFormat">The image format to check.</param>
         public static bool IsImageFormatDepthType(TextureImageFormat imageFormat)
         {
             return imageFormat >= TextureImageFormat.Depth16 && imageFormat <= TextureImageFormat.Depth32f;
         }
 
         /// <summary>
-        /// Returns whether the given TextureImageFromat represents a stencil format.
+        /// Returns whether the given <see cref="TextureImageFormat"/> represents a stencil-only format.
         /// </summary>
-        /// <param name="imageFormat">The image format to check.</param>
+#pragma warning disable IDE0060 // Remove unused parameter
         public static bool IsImageFormatStencilType(TextureImageFormat imageFormat)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return false; //there are no stencil-only image formats haha yes
         }
 
         /// <summary>
-        /// Returns whether the given TextureImageFromat represents a depth-stencil format.
+        /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-stencil format.
         /// </summary>
-        /// <param name="imageFormat">The image format to check.</param>
         public static bool IsImageFormatDepthStencilType(TextureImageFormat imageFormat)
         {
             return imageFormat == TextureImageFormat.Depth24Stencil8;
         }
 
         /// <summary>
-        /// Returns whether the given TextureImageFromat is color-renderable.
+        /// Returns whether the given <see cref="TextureImageFormat"/> is color-renderable.
         /// </summary>
-        /// <param name="imageFormat">The image format to check.</param>
         public static bool IsImageFormatColorRenderable(TextureImageFormat imageFormat)
         {
             return imageFormat == TextureImageFormat.Color4b
@@ -482,9 +475,8 @@ namespace TrippyGL
 
 
         /// <summary>
-        /// Returns whether the specified FramebufferAttachmentPoint represents a color[i] attachment.
+        /// Returns whether the specified <see cref="FramebufferAttachmentPoint"/> represents a color[i] attachment.
         /// </summary>
-        /// <param name="attachment">The FramebufferAttachmentPoint value to check.</param>
         public static bool IsFramebufferAttachmentPointColor(FramebufferAttachmentPoint attachment)
         {
             int i = attachment - FramebufferAttachmentPoint.Color0;
@@ -492,36 +484,32 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the specified RenderbufferFormat represents a depth-only format.
+        /// Returns whether the specified <see cref="RenderbufferFormat"/> represents a depth-only format.
         /// </summary>
-        /// <param name="format">The format to check.</param>
         public static bool IsRenderbufferFormatDepthOnly(RenderbufferFormat format)
         {
             return format == RenderbufferFormat.Depth16 || format == RenderbufferFormat.Depth24 || format == RenderbufferFormat.Depth32f;
         }
 
         /// <summary>
-        /// Returns whether the specified RenderbufferFormat represents a stencil-only format.
+        /// Returns whether the specified <see cref="RenderbufferFormat"/> represents a stencil-only format.
         /// </summary>
-        /// <param name="format">The format to check.</param>
         public static bool IsRenderbufferFormatStencilOnly(RenderbufferFormat format)
         {
             return format == RenderbufferFormat.Stencil8;
         }
 
         /// <summary>
-        /// Returns whether the specified RenderbufferFormat represents a depth-stencil format.
+        /// Returns whether the specified <see cref="RenderbufferFormat"/> represents a depth-stencil format.
         /// </summary>
-        /// <param name="format">The format to check.</param>
         public static bool IsRenderbufferFormatDepthStencil(RenderbufferFormat format)
         {
             return format == RenderbufferFormat.Depth24Stencil8 || format == RenderbufferFormat.Depth32fStencil8;
         }
 
         /// <summary>
-        /// Returns whether the specified RenderbufferFormat represents a color renderable format.
+        /// Returns whether the specified <see cref="RenderbufferFormat"/> represents a color renderable format.
         /// </summary>
-        /// <param name="format">The format to check.</param>
         public static bool IsRenderbufferFormatColorRenderable(RenderbufferFormat format)
         {
             return format == RenderbufferFormat.Color4b || format == RenderbufferFormat.Float
@@ -532,9 +520,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the default valid framebuffer attachment point for a renderbuffer format. (depth/stencil/depthstencil/color0).
+        /// Gets the default valid <see cref="FramebufferAttachmentPoint"/> for a <see cref="RenderbufferFormat"/>
+        /// (depth/stencil/depthstencil/color0).
         /// </summary>
-        /// <param name="format">The RenderbufferFormat to check for.</param>
         public static FramebufferAttachmentPoint GetCorrespondingRenderbufferFramebufferAttachmentPoint(RenderbufferFormat format)
         {
             if (IsRenderbufferFormatColorRenderable(format))
@@ -545,7 +533,8 @@ namespace TrippyGL
                 return FramebufferAttachmentPoint.DepthStencil;
             if (IsRenderbufferFormatStencilOnly(format))
                 return FramebufferAttachmentPoint.Stencil;
-            throw new ArgumentException("The specified format appears to be invalid");
+
+            throw new ArgumentException("Given " + nameof(RenderbufferFormat) + " has no default valid " + nameof(FramebufferAttachmentPoint));
         }
     }
 }

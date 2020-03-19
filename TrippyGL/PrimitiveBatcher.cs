@@ -15,10 +15,16 @@ namespace TrippyGL
         private T[] triangles;
         private T[] lines;
 
-        /// <summary>Gets a <see cref="Span{T}"/> with the batched triangle vertices.</summary>
+        /// <summary>
+        /// Gets a <see cref="Span{T}"/> with the batched triangle vertices. If <see cref="TriangleVertexCapacity"/>
+        /// changes after getting this <see cref="Span{T}"/>, that <see cref="Span{T}"/> will point to old data.
+        /// </summary>
         public Span<T> TriangleVertices => triangles.AsSpan(0, TriangleVertexCount);
 
-        /// <summary>Gets a <see cref="Span{T}"/> with the batched line vertices.</summary>
+        /// <summary>
+        /// Gets a <see cref="Span{T}"/> with the batched line vertices. If <see cref="LineVertexCapacity"/>
+        /// changes after getting this <see cref="Span{T}"/>, that <see cref="Span{T}"/> will point to old data.
+        /// </summary>
         public Span<T> LineVertices => lines.AsSpan(0, LineVertexCount);
 
         /// <summary>Gets the amount of triangle vertices currently stored by the primitive batcher.</summary>
@@ -333,32 +339,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Writes all the triangle vertices to the given buffer subset. The buffer subset must have enough storage for this.
-        /// </summary>
-        /// <param name="buffer">The buffer where the triangle vertices will be written to.</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
-        public void WriteTrianglesTo(DataBufferSubset<T> buffer, uint storageOffset = 0)
-        {
-            buffer.SetData(TriangleVertices, storageOffset);
-        }
-
-        /// <summary>
-        /// Writes all the line vertices to the given buffer subset. The buffer subset must have enough storage for this.
-        /// </summary>
-        /// <param name="buffer">The buffer where the line vertices will be written to.</param>
-        /// <param name="storageOffset">The offset into the subset's storage to start writing to, measured in elements.</param>
-        public void WriteLinesTo(DataBufferSubset<T> buffer, uint storageOffset = 0)
-        {
-            buffer.SetData(LineVertices, storageOffset);
-        }
-
-        /// <summary>
         /// Calculates the capacity a <see cref="PrimitiveBatcher{T}"/> will use when it needs
         /// to resize the internal array.
         /// </summary>
         /// <param name="currentCapacity">The current capacity.</param>
         /// <param name="requiredCapacity">The minimum desired capacity.</param>
-        public static int GetNextCapacity(int currentCapacity, int requiredCapacity)
+        public int GetNextCapacity(int currentCapacity, int requiredCapacity)
         {
             // Finds the smallest number that is greater than requiredCapacity and satisfies this equation:
             // " newCapacity = oldCapacity * 2 ^ X " where X is an integer
