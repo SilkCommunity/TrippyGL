@@ -122,7 +122,7 @@ namespace TrippyTesting.Tests
             if (size.Width == 0 || size.Height == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
+            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
             Matrix4x4 mat = Matrix4x4.CreateOrthographicOffCenter(0, 1, 1, 0, 0, 1);
             program.Uniforms["Projection"].SetValueMat4(mat);
         }

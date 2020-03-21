@@ -192,7 +192,7 @@ namespace TrippyTesting
             if (size.Width == 0 || size.Height == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, size.Width, size.Height);
+            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
         }
 
         private void OnWindowClosing()

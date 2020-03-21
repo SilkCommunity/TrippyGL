@@ -69,9 +69,9 @@ namespace TrippyGL
 
             GL.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
 
-            GL.Viewport(viewport.X, viewport.Y, (uint)viewport.Width, (uint)viewport.Height);
+            GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
 
-            GL.Scissor(scissorRect.X, scissorRect.Y, (uint)scissorRect.Width, (uint)scissorRect.Height);
+            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
             if (scissorTestEnabled)
                 GL.Enable(EnableCap.ScissorTest);
             else
@@ -1016,17 +1016,17 @@ namespace TrippyGL
 
         #region Viewport
         /// <summary>The current drawing viewport.</summary>
-        private Rectangle viewport;
+        private Viewport viewport;
 
-        /// <summary>Gets or sets the viewport for drawing.</summary>
-        public Rectangle Viewport
+        /// <summary>Gets or sets the current viewport for drawing.</summary>
+        public Viewport Viewport
         {
             get { return viewport; } //The get is OK because Rectangle is a struct so no worries about modifying it
             set
             {
-                if (value != viewport)
+                if (!value.Equals(viewport))
                 {
-                    GL.Viewport(value.X, value.Y, (uint)value.Width, (uint)value.Height);
+                    GL.Viewport(value.X, value.Y, value.Width, value.Height);
                     viewport = value;
                 }
             }
@@ -1039,7 +1039,7 @@ namespace TrippyGL
         /// <param name="y">The viewport's Y.</param>
         /// <param name="width">The viewport's width.</param>
         /// <param name="height">The viewport's height.</param>
-        public void SetViewport(int x, int y, int width, int height)
+        public void SetViewport(int x, int y, uint width, uint height)
         {
             if (viewport.X != x || viewport.Y != y || viewport.Width != width || viewport.Height != height)
             {
@@ -1047,7 +1047,7 @@ namespace TrippyGL
                 viewport.Y = y;
                 viewport.Width = width;
                 viewport.Height = height;
-                GL.Viewport(x, y, (uint)width, (uint)height);
+                GL.Viewport(x, y, width, height);
             }
         }
 
@@ -1059,7 +1059,7 @@ namespace TrippyGL
         private bool scissorTestEnabled = false;
 
         /// <summary>The current scissor rectangle.</summary>
-        private Rectangle scissorRect;
+        private Viewport scissorRect;
 
         /// <summary>Gets or sets whether scissor testing is enable.</summary>
         public bool ScissorTestEnabled
@@ -1081,19 +1081,28 @@ namespace TrippyGL
         /// <summary>
         /// Gets or sets the scissor rectangle that discards fragments rendered outside it.
         /// </summary>
-        public Rectangle ScissorRectangle
+        public Viewport ScissorRectangle
         {
             get { return scissorRect; }
             set
             {
-                if (scissorRect != value)
+                if (!value.Equals(scissorRect))
                 {
-                    if (value.Width < 0 || value.Height < 0)
-                        throw new ArgumentOutOfRangeException("ScissorRectangle Width and Height must be greater or equal to 0");
-
-                    GL.Scissor(value.X, value.Y, (uint)value.Width, (uint)value.Height);
+                    GL.Scissor(value.X, value.Y, value.Width, value.Height);
                     scissorRect = value;
                 }
+            }
+        }
+
+        public void SetScissorRectangle(int x, int y, uint width, uint height)
+        {
+            if (x != scissorRect.X || y != scissorRect.Y || width != scissorRect.Width || height != scissorRect.Height)
+            {
+                scissorRect.X = x;
+                scissorRect.Y = y;
+                scissorRect.Width = width;
+                scissorRect.Height = height;
+                GL.Scissor(x, y, width, height);
             }
         }
 
@@ -1107,7 +1116,7 @@ namespace TrippyGL
         /// <summary>Gets or sets the <see cref="TrippyGL.BlendState"/> used for drawing.</summary>
         public BlendState BlendState
         {
-            get { return blendState.Clone(); }
+            get { return blendState.Clone(); } // Since BlendState is a class we shouldn't return a reference to our instance
             set
             {
                 // The specified BlendState's fields are copied into blendState, because we need to store all the
@@ -1583,9 +1592,9 @@ namespace TrippyGL
         /// <param name="dstRect">The destination rectangle to write to.</param>
         /// <param name="mask">What data to copy from the framebuffers.</param>
         /// <param name="filter">Whether to use nearest or linear filtering.</param>
-        public void BlitFramebuffer(Rectangle srcRect, Rectangle dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(Viewport srcRect, Viewport dstRect, ClearBufferMask mask, BlitFramebufferFilter filter)
         {
-            BlitFramebuffer(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, mask, filter);
+            BlitFramebuffer(srcRect.X, srcRect.Y, (int)srcRect.Width, (int)srcRect.Height, dstRect.X, dstRect.Y, (int)dstRect.Width, (int)dstRect.Height, mask, filter);
         }
 
         #endregion DrawingFunctions

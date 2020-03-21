@@ -106,7 +106,7 @@ namespace TrippyTesting.Tests
                 return;
 
             graphicsDevice.Framebuffer = null;
-            graphicsDevice.SetViewport(0, 0, window.Size.Width, window.Size.Height);
+            graphicsDevice.SetViewport(0, 0, (uint)window.Size.Width, (uint)window.Size.Height);
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             graphicsDevice.VertexArray = vertexArray;
