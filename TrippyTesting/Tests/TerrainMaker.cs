@@ -256,7 +256,7 @@ namespace TrippyTesting.Tests
             if (window.IsClosing)
                 return;
 
-            graphicsDevice.ClipDistances[0] = true;
+            graphicsDevice.EnableClipDistance(0);
             graphicsDevice.BlendState = BlendState.Opaque;
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.ClearColor = new Vector4(0f, 0f, 0f, 1f);

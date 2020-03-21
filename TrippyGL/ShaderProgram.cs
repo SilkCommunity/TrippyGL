@@ -493,38 +493,5 @@ namespace TrippyGL
 
             return true;
         }
-
-        /// <summary>
-        /// Stores data about a geometry shader.
-        /// </summary>
-        public readonly struct GeometryShaderData
-        {
-            /// <summary>The PrimitiveType the geometry shader takes as input.</summary>
-            public readonly PrimitiveType GeometryInputType;
-
-            /// <summary>The PrimitiveType the geometry shader takes as output.</summary>
-            public readonly PrimitiveType GeometryOutputType;
-
-            /// <summary>The amount of invocations the geometry shader will do.</summary>
-            public readonly int GeometryShaderInvocations;
-
-            /// <summary>The maximum amount of vertices the geometry shader can output.</summary>
-            public readonly int GeometryVerticesOut;
-
-            internal GeometryShaderData(GL gl, uint programHandle)
-            {
-                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryInputType, out int tmp);
-                GeometryInputType = (PrimitiveType)tmp;
-
-                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryOutputType, out tmp);
-                GeometryOutputType = (PrimitiveType)tmp;
-
-                gl.GetProgram(programHandle, GLEnum.GeometryShaderInvocations, out tmp);
-                GeometryShaderInvocations = tmp;
-
-                gl.GetProgram(programHandle, ProgramPropertyARB.GeometryVerticesOut, out tmp);
-                GeometryVerticesOut = tmp;
-            }
-        }
     }
 }

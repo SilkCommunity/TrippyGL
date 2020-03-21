@@ -50,12 +50,12 @@ namespace TrippyGL
             InitGLGetVariables();
             InitBufferObjectStates();
             InitTextureStates();
-            ClipDistances = new ClipDistanceManager(this);
+            clipDistancesEnabled = new bool[MaxClipDistances];
             ResetStates();
         }
 
         /// <summary>
-        /// Resets all GL states to the last values this <see cref="GraphicsDevice"/> knows.
+        /// Resets all GL states to either zero or the last values this <see cref="GraphicsDevice"/> knows.
         /// You should only need to call this when interoperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetStates()
@@ -65,7 +65,7 @@ namespace TrippyGL
             ResetShaderProgramStates();
             ResetTextureStates();
             ResetFramebufferStates();
-            ClipDistances.ResetStates();
+            ResetClipDistanceStates();
 
             GL.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
 
@@ -1326,113 +1326,98 @@ namespace TrippyGL
 
         #region ClipDistances
 
-        /// <summary>Controls to enable and/or disable clip distances.</summary>
-        public ClipDistanceManager ClipDistances { get; private set; }
+        // TODO: Comments and documentation on these
+
+        /// <summary>An array containing whether each clip distance index is enabled.</summary>
+        private bool[] clipDistancesEnabled;
 
         /// <summary>
-        /// Manages the enabling or disabling of clip distances.
+        /// Gets whether a gl_ClipDistance index is enabled.
         /// </summary>
-        public class ClipDistanceManager
+        /// <param name="index">The index of the clip distance to get.</param>
+        public bool IsClipDistanceEnabled(int index)
         {
-            private readonly bool[] areEnabled;
+            return clipDistancesEnabled[index];
+        }
 
-            /// <summary>The maximum amount of clip distances you can use.</summary>
-            public int Count => areEnabled.Length;
-
-            private readonly GL GL;
-
-            /// <summary>
-            /// Enables or disables a gl_ClipDistance[] index.
-            /// </summary>
-            /// <param name="index".></param>
-            public bool this[int index]
+        /// <summary>
+        /// Enables a gl_ClipDistance index.
+        /// </summary>
+        public void EnableClipDistance(int index)
+        {
+            if (!clipDistancesEnabled[index])
             {
-                get { return areEnabled[index]; }
-                set
+                GL.Enable(EnableCap.ClipDistance0 + index);
+                clipDistancesEnabled[index] = true;
+            }
+        }
+
+        /// <summary>
+        /// Disables a gl_ClipDistance index.
+        /// </summary>
+        /// <param name="index"></param>
+        public void DisableClipDistance(int index)
+        {
+            if (clipDistancesEnabled[index])
+            {
+                GL.Disable(EnableCap.ClipDistance0 + index);
+                clipDistancesEnabled[index] = false;
+            }
+        }
+
+        /// <summary>
+        /// Enables a range of the gl_ClipDistance variables.
+        /// </summary>
+        /// <param name="min">The index of the first clip distance to enable.</param>
+        /// <param name="max">The index of the last clip distance to enable (inclusive).</param>
+        public void EnableClipDistanceRange(int min, int max)
+        {
+            for (int i = min; i <= max; i++)
+                if (!clipDistancesEnabled[i])
                 {
-                    if (areEnabled[index] != value)
-                    {
-                        if (value)
-                            GL.Enable(EnableCap.ClipDistance0 + index);
-                        else
-                            GL.Disable(EnableCap.ClipDistance0 + index);
-                        areEnabled[index] = value;
-                    }
+                    GL.Enable(EnableCap.ClipDistance0 + i);
+                    clipDistancesEnabled[i] = true;
                 }
-            }
+        }
 
-            internal ClipDistanceManager(GraphicsDevice device)
-            {
-                GL = device.GL;
-                areEnabled = new bool[device.MaxClipDistances];
-                for (int i = 0; i < areEnabled.Length; i++)
-                    areEnabled[i] = false;
-            }
-
-            /// <summary>
-            /// Enables a range of clip distance variables.
-            /// </summary>
-            /// <param name="min">The index of the first clip distance to enable.</param>
-            /// <param name="max">The index of the last clip distance to enable (inclusive).</param>
-            public void EnableRange(int min, int max)
-            {
-                for (int i = min; i <= max; i++)
-                    if (!areEnabled[i])
-                    {
-                        GL.Enable(EnableCap.ClipDistance0 + i);
-                        areEnabled[i] = true;
-                    }
-            }
-
-            /// <summary>
-            /// Disables a range of clip distance variables.
-            /// </summary>
-            /// <param name="min">The index of the first clip distance to disable.</param>
-            /// <param name="max">The index of the last clip distance to disable (inclusive).</param>
-            public void DisableRange(int min, int max)
-            {
-                for (int i = min; i <= max; i++)
-                    if (areEnabled[i])
-                    {
-                        GL.Disable(EnableCap.ClipDistance0 + i);
-                        areEnabled[i] = false;
-                    }
-            }
-
-            /// <summary>
-            /// Ensures that the only enabled clip distances are the ones on the specified range.
-            /// </summary>
-            /// <param name="min">The index of the first clip distance to enable.</param>
-            /// <param name="max">The index of the last clip distance to enable (inclusive).</param>
-            public void SetEnabledRange(int min, int max)
-            {
-                for (int i = 0; i < areEnabled.Length; i++)
-                    this[i] = i >= min && i <= max;
-            }
-
-            /// <summary>
-            /// Disables all clip distances.
-            /// </summary>
-            public void DisableAll()
-            {
-                for (int i = 0; i < areEnabled.Length; i++)
-                    if (areEnabled[i])
-                    {
-                        GL.Disable(EnableCap.ClipDistance0 + i);
-                        areEnabled[i] = false;
-                    }
-            }
-
-            /// <summary>
-            /// Resets all the states from clip distances.
-            /// </summary>
-            public void ResetStates()
-            {
-                for (int i = 0; i < areEnabled.Length; i++)
+        /// <summary>
+        /// Disables a range of the gl_ClipDistance variables.
+        /// </summary>
+        /// <param name="min">The index of the first clip distance to disable.</param>
+        /// <param name="max">The index of the last clip distance to disable (inclusive).</param>
+        public void DisableClipDistanceRange(int min, int max)
+        {
+            for (int i = min; i <= max; i++)
+                if (clipDistancesEnabled[i])
                 {
-                    areEnabled[i] = false;
                     GL.Disable(EnableCap.ClipDistance0 + i);
+                    clipDistancesEnabled[i] = false;
                 }
+        }
+
+        /// <summary>
+        /// Disables all of the gl_ClipDistance variables.
+        /// </summary>
+        public void DisableAllClipDistances()
+        {
+            for (int i = 0; i < MaxClipDistances; i++)
+                if (clipDistancesEnabled[i])
+                {
+                    GL.Disable(EnableCap.ClipDistance0 + i);
+                    clipDistancesEnabled[i] = false;
+                }
+        }
+
+        /// <summary>
+        /// Resets all clip distance states to the last values this <see cref="GraphicsDevice"/> knows.
+        /// You should only need to call this when interoperating with other libraries or using your own GL functions.
+        /// </summary>
+        public void ResetClipDistanceStates()
+        {
+            for (int i = 0; i < clipDistancesEnabled.Length; i++)
+            {
+                clipDistancesEnabled[i] = false;
+                GL.Disable(EnableCap.ClipDistance0 + i);
             }
         }
 

@@ -7,7 +7,7 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            new Tests.Test3DBatcher().Run();
+            new Tests.TerrainMaker().Run();
         }
 
         public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)
