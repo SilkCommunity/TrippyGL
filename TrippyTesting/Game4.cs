@@ -113,7 +113,7 @@ namespace TrippyTesting
                 new Vector2()
             };
 
-            uint uboSizeBytes = UniformBufferSubset<ThreeMat4>.CalculateRequiredSizeInBytes(graphicsDevice, 1);
+            uint uboSizeBytes = UniformBufferSubset.CalculateRequiredSizeInBytes<ThreeMat4>(graphicsDevice, 1);
             buffer = new BufferObject(graphicsDevice, uboSizeBytes + (uint)(vertexPositions.Length * VertexColorTexture.SizeInBytes), BufferUsageARB.DynamicDraw);
             positionSubset = new VertexDataBufferSubset<Vector3>(buffer, uboSizeBytes, (uint)vertexPositions.Length, vertexPositions);
             colorSubset = new VertexDataBufferSubset<Color4b>(buffer, positionSubset.NextByteInBuffer, (uint)vertexColors.Length, vertexColors);
@@ -137,7 +137,7 @@ namespace TrippyTesting
             m.World = Matrix4x4.Identity;
             m.View = Matrix4x4.Identity;
             m.Projection = Matrix4x4.Identity;
-            uniformSubset.SetValue(ref m);
+            uniformSubset.SetValue(m);
             program.BlockUniforms["MatrixBlock"].SetValue(uniformSubset);
 
             VertexColorTexture[] vertex = new VertexColorTexture[]

@@ -52,17 +52,18 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
-        ///  storage length,<see cref="DrawElementsType.UnsignedInt"/> element type and initial data.
+        ///  storage length, <see cref="DrawElementsType.UnsignedInt"/> element type and optional initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<uint> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedInt)
         {
-            SetData(data, dataWriteOffset);
+            if (!data.IsEmpty)
+                SetData(data, dataWriteOffset);
         }
 
         /// <summary>
@@ -72,12 +73,13 @@ namespace TrippyGL
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
-        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<ushort> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedShort)
         {
-            SetData(data, dataWriteOffset);
+            if (!data.IsEmpty)
+                SetData(data, dataWriteOffset);
         }
 
         /// <summary>
@@ -92,7 +94,8 @@ namespace TrippyGL
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<byte> data, uint dataWriteOffset = 0)
             : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
         {
-            SetData(data, dataWriteOffset);
+            if (!data.IsEmpty)
+                SetData(data, dataWriteOffset);
         }
 
         /// <summary>

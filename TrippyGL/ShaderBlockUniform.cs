@@ -19,7 +19,7 @@ namespace TrippyGL
         /// <summary>The amount of active uniforms this uniform block contains.</summary>
         public readonly int ActiveUniformCount;
 
-        private IBufferRangeBindable uniformSource;
+        private UniformBufferSubset uniformSource;
         private uint uniformBindOffsetBytes, uniformBindLengthBytes;
 
         internal ShaderBlockUniform(ShaderProgram owner, uint bindingIndex, string name, int activeUniformCount)
@@ -36,7 +36,7 @@ namespace TrippyGL
         /// <typeparam name="T">A struct with the same format as the uniform.</typeparam>
         /// <param name="buffer">The buffer from which the values will be read.</param>
         /// <param name="elementIndex">The index of the element in the buffer subset whose value should be used.</param>
-        public void SetValue<T>(UniformBufferSubset<T> buffer, uint elementIndex = 0) where T : unmanaged
+        public void SetValue(UniformBufferSubset buffer, uint elementIndex = 0)
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
