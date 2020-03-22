@@ -1,8 +1,5 @@
 using System;
 using Silk.NET.OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace TrippyGL
 {
@@ -34,43 +31,19 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="Texture1D"/> from an image from a file.
-        /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="file">The file containing the texture pixels data.</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture1D"/>.</param>
-        public Texture1D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false)
-            : base(graphicsDevice, TextureTarget.Texture1D, TextureImageFormat.Color4b)
-        {
-            using (Image<Rgba32> image = Image.Load<Rgba32>(file))
-            {
-                Width = (uint)(image.Width * image.Height);
-                ValidateTextureSize(Width);
-
-                GraphicsDevice.BindTextureSetActive(this);
-                GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, Width, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
-            }
-
-            if (generateMipmaps)
-                GenerateMipmaps();
-
-            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
-        }
-
-        /// <summary>
         /// Sets the data of part of the <see cref="Texture1D"/> by copying it from the specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the pixel data.</param>
+        /// <param name="ptr">The pointer from which the pixel data will be read.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
         /// <param name="width">The amount of pixels to write.</param>
-        public unsafe void SetData(void* dataPtr, uint xOffset, uint width)
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void SetData(void* ptr, uint xOffset, uint width, PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, (int)xOffset, width, PixelFormat.Rgba, PixelType, dataPtr);
+            GL.TexSubImage1D(TextureType, 0, (int)xOffset, width, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -78,37 +51,41 @@ namespace TrippyGL
         /// is the length of the given <see cref="ReadOnlySpan{T}"/>
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
-        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the texture data.</param>
+        /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the pixel data.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
-        public unsafe void SetData<T>(ReadOnlySpan<T> data, uint xOffset = 0) where T : unmanaged
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, uint xOffset = 0, PixelFormat pixelFormat = 0) where T : unmanaged
         {
-            fixed (void* ptr = &data[0])
-                SetData(ptr, xOffset, (uint)data.Length);
+            fixed (void* ptr = data)
+                SetData(ptr, xOffset, (uint)data.Length, pixelFormat);
         }
 
         /// <summary>
         /// Gets the data of the entire <see cref="Texture1D"/> and copies it to a specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for writting the data.</param>
-        public unsafe void GetData(void* dataPtr)
+        /// <param name="ptr">The pointer to which the pixel data will be written.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void GetData(void* ptr, PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, dataPtr);
+            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
         /// Gets the data of the entire <see cref="Texture"/>, copying the texture data to a specified array.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
-        /// <param name="data">The <see cref="Span{T}"/> in which to write the texture data.</param>
-        public void GetData<T>(Span<T> data) where T : unmanaged
+        /// <param name="data">The <see cref="Span{T}"/> in which to write the pixel data.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             if (data.Length < Width)
                 throw new ArgumentException(nameof(data) + " must be large enough as to hold " + nameof(Width) + " pixels", nameof(data));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType, out data[0]);
+            fixed (void* ptr = data)
+                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -134,8 +111,6 @@ namespace TrippyGL
             GraphicsDevice.BindTextureSetActive(this);
             GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, width, 0, PixelFormat.Rgba, PixelType, (void*)0);
         }
-
-        // TODO: SaveAsImage()
 
         private void ValidateTextureSize(uint width)
         {

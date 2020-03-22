@@ -2,11 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Silk.NET.OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace TrippyGL
 {
@@ -283,27 +278,57 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Saves this <see cref="FramebufferObject"/>'s texture as an image file. You can't save multisampled textures.
+        /// Reads pixels from this <see cref="FramebufferObject"/> starting from the lower left.
         /// </summary>
-        /// <param name="file">The location in which to store the file.</param>
-        /// <param name="imageFormat">The format.</param>
-        public void SaveAsImage(string file, SaveImageFormat imageFormat)
+        /// <param name="ptr">The pointer to which the pixel data will be written.</param>
+        /// <param name="x">The X coordinate of the first pixel to read.</param>
+        /// <param name="y">The (invertex) Y coordinate of the first pixel to read.</param>
+        /// <param name="width">The width of the rectangle of pixels to read.</param>
+        /// <param name="height">The height of the rectangle of pixels to read.</param>
+        /// <param name="pixelFormat">The format the pixel data will be read as.</param>
+        /// <param name="pixelType">The format the pixel data is stored as.</param>
+        public unsafe void ReadPixels(void* ptr, int x, int y, uint width, uint height, ReadPixelsFormat pixelFormat = ReadPixelsFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
         {
-            if (string.IsNullOrEmpty(file))
-                throw new ArgumentException("You must specify a file name", nameof(file));
-            IImageFormat format = imageFormat switch
-            {
-                SaveImageFormat.Png => SixLabors.ImageSharp.Formats.Png.PngFormat.Instance,
-                SaveImageFormat.Jpeg => SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance,
-                SaveImageFormat.Bmp => SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance,
-                _ => throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat)),
-            };
-            using Image<Rgba32> image = new Image<Rgba32>((int)Width, (int)Height);
+            if (x < 0)
+                throw new ArgumentException(nameof(x) + " must be greater than or equal to 0", nameof(x));
+
+            if (y < 0)
+                throw new ArgumentException(nameof(y) + " must be greater than or equal to 0", nameof(y));
+
+            if (width <= 0 || width > Width)
+                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be in the range (0, " + nameof(Width) + "]");
+
+            if (height <= 0 || height > Height)
+                throw new ArgumentOutOfRangeException(nameof(height), height, nameof(height) + " must be in the range (0, " + nameof(Height) + "]");
+
+            if (x + width > Width || y + height > Height)
+                throw new ArgumentException("Tried to read outside the " + nameof(FramebufferObject) + "'s image");
+
+            if (pixelFormat == ReadPixelsFormat.DepthStencil && pixelType != (PixelType)GLEnum.UnsignedInt248)
+                throw new ArgumentException("When reading depth-stencil, " + nameof(pixelType) + " must be UnsignedInt248", nameof(pixelType));
+
             GraphicsDevice.ReadFramebuffer = this;
-            GL.ReadPixels(0, 0, Width, Height, PixelFormat.Rgba, PixelType.UnsignedByte, out image.GetPixelSpan()[0]);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
-            image.Save(fileStream, format);
+            GL.ReadPixels(x, y, width, height, (PixelFormat)pixelFormat, pixelType, ptr);
+        }
+
+        /// <summary>
+        /// Reads pixels from this <see cref="FramebufferObject"/> starting from the lower left.
+        /// </summary>
+        /// <typeparam name="T">A struct with the same format as a pixel to read.</typeparam>
+        /// <param name="data">The span to which the data will be written.</param>
+        /// <param name="x">The X coordinate of the first pixel to read.</param>
+        /// <param name="y">The (invertex) Y coordinate of the first pixel to read.</param>
+        /// <param name="width">The width of the rectangle of pixels to read.</param>
+        /// <param name="height">The height of the rectangle of pixels to read.</param>
+        /// <param name="pixelFormat">The format the pixel data will be read as.</param>
+        /// <param name="pixelType">The format the pixel data is stored as.</param>
+        public unsafe void ReadPixels<T>(Span<T> data, int x, int y, uint width, uint height, ReadPixelsFormat pixelFormat = ReadPixelsFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte) where T : unmanaged
+        {
+            if (data.Length < (width - x) * (height - y))
+                throw new ArgumentException(nameof(data) + " must be able to hold the requested pixel data", nameof(data));
+
+            fixed (void* ptr = data)
+                ReadPixels(ptr, x, y, width, height, pixelFormat, pixelType);
         }
 
         public override string ToString()
@@ -426,92 +451,6 @@ namespace TrippyGL
             }
 
             framebuffer.UpdateFramebufferData();
-        }
-    }
-
-    public readonly struct FramebufferTextureAttachment : IEquatable<FramebufferTextureAttachment>
-    {
-        public readonly Texture Texture;
-        public readonly FramebufferAttachmentPoint AttachmentPoint;
-
-        public FramebufferTextureAttachment(Texture texture, FramebufferAttachmentPoint attachmentPoint)
-        {
-            Texture = texture;
-            AttachmentPoint = attachmentPoint;
-        }
-
-        public static bool operator ==(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => left.Equals(right);
-
-        public static bool operator !=(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => !left.Equals(right);
-
-        public override string ToString()
-        {
-            return string.Concat("Texture" + nameof(AttachmentPoint) + "=", AttachmentPoint.ToString());
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = Texture.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public bool Equals(FramebufferTextureAttachment other)
-        {
-            return Texture == other.Texture && AttachmentPoint == other.AttachmentPoint;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is FramebufferTextureAttachment framebufferTextureAttachment)
-                return Equals(framebufferTextureAttachment);
-            return false;
-        }
-    }
-
-    public readonly struct FramebufferRenderbufferAttachment : IEquatable<FramebufferRenderbufferAttachment>
-    {
-        public readonly RenderbufferObject Renderbuffer;
-        public readonly FramebufferAttachmentPoint AttachmentPoint;
-
-        public FramebufferRenderbufferAttachment(RenderbufferObject renderbuffer, FramebufferAttachmentPoint attachmentPoint)
-        {
-            Renderbuffer = renderbuffer;
-            AttachmentPoint = attachmentPoint;
-        }
-
-        public static bool operator ==(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => left.Equals(right);
-
-        public static bool operator !=(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => !left.Equals(right);
-
-        public override string ToString()
-        {
-            return string.Concat("Renderbuffer" + nameof(AttachmentPoint) + "=", AttachmentPoint.ToString());
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = Renderbuffer.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
-                return hashCode;
-            }
-        }
-
-        public bool Equals(FramebufferRenderbufferAttachment other)
-        {
-            return Renderbuffer == other.Renderbuffer && AttachmentPoint == other.AttachmentPoint;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is FramebufferRenderbufferAttachment framebufferRenderbufferAttachment)
-                return Equals(framebufferRenderbufferAttachment);
-            return false;
         }
     }
 }

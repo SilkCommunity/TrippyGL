@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {
@@ -86,7 +87,7 @@ namespace TrippyTesting.Tests
             program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
             program.LinkProgram();
 
-            texture = new Texture2D(graphicsDevice, "data4/jeru.png", true);
+            texture = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png", true);
 
             OnWindowResized(window.Size);
         }

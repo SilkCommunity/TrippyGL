@@ -37,7 +37,7 @@ namespace TrippyGL
         /// Sets the data of a specified area of the <see cref="Texture2DArray"/>, copying the new data from a given pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the pixel data.</param>
+        /// <param name="ptr">The pointer from which the pixel data will be read.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
         /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
         /// <param name="rectZ">The Z coordinate of the first pixel to write.</param>
@@ -45,12 +45,12 @@ namespace TrippyGL
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
-        public unsafe void SetData(void* dataPtr, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0)
+        public unsafe void SetData(void* ptr, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0)
         {
             ValidateSetOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
+            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace TrippyGL
             ValidateSetOperation(data.Length, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTexture(this);
-            fixed (void* ptr = &data[0])
+            fixed (void* ptr = data)
                 GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
@@ -85,6 +85,8 @@ namespace TrippyGL
         {
             SetData(data, 0, 0, depthLevel, Width, Height, 1, pixelFormat);
         }
+
+        // TODO: GetData
 
         /// <summary>
         /// Sets the coordinate wrapping modes for when the <see cref="Texture2DArray"/> is sampled outside the [0, 1] range.

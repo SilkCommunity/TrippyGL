@@ -179,7 +179,7 @@ namespace TrippyGL
                 throw new BufferCopyException("Tried to write past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            fixed (void* ptr = &data[0])
+            fixed (void* ptr = data)
                 Buffer.GL.BufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 
@@ -198,7 +198,7 @@ namespace TrippyGL
                 throw new BufferCopyException("Tried to read past the subset's length");
 
             Buffer.GraphicsDevice.BindBuffer(this);
-            fixed (void* ptr = &data[0])
+            fixed (void* ptr = data)
                 Buffer.GL.GetBufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 

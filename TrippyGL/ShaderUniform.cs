@@ -317,32 +317,32 @@ namespace TrippyGL
 
         public unsafe void SetValueMat2(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat2Ptr(ptr, value.Length / 4, transpose);
         }
         public unsafe void SetValueDMat2(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat2Ptr(ptr, value.Length / 4, transpose);
         }
         public unsafe void SetValueMat2x4(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat2x4Ptr(ptr, value.Length / 8, transpose);
         }
         public unsafe void SetValueDMat2x4(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat2x4Ptr(ptr, value.Length / 8, transpose);
         }
         public unsafe void SetValueMat2x3(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat2x3Ptr(ptr, value.Length / 6, transpose);
         }
         public unsafe void SetValueDMat2x3(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat2x3Ptr(ptr, value.Length / 6, transpose);
         }
         #endregion
@@ -387,32 +387,32 @@ namespace TrippyGL
 
         public unsafe void SetValueMat3(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat3Ptr(ptr, value.Length / 9, transpose);
         }
         public unsafe void SetValueDMat3(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat3Ptr(ptr, value.Length / 9, transpose);
         }
         public unsafe void SetValueMat3x4(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat3x4Ptr(ptr, value.Length / 12, transpose);
         }
         public unsafe void SetValueDMat3x4(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat3x4Ptr(ptr, value.Length / 12, transpose);
         }
         public unsafe void SetValueMat3x2(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat3x2Ptr(ptr, value.Length / 6, transpose);
         }
         public unsafe void SetValueDMat3x2(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat3x2Ptr(ptr, value.Length / 6, transpose);
         }
 
@@ -468,32 +468,32 @@ namespace TrippyGL
 
         public unsafe void SetValueMat4(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat4Ptr(ptr, value.Length / 16, transpose);
         }
         public unsafe void SetValueDMat4(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat4Ptr(ptr, value.Length / 16, transpose);
         }
         public unsafe void SetValueMat4x3(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat4x3Ptr(ptr, value.Length / 12, transpose);
         }
         public unsafe void SetValueDMat4x3(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat4x3Ptr(ptr, value.Length / 12, transpose);
         }
         public unsafe void SetValueMat4x2(ReadOnlySpan<float> value, bool transpose = false)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValueMat4x2Ptr(ptr, value.Length / 8, transpose);
         }
         public unsafe void SetValueDMat4x2(ReadOnlySpan<double> value, bool transpose = false)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValueDMat4x2Ptr(ptr, value.Length / 8, transpose);
         }
 
@@ -538,22 +538,22 @@ namespace TrippyGL
 
         public unsafe void SetValue1Array(ReadOnlySpan<float> value)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValue1ArrayPtr(ptr, value.Length);
         }
         public unsafe void SetValue1Array(ReadOnlySpan<double> value)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValue1ArrayPtr(ptr, value.Length);
         }
         public unsafe void SetValue1Array(ReadOnlySpan<int> value)
         {
-            fixed (int* ptr = &value[0])
+            fixed (int* ptr = value)
                 SetValue1ArrayPtr(ptr, value.Length);
         }
         public unsafe void SetValue1Array(ReadOnlySpan<uint> value)
         {
-            fixed (uint* ptr = &value[0])
+            fixed (uint* ptr = value)
                 SetValue1ArrayPtr(ptr, value.Length);
         }
         #endregion
@@ -592,22 +592,22 @@ namespace TrippyGL
 
         public unsafe void SetValue2Array(ReadOnlySpan<float> value)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValue2ArrayPtr(ptr, value.Length / 2);
         }
         public unsafe void SetValue2Array(ReadOnlySpan<double> value)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValue2ArrayPtr(ptr, value.Length / 2);
         }
         public unsafe void SetValue2Array(ReadOnlySpan<int> value)
         {
-            fixed (int* ptr = &value[0])
+            fixed (int* ptr = value)
                 SetValue2ArrayPtr(ptr, value.Length / 2);
         }
         public unsafe void SetValue2Array(ReadOnlySpan<uint> value)
         {
-            fixed (uint* ptr = &value[0])
+            fixed (uint* ptr = value)
                 SetValue2ArrayPtr(ptr, value.Length / 2);
         }
         #endregion
@@ -646,22 +646,22 @@ namespace TrippyGL
 
         public unsafe void SetValue3Array(ReadOnlySpan<float> value)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValue3ArrayPtr(ptr, value.Length / 3);
         }
         public unsafe void SetValue3Array(ReadOnlySpan<double> value)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValue3ArrayPtr(ptr, value.Length / 3);
         }
         public unsafe void SetValue3Array(ReadOnlySpan<int> value)
         {
-            fixed (int* ptr = &value[0])
+            fixed (int* ptr = value)
                 SetValue3ArrayPtr(ptr, value.Length / 3);
         }
         public unsafe void SetValue3Array(ReadOnlySpan<uint> value)
         {
-            fixed (uint* ptr = &value[0])
+            fixed (uint* ptr = value)
                 SetValue3ArrayPtr(ptr, value.Length / 3);
         }
         #endregion
@@ -700,22 +700,22 @@ namespace TrippyGL
 
         public unsafe void SetValue4Array(ReadOnlySpan<float> value)
         {
-            fixed (float* ptr = &value[0])
+            fixed (float* ptr = value)
                 SetValue4ArrayPtr(ptr, value.Length / 4);
         }
         public unsafe void SetValue4Array(ReadOnlySpan<double> value)
         {
-            fixed (double* ptr = &value[0])
+            fixed (double* ptr = value)
                 SetValue4ArrayPtr(ptr, value.Length / 4);
         }
         public unsafe void SetValue4Array(ReadOnlySpan<int> value)
         {
-            fixed (int* ptr = &value[0])
+            fixed (int* ptr = value)
                 SetValue4ArrayPtr(ptr, value.Length / 4);
         }
         public unsafe void SetValue4Array(ReadOnlySpan<uint> value)
         {
-            fixed (uint* ptr = &value[0])
+            fixed (uint* ptr = value)
                 SetValue4ArrayPtr(ptr, value.Length / 4);
         }
         #endregion

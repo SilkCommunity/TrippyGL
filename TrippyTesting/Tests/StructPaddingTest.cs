@@ -6,6 +6,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {
@@ -63,7 +64,7 @@ namespace TrippyTesting.Tests
 
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            texture = new Texture2D(graphicsDevice, "data4/jeru.png");
+            texture = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png");
 
             program = new ShaderProgram(graphicsDevice);
             program.AddVertexShader(File.ReadAllText("spad/vs.glsl"));

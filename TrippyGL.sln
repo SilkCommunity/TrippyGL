@@ -8,9 +8,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{6B15A097-205A-494C-98E0-4DC76B5F06EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{6B15A097-205A-494C-98E0-4DC76B5F06EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{71153C4F-A39D-4343-94C8-133919651BD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{71153C4F-A39D-4343-94C8-133919651BD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL.ImageSharp", "TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj", "{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{71153C4F-A39D-4343-94C8-133919651BD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

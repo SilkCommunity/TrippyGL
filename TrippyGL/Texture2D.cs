@@ -1,12 +1,6 @@
 #pragma warning disable CA1062 // Validate arguments of public methods
 using System;
-using System.IO;
 using Silk.NET.OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace TrippyGL
 {
@@ -51,57 +45,22 @@ namespace TrippyGL
             }
         }
 
-        internal Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps, TextureTarget textureTarget)
-            : base(graphicsDevice, textureTarget, TextureImageFormat.Color4b)
-        {
-            Samples = 0;
-            using (Image<Rgba32> image = Image.Load<Rgba32>(file))
-            {
-                Width = (uint)image.Width;
-                Height = (uint)image.Height;
-                ValidateTextureSize(Width, Height);
-                graphicsDevice.BindTextureSetActive(this);
-                GL.TexImage2D(TextureType, 0, (int)PixelInternalFormat, Width, Height, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
-            }
-
-            if (generateMipmaps)
-                GenerateMipmaps();
-
-            if (Samples == 0)
-            {
-                GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-                GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
-            }
-        }
-
-        /// <summary>
-        /// Creates a <see cref="Texture2D"/> from an image from a file.
-        /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="file">The file containing the texture pixels data.</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture2D"/>.</param>
-        public Texture2D(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false)
-            : this(graphicsDevice, file, generateMipmaps, TextureTarget.Texture2D)
-        {
-
-        }
-
         /// <summary>
         /// Sets the data of a specified area of the <see cref="Texture2D"/>, copying it from the specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for reading the pixel data.</param>
+        /// <param name="ptr">The pointer from which the pixel data will be read.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
         /// <param name="rectY">The Y coordinate of the first pixel to write.</param>
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetDataPtr(void* dataPtr, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0)
+        public unsafe void SetDataPtr(void* ptr, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0)
         {
             ValidateSetOperation(rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage2D(TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
+            GL.TexSubImage2D(TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -119,7 +78,7 @@ namespace TrippyGL
             ValidateSetOperation(data.Length, rectX, rectY, rectWidth, rectHeight);
 
             GraphicsDevice.BindTextureSetActive(this);
-            fixed (void* ptr = &data[0])
+            fixed (void* ptr = data)
                 GL.TexSubImage2D(TextureType, 0, rectX, rectY, rectWidth, rectHeight, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
@@ -138,13 +97,13 @@ namespace TrippyGL
         /// Gets the data of the entire <see cref="Texture2D"/> and copies it to a specified pointer.
         /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
         /// </summary>
-        /// <param name="dataPtr">The pointer for writting the pixel data.</param>
+        /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
-        public unsafe void GetDataPtr(void* dataPtr, PixelFormat pixelFormat = 0)
+        public unsafe void GetDataPtr(void* ptr, PixelFormat pixelFormat = 0)
         {
             ValidateGetOperation();
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, dataPtr);
+            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -155,43 +114,8 @@ namespace TrippyGL
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2D"/>'s default.</param>
         public unsafe void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
-            ValidateGetOperation((uint)data.Length);
-
-            GraphicsDevice.BindTextureSetActive(this);
-            fixed (void* ptr = &data[0])
-                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
-        }
-
-        /// <summary>
-        /// Saves this <see cref="Texture2D"/> as an image file. You can't save multisampled textures.
-        /// </summary>
-        /// <param name="file">The location in which to store the file.</param>
-        /// <param name="imageFormat">The format.</param>
-        public void SaveAsImage(string file, SaveImageFormat imageFormat)
-        {
-            if (Samples != 0)
-                throw new NotSupportedException("You can't save multisampled textures");
-
-            if (string.IsNullOrEmpty(file))
-                throw new ArgumentException("You must specify a file name", nameof(file));
-
-            if (ImageFormat != TextureImageFormat.Color4b)
-                throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
-
-            IImageFormat format = imageFormat switch
-            {
-                SaveImageFormat.Png => SixLabors.ImageSharp.Formats.Png.PngFormat.Instance,
-                SaveImageFormat.Jpeg => SixLabors.ImageSharp.Formats.Jpeg.JpegFormat.Instance,
-                SaveImageFormat.Bmp => SixLabors.ImageSharp.Formats.Bmp.BmpFormat.Instance,
-                _ => throw new ArgumentException("You must specify a proper value from " + nameof(SaveImageFormat), nameof(imageFormat)),
-            };
-
-            using Image<Rgba32> image = new Image<Rgba32>((int)Width, (int)Height);
-            GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, PixelFormat.Rgba, PixelType.UnsignedByte, out image.GetPixelSpan()[0]);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
-            image.Save(fileStream, format);
+            fixed (void* ptr = data)
+                GetDataPtr(ptr, pixelFormat);
         }
 
         /// <summary>

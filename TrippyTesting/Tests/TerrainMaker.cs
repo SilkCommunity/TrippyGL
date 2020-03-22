@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {
@@ -139,8 +140,8 @@ namespace TrippyTesting.Tests
                 new VertexColor(new Vector3(MaxX, WATER_TOP, MaxY), new Color4b(100, 200, 255, 255)),
             }, BufferUsageARB.StaticDraw);
 
-            distortMap = new Texture2D(graphicsDevice, "terrain/distortMap.png");
-            normalMap = new Texture2D(graphicsDevice, "terrain/normalMap.png");
+            distortMap = Texture2DExtensions.FromFile(graphicsDevice, "terrain/distortMap.png");
+            normalMap = Texture2DExtensions.FromFile(graphicsDevice, "terrain/normalMap.png");
             distortMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             normalMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             distortMap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
@@ -186,12 +187,12 @@ namespace TrippyTesting.Tests
             cubemapProgram.LinkProgram();
 
             cubemap = new TextureCubemap(graphicsDevice, 800);
-            cubemap.SetData(CubeMapFace.PositiveX, "cubemap/cubemap1_front.png");
-            cubemap.SetData(CubeMapFace.NegativeX, "cubemap/cubemap1_back.png");
-            cubemap.SetData(CubeMapFace.NegativeZ, "cubemap/cubemap1_left.png");
-            cubemap.SetData(CubeMapFace.PositiveZ, "cubemap/cubemap1_right.png");
-            cubemap.SetData(CubeMapFace.PositiveY, "cubemap/cubemap1_top.png");
-            cubemap.SetData(CubeMapFace.NegativeY, "cubemap/cubemap1_bottom.png");
+            cubemap.SetData(CubemapFace.PositiveX, "cubemap/cubemap1_front.png");
+            cubemap.SetData(CubemapFace.NegativeX, "cubemap/cubemap1_back.png");
+            cubemap.SetData(CubemapFace.NegativeZ, "cubemap/cubemap1_left.png");
+            cubemap.SetData(CubemapFace.PositiveZ, "cubemap/cubemap1_right.png");
+            cubemap.SetData(CubemapFace.PositiveY, "cubemap/cubemap1_top.png");
+            cubemap.SetData(CubemapFace.NegativeY, "cubemap/cubemap1_bottom.png");
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 

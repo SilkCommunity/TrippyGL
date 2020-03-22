@@ -47,7 +47,7 @@ namespace TrippyGL
 
     public enum SaveImageFormat
     {
-        Png, Jpeg, Bmp
+        Png, Jpeg, Bmp, Gif
     }
 
     public enum FramebufferAttachmentPoint
@@ -97,7 +97,7 @@ namespace TrippyGL
         Stencil8 = InternalFormat.StencilIndex8,
     }
 
-    public enum CubeMapFace
+    public enum CubemapFace
     {
         PositiveX = TextureTarget.TextureCubeMapPositiveX,
         NegativeX = TextureTarget.TextureCubeMapNegativeX,
@@ -105,5 +105,20 @@ namespace TrippyGL
         NegativeY = TextureTarget.TextureCubeMapNegativeY,
         PositiveZ = TextureTarget.TextureCubeMapPositiveZ,
         NegativeZ = TextureTarget.TextureCubeMapNegativeZ
+    }
+
+    public enum ReadPixelsFormat
+    {
+        // GL_RED, GL_GREEN, GL_BLUE, GL_RGB, GL_BGR, GL_RGBA, and GL_BGRA, GL_DEPTH_COMPONENT, GL_STENCIL_INDEX, GL_DEPTH_STENCIL
+        Red = PixelFormat.Red,
+        Green = PixelFormat.Green,
+        Blue = PixelFormat.Blue,
+        Rgb = PixelFormat.Rgb,
+        Bgr = PixelFormat.Bgr,
+        Rgba = PixelFormat.Rgba,
+        Bgra = PixelFormat.Bgra,
+        DepthComponent = PixelFormat.DepthComponent,
+        StencilIndex = PixelFormat.StencilIndex,
+        DepthStencil = PixelFormat.DepthStencil
     }
 }

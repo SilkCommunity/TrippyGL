@@ -109,7 +109,7 @@ namespace TrippyGL
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            fixed (void* ptr = &data[0])
+            fixed (uint* ptr = data)
                 Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, ptr);
         }
 
@@ -124,7 +124,7 @@ namespace TrippyGL
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            fixed (void* ptr = &data[0])
+            fixed (ushort* ptr = data)
                 Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, ptr);
         }
 
@@ -139,7 +139,7 @@ namespace TrippyGL
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            fixed (void* ptr = &data[0])
+            fixed (byte* ptr = data)
                 Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, ptr);
         }
 

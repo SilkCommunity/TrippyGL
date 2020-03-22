@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting
 {
@@ -76,7 +77,7 @@ namespace TrippyTesting
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
-            texture = new Texture2D(graphicsDevice, "data4/jeru.png");
+            texture = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png");
             whitepx = new Texture2D(graphicsDevice, 1, 1);
             whitepx.SetData((ReadOnlySpan<Color4b>)new Color4b[] { Color4b.White });
 

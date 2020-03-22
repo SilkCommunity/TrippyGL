@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
 
@@ -135,12 +136,12 @@ namespace TrippyTesting.Tests
             cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticDraw);
 
             cubemap = new TextureCubemap(graphicsDevice, 800);
-            cubemap.SetData(CubeMapFace.PositiveX, "cubemap/cubemap1_front.png");
-            cubemap.SetData(CubeMapFace.NegativeX, "cubemap/cubemap1_back.png");
-            cubemap.SetData(CubeMapFace.NegativeZ, "cubemap/cubemap1_left.png");
-            cubemap.SetData(CubeMapFace.PositiveZ, "cubemap/cubemap1_right.png");
-            cubemap.SetData(CubeMapFace.PositiveY, "cubemap/cubemap1_top.png");
-            cubemap.SetData(CubeMapFace.NegativeY, "cubemap/cubemap1_bottom.png");
+            cubemap.SetData(CubemapFace.PositiveX, "cubemap/cubemap1_front.png");
+            cubemap.SetData(CubemapFace.NegativeX, "cubemap/cubemap1_back.png");
+            cubemap.SetData(CubemapFace.NegativeZ, "cubemap/cubemap1_left.png");
+            cubemap.SetData(CubemapFace.PositiveZ, "cubemap/cubemap1_right.png");
+            cubemap.SetData(CubemapFace.PositiveY, "cubemap/cubemap1_top.png");
+            cubemap.SetData(CubemapFace.NegativeY, "cubemap/cubemap1_bottom.png");
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 
@@ -344,16 +345,16 @@ namespace TrippyTesting.Tests
             circleFan[circleFan.Length - 1] = circleFan[1];
 
             mat = Matrix4x4.CreateScale(1.5f) * Matrix4x4.CreateTranslation(0, -1f, 0);
-            batcher.AddTriangleFan(MultiplyAllToNew(circleFan, ref mat));
+            batcher.AddTriangleFan(MultiplyAllToNew(circleFan, mat));
 
             mat = Matrix4x4.CreateRotationY(time * MathF.PI);
-            batcher.AddTriangleStrip(MultiplyAllToNew(cube, ref mat));
+            batcher.AddTriangleStrip(MultiplyAllToNew(cube, mat));
 
             mat = Matrix4x4.CreateRotationY(time * MathF.PI * 0.5f) * Matrix4x4.CreateScale(0.6f, 1.5f, 0.6f) * Matrix4x4.CreateTranslation(2, 0, -1.4f);
-            batcher.AddTriangleStrip(MultiplyAllToNew(cone, ref mat));
+            batcher.AddTriangleStrip(MultiplyAllToNew(cone, mat));
 
             mat = Matrix4x4.CreateRotationY(-time * MathF.PI * 0.5f) * Matrix4x4.CreateScale(0.6f, 1.5f, 0.6f) * Matrix4x4.CreateTranslation(-1.4f, 0, 2);
-            batcher.AddTriangleStrip(MultiplyAllToNew(cone, ref mat));
+            batcher.AddTriangleStrip(MultiplyAllToNew(cone, mat));
 
             mat = Matrix4x4.CreateTranslation(2f, 2f, 2f);
             batcher.AddQuads(MultiplyAllToNew(new VertexColor[]{
@@ -373,7 +374,7 @@ namespace TrippyTesting.Tests
 
                 new VertexColor(Vector3.Zero, Color4b.White),
                 new VertexColor(Vector3.Zero, Color4b.White),
-            }, ref mat).AsSpan(3, 8));
+            }, mat).AsSpan(3, 8));
 
             batcher.AddTriangleStrip(new VertexColor[]
             {
@@ -502,7 +503,7 @@ namespace TrippyTesting.Tests
             return arr;
         }
 
-        public static VertexColor[] MultiplyAllToNew(ReadOnlySpan<VertexColor> vertex, ref Matrix4x4 mat)
+        public static VertexColor[] MultiplyAllToNew(ReadOnlySpan<VertexColor> vertex, in Matrix4x4 mat)
         {
             VertexColor[] arr = new VertexColor[vertex.Length];
             for (int i = 0; i < vertex.Length; i++)
