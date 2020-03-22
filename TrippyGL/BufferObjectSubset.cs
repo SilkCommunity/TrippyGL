@@ -47,6 +47,9 @@ namespace TrippyGL
             if (bufferObject == null)
                 throw new ArgumentNullException(nameof(bufferObject));
 
+            if (!Enum.IsDefined(typeof(BufferTargetARB), bufferTarget))
+                throw new ArgumentException(nameof(bufferTarget) + " must be a valid " + nameof(BufferTargetARB) + " value", nameof(bufferTarget));
+
             bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
             Buffer = bufferObject;
             BufferHandle = Buffer.Handle;
@@ -65,18 +68,6 @@ namespace TrippyGL
             : this(bufferObject, bufferTarget)
         {
             InitializeStorage(storageOffsetBytes, storageLengthBytes);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="BufferObjectSubset"/> that occupies the same area in the same
-        /// buffer as another buffer subset but has another <see cref="BufferTargetARB"/>.
-        /// </summary>
-        /// <param name="copy">The <see cref="BufferObjectSubset"/> to copy.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
-        internal BufferObjectSubset(BufferObjectSubset copy, BufferTargetARB bufferTarget)
-            : this(copy.Buffer, bufferTarget, copy.StorageOffsetInBytes, copy.StorageLengthInBytes)
-        {
-
         }
 
         /// <summary>

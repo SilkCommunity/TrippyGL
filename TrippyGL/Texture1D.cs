@@ -47,7 +47,7 @@ namespace TrippyGL
                 Width = (uint)(image.Width * image.Height);
                 ValidateTextureSize(Width);
 
-                graphicsDevice.BindTextureSetActive(this);
+                GraphicsDevice.BindTextureSetActive(this);
                 GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, Width, 0, PixelFormat.Rgba, PixelType, ref image.GetPixelSpan()[0]);
             }
 

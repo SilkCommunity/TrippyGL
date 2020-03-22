@@ -38,6 +38,9 @@ namespace TrippyGL
         /// <param name="elementIndex">The index of the element in the buffer subset whose value should be used.</param>
         public void SetValue<T>(UniformBufferSubset<T> buffer, uint elementIndex = 0) where T : unmanaged
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
             if (elementIndex < 0 || elementIndex > buffer.StorageLength)
                 throw new ArgumentOutOfRangeException(nameof(elementIndex), nameof(elementIndex) + " must be in the range [0, " + nameof(buffer.StorageLength) + ")");
 

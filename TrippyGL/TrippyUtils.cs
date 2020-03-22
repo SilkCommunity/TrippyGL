@@ -443,15 +443,17 @@ namespace TrippyGL
             return imageFormat >= TextureImageFormat.Depth16 && imageFormat <= TextureImageFormat.Depth32f;
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable CA1801
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a stencil-only format.
         /// </summary>
-#pragma warning disable IDE0060 // Remove unused parameter
         public static bool IsImageFormatStencilType(TextureImageFormat imageFormat)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
             return false; //there are no stencil-only image formats haha yes
         }
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore CA1801
 
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-stencil format.

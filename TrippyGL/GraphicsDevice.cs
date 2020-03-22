@@ -1121,13 +1121,11 @@ namespace TrippyGL
             {
                 // The specified BlendState's fields are copied into blendState, because we need to store all the
                 // fields of a BlendState but if we save the same BlendState class instance, the user can modify these!
-                bool isValueOpaque = value == null || value.IsOpaque;
-
-                if (blendState.IsOpaque && isValueOpaque) //if the current and the new blend state are both opaque... Do nothing
+                if (blendState.IsOpaque && (value == null || value.IsOpaque)) //if the current and the new blend state are both opaque... Do nothing
                     return;
 
                 // Either the current or new blend state is not opaque
-                if (isValueOpaque) //blendState.IsOpaque must therefore be false
+                if (value == null || value.IsOpaque) //blendState.IsOpaque must therefore be false
                 {
                     GL.Disable(EnableCap.Blend);
                     blendState.IsOpaque = true;
@@ -1634,20 +1632,6 @@ namespace TrippyGL
         public void FinishCommands()
         {
             GL.Finish();
-        }
-
-        /// <summary>
-        /// Removes a <see cref="GraphicsResource"/> from it's <see cref="GraphicsDevice"/> and makes it belong to this <see cref="GraphicsDevice"/>.
-        /// </summary>
-        /// <param name="resource">The resource to pass over.</param>
-        public void MakeMine(GraphicsResource resource)
-        {
-            if (resource.GraphicsDevice != this)
-            {
-                resource.GraphicsDevice.OnResourceRemoved(resource);
-                resource.GraphicsDevice = this;
-                OnResourceAdded(resource);
-            }
         }
 
         /// <summary>

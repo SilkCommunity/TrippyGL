@@ -67,7 +67,7 @@ namespace TrippyGL
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
         /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
-        public VertexArray(GraphicsDevice graphicsDevice, BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4)
+        public VertexArray(GraphicsDevice graphicsDevice, DataBufferSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4)
             : this(graphicsDevice, MakeAttribList(bufferSubset, attribDescriptions), indexBuffer, compensateStructPadding, paddingPackValue)
         {
 
@@ -181,7 +181,7 @@ namespace TrippyGL
             );
         }
 
-        private static VertexAttribSource[] MakeAttribList(BufferObjectSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions)
+        private static VertexAttribSource[] MakeAttribList(DataBufferSubset bufferSubset, ReadOnlySpan<VertexAttribDescription> attribDescriptions)
         {
             VertexAttribSource[] sources = new VertexAttribSource[attribDescriptions.Length];
             for (int i = 0; i < sources.Length; i++)
@@ -198,7 +198,7 @@ namespace TrippyGL
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
         /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
-        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, BufferObjectSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4) where T : struct, IVertex
+        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, DataBufferSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4) where T : struct, IVertex
         {
             T t = default;
             int attribCount = t.AttribDescriptionCount;
@@ -250,7 +250,7 @@ namespace TrippyGL
             {
                 source.BufferSubset.Buffer.GraphicsDevice.BindBuffer(source.BufferSubset);
                 uint offs = offset + source.BufferSubset.StorageOffsetInBytes;
-                uint stride = ((IDataBufferSubset)source.BufferSubset).ElementSize;
+                uint stride = source.BufferSubset.ElementSize;
                 for (uint i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
                     if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
