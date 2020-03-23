@@ -116,12 +116,4 @@ namespace TrippyGL
             );
         }
     }
-
-    /// <summary>
-    /// If a <see cref="Texture"/> type supports multisampling, then it will implement <see cref="IMultisamplableTexture"/>.
-    /// </summary>
-    internal interface IMultisamplableTexture
-    {
-        uint Samples { get; }
-    }
 }

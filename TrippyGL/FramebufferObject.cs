@@ -219,7 +219,7 @@ namespace TrippyGL
                 else
                     throw new FramebufferException("The texture format cannot be attached: " + tex.TextureType);
 
-                ValidateSamples(tex is IMultisamplableTexture ms ? ms.Samples : 0);
+                ValidateSamples(tex is TextureMultisamplable ms ? ms.Samples : 0);
             }
 
             for (int i = 0; i < renderbufferAttachments.Count; i++)
