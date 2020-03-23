@@ -23,6 +23,7 @@ namespace TrippyGL
         public Texture2DArray(GraphicsDevice graphicsDevice, uint width, uint height, uint depth, uint samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2DArray : TextureTarget.Texture2DMultisampleArray, imageFormat)
         {
+            ValidateSampleCount(samples);
             Samples = samples;
             RecreateImage(width, height, depth); //this also binds the texture
 
@@ -34,8 +35,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the <see cref="Texture2DArray"/>, copying the new data from a given pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
+        /// Sets the data of an area of the <see cref="Texture2DArray"/>.
         /// </summary>
         /// <param name="ptr">The pointer from which the pixel data will be read.</param>
         /// <param name="rectX">The X coordinate of the first pixel to write.</param>
@@ -44,17 +44,18 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write.</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public unsafe void SetData(void* ptr, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0)
         {
-            ValidateSetOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
+            ValidateNotMultisampled();
+            ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
-            GraphicsDevice.BindTexture(this);
+            GraphicsDevice.BindTextureSetActive(this);
             GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the <see cref="Texture2DArray"/>.
+        /// Sets the data of an area of the <see cref="Texture2DArray"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2DArray"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
@@ -64,12 +65,15 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write.</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public unsafe void SetData<T>(ReadOnlySpan<T> data, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0) where T : unmanaged
         {
-            ValidateSetOperation(data.Length, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
+            ValidateNotMultisampled();
+            ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
+            if (data.Length < rectWidth * rectHeight * rectDepth)
+                throw new ArgumentException("Not enough pixel data", nameof(data));
 
-            GraphicsDevice.BindTexture(this);
+            GraphicsDevice.BindTextureSetActive(this);
             fixed (void* ptr = data)
                 GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
@@ -80,13 +84,39 @@ namespace TrippyGL
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture2DArray"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the new pixel data.</param>
         /// <param name="depthLevel">The array layer to set the data for.</param>
-        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this <see cref="Texture2DArray"/>'s default.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
         public void SetData<T>(ReadOnlySpan<T> data, int depthLevel, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             SetData(data, 0, 0, depthLevel, Width, Height, 1, pixelFormat);
         }
 
-        // TODO: GetData
+        /// <summary>
+        /// Gets the data of the entire <see cref="Texture2DArray"/>.
+        /// </summary>
+        /// <param name="ptr">The pointer to which the pixel data will be written.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void GetData(void* ptr, PixelFormat pixelFormat = 0)
+        {
+            ValidateNotMultisampled();
+            GraphicsDevice.BindTextureSetActive(this);
+            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+        }
+
+        /// <summary>
+        /// Gets the data of the entire <see cref="Texture2DArray"/>.
+        /// </summary>
+        /// <param name="data">A <see cref="Span{T}"/> in which to write the pixel data.</param>
+        /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
+        public unsafe void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
+        {
+            ValidateNotMultisampled();
+            if (data.Length < Width * Height * Depth)
+                throw new ArgumentException("Insufficient space to store the requested pixel data", nameof(data));
+
+            GraphicsDevice.BindTextureSetActive(this);
+            fixed (void* ptr = data)
+                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+        }
 
         /// <summary>
         /// Sets the coordinate wrapping modes for when the <see cref="Texture2DArray"/> is sampled outside the [0, 1] range.
@@ -137,6 +167,12 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(depth), depth, nameof(depth) + " must be in the range (0, " + nameof(GraphicsDevice.MaxArrayTextureLayers) + ")");
         }
 
+        private void ValidateSampleCount(uint samples)
+        {
+            if (samples < 0 || samples > GraphicsDevice.MaxSamples)
+                throw new ArgumentOutOfRangeException(nameof(samples), samples, nameof(samples) + " must be in the range [0, " + nameof(GraphicsDevice.MaxSamples) + "]");
+        }
+
         private void ValidateRectOperation(int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth)
         {
             if (rectX < 0 || rectY >= Height)
@@ -157,44 +193,14 @@ namespace TrippyGL
             if (rectDepth <= 0)
                 throw new ArgumentOutOfRangeException(nameof(rectDepth), rectDepth, nameof(rectDepth) + " must be greater than 0");
 
-            if (rectWidth > Width - rectX)
-                throw new ArgumentOutOfRangeException(nameof(rectWidth), rectWidth, nameof(rectWidth) + " is too large");
-
-            if (rectHeight > Height - rectY)
-                throw new ArgumentOutOfRangeException(nameof(rectHeight), rectHeight, nameof(rectHeight) + " is too large");
-
-            if (rectDepth > Depth - rectZ)
-                throw new ArgumentOutOfRangeException(nameof(rectDepth), rectDepth, nameof(rectDepth) + " is too large");
+            if (rectWidth > Width - rectX || rectHeight > Height - rectY || rectDepth > Depth - rectZ)
+                throw new ArgumentOutOfRangeException("Specified area is outside of the texture's storage");
         }
 
-        private void ValidateSetOperation(int dataLength, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth)
-        {
-            ValidateSetOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
-
-            if (dataLength < rectWidth * rectHeight * rectDepth)
-                throw new ArgumentException("The data array isn't big enough to read the specified amount of data", "data");
-        }
-
-        private void ValidateSetOperation(int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth)
+        private void ValidateNotMultisampled()
         {
             if (Samples != 0)
-                throw new InvalidOperationException("You can't write the pixels of a multisampled texture");
-
-            ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
-        }
-
-        private void ValidateGetOperation(int dataLength)
-        {
-            ValidateGetOperation();
-
-            if (dataLength < Width * Height * Depth)
-                throw new ArgumentException("The data Span isn't large enough to fit the requested texture area", "data");
-        }
-
-        private void ValidateGetOperation()
-        {
-            if (Samples != 0)
-                throw new InvalidOperationException("You can't read the pixels of a multisampled texture");
+                throw new InvalidOperationException("You can't read/write the pixels of a multisampled texture");
         }
     }
 }

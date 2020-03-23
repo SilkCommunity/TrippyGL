@@ -31,38 +31,36 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Sets the data of part of the <see cref="Texture1D"/> by copying it from the specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
+        /// Sets the data of an area of this <see cref="Texture1D"/>.
         /// </summary>
         /// <param name="ptr">The pointer from which the pixel data will be read.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
         /// <param name="width">The amount of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetData(void* ptr, uint xOffset, uint width, PixelFormat pixelFormat = 0)
+        public unsafe void SetData(void* ptr, int xOffset, uint width, PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, (int)xOffset, width, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+            GL.TexSubImage1D(TextureType, 0, xOffset, width, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
-        /// Sets the data of a specified area of the <see cref="Texture1D"/>. The amount of pixels written
+        /// Sets the data of an area of the <see cref="Texture1D"/>. The amount of pixels written
         /// is the length of the given <see cref="ReadOnlySpan{T}"/>
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the pixel data.</param>
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetData<T>(ReadOnlySpan<T> data, uint xOffset = 0, PixelFormat pixelFormat = 0) where T : unmanaged
+        public unsafe void SetData<T>(ReadOnlySpan<T> data, int xOffset = 0, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             fixed (void* ptr = data)
                 SetData(ptr, xOffset, (uint)data.Length, pixelFormat);
         }
 
         /// <summary>
-        /// Gets the data of the entire <see cref="Texture1D"/> and copies it to a specified pointer.
-        /// The pointer is not checked nor deallocated, memory exceptions may happen if you don't ensure enough memory can be read.
+        /// Gets the data of the entire <see cref="Texture1D"/>.
         /// </summary>
         /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
@@ -73,7 +71,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the data of the entire <see cref="Texture"/>, copying the texture data to a specified array.
+        /// Gets the data of the entire <see cref="Texture1D"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
         /// <param name="data">The <see cref="Span{T}"/> in which to write the pixel data.</param>
@@ -81,11 +79,10 @@ namespace TrippyGL
         public unsafe void GetData<T>(Span<T> data, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             if (data.Length < Width)
-                throw new ArgumentException(nameof(data) + " must be large enough as to hold " + nameof(Width) + " pixels", nameof(data));
+                throw new ArgumentException("Insufficient space to store the requested pixel data", nameof(data));
 
-            GraphicsDevice.BindTextureSetActive(this);
             fixed (void* ptr = data)
-                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+                GetData(ptr, pixelFormat);
         }
 
         /// <summary>
@@ -118,7 +115,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
         }
 
-        private void ValidateRectOperation(uint xOffset, uint width)
+        private void ValidateRectOperation(int xOffset, uint width)
         {
             if (xOffset < 0 || xOffset >= Width)
                 throw new ArgumentOutOfRangeException(nameof(xOffset), xOffset, nameof(xOffset) + " must be in the range [0, " + nameof(Width) + ")");
@@ -127,7 +124,7 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be greater than 0");
 
             if (xOffset + width > Width)
-                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " is too large");
+                throw new ArgumentOutOfRangeException("Specified area is outside of the texture's storage");
         }
     }
 }
