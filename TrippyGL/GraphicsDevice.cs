@@ -1324,8 +1324,6 @@ namespace TrippyGL
 
         #region ClipDistances
 
-        // TODO: Comments and documentation on these
-
         /// <summary>An array containing whether each clip distance index is enabled.</summary>
         private bool[] clipDistancesEnabled;
 

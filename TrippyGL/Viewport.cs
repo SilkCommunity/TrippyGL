@@ -62,9 +62,38 @@ namespace TrippyGL
             return X <= other.X && Y <= other.Y && Right >= other.Right && Bottom >= other.Bottom;
         }
 
+        /// <summary>
+        /// Returns whether another <see cref="Viewport"/> intersects at least one pixel with this <see cref="Viewport"/>.
+        /// </summary>
+        public bool Intersects(Viewport other)
+        {
+            return other.X < X + Width && X < (other.X + other.Width)
+                && other.Y < Y + Height && Y < other.Y + other.Height;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="Viewport"/> whose area is the intersection between this and another <see cref="Viewport"/>.
+        /// </summary>
+        public Viewport Intersection(Viewport other)
+        {
+            int x1 = Math.Max(X, other.X);
+            int x2 = Math.Min(Right, other.Right);
+            int y1 = Math.Max(Y, other.Y);
+            int y2 = Math.Min(Bottom, other.Bottom);
+
+            if (x2 >= x1 && y2 >= y1)
+                return new Viewport(x1, y1, (uint)(x2 - x1), (uint)(y2 - y1));
+            return default;
+        }
+
         public override string ToString()
         {
-            return string.Concat("{X=", X.ToString(), ", Y=", Y.ToString(), ", Width=" + Width.ToString(), ", Height=", Height.ToString(), "}");
+            return string.Concat(
+                nameof(X) + "=", X.ToString(),
+                ", " + nameof(Y) + "=", Y.ToString(),
+                ", " + nameof(Width) + "=" + Width.ToString(),
+                ", " + nameof(Height) + "=", Height.ToString()
+            );
         }
 
         public override int GetHashCode()

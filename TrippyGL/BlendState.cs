@@ -193,16 +193,18 @@ namespace TrippyGL
 
         #region Static Members
 
-        // TODO: Add documentation for static BlendState fields
-
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are written 'as is' without any mixing.</summary>
         public static BlendState Opaque => new BlendState(true);
 
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed with alpha.</summary>
         public static BlendState AlphaBlend => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,
             BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.One);
 
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed by adding them together.</summary>
         public static BlendState Additive => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,
             BlendingFactor.One, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One);
 
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed by subscracting them together.</summary>
         public static BlendState Substractive => new BlendState(false, BlendEquationModeEXT.FuncSubtract,
             BlendEquationModeEXT.FuncSubtract, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One, BlendingFactor.One);
 

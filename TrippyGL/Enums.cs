@@ -2,8 +2,9 @@ using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
-    // TODO: Add documentation & descriptions to the enums (and the values in the enums?)
-
+    /// <summary>
+    /// Specifies formats a <see cref="Texture"/>'s image can have.
+    /// </summary>
     public enum TextureImageFormat
     {
         // These are organized in such away so the base type (float, int, uint)
@@ -34,6 +35,9 @@ namespace TrippyGL
         Depth24Stencil8 = 129,
     }
 
+    /// <summary>
+    /// Specifies depth and/or stencil formats a <see cref="FramebufferObject"/> can have.
+    /// </summary>
     public enum DepthStencilFormat
     {
         None = 0,
@@ -45,11 +49,17 @@ namespace TrippyGL
         Stencil8 = InternalFormat.StencilIndex8, //not a recommended format though, better to use Depth24Stencil8
     }
 
+    /// <summary>
+    /// Specifies image file formats.
+    /// </summary>
     public enum SaveImageFormat
     {
         Png, Jpeg, Bmp, Gif
     }
 
+    /// <summary>
+    /// Specifies the attachment points on a <see cref="FramebufferObject"/>.
+    /// </summary>
     public enum FramebufferAttachmentPoint
     {
         Color0 = FramebufferAttachment.ColorAttachment0,
@@ -73,6 +83,9 @@ namespace TrippyGL
         DepthStencil = GLEnum.DepthStencilAttachment,
     }
 
+    /// <summary>
+    /// Specifies formats a <see cref="RenderbufferObject"/>'s storage can have.
+    /// </summary>
     public enum RenderbufferFormat
     {
         Color4b = InternalFormat.Rgba8,
@@ -97,6 +110,9 @@ namespace TrippyGL
         Stencil8 = InternalFormat.StencilIndex8,
     }
 
+    /// <summary>
+    /// Specifies the faces of a <see cref="TextureCubemap"/>.
+    /// </summary>
     public enum CubemapFace
     {
         PositiveX = TextureTarget.TextureCubeMapPositiveX,
@@ -107,6 +123,9 @@ namespace TrippyGL
         NegativeZ = TextureTarget.TextureCubeMapNegativeZ
     }
 
+    /// <summary>
+    /// Specifies formats for a read pixels operation on a <see cref="FramebufferObject"/>.
+    /// </summary>
     public enum ReadPixelsFormat
     {
         // GL_RED, GL_GREEN, GL_BLUE, GL_RGB, GL_BGR, GL_RGBA, and GL_BGRA, GL_DEPTH_COMPONENT, GL_STENCIL_INDEX, GL_DEPTH_STENCIL

@@ -48,7 +48,7 @@ namespace TrippyGL
             : base(graphicsDevice)
         {
             if (!Enum.IsDefined(typeof(RenderbufferFormat), format))
-                throw new ArgumentException("Invalid renderbuffer format");
+                throw new ArgumentException("Invalid renderbuffer format", nameof(format));
 
             if (width <= 0 || width > graphicsDevice.MaxRenderbufferSize)
                 throw new ArgumentOutOfRangeException(nameof(width), width, "Width must be in the range (0, " + nameof(graphicsDevice.MaxRenderbufferSize) + "]");
