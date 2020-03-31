@@ -118,11 +118,11 @@ namespace TrippyTesting.Tests
                 new VertexAttribSource(vertexSubset, AttributeType.FloatVec4, true, VertexAttribPointerType.UnsignedByte)
             });
 
-            ptcProgram = new ShaderProgram(graphicsDevice);
-            ptcProgram.AddVertexShader(File.ReadAllText("instanced/vs.glsl"));
-            ptcProgram.AddFragmentShader(File.ReadAllText("instanced/fs.glsl"));
-            ptcProgram.SpecifyVertexAttribs(ptcArray.AttribSources, new string[] { "World", "vPosition", "vColor" });
-            ptcProgram.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("instanced/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("instanced/fs.glsl");
+            programBuilder.SpecifyVertexAttribs(ptcArray.AttribSources, new string[] { "World", "vPosition", "vColor" });
+            ptcProgram = programBuilder.Create(graphicsDevice, true);
 
             particles = new Particle[MaxParticles];
             for (int i = 0; i < MaxParticles; i++)

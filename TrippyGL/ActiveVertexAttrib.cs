@@ -24,14 +24,15 @@ namespace TrippyGL
         /// Creates an <see cref="ActiveVertexAttrib"/> and queries the attribute
         /// data from a specified attrib index in a <see cref="ShaderProgram"/>.
         /// </summary>
-        /// <param name="program">The <see cref="ShaderProgram"/> from which to query the attrib data.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> that owns the shader program.</param>
+        /// <param name="programHandle">The handle of the shader program.</param>
         /// <param name="attribIndex">The attribute index to query the data from.</param>
-        internal ActiveVertexAttrib(ShaderProgram program, uint attribIndex)
+        internal ActiveVertexAttrib(GraphicsDevice graphicsDevice, uint programHandle, uint attribIndex)
         {
             // We use the glGetActiveAttrib that easily turns the required Name parameters into a string
             // Then we query the size and type and then the location separately
-            Name = program.GL.GetActiveAttrib(program.Handle, attribIndex, out Size, out AttribType);
-            Location = program.GL.GetAttribLocation(program.Handle, Name);
+            Name = graphicsDevice.GL.GetActiveAttrib(programHandle, attribIndex, out Size, out AttribType);
+            Location = graphicsDevice.GL.GetAttribLocation(programHandle, Name);
         }
 
         public static bool operator ==(ActiveVertexAttrib left, ActiveVertexAttrib right) => left.Equals(right);

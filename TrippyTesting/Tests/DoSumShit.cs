@@ -81,11 +81,11 @@ namespace TrippyTesting.Tests
             bufferSubset = new VertexDataBufferSubset<VertexColorTexture>(buffer, vertices);
             vertexArray = VertexArray.CreateSingleBuffer<VertexColorTexture>(graphicsDevice, bufferSubset);
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("sumshit/simple_vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("sumshit/simple_fs.glsl"));
-            program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
-            program.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("sumshit/simple_vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("sumshit/simple_fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            program = programBuilder.Create(graphicsDevice, true);
 
             texture = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png", true);
 

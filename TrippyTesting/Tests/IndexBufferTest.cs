@@ -67,11 +67,11 @@ namespace TrippyTesting.Tests
 
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            shaderProgram = new ShaderProgram(graphicsDevice);
-            shaderProgram.AddVertexShader(File.ReadAllText("indextest/vs.glsl"));
-            shaderProgram.AddFragmentShader(File.ReadAllText("indextest/fs.glsl"));
-            shaderProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
-            shaderProgram.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("indextest/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("indextest/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            shaderProgram = programBuilder.Create(graphicsDevice, true);
             Matrix4x4 mat = Matrix4x4.CreateScale(0.9f);
             shaderProgram.Uniforms["mat"].SetValueMat4(mat);
 

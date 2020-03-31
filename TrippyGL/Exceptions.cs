@@ -1,4 +1,5 @@
 using System;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -13,6 +14,11 @@ namespace TrippyGL
 
         public ShaderCompilationException(string infoLog, Exception innerException)
             : base(string.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog), innerException) { }
+
+        public ShaderCompilationException(ShaderType shaderType, string infoLog) : this(shaderType, infoLog, null) { }
+
+        public ShaderCompilationException(ShaderType shaderType, string infoLog, Exception innerException)
+            : base(string.Concat(shaderType.ToString(), " didn't compile properly: ", Environment.NewLine, infoLog), innerException) { }
     }
 
     /// <summary>

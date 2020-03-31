@@ -66,14 +66,11 @@ namespace TrippyTesting.Tests
 
             texture = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png");
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("spad/vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("spad/fs.glsl"));
-            program.SpecifyVertexAttribs<WeirdAssVertex>(new string[]
-            {
-                "x", "y", "z", "x2", "y2", "z2", "mat", "w", "cx", "cy"
-            });
-            program.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("spad/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("spad/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<WeirdAssVertex>(new string[] { "x", "y", "z", "x2", "y2", "z2", "mat", "w", "cx", "cy" });
+            program = programBuilder.Create(graphicsDevice, true);
             Matrix4x4 id = Matrix4x4.Identity;
             program.Uniforms["World"].SetValueMat4(id);
             program.Uniforms["View"].SetValueMat4(id);

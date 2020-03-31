@@ -139,14 +139,14 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="ShaderUniformList"/> and queries the uniforms for a given <see cref="ShaderProgram"/>.<para/>
         /// The <see cref="ShaderProgram"/> must already have had it's block uniforms queried prior to this.
-        /// If there are no uniforms, this method returns 
+        /// If there are no uniforms, this method returns null.
         /// </summary>
         internal static ShaderUniformList CreateForProgram(ShaderProgram program)
         {
             program.GL.GetProgram(program.Handle, ProgramPropertyARB.ActiveUniforms, out int totalUniformCount);
             int totalUniformBlockCount = program.BlockUniforms == null ? 0 : program.BlockUniforms.TotalUniformCount;
 
-            if (totalUniformCount - totalUniformBlockCount == 0)
+            if (totalUniformCount - totalUniformBlockCount <= 0)
                 return null;
             return new ShaderUniformList(program, totalUniformCount, totalUniformBlockCount);
         }

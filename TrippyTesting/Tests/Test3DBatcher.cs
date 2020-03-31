@@ -95,11 +95,11 @@ namespace TrippyTesting.Tests
 
             string[] vertexAttribNames = new string[3] { "vPosition", "vColor", "vTexCoords" };
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("3dbatcher/3dvs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("3dbatcher/3dfs.glsl"));
-            program.SpecifyVertexAttribs<VertexColor>(vertexAttribNames.AsSpan(0, 2));
-            program.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("3dbatcher/3dvs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("3dbatcher/3dfs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColor>(vertexAttribNames.AsSpan(0, 2));
+            program = programBuilder.Create(graphicsDevice, true);
 
             Matrix4x4 id = Matrix4x4.Identity;
             program.Uniforms["World"].SetValueMat4(id);
@@ -110,11 +110,11 @@ namespace TrippyTesting.Tests
             triangleBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)batcher.TriangleVertexCapacity, BufferUsageARB.StreamDraw);
             lineBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)batcher.LineVertexCapacity, BufferUsageARB.StreamDraw);
 
-            cubemapProgram = new ShaderProgram(graphicsDevice);
-            cubemapProgram.AddVertexShader(File.ReadAllText("cubemap/vs.glsl"));
-            cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
-            cubemapProgram.SpecifyVertexAttribs<VertexPosition>(vertexAttribNames.AsSpan(0, 1));
-            cubemapProgram.LinkProgram();
+            programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("cubemap/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("cubemap/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexPosition>(vertexAttribNames.AsSpan(0, 1));
+            cubemapProgram = programBuilder.Create(graphicsDevice, true);
 
             Span<VertexPosition> cubemapBufferData = stackalloc VertexPosition[] {
                 new Vector3(-0.5f, -0.5f, -0.5f), //4
@@ -145,11 +145,11 @@ namespace TrippyTesting.Tests
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 
-            texProgram = new ShaderProgram(graphicsDevice);
-            texProgram.AddVertexShader(File.ReadAllText("3dbatcher/simplevs.glsl"));
-            texProgram.AddFragmentShader(File.ReadAllText("3dbatcher/simplefs.glsl"));
-            texProgram.SpecifyVertexAttribs<VertexColorTexture>(vertexAttribNames);
-            texProgram.LinkProgram();
+            programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("3dbatcher/simplevs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("3dbatcher/simplefs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColorTexture>(vertexAttribNames);
+            texProgram = programBuilder.Create(graphicsDevice, true);
             id = Matrix4x4.Identity;
             texProgram.Uniforms["World"].SetValueMat4(id);
 

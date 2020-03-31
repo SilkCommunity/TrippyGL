@@ -113,11 +113,11 @@ namespace TrippyTesting.Tests
             terrBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, (uint)batcher.TriangleVertexCount, BufferUsageARB.StaticDraw);
             terrBuffer.DataSubset.SetData(batcher.TriangleVertices);
 
-            terrProgram = new ShaderProgram(graphicsDevice);
-            terrProgram.AddVertexShader(File.ReadAllText("terrain/terrvs.glsl"));
-            terrProgram.AddFragmentShader(File.ReadAllText("terrain/terrfs.glsl"));
-            terrProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
-            terrProgram.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("terrain/terrvs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("terrain/terrfs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
+            terrProgram = programBuilder.Create(graphicsDevice, true);
             Matrix4x4 identity = Matrix4x4.Identity;
             terrProgram.Uniforms["World"].SetValueMat4(identity);
 
@@ -125,11 +125,11 @@ namespace TrippyTesting.Tests
 
             #region LoadWater
 
-            waterProgram = new ShaderProgram(graphicsDevice);
-            waterProgram.AddVertexShader(File.ReadAllText("terrain/watervs.glsl"));
-            waterProgram.AddFragmentShader(File.ReadAllText("terrain/waterfs.glsl"));
-            waterProgram.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
-            waterProgram.LinkProgram();
+            programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("terrain/watervs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("terrain/waterfs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            waterProgram = programBuilder.Create(graphicsDevice, true);
             waterProgram.Uniforms["World"].SetValueMat4(identity);
 
             waterBuffer = new VertexBuffer<VertexColor>(graphicsDevice, new VertexColor[]
@@ -180,11 +180,11 @@ namespace TrippyTesting.Tests
                 new VertexPosition(new Vector3(0.5f,-0.5f,0.5f)),//1
             }, BufferUsageARB.StaticDraw);
 
-            cubemapProgram = new ShaderProgram(graphicsDevice);
-            cubemapProgram.AddVertexShader(File.ReadAllText("cubemap/vs.glsl"));
-            cubemapProgram.AddFragmentShader(File.ReadAllText("cubemap/fs.glsl"));
-            cubemapProgram.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
-            cubemapProgram.LinkProgram();
+            programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("cubemap/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("cubemap/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
+            cubemapProgram = programBuilder.Create(graphicsDevice, true);
 
             cubemap = new TextureCubemap(graphicsDevice, 800);
             cubemap.SetData(CubemapFace.PositiveX, "cubemap/cubemap1_front.png");

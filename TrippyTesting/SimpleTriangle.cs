@@ -65,11 +65,11 @@ namespace TrippyTesting
 
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("triangle/vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("triangle/fs.glsl"));
-            program.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
-            program.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("triangle/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("triangle/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            program = programBuilder.Create(graphicsDevice, true);
 
             OnWindowResized(window.Size);
         }

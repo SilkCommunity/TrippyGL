@@ -776,10 +776,9 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return string.Concat(
-                nameof(Name) + "=\"", Name, "\"",
-                nameof(UniformType) + "=", UniformType.ToString()
-            );
+            if (Size == 1)
+                return string.Concat(UniformType.ToString(), " ", Name);
+            return string.Concat(UniformType.ToString(), "[", Size.ToString(), "] ", Name);
         }
 
         public override int GetHashCode()

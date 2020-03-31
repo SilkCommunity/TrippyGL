@@ -81,11 +81,11 @@ namespace TrippyTesting
             whitepx = new Texture2D(graphicsDevice, 1, 1);
             whitepx.SetData((ReadOnlySpan<Color4b>)new Color4b[] { Color4b.White });
 
-            program = new ShaderProgram(graphicsDevice);
-            program.AddVertexShader(File.ReadAllText("data4/vs.glsl"));
-            program.AddFragmentShader(File.ReadAllText("data4/fs.glsl"));
-            program.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
-            program.LinkProgram();
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("data4/vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("data4/fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            program = programBuilder.Create(graphicsDevice, true);
 
             Vector3[] vertexPositions = new Vector3[]
             {
