@@ -3,31 +3,58 @@ using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
-    public struct ShaderProgramBuilder
+    /// <summary>
+    /// Used to create <see cref="ShaderProgram"/> instances.
+    /// </summary>
+    public struct ShaderProgramBuilder : IEquatable<ShaderProgramBuilder>
     {
+        /// <summary>The vertex shader code for the <see cref="ShaderProgram"/>.</summary>
         public string VertexShaderCode;
+        /// <summary>Whether <see cref="VertexShaderCode"/> is not null or white spaces.</summary>
         public bool HasVertexShader => !string.IsNullOrWhiteSpace(VertexShaderCode);
 
+        /// <summary>The geometry shader code for the <see cref="ShaderProgram"/>.</summary>
         public string GeometryShaderCode;
+        /// <summary>Whether <see cref="GeometryShaderCode"/> is not null or white spaces.</summary>
         public bool HasGeometryShader => !string.IsNullOrWhiteSpace(GeometryShaderCode);
 
+        /// <summary>The fragment shader code for the <see cref="ShaderProgram"/>.</summary>
         public string FragmentShaderCode;
+        /// <summary>Whether <see cref="FragmentShaderCode"/> is not null or white spaces.</summary>
         public bool HasFragmentShader => !string.IsNullOrWhiteSpace(FragmentShaderCode);
 
         private SpecifiedShaderAttrib[] specifiedAttribs;
+        /// <summary>Whether vertex attributes have been specified to this <see cref="ShaderProgramBuilder"/>.</summary>
         public bool HasAttribsSpecified => specifiedAttribs != null;
 
+        /// <summary>The vertex shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
         public string VertexShaderLog;
+        /// <summary>The geometry shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
         public string GeometryShaderLog;
+        /// <summary>The fragment shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
         public string FragmentShaderLog;
+        /// <summary>The program log of the last <see cref="ShaderProgram"/> this builder created.</summary>
         public string ProgramLog;
 
+        public static bool operator ==(ShaderProgramBuilder left, ShaderProgramBuilder right) => left.Equals(right);
+
+        public static bool operator !=(ShaderProgramBuilder left, ShaderProgramBuilder right) => !left.Equals(right);
+
+        /// <summary>
+        /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>.
+        /// </summary>
+        /// <param name="attributes">The vertex attributes in order of index.</param>
         public void SpecifyVertexAttribs(ReadOnlySpan<SpecifiedShaderAttrib> attributes)
         {
             specifiedAttribs = attributes.ToArray();
             ValidateSpecifiedAttribs();
         }
 
+        /// <summary>
+        /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>
+        /// </summary>
+        /// <param name="attribs">The vertex attributes in order of index.</param>
+        /// <param name="attribNames">The names of the attributes in the same order as previously.</param>
         public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribDescription> attribs, ReadOnlySpan<string> attribNames)
         {
             int length = 0;
@@ -40,12 +67,17 @@ namespace TrippyGL
             for (int i = 0; i < attribs.Length; i++)
                 if (!attribs[i].IsPadding)
                 {
-                    specifiedAttribs[index] = new SpecifiedShaderAttrib(attribNames[index], attribs[i].AttribType, attribs[i].Size);
+                    specifiedAttribs[index] = new SpecifiedShaderAttrib(attribNames[index], attribs[i].AttribType);
                     index++;
                 }
             ValidateSpecifiedAttribs();
         }
 
+        /// <summary>
+        /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>
+        /// </summary>
+        /// <param name="attribs">The vertex attributes in order of index.</param>
+        /// <param name="attribNames">The names of the attributes in the same order as previously.</param>
         public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribSource> attribs, ReadOnlySpan<string> attribNames)
         {
             int length = 0;
@@ -58,12 +90,17 @@ namespace TrippyGL
             for (int i = 0; i < attribs.Length; i++)
                 if (!attribs[i].IsPadding)
                 {
-                    specifiedAttribs[index] = new SpecifiedShaderAttrib(attribNames[index], attribs[i].AttribDescription.AttribType, attribs[i].AttribDescription.Size);
+                    specifiedAttribs[index] = new SpecifiedShaderAttrib(attribNames[index], attribs[i].AttribDescription.AttribType);
                     index++;
                 }
             ValidateSpecifiedAttribs();
         }
 
+        /// <summary>
+        /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of vertex to use.</typeparam>
+        /// <param name="attribNames">The names of the attributes in order of index.</param>
         public void SpecifyVertexAttribs<T>(ReadOnlySpan<string> attribNames) where T : unmanaged, IVertex
         {
             T t = default;
@@ -75,6 +112,9 @@ namespace TrippyGL
             SpecifyVertexAttribs(attribDescriptions, attribNames);
         }
 
+        /// <summary>
+        /// Checks whether <see cref="specifiedAttribs"/> has valid attributes and throws an exception otherwise.
+        /// </summary>
         private void ValidateSpecifiedAttribs()
         {
             for (int i = 0; i < specifiedAttribs.Length; i++)
@@ -182,6 +222,12 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Queries vertex attribute data from a compiled shader program and returns an
+        /// array with all the resulting <see cref="ActiveVertexAttrib"/>-s.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> to use for gl calls.</param>
+        /// <param name="programHandle">The gl handle of the shader program to query attribs for.</param>
         private static ActiveVertexAttrib[] CreateActiveAttribArray(GraphicsDevice graphicsDevice, uint programHandle)
         {
             // We query the total amount of attributes we'll be reading from OpenGL
@@ -249,26 +295,92 @@ namespace TrippyGL
 
             return true;
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = VertexShaderCode == null ? 0 : VertexShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                if (GeometryShaderCode != null)
+                    hashCode = (hashCode * 397) ^ GeometryShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                if (FragmentShaderCode != null)
+                    hashCode = (hashCode * 397) ^ FragmentShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                return hashCode;
+            }
+        }
+
+        public bool Equals(ShaderProgramBuilder shaderProgramBuilder)
+        {
+            return ReferenceEquals(VertexShaderCode, shaderProgramBuilder.VertexShaderCode)
+                && ReferenceEquals(GeometryShaderCode, shaderProgramBuilder.GeometryShaderCode)
+                && ReferenceEquals(FragmentShaderCode, shaderProgramBuilder.FragmentShaderCode)
+                && specifiedAttribs == shaderProgramBuilder.specifiedAttribs
+                && ReferenceEquals(VertexShaderLog, shaderProgramBuilder.VertexShaderLog)
+                && ReferenceEquals(GeometryShaderLog, shaderProgramBuilder.GeometryShaderLog)
+                && ReferenceEquals(FragmentShaderLog, shaderProgramBuilder.FragmentShaderLog)
+                && ReferenceEquals(ProgramLog, shaderProgramBuilder.ProgramLog);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ShaderProgramBuilder shaderProgramBuilder)
+                return Equals(shaderProgramBuilder);
+            return false;
+        }
     }
 
-    public struct SpecifiedShaderAttrib
+    /// <summary>
+    /// Used by <see cref="ShaderProgramBuilder"/> for specifying vertex attributes.
+    /// </summary>
+    public struct SpecifiedShaderAttrib : IEquatable<SpecifiedShaderAttrib>
     {
+        /// <summary>The shader attribute's type.</summary>
         public AttributeType AttribType;
-        public int Size;
+        /// <summary>The name with which the shader attribute is declared in the shader.</summary>
         public string Name;
 
-        public SpecifiedShaderAttrib(string name, AttributeType type, int size)
+        /// <summary>
+        /// Creates a <see cref="SpecifiedShaderAttrib"/> with the given values.
+        /// </summary>
+        public SpecifiedShaderAttrib(string name, AttributeType type)
         {
             AttribType = type;
             Name = name;
-            Size = size;
         }
 
+        public static bool operator ==(SpecifiedShaderAttrib left, SpecifiedShaderAttrib right) => left.Equals(right);
+
+        public static bool operator !=(SpecifiedShaderAttrib left, SpecifiedShaderAttrib right) => !left.Equals(right);
+
+        /// <summary>
+        /// Whether this <see cref="SpecifiedShaderAttrib"/> and another <see cref="ActiveVertexAttrib"/> have matching data.
+        /// </summary>
         public bool Matches(in ActiveVertexAttrib activeAttrib)
         {
             return AttribType == activeAttrib.AttribType
-                //&& Size == activeAttrib.Size
                 && Name == activeAttrib.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = AttribType.GetHashCode();
+                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.InvariantCulture);
+                return hashCode;
+            }
+        }
+
+        public bool Equals(SpecifiedShaderAttrib shaderAttrib)
+        {
+            return AttribType == shaderAttrib.AttribType && Name == shaderAttrib.Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SpecifiedShaderAttrib shaderAttrib)
+                return Equals(shaderAttrib);
+            return false;
         }
 
         public override string ToString()
