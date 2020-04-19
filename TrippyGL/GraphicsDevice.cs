@@ -106,6 +106,8 @@ namespace TrippyGL
                 GL.Disable(EnableCap.RasterizerDiscard);
             else
                 GL.Enable(EnableCap.RasterizerDiscard);
+
+            GL.PolygonMode(GLEnum.FrontAndBack, polygonMode);
         }
 
         #region DebugMessaging
@@ -1321,6 +1323,28 @@ namespace TrippyGL
         }
 
         #endregion FaceCulling
+
+        #region PolygonMode
+
+        private PolygonMode polygonMode;
+
+        /// <summary>
+        /// Gets or sets the mode in which polygons are rasterized.
+        /// </summary>
+        public PolygonMode PolygonMode
+        {
+            get { return polygonMode; }
+            set
+            {
+                if (value != polygonMode)
+                {
+                    GL.PolygonMode(GLEnum.FrontAndBack, value);
+                    polygonMode = value;
+                }
+            }
+        }
+
+        #endregion
 
         #region ClipDistances
 
