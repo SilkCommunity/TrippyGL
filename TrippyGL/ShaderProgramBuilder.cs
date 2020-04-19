@@ -138,8 +138,11 @@ namespace TrippyGL
             uint gsHandle = 0;
             uint fsHandle = 0;
 
+            // We encapsulate the logic in a try catch so whether there is an
+            // exception or not, we glDeleteShader all the shader handles
             try
             {
+                // We create the vertex shader, compile the code and check it's status
                 vsHandle = graphicsDevice.GL.CreateShader(ShaderType.VertexShader);
                 graphicsDevice.GL.ShaderSource(vsHandle, VertexShaderCode);
                 graphicsDevice.GL.CompileShader(vsHandle);
@@ -151,6 +154,7 @@ namespace TrippyGL
 
                 if (HasGeometryShader)
                 {
+                    // If we have code for it, we create the geometry shader, compile the code and check it's status
                     gsHandle = graphicsDevice.GL.CreateShader(ShaderType.GeometryShader);
                     graphicsDevice.GL.ShaderSource(gsHandle, GeometryShaderCode);
                     graphicsDevice.GL.CompileShader(gsHandle);
@@ -163,6 +167,7 @@ namespace TrippyGL
 
                 if (HasFragmentShader)
                 {
+                    // If we have code for it, we create the fragment shader, compile the code and check it's status
                     fsHandle = graphicsDevice.GL.CreateShader(ShaderType.FragmentShader);
                     graphicsDevice.GL.ShaderSource(fsHandle, FragmentShaderCode);
                     graphicsDevice.GL.CompileShader(fsHandle);
@@ -173,21 +178,26 @@ namespace TrippyGL
                         FragmentShaderLog = graphicsDevice.GL.GetShaderInfoLog(fsHandle);
                 }
 
+                // We create the gl program object
                 uint programHandle = graphicsDevice.GL.CreateProgram();
 
+                // We loop through all the attributes declared for the shader and bind them all to the correct location
                 uint attribIndex = 0;
                 for (uint i = 0; i < specifiedAttribs.Length; i++)
                 {
+                    // Some attributes use more than 1 location, those ones we bind only once
                     graphicsDevice.GL.BindAttribLocation(programHandle, attribIndex, specifiedAttribs[i].Name);
                     attribIndex += TrippyUtils.GetVertexAttribTypeIndexCount(specifiedAttribs[i].AttribType);
                 }
 
+                // We attach all the shaders we have to the program
                 graphicsDevice.GL.AttachShader(programHandle, vsHandle);
                 if (gsHandle != 0)
                     graphicsDevice.GL.AttachShader(programHandle, gsHandle);
                 if (fsHandle != 0)
                     graphicsDevice.GL.AttachShader(programHandle, fsHandle);
 
+                // We link the program and check it's status
                 graphicsDevice.GL.LinkProgram(programHandle);
                 graphicsDevice.GL.GetProgram(programHandle, ProgramPropertyARB.LinkStatus, out int linkStatus);
                 if (linkStatus == (int)GLEnum.False)
@@ -198,19 +208,25 @@ namespace TrippyGL
                 if (getLogs)
                     ProgramLog = graphicsDevice.GL.GetProgramInfoLog(programHandle);
 
+                // We detach (and later delete) the shaders. These aren't actually detached
+                // nor deleted until the program using them is done with them
                 graphicsDevice.GL.DetachShader(programHandle, vsHandle);
                 if (gsHandle != 0)
                     graphicsDevice.GL.DetachShader(programHandle, gsHandle);
                 if (fsHandle != 0)
                     graphicsDevice.GL.DetachShader(programHandle, fsHandle);
 
+                // We query the vertex attributes that were actually found on the compiled shader program
                 ActiveVertexAttrib[] activeAttribs = CreateActiveAttribArray(graphicsDevice, programHandle);
+
+                // We ensure the queried vertex attributes match the user-provided ones
                 if (!DoVertexAttributesMatch(activeAttribs, specifiedAttribs))
                 {
                     graphicsDevice.GL.DeleteProgram(programHandle);
                     throw new InvalidOperationException("The specified vertex attributes don't match the ones declared in the shaders");
                 }
 
+                // Success!
                 return new ShaderProgram(graphicsDevice, programHandle, activeAttribs);
             }
             finally
