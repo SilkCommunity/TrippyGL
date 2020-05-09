@@ -1,9 +1,9 @@
 ﻿using System;
 using SixLabors.ImageSharp.Formats;
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL
 {
-    public static class Utils
+    public static class ImageUtils
     {
         public static IImageFormat GetFormatFor(SaveImageFormat imageFormat)
         {

@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL
 {
     /// <summary>
     /// Extension methods for <see cref="Texture1D"/>.
@@ -65,7 +65,7 @@ namespace TrippyGL.ImageSharp
             if (texture.ImageFormat != TextureImageFormat.Color4b)
                 throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
 
-            IImageFormat format = Utils.GetFormatFor(imageFormat);
+            IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, 1);
             texture.GetData(image.GetPixelSpan(), PixelFormat.Rgba);
             image.Mutate(x => x.Flip(FlipMode.Vertical));

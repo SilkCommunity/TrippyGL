@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL
 {
     /// <summary>
     /// Extension methods for <see cref="FramebufferObject"/>.
@@ -29,7 +29,7 @@ namespace TrippyGL.ImageSharp
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentNullException(nameof(file));
 
-            IImageFormat format = Utils.GetFormatFor(imageFormat);
+            IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)framebuffer.Width, (int)framebuffer.Height);
             framebuffer.ReadPixels(image.GetPixelSpan(), 0, 0, framebuffer.Width, framebuffer.Height, ReadPixelsFormat.Rgba, PixelType.UnsignedByte);
             image.Mutate(x => x.Flip(FlipMode.Vertical));

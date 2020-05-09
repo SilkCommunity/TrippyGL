@@ -4,7 +4,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL
 {
     /// <summary>
     /// Extension methods for <see cref="TextureCubemap"/>.
