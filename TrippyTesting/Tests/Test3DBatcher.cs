@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
-using TrippyGL.ImageSharp;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
 

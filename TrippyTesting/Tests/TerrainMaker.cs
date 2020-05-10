@@ -7,7 +7,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
-using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {
