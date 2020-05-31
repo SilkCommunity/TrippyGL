@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Windowing" Version="1.1.1" />
+    <PackageReference Include="Silk.NET.Windowing" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup>

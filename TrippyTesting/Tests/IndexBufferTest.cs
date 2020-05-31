@@ -51,7 +51,7 @@ namespace TrippyTesting.Tests
 
         private void OnWindowLoad()
         {
-            graphicsDevice = new GraphicsDevice(GL.GetApi());
+            graphicsDevice = new GraphicsDevice(GL.GetApi(window));
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 

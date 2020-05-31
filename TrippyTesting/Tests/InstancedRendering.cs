@@ -79,7 +79,7 @@ namespace TrippyTesting.Tests
             inputContext.Mice[0].MouseMove += InstancedRendering_MouseMove;
             inputContext.Keyboards[0].KeyDown += InstancedRendering_KeyDown;
 
-            graphicsDevice = new GraphicsDevice(GL.GetApi());
+            graphicsDevice = new GraphicsDevice(GL.GetApi(window));
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 

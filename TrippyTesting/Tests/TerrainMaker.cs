@@ -72,7 +72,7 @@ namespace TrippyTesting.Tests
             inputContext.Mice[0].MouseUp += OnMouseUp;
             inputContext.Mice[0].MouseMove += OnMouseMove;
 
-            graphicsDevice = new GraphicsDevice(GL.GetApi());
+            graphicsDevice = new GraphicsDevice(GL.GetApi(window));
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
