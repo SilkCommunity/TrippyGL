@@ -4,16 +4,24 @@ using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using System;
+using System.Diagnostics;
+using System.IO;
+using System.Numerics;
 using TrippyGL;
 
 namespace SimpleCube
 {
     class SimpleCube
     {
+        Stopwatch stopwatch;
+
         IWindow window;
         IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;
+
+        VertexBuffer<VertexColor> vertexBuffer;
+        ShaderProgram shaderProgram;
 
         public SimpleCube()
         {
@@ -48,6 +56,7 @@ namespace SimpleCube
             inputContext.Mice[0].MouseMove += OnMouseMove;
 
             graphicsDevice = new GraphicsDevice(GL.GetApi(window));
+
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
 
@@ -60,9 +69,39 @@ namespace SimpleCube
             Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
             Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
+            Span<VertexColor> cubemapBufferData = stackalloc VertexColor[] {
+                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.Red), //4
+                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime), //3
+                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.Blue), //7
+                new VertexColor(new Vector3(-0.5f, 0.5f, 0.5f), Color4b.Red), //8
+                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue), //5
+                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime), //3
+                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red), //1
+                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.Red), //4
+                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Lime), //2
+                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.Blue), //7
+                new VertexColor(new Vector3(0.5f, 0.5f, -0.5f), Color4b.Red), //6
+                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue), //5
+                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Lime), //2
+                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red), //1
+            };
 
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticCopy);
+
+            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            shaderProgram = programBuilder.Create(graphicsDevice, true);
+
+            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
+            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(1.0f, 1.0f, 1.0f), Vector3.Zero, Vector3.UnitY));
+
+            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.BlendState = BlendState.Opaque;
 
             OnWindowResized(window.Size);
+            stopwatch = Stopwatch.StartNew();
         }
 
         private void OnWindowUpdate(double dtSeconds)
@@ -79,7 +118,15 @@ namespace SimpleCube
             if (window.IsClosing)
                 return;
 
+            graphicsDevice.ClearDepth = 1f;
+            graphicsDevice.ClearColor = Vector4.Zero;
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateRotationY(2 * (float)stopwatch.Elapsed.TotalSeconds));
+            graphicsDevice.ShaderProgram = shaderProgram;
+            graphicsDevice.VertexArray = vertexBuffer;
+
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             window.SwapBuffers();
         }
@@ -110,6 +157,7 @@ namespace SimpleCube
                 return;
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
+            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI/2f, window.Size.Width / (float)window.Size.Height, 0.01f, 100f));
         }
 
         private void OnWindowClosing()

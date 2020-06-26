@@ -1192,6 +1192,10 @@ namespace TrippyGL
         private DepthTestingState depthState = new DepthTestingState(false);
 
         /// <summary>Sets the current depth testing state.</summary>
+        /// <remarks>
+        /// Getting this property returns a cloned object. Modifying that object doesn't
+        /// automatically apply changes to this <see cref="GraphicsDevice"/>.
+        /// </remarks>
         public DepthTestingState DepthState
         {
             get { return depthState.Clone(); }
@@ -1326,7 +1330,7 @@ namespace TrippyGL
 
         #region PolygonMode
 
-        private PolygonMode polygonMode;
+        private PolygonMode polygonMode = PolygonMode.Fill;
 
         /// <summary>
         /// Gets or sets the mode in which polygons are rasterized.
@@ -1436,8 +1440,10 @@ namespace TrippyGL
         {
             for (int i = 0; i < clipDistancesEnabled.Length; i++)
             {
-                clipDistancesEnabled[i] = false;
-                GL.Disable(EnableCap.ClipDistance0 + i);
+                if (clipDistancesEnabled[i])
+                    GL.Enable(EnableCap.ClipDistance0 + i);
+                else
+                    GL.Disable(EnableCap.ClipDistance0 + i);
             }
         }
 
@@ -1445,7 +1451,7 @@ namespace TrippyGL
 
         #region Misc
 
-        private bool cubemapSeamlessEnabled = false;
+        private bool cubemapSeamlessEnabled = true;
 
         /// <summary>Enables or disables seamless sampling across cubemap faces.</summary>
         public bool TextureCubemapSeamlessEnabled
