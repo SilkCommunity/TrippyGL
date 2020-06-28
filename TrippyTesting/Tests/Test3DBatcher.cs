@@ -134,13 +134,11 @@ namespace TrippyTesting.Tests
 
             cubemapBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticDraw);
 
-            cubemap = new TextureCubemap(graphicsDevice, 800);
-            cubemap.SetData(CubemapFace.PositiveX, "cubemap/cubemap1_front.png");
-            cubemap.SetData(CubemapFace.NegativeX, "cubemap/cubemap1_back.png");
-            cubemap.SetData(CubemapFace.NegativeZ, "cubemap/cubemap1_left.png");
-            cubemap.SetData(CubemapFace.PositiveZ, "cubemap/cubemap1_right.png");
-            cubemap.SetData(CubemapFace.PositiveY, "cubemap/cubemap1_top.png");
-            cubemap.SetData(CubemapFace.NegativeY, "cubemap/cubemap1_bottom.png");
+            cubemap = TextureCubemapExtensions.FromFiles(graphicsDevice,
+                "cubemap/cubemap1_back.png", "cubemap/cubemap1_front.png",
+                "cubemap/cubemap1_bottom.png", "cubemap/cubemap1_top.png",
+                "cubemap/cubemap1_left.png", "cubemap/cubemap1_right.png"
+                );
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 

@@ -1,6 +1,4 @@
-﻿using Silk.NET.Input;
-using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using System;
@@ -16,7 +14,6 @@ namespace SimpleCube
         Stopwatch stopwatch;
 
         IWindow window;
-        IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;
 
@@ -49,12 +46,6 @@ namespace SimpleCube
 
         private void OnWindowLoad()
         {
-            inputContext = window.CreateInput();
-            inputContext.Keyboards[0].KeyDown += OnKeyDown;
-            inputContext.Mice[0].MouseDown += OnMouseDown;
-            inputContext.Mice[0].MouseUp += OnMouseUp;
-            inputContext.Mice[0].MouseMove += OnMouseMove;
-
             graphicsDevice = new GraphicsDevice(GL.GetApi(window));
 
             graphicsDevice.DebugMessagingEnabled = true;
@@ -95,7 +86,7 @@ namespace SimpleCube
             shaderProgram = programBuilder.Create(graphicsDevice, true);
 
             shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
-            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(1.0f, 1.0f, 1.0f), Vector3.Zero, Vector3.UnitY));
+            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(0, 1.0f, -1.5f), Vector3.Zero, Vector3.UnitY));
 
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.BlendState = BlendState.Opaque;
@@ -129,26 +120,6 @@ namespace SimpleCube
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             window.SwapBuffers();
-        }
-
-        private void OnMouseMove(IMouse sender, System.Drawing.PointF position)
-        {
-
-        }
-
-        private void OnMouseUp(IMouse sender, MouseButton btn)
-        {
-
-        }
-
-        private void OnMouseDown(IMouse sender, MouseButton btn)
-        {
-
-        }
-
-        private void OnKeyDown(IKeyboard sender, Key key, int idk)
-        {
-
         }
 
         private void OnWindowResized(System.Drawing.Size size)

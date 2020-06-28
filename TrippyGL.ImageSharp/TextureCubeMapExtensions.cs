@@ -9,7 +9,7 @@ namespace TrippyGL
     /// <summary>
     /// Extension methods for <see cref="TextureCubemap"/>.
     /// </summary>
-    public static class TextureCubeMapExtensions
+    public static class TextureCubemapExtensions
     {
         /// <summary>
         /// Sets the data of one of the <see cref="TextureCubemap"/>'s faces from an <see cref="Image{Rgba32}"/>.
@@ -44,6 +44,39 @@ namespace TrippyGL
         {
             using Image<Rgba32> image = Image.Load<Rgba32>(file);
             SetData(texture, face, image);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TextureCubemap"/> with the given files as texture image data.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the resource will use.</param>
+        /// <param name="imgNegX">An image file with the cubemap's negative X face.</param>
+        /// <param name="imgPosX">An image file with the cubemap's positive X face.</param>
+        /// <param name="imgNegY">An image file with the cubemap's negative Y face.</param>
+        /// <param name="imgPosY">An image file with the cubemap's positive Y face.</param>
+        /// <param name="imgNegZ">An image file with the cubemap's negative Z face.</param>
+        /// <param name="imgPosZ">An image file with the cubemap's positive Z face.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="TextureCubemap"/>.</param>
+        public static TextureCubemap FromFiles(GraphicsDevice graphicsDevice, string imgNegX, string imgPosX, string imgNegY, string imgPosY, string imgNegZ, string imgPosZ, bool generateMipmaps = false)
+        {
+            using Image<Rgba32> negx = Image.Load<Rgba32>(imgNegX);
+
+            if (negx.Width != negx.Height)
+                throw new InvalidOperationException("The width and height of all the images must be the same for a cubemap");
+
+            TextureCubemap cubemap = new TextureCubemap(graphicsDevice, (uint)negx.Width);
+
+            cubemap.SetData(CubemapFace.NegativeX, negx);
+            cubemap.SetData(CubemapFace.PositiveX, imgPosX);
+            cubemap.SetData(CubemapFace.NegativeY, imgNegY);
+            cubemap.SetData(CubemapFace.PositiveY, imgPosY);
+            cubemap.SetData(CubemapFace.NegativeZ, imgNegZ);
+            cubemap.SetData(CubemapFace.PositiveZ, imgPosZ);
+
+            if (generateMipmaps)
+                cubemap.GenerateMipmaps();
+
+            return cubemap;
         }
     }
 }

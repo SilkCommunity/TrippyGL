@@ -122,6 +122,11 @@ namespace TrippyGL
                     throw new ArgumentException("All shader attributes must have a valid name");
         }
 
+        /// <summary>
+        /// Creates a <see cref="ShaderProgram"/> using the current values this <see cref="ShaderProgramBuilder"/> has.
+        /// </summary>
+        /// <param name="graphicsDevice"></param>
+        /// <param name="getLogs"></param>
         public ShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
         {
             if (graphicsDevice == null)
