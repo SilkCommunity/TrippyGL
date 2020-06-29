@@ -59,7 +59,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="VertexArray"/> in which all the vertex attributes come from the same data buffer.
+        /// Creates a <see cref="VertexArray"/> in which all the vertex attributes come interleaved from the same data buffer.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="bufferSubset">The data buffer that stores all the vertex attributes.</param>
@@ -190,7 +190,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a VertexArray for the specified vertex type, where all of the vertex attributes come from the same buffer.
+        /// Creates a <see cref="VertexArray"/> for the specified vertex type, where all of the vertex attributes come interleaved from the same buffer subset.
         /// </summary>
         /// <typeparam name="T">The type of vertex to use.</typeparam>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
@@ -198,7 +198,7 @@ namespace TrippyGL
         /// <param name="indexBuffer">An index buffer to attach to the vertex array, null if none is desired.</param>
         /// <param name="compensateStructPadding">Whether to compensate for struct padding. Default is true.</param>
         /// <param name="paddingPackValue">The struct packing value for compensating for padding. Default is 4.</param>
-        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, DataBufferSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4) where T : struct, IVertex
+        public static VertexArray CreateSingleBuffer<T>(GraphicsDevice graphicsDevice, DataBufferSubset dataBuffer, IndexBufferSubset indexBuffer = null, bool compensateStructPadding = true, uint paddingPackValue = 4) where T : unmanaged, IVertex
         {
             T t = default;
             int attribCount = t.AttribDescriptionCount;

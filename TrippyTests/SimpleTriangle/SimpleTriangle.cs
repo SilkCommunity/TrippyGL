@@ -71,6 +71,9 @@ namespace SimpleTriangle
             programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
             programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
             shaderProgram = programBuilder.Create(graphicsDevice, true);
+            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
+            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
+            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
             OnWindowResized(window.Size);
         }
@@ -112,6 +115,8 @@ namespace SimpleTriangle
 
         private void OnWindowClosing()
         {
+            vertexBuffer.Dispose();
+            shaderProgram.Dispose();
             graphicsDevice.Dispose();
         }
     }

@@ -75,12 +75,16 @@ namespace SimpleCubemap
                 "cubemap/bottom.png", "cubemap/top.png",
                 "cubemap/left.png", "cubemap/right.png"
             );
+            cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
             ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
             programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
             programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
             programBuilder.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
             shaderProgram = programBuilder.Create(graphicsDevice, true);
+            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
+            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
+            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
             shaderProgram.Uniforms["cubemap"].SetValueTexture(cubemap);
             shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
@@ -175,6 +179,9 @@ namespace SimpleCubemap
 
         private void OnWindowClosing()
         {
+            vertexBuffer.Dispose();
+            shaderProgram.Dispose();
+            cubemap.Dispose();
             graphicsDevice.Dispose();
         }
     }

@@ -29,7 +29,7 @@ namespace TrippyGL
         /// <summary>Gets the input attributes on this program, once it's been linked.</summary>
         public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => activeAttribs;
 
-        /// <summary>Whether this <see cref="ShaderProgram"/> is the one currently in use.</summary>
+        /// <summary>Whether this <see cref="ShaderProgram"/> is the one currently in use on it's <see cref="GraphicsDevice"/>.</summary>
         public bool IsCurrentlyInUse => GraphicsDevice.ShaderProgram == this;
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a vertex shader attached.</summary>

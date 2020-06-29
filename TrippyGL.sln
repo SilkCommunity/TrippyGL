@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCube", "TrippyTests\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCubemap", "TrippyTests\SimpleCubemap\SimpleCubemap.csproj", "{CF06B88F-F3E3-4FA9-84B7-CDF929AD03AF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InstancedCubes", "TrippyTests\InstancedCubes\InstancedCubes.csproj", "{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{CF06B88F-F3E3-4FA9-84B7-CDF929AD03AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF06B88F-F3E3-4FA9-84B7-CDF929AD03AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF06B88F-F3E3-4FA9-84B7-CDF929AD03AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{1B9A6D5A-1CC3-46EE-B650-EAA13D26E927} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 		{F1943250-DBCA-44A8-B937-2BF36251DE93} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 		{CF06B88F-F3E3-4FA9-84B7-CDF929AD03AF} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
+		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0356D8CB-6A5E-4946-B317-0A10C463083B}
