@@ -42,6 +42,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferSubset">The <see cref="BufferObjectSubset"/> where the vertex attrib data is located. Must be a subset usable for vertex data.</param>
         /// <param name="attribType">The type of attribute declared in the shader.</param>
+        /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribSource(DataBufferSubset bufferSubset, AttributeType attribType, uint attribDivisor = 0)
             : this(bufferSubset, new VertexAttribDescription(attribType, attribDivisor))
         {
@@ -56,6 +57,7 @@ namespace TrippyGL
         /// <param name="attribType">The type of attribute declared in the shader.</param>
         /// <param name="normalized">Whether the data needs to be normalized (uint/ushort/byte -> float between 0 and 1, or int/short/sbyte -> float between -1 and 1).</param>
         /// <param name="dataBaseType">The base type of the data found on the buffer. If normalized is true, this must be an integer type.</param>
+        /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribSource(DataBufferSubset bufferSubset, AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
             : this(bufferSubset, new VertexAttribDescription(attribType, normalized, dataBaseType, attribDivisor))
         {

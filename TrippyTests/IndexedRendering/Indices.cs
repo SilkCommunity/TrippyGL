@@ -1,9 +1,14 @@
-﻿using System;
-
-namespace IndexedRendering
+﻿namespace IndexedRendering
 {
+    /// <summary>
+    /// A static class with the vertex and index data for this test
+    /// </summary>
     static class Indices
     {
+        /// <summary>
+        /// All the vertices needed to make any number in a 7 segment display format,
+        /// ordered as shown in the "indices.png" image
+        /// </summary>
         public static SimpleVertex[] Vertices = new SimpleVertex[27]
         {
             new SimpleVertex(),
@@ -34,6 +39,14 @@ namespace IndexedRendering
             new SimpleVertex(-0.3f, -0.9f),
             new SimpleVertex(0.3f, -0.9f),
         };
+
+        // The following arrays store the index data for each number.
+        // The indices point to the triangles that make up each number.
+
+        // This could be optimized, since some numbers overlap it is possible to,
+        // for example, make the 6 start at the same location than the 8 but
+        // have the 6 not use the last segment. This would result in much less index data,
+        // but for the sake of simplicity we'll do it like this here.
 
         public static byte[] Number0 = new byte[]
         {

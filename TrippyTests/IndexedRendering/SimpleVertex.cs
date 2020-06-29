@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace IndexedRendering
 {
+    /// <summary>
+    /// A simple vertex type with only one vertex attribute, a float vec2.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     struct SimpleVertex : IVertex
     {

@@ -9,6 +9,8 @@ using TrippyGL;
 
 namespace SimpleCube
 {
+    // Draws a 3D rotating colored cube in front of a static camera.
+
     class SimpleCube
     {
         Stopwatch stopwatch;
@@ -35,7 +37,7 @@ namespace SimpleCube
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
             VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 24);
             return Window.Create(new WindowOptions(viewOpts));
         }
 
@@ -61,20 +63,20 @@ namespace SimpleCube
             Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
             Span<VertexColor> cubemapBufferData = stackalloc VertexColor[] {
-                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.Red), //4
-                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime), //3
-                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.Blue), //7
-                new VertexColor(new Vector3(-0.5f, 0.5f, 0.5f), Color4b.Red), //8
-                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue), //5
-                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime), //3
-                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red), //1
-                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.Red), //4
-                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Lime), //2
-                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.Blue), //7
-                new VertexColor(new Vector3(0.5f, 0.5f, -0.5f), Color4b.Red), //6
-                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue), //5
-                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Lime), //2
-                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red), //1
+                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.LightBlue),//4
+                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime),//3
+                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.White),//7
+                new VertexColor(new Vector3(-0.5f, 0.5f, 0.5f), Color4b.Black),//8
+                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue),//5
+                new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime),//3
+                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red),//1
+                new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.LightBlue),//4
+                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Yellow),//2
+                new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.White),//7
+                new VertexColor(new Vector3(0.5f, 0.5f, -0.5f), Color4b.Pink),//6
+                new VertexColor(new Vector3(0.5f, 0.5f, 0.5f), Color4b.Blue),//5
+                new VertexColor(new Vector3(0.5f, -0.5f, -0.5f), Color4b.Yellow),//2
+                new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red),//1
             };
 
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticCopy);

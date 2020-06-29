@@ -10,6 +10,10 @@ using TrippyGL;
 
 namespace SimpleCubemap
 {
+    // Loads the images in the cubemap folder into a TextureCubemap and displays it as a skybox.
+    // The camera can be moved to look around by moving the mouse while holding the left button.
+    // (the images are somewhat low-res)
+
     class SimpleCubemap
     {
         IWindow window;
@@ -39,7 +43,7 @@ namespace SimpleCubemap
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
             VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 0);
             return Window.Create(new WindowOptions(viewOpts));
         }
 

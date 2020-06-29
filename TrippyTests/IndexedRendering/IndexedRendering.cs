@@ -10,6 +10,12 @@ using TrippyGL;
 
 namespace IndexedRendering
 {
+    // This test makes a 7 segment display using indexed rendering.
+    // The number displayed can be changed by pressing a number on the keyboard.
+
+    // All the vertices for the display are stored in a buffer and indices are used to define
+    // the order in which they are taken. By using different indices, we can draw the different numbers.
+
     class IndexedRendering
     {
         IWindow window;
@@ -20,7 +26,9 @@ namespace IndexedRendering
         VertexBuffer<SimpleVertex> vertexBuffer;
         ShaderProgram shaderProgram;
 
+        /// <summary>The location in the index buffer where the index data for each number starts.</summary>
         int[] indicesStart;
+        /// <summary>The number the 7 segment display is currently rendering.</summary>
         int currentSelectedIndex = 0;
 
         public IndexedRendering()
@@ -37,8 +45,8 @@ namespace IndexedRendering
         private IWindow CreateWindow()
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
-            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 8);
+            VideoMode videoMode = new VideoMode(new System.Drawing.Size(400, 60), 60);
+            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.Adaptive, 30, false, videoMode, 0);
             return Window.Create(new WindowOptions(viewOpts));
         }
 
@@ -70,9 +78,16 @@ namespace IndexedRendering
 
             SimpleVertex[] vertexData = Indices.Vertices;
 
+            // We create a VertexBuffer with just enough vertex storage for all the vertices
+            // and enough index storage for all the indices, and give it vertexData as initial vertex data.
             vertexBuffer = new VertexBuffer<SimpleVertex>(graphicsDevice, (uint)vertexData.Length, (uint)Indices.TotalIndicesLength, DrawElementsType.UnsignedByte, BufferUsageARB.StaticDraw, vertexData);
 
+            // We will store the location in the index subset where each number's indices start in this array
             indicesStart = new int[Indices.AllNumbersIndices.Length];
+
+            // We will copy all the data from all the number's indices over to the index buffer subset.
+            // We copy them in order (that is, Number0 followed by Number1 followed by Number2 etc)
+            // and in indicesStart we store in which location of the subset the indices of each number start.
             int indexStart = 0;
             for (int i = 0; i < Indices.AllNumbersIndices.Length; i++)
             {
@@ -86,7 +101,10 @@ namespace IndexedRendering
             programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
             programBuilder.SpecifyVertexAttribs<SimpleVertex>(new string[] { "vPosition" });
             shaderProgram = programBuilder.Create(graphicsDevice, true);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.Identity);
+            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
+            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
+            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+
             shaderProgram.Uniforms["color"].SetValueVec4(1f, 0f, 0f, 1f);
 
             graphicsDevice.BlendingEnabled = false;
