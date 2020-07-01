@@ -396,8 +396,8 @@ namespace TrippyGL
         /// <summary>
         /// Creates a typical 2D framebuffer with a 2D texture and, if specified, depth and/or stencil.
         /// </summary>
-        /// <param name="texture">The texture to which the framebuffer will draw to. If null, it will be generated. Otherwise, if necessary, it's image will be recreated to the appropiate size.</param>
-        /// <param name="graphicsDevice">The GraphicsDevice this resource will use.</param>
+        /// <param name="texture">The texture to which the framebuffer will draw to. If null, it will be created. Otherwise, if necessary, it's image will be recreated to the appropiate size.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="width">The width of the framebuffer's image.</param>
         /// <param name="height">The height of the framebuffer's image.</param>
         /// <param name="depthStencilFormat">The desired depth-stencil format for the framebuffer, which will be attached as a renderbuffer.</param>
@@ -423,10 +423,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Performs a resize on a typical 2D framebuffer. All texture attachments (which must be Texture2D-s) will be
+        /// Performs a resize on a typical 2D framebuffer. All texture attachments (which must be <see cref="Texture2D"/>-s) will be
         /// resized and all renderbuffers will be disposed and recreated with the new size.
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to resize.</param>
+        /// <param name="framebuffer">The <see cref="FramebufferObject"/> to resize.</param>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
         public static void Resize2D(FramebufferObject framebuffer, uint width, uint height)
@@ -437,7 +437,7 @@ namespace TrippyGL
             for (int i = 0; i < framebuffer.textureAttachments.Count; i++)
             {
                 if (!(framebuffer.textureAttachments[i].Texture is Texture2D tex2d))
-                    throw new FramebufferException("This framebuffer contains non-Texture2D texture attachments, a Resize2D operation is invalid");
+                    throw new InvalidOperationException("This framebuffer contains non-Texture2D texture attachments, a Resize2D operation is invalid");
                 tex2d.RecreateImage(width, height);
             }
 
