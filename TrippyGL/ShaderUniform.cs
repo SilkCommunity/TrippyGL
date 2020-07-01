@@ -24,13 +24,16 @@ namespace TrippyGL
         /// <summary>For array uniforms, this is the length of the array. 1 for non-array uniforms.</summary>
         public readonly int Size;
 
-        /// <summary>Gets whether this <see cref="ShaderUniform"/> is of a sampler or sampler-array type.</summary>
+        /// <summary>Whether this <see cref="ShaderUniform"/> is of a sampler or sampler-array type.</summary>
         public readonly bool IsSamplerType;
 
         /// <summary>For sampler uniforms, the <see cref="Texture"/>/s the user set to this <see cref="ShaderUniform"/>.</summary>
         private readonly Texture[] textureValues;
         /// <summary>For sampler uniforms, the texture units last set as the uniform's value/s.</summary>
         private readonly int[] textureLastAppliedUnits;
+
+        /// <summary>Whether this <see cref="ShaderUniform"/> instance has null values.</summary>
+        public bool IsEmpty => OwnerProgram == null;
 
         /// <summary>
         /// Provides direct read-only access to this <see cref="ShaderUniform"/>'s set textures.
@@ -756,6 +759,9 @@ namespace TrippyGL
         /// </summary>
         private void ValidateUniformType(UniformType type)
         {
+            if (IsEmpty)
+                throw new NullReferenceException("This " + nameof(ShaderUniform) + " is null/empty");
+
             if (UniformType != type)
                 throw new InvalidOperationException(string.Concat("Tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
         }
@@ -770,6 +776,9 @@ namespace TrippyGL
 
         private void ValidateIsSampler()
         {
+            if (IsEmpty)
+                throw new NullReferenceException("This " + nameof(ShaderUniform) + " is null/empty");
+
             if (!IsSamplerType)
                 throw new InvalidOperationException("Tried to set a texture on a non-sampler uniform");
         }

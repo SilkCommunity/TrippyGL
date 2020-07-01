@@ -171,6 +171,8 @@ namespace IndexedRendering
 
         private void OnWindowClosing()
         {
+            vertexBuffer.Dispose();
+            shaderProgram.Dispose();
             graphicsDevice.Dispose();
         }
     }
