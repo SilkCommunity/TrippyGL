@@ -28,6 +28,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndexedRendering", "TrippyT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TexturedTriangles", "TrippyTests\TexturedTriangles\TexturedTriangles.csproj", "{4844514C-0F91-474A-8651-BF9CC3B4BEE5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderFractals", "TrippyTests\ShaderFractals\ShaderFractals.csproj", "{3938DBF3-C946-469A-8DC8-DB5B0C7A6300}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{4844514C-0F91-474A-8651-BF9CC3B4BEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4844514C-0F91-474A-8651-BF9CC3B4BEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4844514C-0F91-474A-8651-BF9CC3B4BEE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3938DBF3-C946-469A-8DC8-DB5B0C7A6300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3938DBF3-C946-469A-8DC8-DB5B0C7A6300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3938DBF3-C946-469A-8DC8-DB5B0C7A6300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3938DBF3-C946-469A-8DC8-DB5B0C7A6300}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{9837B8D5-BCB0-4921-B860-9C0B6A60E0E8} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 		{D3A2C9E3-F369-4F08-8510-FED9A2A6BD42} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 		{4844514C-0F91-474A-8651-BF9CC3B4BEE5} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
+		{3938DBF3-C946-469A-8DC8-DB5B0C7A6300} = {F9AEFFD4-B720-4439-882A-E1C3845585AB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0356D8CB-6A5E-4946-B317-0A10C463083B}

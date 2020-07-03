@@ -89,12 +89,12 @@ namespace TrippyTesting.Tests
 
         }
 
-        private void OnMouseUp(IMouse sender, MouseButton btn)
+        private void OnMouseDown(IMouse sender, MouseButton btn)
         {
 
         }
 
-        private void OnMouseDown(IMouse sender, MouseButton btn)
+        private void OnMouseUp(IMouse sender, MouseButton btn)
         {
 
         }
