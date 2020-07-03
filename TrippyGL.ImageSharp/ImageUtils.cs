@@ -3,8 +3,14 @@ using SixLabors.ImageSharp.Formats;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Contains helper image-related methods used across the library.
+    /// </summary>
     public static class ImageUtils
     {
+        /// <summary>
+        /// Gets an appropiate <see cref="IImageFormat"/> for the given <see cref="SaveImageFormat"/>.
+        /// </summary>
         public static IImageFormat GetFormatFor(SaveImageFormat imageFormat)
         {
             return imageFormat switch
