@@ -1,8 +1,5 @@
-﻿using Silk.NET.Input;
-using Silk.NET.Input.Common;
+﻿using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
@@ -12,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyTestBase;
 
 namespace ShaderFractals
 {
@@ -21,13 +19,9 @@ namespace ShaderFractals
     // Pressing the spacebar pauses the animation and pressing the S key saves a screenshot as png.
     // You can also toggle fullscreen with F11 and reset the camera with the "Home" key
 
-    class ShaderFractals
+    class ShaderFractals : TestBase
     {
         Stopwatch stopwatch;
-        IWindow window;
-        IInputContext inputContext;
-
-        GraphicsDevice graphicsDevice;
 
         VertexBuffer<VertexPosition> vertexBuffer;
         ShaderProgram shaderProgram;
@@ -41,52 +35,8 @@ namespace ShaderFractals
         float scaleExponent;
         float scale;
 
-        public ShaderFractals()
+        protected override void OnLoad()
         {
-            window = CreateWindow();
-
-            window.Load += OnWindowLoad;
-            window.Update += OnWindowUpdate;
-            window.Render += OnWindowRender;
-            window.Resize += OnWindowResized;
-            window.Closing += OnWindowClosing;
-        }
-
-        private IWindow CreateWindow()
-        {
-            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
-            VideoMode videoMode = new VideoMode(new Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.On, 30, false, videoMode, 8);
-            return Window.Create(new WindowOptions(viewOpts));
-        }
-
-        public void Run()
-        {
-            window.Run();
-        }
-
-        private void OnWindowLoad()
-        {
-            inputContext = window.CreateInput();
-            inputContext.Keyboards[0].KeyDown += OnKeyDown;
-            inputContext.Mice[0].MouseDown += OnMouseDown;
-            inputContext.Mice[0].MouseUp += OnMouseUp;
-            inputContext.Mice[0].MouseMove += OnMouseMove;
-            inputContext.Mice[0].Scroll += OnMouseScroll;
-
-            graphicsDevice = new GraphicsDevice(GL.GetApi(window));
-            graphicsDevice.DebugMessagingEnabled = true;
-            graphicsDevice.DebugMessage += Program.OnDebugMessage;
-
-            Console.WriteLine(string.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
-            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
-            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
-
             Span<VertexPosition> vertexData = stackalloc VertexPosition[]
             {
                 new Vector3(-1f, -1f, 0),
@@ -115,23 +65,10 @@ namespace ShaderFractals
             stopwatch = Stopwatch.StartNew();
 
             OnKeyDown(null, Key.Home, 0);
-            OnWindowResized(window.Size);
         }
 
-        private void OnWindowUpdate(double dtSeconds)
+        protected override void OnRender(double dt)
         {
-            GLEnum c;
-            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
-            {
-                Console.WriteLine("Error found: " + c);
-            }
-        }
-
-        private void OnWindowRender(double dtSeconds)
-        {
-            if (window.IsClosing)
-                return;
-
             const float min = 0.27f, max = 0.264f, spd = 0.5f;
             float cx = min + (max - min) * ((float)Math.Sin(stopwatch.Elapsed.TotalSeconds * spd) + 1) * 0.5f;
             cUniform.SetValueVec2(new Vector2(cx, 0.0f));
@@ -140,10 +77,10 @@ namespace ShaderFractals
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
-            window.SwapBuffers();
+            Window.SwapBuffers();
         }
 
-        private void OnMouseMove(IMouse sender, PointF position)
+        protected override void OnMouseMove(IMouse sender, PointF position)
         {
             if (sender.IsButtonPressed(MouseButton.Left))
             {
@@ -154,43 +91,23 @@ namespace ShaderFractals
             }
         }
 
-        private void OnMouseDown(IMouse sender, MouseButton btn)
+        protected override void OnMouseDown(IMouse sender, MouseButton btn)
         {
             if (btn == MouseButton.Left)
                 lastMousePos = sender.Position;
         }
 
-        private void OnMouseUp(IMouse sender, MouseButton btn)
+        protected override void OnMouseScroll(IMouse sender, ScrollWheel scroll)
         {
-
-        }
-
-        private void OnMouseScroll(IMouse sender, ScrollWheel scroll)
-        {
-            scaleExponent = Math.Clamp(scaleExponent + scroll.Y * 0.05f, -100f, 100f);
+            scaleExponent = Math.Clamp(scaleExponent + scroll.Y * 0.05f, -5.5f, 1.0f);
             scale = (float)Math.Pow(10, scaleExponent);
             UpdateTransformMatrix();
         }
 
-        private void OnKeyDown(IKeyboard sender, Key key, int idk)
+        protected override void OnKeyDown(IKeyboard sender, Key key, int idk)
         {
             switch (key)
             {
-                case Key.F11:
-                    if (window.WindowState == WindowState.Fullscreen)
-                    {
-                        window.WindowState = WindowState.Normal;
-                        Size mSize = window.Monitor.VideoMode.Resolution.Value;
-                        window.Size = new Size(mSize.Width * 2 / 3, mSize.Height * 2 / 3);
-                    }
-                    else
-                    {
-                        Size size = window.Monitor.VideoMode.Resolution.Value;
-                        window.WindowState = WindowState.Fullscreen;
-                        window.Size = size;
-                    }
-                    break;
-
                 case Key.Home:
                     offset = new Vector2(-0.0504f, 0.2522f);
                     scaleExponent = 0.4f;
@@ -211,10 +128,35 @@ namespace ShaderFractals
             }
         }
 
+        protected override void OnResized(Size size)
+        {
+            if (size.Width == 0 || size.Height == 0)
+                return;
+
+            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
+            if (size.Width < size.Height)
+            {
+                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f * size.Width / size.Height, 2f, 0.01f, 10f));
+                mouseMoveScale = 2f / size.Height;
+            }
+            else
+            {
+                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f, 2f * size.Height / size.Width, 0.01f, 10f));
+                mouseMoveScale = 2f / size.Width;
+            }
+        }
+
+        protected override void OnUnload()
+        {
+            vertexBuffer.Dispose();
+            shaderProgram.Dispose();
+            graphicsDevice.Dispose();
+        }
+
         private void UpdateTransformMatrix()
         {
-            Matrix4x4 mat = Matrix4x4.CreateScale(scale) * Matrix4x4.CreateTranslation(offset.X, offset.Y, 0f);
-            transformUniform.SetValueMat4(mat);
+            Matrix3x2 mat = Matrix3x2.CreateScale(scale) * Matrix3x2.CreateTranslation(offset);
+            transformUniform.SetValueMat3x2(mat);
             //window.Title = "offset=" + offset.ToString() + ", scale=" + scale.ToString() + ", scaleExponent=" + scaleExponent.ToString();
         }
 
@@ -224,11 +166,11 @@ namespace ShaderFractals
             // TrippyGL.ImageSharp, but since we want to save the default framebuffer we
             // have to do this manually.
 
-            using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(window.Size.Width, window.Size.Height);
+            using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(Window.Size.Width, Window.Size.Height);
 
             graphicsDevice.Framebuffer = null;
             fixed (void* ptr = image.GetPixelSpan())
-                graphicsDevice.GL.ReadPixels(0, 0, (uint)window.Size.Width, (uint)window.Size.Height, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             string file = GetFileName();
@@ -252,31 +194,6 @@ namespace ShaderFractals
                     i++;
                 }
             }
-        }
-
-        private void OnWindowResized(Size size)
-        {
-            if (size.Width == 0 || size.Height == 0)
-                return;
-
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            if (window.Size.Width < window.Size.Height)
-            {
-                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f * window.Size.Width / window.Size.Height, 2f, 0.01f, 10f));
-                mouseMoveScale = 2f / window.Size.Height;
-            }
-            else
-            {
-                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f, 2f * window.Size.Height / window.Size.Width, 0.01f, 10f));
-                mouseMoveScale = 2f / window.Size.Width;
-            }
-        }
-
-        private void OnWindowClosing()
-        {
-            vertexBuffer.Dispose();
-            shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

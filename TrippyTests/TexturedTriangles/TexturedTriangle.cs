@@ -1,11 +1,10 @@
 ﻿using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
+using TrippyTestBase;
 
 namespace TexturedTriangles
 {
@@ -14,12 +13,9 @@ namespace TexturedTriangles
     // in the texture (somewhat distorted). The triangles on the left don't apply any
     // color to the texture, but the triangles on the right do.
 
-    class TexturedTriangles
+    class TexturedTriangles : TestBase
     {
         Stopwatch stopwatch;
-        IWindow window;
-
-        GraphicsDevice graphicsDevice;
 
         VertexBuffer<VertexColorTexture> quadBuffer;
         VertexBuffer<VertexColorTexture> trianglesBuffer;
@@ -28,45 +24,8 @@ namespace TexturedTriangles
         Texture2D background;
         Texture2D satellite;
 
-        public TexturedTriangles()
+        protected override void OnLoad()
         {
-            window = CreateWindow();
-
-            window.Load += OnWindowLoad;
-            window.Update += OnWindowUpdate;
-            window.Render += OnWindowRender;
-            window.Resize += OnWindowResized;
-            window.Closing += OnWindowClosing;
-        }
-
-        private IWindow CreateWindow()
-        {
-            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
-            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.On, 30, false, videoMode, 8);
-            return Window.Create(new WindowOptions(viewOpts));
-        }
-
-        public void Run()
-        {
-            window.Run();
-        }
-
-        private void OnWindowLoad()
-        {
-            graphicsDevice = new GraphicsDevice(GL.GetApi(window));
-            graphicsDevice.DebugMessagingEnabled = true;
-            graphicsDevice.DebugMessage += Program.OnDebugMessage;
-
-            Console.WriteLine(string.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
-            Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
-            Console.WriteLine("GL Vendor: " + graphicsDevice.GLVendor);
-            Console.WriteLine("GL Renderer: " + graphicsDevice.GLRenderer);
-            Console.WriteLine("GL ShadingLanguageVersion: " + graphicsDevice.GLShadingLanguageVersion);
-            Console.WriteLine("GL TextureUnits: " + graphicsDevice.MaxTextureImageUnits);
-            Console.WriteLine("GL MaxTextureSize: " + graphicsDevice.MaxTextureSize);
-            Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
-
             Span<VertexColorTexture> quadsVertex = stackalloc VertexColorTexture[]
             {
                 new VertexColorTexture(new Vector3(-0.5f, -0.5f, 0), Color4b.White, new Vector2(0, 1)),
@@ -125,24 +84,10 @@ namespace TexturedTriangles
             graphicsDevice.DepthTestingEnabled = false;
 
             stopwatch = Stopwatch.StartNew();
-
-            OnWindowResized(window.Size);
         }
 
-        private void OnWindowUpdate(double dtSeconds)
+        protected override void OnRender(double dt)
         {
-            GLEnum c;
-            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
-            {
-                Console.WriteLine("Error found: " + c);
-            }
-        }
-
-        private void OnWindowRender(double dtSeconds)
-        {
-            if (window.IsClosing)
-                return;
-
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
@@ -167,19 +112,19 @@ namespace TexturedTriangles
             shaderProgram.Uniforms["samp"].SetValueTexture(satellite);
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
-            window.SwapBuffers();
+            Window.SwapBuffers();
         }
 
-        private void OnWindowResized(System.Drawing.Size size)
+        protected override void OnResized(System.Drawing.Size size)
         {
             if (size.Width == 0 || size.Height == 0)
                 return;
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(window.Size.Width / (float)window.Size.Height, 1f, 0.01f, 10f));
+            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(size.Width / (float)size.Height, 1f, 0.01f, 10f));
         }
 
-        private void OnWindowClosing()
+        protected override void OnUnload()
         {
             trianglesBuffer.Dispose();
             quadBuffer.Dispose();
