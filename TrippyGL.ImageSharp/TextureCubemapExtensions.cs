@@ -1,7 +1,7 @@
 ﻿using System;
+using System.IO;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace TrippyGL
@@ -31,7 +31,9 @@ namespace TrippyGL
             if (image.Width != texture.Size || image.Height != texture.Size)
                 throw new InvalidOperationException("The width and height of the image must match " + nameof(TextureCubemap.Size));
 
-            texture.SetData<Rgba32>(face, image.GetPixelSpan(), PixelFormat.Rgba);
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+            texture.SetData<Rgba32>(face, pixels, PixelFormat.Rgba);
         }
 
         /// <summary>

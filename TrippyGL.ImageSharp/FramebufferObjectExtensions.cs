@@ -2,7 +2,6 @@
 using System.IO;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -31,7 +30,9 @@ namespace TrippyGL
 
             IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)framebuffer.Width, (int)framebuffer.Height);
-            framebuffer.ReadPixels(image.GetPixelSpan(), 0, 0, framebuffer.Width, framebuffer.Height, ReadPixelsFormat.Rgba, PixelType.UnsignedByte);
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+            framebuffer.ReadPixels(pixels, 0, 0, framebuffer.Width, framebuffer.Height, ReadPixelsFormat.Rgba, PixelType.UnsignedByte);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);

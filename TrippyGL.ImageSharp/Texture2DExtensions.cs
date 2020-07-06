@@ -2,7 +2,6 @@
 using System.IO;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -28,10 +27,14 @@ namespace TrippyGL
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
 
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
             Texture2D texture = new Texture2D(graphicsDevice, (uint)image.Width, (uint)image.Height);
-            texture.SetData<Rgba32>(image.GetPixelSpan(), PixelFormat.Rgba);
+            texture.SetData<Rgba32>(pixels, PixelFormat.Rgba);
+
             if (generateMipmaps)
                 texture.GenerateMipmaps();
+
             return texture;
         }
 
@@ -70,7 +73,9 @@ namespace TrippyGL
 
             IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, (int)texture.Height);
-            texture.GetData(image.GetPixelSpan(), PixelFormat.Rgba);
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+            texture.GetData(pixels, PixelFormat.Rgba);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);

@@ -61,7 +61,7 @@ namespace TrippyTestBase
         public TestBase(string title = null, int preferredDepthBufferBits = 0)
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
-            VideoMode videoMode = new VideoMode(new System.Drawing.Size(1280, 720));
+            VideoMode videoMode = new VideoMode(new Size(1280, 720));
             ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.On, 30, false, videoMode, 24);
             WindowOptions fuckme = new WindowOptions(viewOpts);
 

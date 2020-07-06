@@ -2,10 +2,8 @@
 using System.IO;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace TrippyGL
 {
@@ -19,7 +17,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the resource will use.</param>
         /// <param name="image">The image to create the <see cref="Texture1D"/> with.</param>
-        /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture2D"/>.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture1D"/>.</param>
         public static Texture1D FromImage(GraphicsDevice graphicsDevice, Image<Rgba32> image, bool generateMipmaps = false)
         {
             if (graphicsDevice == null)
@@ -28,10 +26,14 @@ namespace TrippyGL
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
 
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
             Texture1D texture = new Texture1D(graphicsDevice, (uint)(image.Width * image.Height));
-            texture.SetData<Rgba32>(image.GetPixelSpan(), 0, PixelFormat.Rgba);
+            texture.SetData<Rgba32>(pixels, 0, PixelFormat.Rgba);
+
             if (generateMipmaps)
                 texture.GenerateMipmaps();
+
             return texture;
         }
 
@@ -63,12 +65,13 @@ namespace TrippyGL
                 throw new ArgumentException("You must specify a file name", nameof(file));
 
             if (texture.ImageFormat != TextureImageFormat.Color4b)
-                throw new InvalidOperationException("In order to save a texture as image, it must be in Color4b format");
+                throw new InvalidOperationException("In order to save a texture as image, it must be in " + nameof(Color4b) + " format");
 
             IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, 1);
-            texture.GetData(image.GetPixelSpan(), PixelFormat.Rgba);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+            texture.GetData(pixels, PixelFormat.Rgba);
 
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
             image.Save(fileStream, format);

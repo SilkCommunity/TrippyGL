@@ -8,6 +8,8 @@ namespace TrippyGL
     /// </summary>
     public static class ImageUtils
     {
+        internal const string ImageNotContiguousError = "To load/save an image, it's backing memory must be contiguous. Consider using smaller image sizes or changing your ImageSharp memory allocation settings to allow larger buffers.";
+
         /// <summary>
         /// Gets an appropiate <see cref="IImageFormat"/> for the given <see cref="SaveImageFormat"/>.
         /// </summary>

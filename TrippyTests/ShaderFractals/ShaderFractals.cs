@@ -1,11 +1,9 @@
 ﻿using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Numerics;
 using TrippyGL;
@@ -28,7 +26,7 @@ namespace ShaderFractals
         ShaderUniform transformUniform;
         ShaderUniform cUniform;
 
-        PointF lastMousePos;
+        System.Drawing.PointF lastMousePos;
         float mouseMoveScale;
 
         Vector2 offset;
@@ -80,7 +78,7 @@ namespace ShaderFractals
             Window.SwapBuffers();
         }
 
-        protected override void OnMouseMove(IMouse sender, PointF position)
+        protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
         {
             if (sender.IsButtonPressed(MouseButton.Left))
             {
@@ -128,7 +126,7 @@ namespace ShaderFractals
             }
         }
 
-        protected override void OnResized(Size size)
+        protected override void OnResized(System.Drawing.Size size)
         {
             if (size.Width == 0 || size.Height == 0)
                 return;
@@ -169,7 +167,10 @@ namespace ShaderFractals
             using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(Window.Size.Width, Window.Size.Height);
 
             graphicsDevice.Framebuffer = null;
-            fixed (void* ptr = image.GetPixelSpan())
+            if (!image.TryGetSinglePixelSpan(out Span<SixLabors.ImageSharp.PixelFormats.Rgba32> pixels))
+                throw new InvalidDataException();
+
+            fixed (void* ptr = pixels)
                 graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
