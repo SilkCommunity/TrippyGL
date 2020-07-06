@@ -94,7 +94,8 @@ namespace TrippyGL
                 calls[i] = new AttribCallDesc
                 {
                     source = attribSources[i],
-                    index = attribIndex
+                    index = attribIndex,
+                    originalIndex = i
                 };
                 attribIndex += calls[i].source.AttribDescription.AttribIndicesUseCount;
             }
@@ -104,13 +105,19 @@ namespace TrippyGL
             // rather than save the offset of each buffer simultaneously
             Array.Sort(calls, (x, y) =>
             {
-                int compareHandles = x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle);
-                if (compareHandles != 0)
-                    return compareHandles;
+                int cmp = x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle);
+                if (cmp != 0)
+                    return cmp;
 
-                return x.index.CompareTo(y.index);
+                cmp = x.index.CompareTo(y.index);
+                if (cmp != 0)
+                    return cmp;
+
+                return x.originalIndex.CompareTo(y.originalIndex);
             });
-            // Note that the calls array is now sorted first by attrib index and then by buffer handle
+            // That the calls array is now sorted. First by buffer handle, secondly by attrib index
+            // and lastly, if two items have the same buffer handle and attrib index, they are sorted
+            // by the original index they had in the calls array.
 
             if (compensateStructPadding)
             {
@@ -252,6 +259,7 @@ namespace TrippyGL
         {
             public VertexAttribSource source;
             public uint index, offset;
+            public int originalIndex;
 
             public unsafe void CallGlVertexAttribPointer(GL gl)
             {
