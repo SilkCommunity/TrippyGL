@@ -173,7 +173,7 @@ namespace TrippyTestBase
 
         protected abstract void OnLoad();
         protected abstract void OnRender(double dt);
-        protected abstract void OnResized(Size newSize);
+        protected abstract void OnResized(Size size);
         protected abstract void OnUnload();
 
         protected virtual void OnUpdate(double dt)
