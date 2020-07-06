@@ -102,8 +102,15 @@ namespace TrippyGL
             // Sort by buffer object, so all sources that share BufferObject are grouped together.
             // This facilitates calculating the offset values, since we only need to work with one offset at a time
             // rather than save the offset of each buffer simultaneously
-            Array.Sort(calls, (x, y) => x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle));
-            // Note that the calls array is now sorted by both attrib index and buffer handle
+            Array.Sort(calls, (x, y) =>
+            {
+                int compareHandles = x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle);
+                if (compareHandles != 0)
+                    return compareHandles;
+
+                return x.index.CompareTo(y.index);
+            });
+            // Note that the calls array is now sorted first by attrib index and then by buffer handle
 
             if (compensateStructPadding)
             {

@@ -122,7 +122,9 @@ namespace TrippyGL
 
         public static VertexAttribDescription CreatePadding(AttributeType attribType)
         {
-            return CreatePadding(TrippyUtils.GetVertexAttribBaseType(attribType), (uint)TrippyUtils.GetVertexAttribTypeSize(attribType));
+            TrippyUtils.GetVertexAttribTypeData(attribType, out uint indexUseCount, out int size, out VertexAttribPointerType baseType);
+            uint typeSize = TrippyUtils.GetVertexAttribSizeInBytes(baseType);
+            return new VertexAttribDescription(typeSize * (uint)size * indexUseCount);
         }
 
         private static void CheckAttribDivisor(uint attribDivisor)
