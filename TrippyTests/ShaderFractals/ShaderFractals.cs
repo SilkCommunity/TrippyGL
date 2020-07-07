@@ -37,10 +37,10 @@ namespace ShaderFractals
         {
             Span<VertexPosition> vertexData = stackalloc VertexPosition[]
             {
-                new Vector3(-1f, -1f, 0),
-                new Vector3(-1f, 1f, 0),
-                new Vector3(1f, -1f, 0),
-                new Vector3(1f, 1f, 0),
+                new Vector3(-1, -1, 0),
+                new Vector3(-1, 1, 0),
+                new Vector3(1, -1, 0),
+                new Vector3(1, 1, 0),
             };
 
             vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
@@ -89,9 +89,9 @@ namespace ShaderFractals
             }
         }
 
-        protected override void OnMouseDown(IMouse sender, MouseButton btn)
+        protected override void OnMouseDown(IMouse sender, MouseButton button)
         {
-            if (btn == MouseButton.Left)
+            if (button == MouseButton.Left)
                 lastMousePos = sender.Position;
         }
 

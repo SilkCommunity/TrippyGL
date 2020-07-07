@@ -1,7 +1,7 @@
 ﻿#version 330 core
 
-uniform mat4 Projection;
 uniform mat3x2 Transform;
+uniform mat4 Projection;
 
 in vec3 vPosition;
 

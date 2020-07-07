@@ -162,6 +162,9 @@ namespace TrippyTestBase
             if (key == Key.F11 && AllowToggleFullscreen)
                 IsFullscreen = !IsFullscreen;
 
+            if (key == Key.Escape)
+                Window.Close();
+
             OnKeyDown(sender, key, n);
         }
 

@@ -6,14 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrippyTests\TrippyTestBase\TrippyTestBase.csproj" />
+    <ProjectReference Include="..\TrippyTestBase\TrippyTestBase.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="fs1.glsl">
+    <None Update="draw_fs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="vs1.glsl">
+    <None Update="draw_vs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sim_fs.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sim_vs.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

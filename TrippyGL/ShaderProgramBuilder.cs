@@ -129,6 +129,11 @@ namespace TrippyGL
         /// <param name="getLogs"></param>
         public ShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
         {
+            VertexShaderLog = null;
+            FragmentShaderLog = null;
+            GeometryShaderLog = null;
+            ProgramLog = null;
+
             if (graphicsDevice == null)
                 throw new ArgumentNullException(nameof(graphicsDevice));
 
