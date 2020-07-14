@@ -17,6 +17,7 @@ namespace TrippyTestBase
         public IWindow Window { private set; get; }
         public IInputContext InputContext { private set; get; }
 
+        /// <summary>Whether to allow the user to toggle fullscreen mode by pressing F11.</summary>
         public bool AllowToggleFullscreen = true;
         private Size preFullscreenSize;
         private Point preFullscreenPosition;
@@ -47,7 +48,7 @@ namespace TrippyTestBase
                     if (preFullscreenSize.Width < 10 || preFullscreenSize.Height < 10)
                     {
                         preFullscreenSize = GetNewWindowSize(Window.Monitor);
-                        preFullscreenPosition = new Point(50, 50);
+                        preFullscreenPosition = new Point(Window.Monitor.Bounds.X + 50, Window.Monitor.Bounds.Y + 50);
                     }
 
                     Window.Size = preFullscreenSize;
@@ -60,13 +61,11 @@ namespace TrippyTestBase
 
         public TestBase(string title = null, int preferredDepthBufferBits = 0)
         {
-            GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3));
-            VideoMode videoMode = new VideoMode(new Size(1280, 720));
-            ViewOptions viewOpts = new ViewOptions(true, 60.0, 60.0, graphicsApi, VSyncMode.On, 30, false, videoMode, 24);
-            WindowOptions fuckme = new WindowOptions(viewOpts);
+            title ??= System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Name ?? "Title";
+            Console.WriteLine("Starting up: \"" + title + "\"...");
 
-
-            Size windowSize = GetNewWindowSize(Monitor.GetMainMonitor());
+            IMonitor mainMonitor = Monitor.GetMainMonitor();
+            Size windowSize = GetNewWindowSize(mainMonitor);
             WindowOptions windowOpts = new WindowOptions()
             {
                 API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3)),
@@ -77,8 +76,8 @@ namespace TrippyTestBase
                 VideoMode = new VideoMode(windowSize),
                 PreferredDepthBufferBits = preferredDepthBufferBits,
                 ShouldSwapAutomatically = false,
-                Title = title ?? System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name ?? "Title",
-                Position = new Point(50, 50)
+                Title = title,
+                Position = new Point(mainMonitor.Bounds.X + 50, mainMonitor.Bounds.Y + 50)
             };
 
             Window = Silk.NET.Windowing.Window.Create(windowOpts);
@@ -86,6 +85,7 @@ namespace TrippyTestBase
 
         public void Run()
         {
+            Console.WriteLine("Running project...");
             Window.Load += Window_Load;
             Window.Update += OnUpdate;
             Window.Render += Window_Render;
@@ -97,12 +97,15 @@ namespace TrippyTestBase
 
         private void Window_Load()
         {
+            Console.WriteLine("Loading window...");
             InputContext = Window.CreateInput();
             InputContext.ConnectionChanged += InputContext_ConnectionChanged;
             foreach (IKeyboard keyboard in InputContext.Keyboards)
                 InputContext_ConnectionChanged(keyboard, keyboard.IsConnected);
             foreach (IMouse mouse in InputContext.Mice)
                 InputContext_ConnectionChanged(mouse, mouse.IsConnected);
+            foreach (IGamepad gamepad in InputContext.Gamepads)
+                InputContext_ConnectionChanged(gamepad, gamepad.IsConnected);
 
             graphicsDevice = new GraphicsDevice(GL.GetApi(Window));
             graphicsDevice.DebugMessagingEnabled = true;
@@ -125,7 +128,7 @@ namespace TrippyTestBase
         {
             if (device is IKeyboard keyboard)
             {
-                if (device.IsConnected)
+                if (keyboard.IsConnected)
                 {
                     keyboard.KeyDown += Keyboard_KeyDown;
                     keyboard.KeyUp += OnKeyUp;
@@ -140,7 +143,7 @@ namespace TrippyTestBase
             }
             else if (device is IMouse mouse)
             {
-                if (device.IsConnected)
+                if (mouse.IsConnected)
                 {
                     mouse.MouseDown += OnMouseDown;
                     mouse.MouseMove += OnMouseMove;
@@ -153,6 +156,23 @@ namespace TrippyTestBase
                     mouse.MouseMove -= OnMouseMove;
                     mouse.MouseUp -= OnMouseUp;
                     mouse.Scroll -= OnMouseScroll;
+                }
+            }
+            else if (device is IGamepad gamepad)
+            {
+                if (gamepad.IsConnected)
+                {
+                    gamepad.ButtonDown += OnGamepadButtonDown;
+                    gamepad.ButtonUp += OnGamepadButtonUp;
+                    gamepad.ThumbstickMoved += OnGamepadThumbstickMoved;
+                    gamepad.TriggerMoved += OnGamepadTriggerMoved;
+                }
+                else
+                {
+                    gamepad.ButtonDown -= OnGamepadButtonDown;
+                    gamepad.ButtonUp -= OnGamepadButtonUp;
+                    gamepad.ThumbstickMoved -= OnGamepadThumbstickMoved;
+                    gamepad.TriggerMoved -= OnGamepadTriggerMoved;
                 }
             }
         }
@@ -196,6 +216,11 @@ namespace TrippyTestBase
         protected virtual void OnMouseMove(IMouse sender, PointF position) { }
         protected virtual void OnMouseUp(IMouse sender, MouseButton button) { }
         protected virtual void OnMouseScroll(IMouse sender, ScrollWheel scroll) { }
+
+        protected virtual void OnGamepadButtonDown(IGamepad sender, Button button) { }
+        protected virtual void OnGamepadButtonUp(IGamepad sender, Button button) { }
+        protected virtual void OnGamepadThumbstickMoved(IGamepad sender, Thumbstick thumbstick) { }
+        protected virtual void OnGamepadTriggerMoved(IGamepad sender, Trigger trigger) { }
 
         /// <summary>
         /// Calculates the size to use for a new window as two thirds the size of the main monitor.

@@ -10,7 +10,7 @@ namespace SimpleCubemap
 {
     // Loads the images in the cubemap folder into a TextureCubemap and displays it as a skybox.
     // The camera can be moved to look around by moving the mouse while holding the left button.
-    // (the images are somewhat low-res)
+    // A gamepad also works for moving the camera. (the cubemap's images are somewhat low-res)
 
     class SimpleCubemap : TestBase
     {
@@ -18,6 +18,8 @@ namespace SimpleCubemap
         ShaderProgram shaderProgram;
         VertexBuffer<VertexPosition> vertexBuffer;
 
+        IGamepad currentGamepad;
+        Vector2 thumbstickDir;
         Vector2 cameraRot;
         System.Drawing.PointF lastMousePos;
 
@@ -68,6 +70,19 @@ namespace SimpleCubemap
             graphicsDevice.BlendingEnabled = false;
         }
 
+        protected override void OnUpdate(double dt)
+        {
+            base.OnUpdate(dt);
+
+            if (currentGamepad != null && currentGamepad.IsConnected)
+            {
+                const float sensitivity = 5f;
+                cameraRot.Y += thumbstickDir.X * (float)dt * sensitivity;
+                cameraRot.X = Math.Clamp(cameraRot.X + (thumbstickDir.Y) * (float)dt * sensitivity, -1.57f, 1.57f);
+                UpdateCamera();
+            }
+        }
+
         protected override void OnRender(double dt)
         {
             graphicsDevice.ShaderProgram = shaderProgram;
@@ -87,7 +102,7 @@ namespace SimpleCubemap
 
                 lastMousePos = position;
 
-                shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateRotationY(cameraRot.Y) * Matrix4x4.CreateRotationX(cameraRot.X));
+                UpdateCamera();
             }
         }
 
@@ -97,6 +112,21 @@ namespace SimpleCubemap
                 lastMousePos = sender.Position;
         }
 
+        protected override void OnGamepadThumbstickMoved(IGamepad sender, Thumbstick thumbstick)
+        {
+            if (thumbstick.Index == 0)
+            {
+                currentGamepad = sender;
+                if (Math.Abs(thumbstick.Position) < 0.2)
+                    thumbstickDir = default;
+                else
+                {
+                    thumbstickDir.X = thumbstick.X;
+                    thumbstickDir.Y = thumbstick.Y;
+                }
+            }
+        }
+
         protected override void OnResized(System.Drawing.Size size)
         {
             if (size.Width == 0 || size.Height == 0)
@@ -104,6 +134,11 @@ namespace SimpleCubemap
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
             shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.Width / (float)size.Height, 0.01f, 10f));
+        }
+
+        private void UpdateCamera()
+        {
+            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateRotationY(cameraRot.Y) * Matrix4x4.CreateRotationX(cameraRot.X));
         }
 
         protected override void OnUnload()
