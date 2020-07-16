@@ -168,7 +168,7 @@ namespace GameOfLifeSim
         protected override void OnMouseScroll(IMouse sender, ScrollWheel scroll)
         {
             scaleExponent = Math.Clamp(scaleExponent + scroll.Y * 0.05f, -5.5f, 1.0f);
-            scale = (float)Math.Pow(10, scaleExponent);
+            scale = MathF.Pow(10, scaleExponent);
             UpdateTransformMatrix();
         }
 
@@ -179,7 +179,7 @@ namespace GameOfLifeSim
                 case Key.Home:
                     offset = Vector2.Zero;
                     scaleExponent = 0.2f;
-                    scale = (float)Math.Pow(10, scaleExponent);
+                    scale = MathF.Pow(10, scaleExponent);
                     UpdateTransformMatrix();
                     break;
 

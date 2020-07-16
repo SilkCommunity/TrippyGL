@@ -105,9 +105,9 @@ namespace TexturedTriangles
 
             float time = (float)stopwatch.Elapsed.TotalSeconds * MathF.PI * 0.1f;
             Matrix4x4 satelliteMatrix = Matrix4x4.CreateScale(satellite.Width / (float)satellite.Height * 0.15f, 0.15f, 1f);
-            satelliteMatrix *= Matrix4x4.CreateRotationZ((float)Math.Sin(time) * 0.2f);
+            satelliteMatrix *= Matrix4x4.CreateRotationZ(MathF.Sin(time) * 0.2f);
             satelliteMatrix *= Matrix4x4.CreateTranslation(0f, 0.2f, 0f);
-            satelliteMatrix *= Matrix4x4.CreateRotationZ((float)Math.Cos(time) * 0.33f);
+            satelliteMatrix *= Matrix4x4.CreateRotationZ(MathF.Cos(time) * 0.33f);
             shaderProgram.Uniforms["World"].SetValueMat4(satelliteMatrix);
             shaderProgram.Uniforms["samp"].SetValueTexture(satellite);
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);

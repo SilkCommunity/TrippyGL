@@ -68,7 +68,7 @@ namespace ShaderFractals
         protected override void OnRender(double dt)
         {
             const float min = 0.27f, max = 0.264f, spd = 0.5f;
-            float cx = min + (max - min) * ((float)Math.Sin(stopwatch.Elapsed.TotalSeconds * spd) + 1) * 0.5f;
+            float cx = min + (max - min) * (MathF.Sin((float)stopwatch.Elapsed.TotalSeconds * spd) + 1) * 0.5f;
             cUniform.SetValueVec2(new Vector2(cx, 0.0f));
 
             graphicsDevice.ShaderProgram = shaderProgram;
@@ -98,7 +98,7 @@ namespace ShaderFractals
         protected override void OnMouseScroll(IMouse sender, ScrollWheel scroll)
         {
             scaleExponent = Math.Clamp(scaleExponent + scroll.Y * 0.05f, -5.5f, 1.0f);
-            scale = (float)Math.Pow(10, scaleExponent);
+            scale = MathF.Pow(10, scaleExponent);
             UpdateTransformMatrix();
         }
 
@@ -109,7 +109,7 @@ namespace ShaderFractals
                 case Key.Home:
                     offset = new Vector2(-0.0504f, 0.2522f);
                     scaleExponent = 0.4f;
-                    scale = (float)Math.Pow(10, scaleExponent);
+                    scale = MathF.Pow(10, scaleExponent);
                     UpdateTransformMatrix();
                     break;
 

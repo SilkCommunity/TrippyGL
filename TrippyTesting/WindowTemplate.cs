@@ -6,7 +6,7 @@ using Silk.NET.Windowing.Common;
 using System;
 using TrippyGL;
 
-namespace TrippyTesting.Tests
+namespace TrippyTesting
 {
     class WindowTemplate
     {
