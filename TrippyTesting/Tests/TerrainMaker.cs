@@ -238,9 +238,9 @@ namespace TrippyTesting.Tests
 
             float jejeX = kb.IsKeyPressed(Key.ShiftLeft) || kb.IsKeyPressed(Key.ShiftRight) ? rotX : 0;
             if (kb.IsKeyPressed(Key.W))
-                cameraPos += new Vector3((MathF.Cos(rotY) * MathF.Cos(jejeX)), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
+                cameraPos += new Vector3(MathF.Cos(rotY) * MathF.Cos(jejeX), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
             if (kb.IsKeyPressed(Key.S))
-                cameraPos -= new Vector3((MathF.Cos(rotY) * MathF.Cos(jejeX)), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
+                cameraPos -= new Vector3(MathF.Cos(rotY) * MathF.Cos(jejeX), MathF.Sin(jejeX), MathF.Sin(rotY) * MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;
 
             if (kb.IsKeyPressed(Key.A))
                 cameraPos += new Vector3(MathF.Sin(rotY) * MathF.Cos(jejeX), MathF.Sin(jejeX), MathF.Cos(rotY) * -MathF.Cos(jejeX)) * CameraMoveSpeed * deltaTime;

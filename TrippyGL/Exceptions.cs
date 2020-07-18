@@ -81,4 +81,16 @@ namespace TrippyGL
 
         public BufferCopyException(string message, Exception innerException) : base(message, innerException) { }
     }
+
+    /// <summary>
+    /// An exception thrown when an error ocurres while loading an OBJ file.
+    /// </summary>
+    public class ObjLoaderException : Exception
+    {
+        public ObjLoaderException() : base() { }
+
+        public ObjLoaderException(string message) : base(message) { }
+
+        public ObjLoaderException(string message, Exception innerException) : base(message, innerException) { }
+    }
 }

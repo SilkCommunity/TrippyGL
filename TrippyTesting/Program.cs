@@ -1,5 +1,6 @@
 ﻿using Silk.NET.OpenGL;
 using System;
+using TrippyGL;
 
 namespace TrippyTesting
 {
@@ -7,7 +8,7 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            new Tests.TerrainMaker().Run();
+            new Tests.ObjFiles().Run();
         }
 
         public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)

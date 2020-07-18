@@ -78,7 +78,7 @@ namespace SimpleCubemap
             {
                 const float sensitivity = 5f;
                 cameraRot.Y += thumbstickDir.X * (float)dt * sensitivity;
-                cameraRot.X = Math.Clamp(cameraRot.X + (thumbstickDir.Y) * (float)dt * sensitivity, -1.57f, 1.57f);
+                cameraRot.X = Math.Clamp(cameraRot.X + thumbstickDir.Y * (float)dt * sensitivity, -1.57f, 1.57f);
                 UpdateCamera();
             }
         }

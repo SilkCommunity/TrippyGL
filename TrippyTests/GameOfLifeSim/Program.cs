@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GameOfLifeSim
+﻿namespace GameOfLifeSim
 {
     class Program
     {
