@@ -13,23 +13,20 @@ namespace TrippyGL
     /// </summary>
     public static class OBJLoader
     {
-        /// <summary>This character indicates that the rest of the line is a comment.</summary>
-        private const char LineCommentChar = '#';
-
         /// <summary>This character indicates the end of the current line.</summary>
         private const char NewlineIndicator = '\n';
 
         /// <summary>This character is used to separate different indices when specifying a vertex.</summary>
         private const char IndicesSeparator = '/';
 
-        /// <summary>
-        /// All sequential white spaces will be transformed into a single one of this character while reading
-        /// the file. This is done in <see cref="ReadNextLine(StreamReader, Span{char}, out ReadOnlySpan{char})"/>.
-        /// </summary>
-        private const char WhiteSpace = ' ';
+        /// <summary>The length of a char buffer used to parse numbers.</summary>
+        private const int CharBufferLength = 32;
 
-        /// <summary>The lenght of the buffer where lines from a file will be read to.</summary>
-        private const int LineBufferLength = 128;
+        /// <summary>
+        /// The maximum allowed length in characters for a number. This will limit the maximum
+        /// size of the char buffer from which numbers are parsed.
+        /// </summary>
+        private const int MaxNumberCharacterLength = 512;
 
         // These lists can be used and reused by the obj loading functions so they don't have to
         // instantiate and then discard a new list each time they're called.
@@ -46,6 +43,8 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
         /// <param name="file">The path to the OBJ file on disk.</param>
+        /// <returns>An array with the parsed vertex data as a triangle list.</returns>
+        /// <exception cref="ObjLoaderException"/>
         public static T[] FromFile<T>(string file) where T : unmanaged
         {
             if (string.IsNullOrEmpty(file))
@@ -60,6 +59,8 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
         /// <param name="stream">The <see cref="Stream"/> from which the OBJ file will be read from.</param>
+        /// <returns>An array with the parsed vertex data as a triangle list.</returns>
+        /// <exception cref="ObjLoaderException"/>
         public static T[] FromStream<T>(Stream stream) where T : unmanaged
         {
             if (stream == null)
@@ -72,12 +73,16 @@ namespace TrippyGL
         /// Loads a 3D model as an array of vertices from an OBJ file.
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
-        /// <param name="reader">The <see cref="StreamReader"/> from which the OBJ file will be read from.</param>
-        public static T[] FromStream<T>(StreamReader reader) where T : unmanaged
+        /// <param name="streamReader">The <see cref="StreamReader"/> from which the OBJ file will be read from.</param>
+        /// <returns>An array with the parsed vertex data as a triangle list.</returns>
+        /// <exception cref="ObjLoaderException"/>
+        public static T[] FromStream<T>(StreamReader streamReader) where T : unmanaged
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
+            if (streamReader == null)
+                throw new ArgumentNullException(nameof(streamReader));
 
+            // tmp will be used to check which vertex data to load with the is pattern at the beginning
+            // and to format the vertex attributes into memory after the file has been parsed.
             T tmp = default;
 
             // We check which vertex attributes to load and which not to depending on the vertex type.
@@ -101,70 +106,111 @@ namespace TrippyGL
                 // We will count the amount of vertices 
                 int vertexCount = 0;
 
-                // Lines read from the file will be held inside this buffer (if they fit)
-                Span<char> lineBuffer = stackalloc char[LineBufferLength];
+                // This is the buffer we'll use to parse numbers. The initial buffer is a relatively
+                // small, stackallocated array but if we need more space a char[] will be allocated
+                // and this span will be replaced to point at that larger array instead.
+                Span<char> charBuffer = stackalloc char[CharBufferLength];
 
-                while (!reader.EndOfStream)
+                while (!streamReader.EndOfStream)
                 {
-                    // Reads the next line. If the line is less than 3 characters, we ignore it.
-                    ReadOnlySpan<char> line = ReadNextLine(reader, lineBuffer);
                     currentLineNumber++;
-                    if (line.Length < 3)
+
+                    // This will skip empty lines (or lines that are only whitespaces) and advance
+                    // the reader to skip any whitespaces at the beginning of a line.
+                    if (SkipWhitespaces(streamReader))
                         continue;
 
-                    // Let's check and process the current line then
-                    if (line[0] == 'v')
+                    // We read the next character (it's guaranteed not to be a whitespace).
+                    char currentChar = (char)streamReader.Read();
+                    if (currentChar == 'v')
                     {
-                        if (line[1] == WhiteSpace)
-                        {
-                            // This line is declaring a vertex position (and maybe color) so
-                            // let's parse three floats and add those to the positions list.
-                            int index = 2;
-                            Vector3 pos = new Vector3(ReadNextFloat(line, ref index), ReadNextFloat(line, ref index), ReadNextFloat(line, ref index));
-                            positions.Add(pos);
+                        // The line starts with 'v'. Let's read the next character to see what to do next.
+                        currentChar = (char)streamReader.Read();
 
-                            // And if we're loading colors, then we also parse that and add it to the colors list.
+                        // The entire line might be just "v\n". This should throw an error.
+                        if (currentChar == NewlineIndicator)
+                            throw new FormatException("Unexpected end of line");
+
+                        // We check that character and 
+                        if (char.IsWhiteSpace(currentChar))
+                        {
+
+                            // We need to load a Vector3 position
+                            positions.Add(new Vector3(
+                                ReadNextFloat(streamReader, ref charBuffer),
+                                ReadNextFloat(streamReader, ref charBuffer),
+                                ReadNextFloat(streamReader, ref charBuffer)
+                            ));
+
                             if (loadColors)
                             {
-                                Color4b col = new Color4b(ReadNextFloat(line, ref index), ReadNextFloat(line, ref index), ReadNextFloat(line, ref index));
-                                colors.Add(col);
+                                // If we're also loading colors, we load a color4b from 3 floats
+                                colors.Add(new Color4b(
+                                    ReadNextFloat(streamReader, ref charBuffer),
+                                    ReadNextFloat(streamReader, ref charBuffer),
+                                    ReadNextFloat(streamReader, ref charBuffer)
+                                ));
                             }
                         }
-                        else if (loadNormals && line[1] == 'n' && line[2] == WhiteSpace)
+                        else if (loadNormals && currentChar == 'n')
                         {
-                            // This line is declaring normals and we have loading normals enabled.
-                            // We parse three floats and add them to the normals list.
-                            int index = 3;
-                            Vector3 norm = new Vector3(ReadNextFloat(line, ref index), ReadNextFloat(line, ref index), ReadNextFloat(line, ref index));
+                            // We need to load a Vector3 normal
+                            Vector3 norm = new Vector3(
+                                ReadNextFloat(streamReader, ref charBuffer),
+                                ReadNextFloat(streamReader, ref charBuffer),
+                                ReadNextFloat(streamReader, ref charBuffer)
+                            );
                             normals.Add(norm);
                         }
-                        else if (loadTexCoords && line[1] == 't' && line[2] == WhiteSpace)
+                        else if (loadTexCoords && currentChar == 't')
                         {
-                            // This line is declaring texcoords and we have loading texcoords enabled.
-                            // We parse two floats and add them to the texcoords list.
-                            int index = 3;
-                            Vector2 coords = new Vector2(ReadNextFloat(line, ref index), ReadNextFloat(line, ref index));
+                            // We need to load a Vector2 with texture coordinates
+                            Vector2 coords = new Vector2(
+                                ReadNextFloat(streamReader, ref charBuffer),
+                                ReadNextFloat(streamReader, ref charBuffer)
+                            );
                             texCoords.Add(coords);
                         }
                     }
-                    else if (line[0] == 'f' && line[1] == WhiteSpace)
+                    else if (currentChar == 'f')
                     {
-                        // This line is declaring a face.
-                        int index = 2;
-
-                        // We get the indices for three vertices and save them ordered on the indices list.
+                        // This line is specifying a face. We need to read three vertices.
                         for (int i = 0; i < 3; i++)
                         {
-                            ReadThreeIntegers(line, ref index, out int first, out int second, out int third);
-                            indices.Add(first - 1);
-                            if (loadNormals) indices.Add(third - 1);
-                            if (loadTexCoords) indices.Add(second - 1);
-                            vertexCount++;
+                            // Each vertex is specified with up to three integers, which specify the
+                            // indices for position, normal and texture coordinates.
+                            ReadThreeIntegers(streamReader, ref charBuffer, out int first, out int second, out int third);
 
-                            // We need to substract 1 to the indices because the indexing on the obj file
-                            // starts at 1, while our lists start at 0.
+                            // We verify validity and then store the index for position.
+                            if (first < 1 || first > positions.Count)
+                                throw new FormatException("Invalid position index integer");
+                            indices.Add(first - 1);
+
+                            // Note: The index for color is the same one as position, because colors are
+                            // specified (if they are present) alongside positions.
+
+                            // If we're loading normals, we verify validity for that index and store it.
+                            if (loadNormals)
+                            {
+                                if (third < 1 || third > normals.Count)
+                                    throw new FormatException("Invalid normal index integer");
+                                indices.Add(third - 1);
+                            }
+
+                            // If we're loading texcoords, we verify validity for that index and store it.
+                            if (loadTexCoords)
+                            {
+                                if (second < 1 || second > texCoords.Count)
+                                    throw new FormatException("Invalid texture coordinates index integer");
+                                indices.Add(second - 1);
+                            }
+
+                            // We increment the counter for how many vertices we have.
+                            vertexCount++;
                         }
                     }
+
+                    SkipLine(streamReader);
                 }
 
                 // We're done reading the file. We now need to process the data.
@@ -232,10 +278,10 @@ namespace TrippyGL
             {
                 // If the error happened before the reader reached end of stream, it was an error
                 // in a specific line. Otherwise, it was an error constructing the vertex data.
-                if (reader.EndOfStream)
-                    throw new ObjLoaderException("Error processing obj data. Ensure all indices are valid?", e);
+                if (streamReader.EndOfStream)
+                    throw new ObjLoaderException("Error processing obj data.", e);
                 else
-                    throw new ObjLoaderException("Error in line " + currentLineNumber, e);
+                    throw new ObjLoaderException("Error in line " + currentLineNumber + ": " + e.Message, e);
             }
             finally
             {
@@ -245,193 +291,168 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Advances index until it is pointing at a char in the <see cref="ReadOnlySpan{T}"/> that is not a whitespace.
+        /// Advances the <see cref="StreamReader"/> until a newline character (or an end of stream) is found.
+        /// The stream's position is left pointing at the first character of the following line.
         /// </summary>
-        private static void SkipWhitespaces(ReadOnlySpan<char> chars, ref int index)
+        private static void SkipLine(StreamReader streamReader)
         {
-            while (char.IsWhiteSpace(chars[index]))
-                index++;
+            while (!streamReader.EndOfStream && streamReader.Read() != NewlineIndicator) ;
         }
 
         /// <summary>
-        /// Returns the index of the first occurrance of a a whitespace character in the chars
-        /// <see cref="ReadOnlySpan{T}"/>, starting at startIndex.
+        /// Advances the stream's position until the next character to be returned by <see cref="StreamReader.Read()"/>
+        /// is not a whitespace character, but goes no further than the end of the line.
         /// </summary>
-        private static int FindNextWhitespace(ReadOnlySpan<char> chars, int startIndex)
+        /// <returns>Whether the end of the line (or stream) was reached.</returns>
+        private static bool SkipWhitespaces(StreamReader streamReader)
         {
-            while (startIndex < chars.Length && !char.IsWhiteSpace(chars[startIndex]))
-                startIndex++;
-            return startIndex;
+            while (!streamReader.EndOfStream)
+            {
+                char c = (char)streamReader.Peek();
+
+                if (!char.IsWhiteSpace(c))
+                    return false;
+
+                streamReader.Read();
+
+                if (c == NewlineIndicator)
+                    return true;
+            }
+
+            return true;
         }
 
         /// <summary>
-        /// Advances index until it is pointing to a position in the chars <see cref="ReadOnlySpan{T}"/>
-        /// that contains the requested character.
+        /// Advances the stream's position until the next character to be returned by <see cref="StreamReader.Read()"/>
+        /// is not a whitespace character. If an end of line is reached, an exception is thrown.
         /// </summary>
-        private static void AdvanceUntilNext(ReadOnlySpan<char> chars, ref int index, char character)
+        /// <exception cref="InvalidDataException"/>
+        private static void SkipWhitespacesNoEOL(StreamReader streamReader)
         {
-            while (index < chars.Length && chars[index] != character)
-                index++;
+            if (SkipWhitespaces(streamReader))
+                throw new InvalidDataException("Unexpected end of line");
         }
 
         /// <summary>
-        /// Reads and parses a float positioned in between whitespaces from the string and
-        /// advances index to the next character after the float's last digit.
+        /// Advances the stream's position until the next character to be returned by <see cref="StreamReader.Read()"/>
+        /// is a whitespace character, or the end of the stream is reached.
         /// </summary>
-        private static float ReadNextFloat(ReadOnlySpan<char> chars, ref int index)
+        private static void SkipUntilWhitespace(StreamReader streamReader)
         {
-            SkipWhitespaces(chars, ref index);
-            int startIndex = index;
-            index = FindNextWhitespace(chars, index);
-            return float.Parse(chars[startIndex..index], NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
+            while (!streamReader.EndOfStream && !char.IsWhiteSpace((char)streamReader.Peek()))
+                streamReader.Read();
         }
 
         /// <summary>
-        /// Reads three integers separated by <see cref="IndicesSeparator"/> and advances index
-        /// to the next character after the integers.
+        /// Parses a float separated by whitespaces from the <see cref="StreamReader"/>.
         /// </summary>
-        private static void ReadThreeIntegers(ReadOnlySpan<char> chars, ref int index, out int first, out int second, out int third)
+        /// <remarks>
+        /// The <see cref="StreamReader"/>'s position is left so that the last character read
+        /// was the last digit of the float, so the next <see cref="StreamReader.Read()"/> there will
+        /// either be a newline character or an end of stream.
+        /// </remarks>
+        /// <param name="streamReader">The <see cref="StreamReader"/> to read a float from.</param>
+        /// <param name="charBuffer">The buffer to use to store the characters for parsing.</param>
+        /// <returns>The parsed float.</returns>
+        private static float ReadNextFloat(StreamReader streamReader, ref Span<char> charBuffer)
         {
-            SkipWhitespaces(chars, ref index);
-            int start = index;
-            AdvanceUntilNext(chars, ref index, IndicesSeparator);
-            if (!int.TryParse(chars[start..index], NumberStyles.Integer, CultureInfo.InvariantCulture, out first))
-                first = -1;
-            start = ++index;
+            // First we skip whitespaces to look for the first digit
+            SkipWhitespacesNoEOL(streamReader);
 
-            AdvanceUntilNext(chars, ref index, IndicesSeparator);
-            if (start == index || !int.TryParse(chars[start..index], NumberStyles.Integer, CultureInfo.InvariantCulture, out second))
-                second = -1;
-            start = ++index;
-
-            index = FindNextWhitespace(chars, index);
-            if (start == index || !int.TryParse(chars[start..index], NumberStyles.Integer, CultureInfo.InvariantCulture, out third))
-                third = -1;
-            index++;
-        }
-
-        /// <summary>
-        /// Reads the next line from the reader and returns the characters as a <see cref="ReadOnlySpan{T}"/>.
-        /// The function will try to use lineBuffer to store the characters, but if there are too many
-        /// then it will allocate a string.
-        /// This will also trim off comments and remove any excess whitespaces.
-        /// </summary>
-        /// <param name="reader">The <see cref="StreamReader"/> to read the chars from.</param>
-        /// <param name="lineBuffer">The preferred buffer on which to store the characters read.</param>
-        private static ReadOnlySpan<char> ReadNextLine(StreamReader reader, Span<char> lineBuffer)
-        {
-            // The index on lineBuffer where we're currently writting.
             int index = 0;
-
-            char lastCharWritten = default;
             char currentChar;
-            while (!reader.EndOfStream)
+
+            // We go through the stream copying characters onto charBuffer until
+            // we hit a whitespace.
+            do
             {
-                // We read the next character from the stream.
-                currentChar = (char)reader.Read();
+                // We fetch the next character from the stream
+                currentChar = (char)streamReader.Read();
 
-                // If the current char is a newline, we've reached the end of this line.
-                if (currentChar == NewlineIndicator)
+                // If we don't have room for one more char in the buffer, we expand the buffer
+                if (index == charBuffer.Length)
+                    ExpandCharBuffer(ref charBuffer);
+
+                // We add the character to our parsing buffer
+                charBuffer[index++] = currentChar;
+
+                // If the end of the stream was reached, we exit the loop before fetching more chars
+                if (streamReader.EndOfStream)
                     break;
 
-                // If we found a comment, we'll cut the line up to there and skip the rest.
-                if (currentChar == LineCommentChar)
-                {
-                    SkipUntilNextLine(reader);
-                    break;
-                }
+                // We peek at the next character. If it's not a whitespace, the loop continues.
+                currentChar = (char)streamReader.Peek();
+            } while (!char.IsWhiteSpace(currentChar));
 
-                // Note: '\n' and '\r' characters also count as whitespace!
-                if (char.IsWhiteSpace(currentChar))
-                {
-                    // If a line starts with white characters, we ignore those.
-                    // If the previous character was a white space, then we ignore extra consecutive white spaces.
-                    if (index == 0 || lastCharWritten == WhiteSpace)
-                        continue;
-
-                    // This way, only the first whitespace character in a sequence will be taken.
-                    // Also, no matter what type of whitespace it is, we turn it into the WhiteSpace char
-                    currentChar = WhiteSpace;
-
-                    // Therefore, a sequence like two tabs followed by one space followed by three tabs
-                    // would all be converted into a single WhiteSpace while reading them.
-                }
-
-                // If we need one more character but lineBuffer is filled, then we'll just read the
-                // rest of the line as a string directly from the reader and concat everything.
-                if (index == lineBuffer.Length)
-                {
-                    // This might not look all that conventional, but seeking a StreamReader
-                    // is a bit of a pain in the ass...
-                    return ConcatLine(lineBuffer, currentChar, reader.ReadLine());
-                }
-
-                // We write the char to the lineBuffer and remember it as the last char we wrote.
-                lineBuffer[index++] = currentChar;
-                lastCharWritten = currentChar;
-            }
-
-            // EndOfStream reached. We have less than lineBuffer.Lenght characters.
-            // We set line to the subset of the linesBuffer and trim off excess whitespaces.
-            ReadOnlySpan<char> line = lineBuffer.Slice(0, index);
-            return line.TrimEnd();
+            // We parse the characters into a float and return it.
+            return float.Parse(charBuffer.Slice(0, index), NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
-        /// Reads (and discarts) characters from the stream until a '\n' is found.
-        /// Returns whether the end of the file was reached.
+        /// Parses a group of three integers in between whitespaces, with each integer separated by
+        /// <see cref="IndicesSeparator"/> characters. Missing values will be set to -1.
         /// </summary>
-        /// <param name="reader">The <see cref="StreamReader"/> to read the chars from.</param>
-        private static void SkipUntilNextLine(StreamReader reader)
+        private static void ReadThreeIntegers(StreamReader streamReader, ref Span<char> charBuffer, out int first, out int second, out int third)
         {
-            while (!reader.EndOfStream)
-                if (reader.Read() == NewlineIndicator)
-                    return;
+            // First, let's skip any whitespaces before the integers group
+            SkipWhitespacesNoEOL(streamReader);
+
+            if (ParseNextInt(streamReader, ref charBuffer, out first))
+            {
+                second = -1;
+                third = -1;
+                return;
+            }
+
+            if (ParseNextInt(streamReader, ref charBuffer, out second))
+            {
+                third = -1;
+                return;
+            }
+
+            ParseNextInt(streamReader, ref charBuffer, out third);
+            SkipUntilWhitespace(streamReader);
+
+            // Parses a single int from the group of three. The parsed integer is set to the value param
+            // and the function returns whether the end of the line/stream was reached.
+            static bool ParseNextInt(StreamReader streamReader, ref Span<char> charBuffer, out int value)
+            {
+                int index = 0;
+                char currentChar = (char)streamReader.Peek();
+                while (!char.IsWhiteSpace(currentChar))
+                {
+                    streamReader.Read();
+                    if (currentChar == IndicesSeparator)
+                        break;
+
+                    if (index == charBuffer.Length)
+                        ExpandCharBuffer(ref charBuffer);
+                    charBuffer[index++] = currentChar;
+
+                    if (streamReader.EndOfStream)
+                        break;
+
+                    currentChar = (char)streamReader.Peek();
+                }
+
+                value = index == 0 ? -1 : int.Parse(charBuffer.Slice(0, index), NumberStyles.Integer, CultureInfo.InvariantCulture);
+                return streamReader.EndOfStream || currentChar == NewlineIndicator;
+            }
         }
 
         /// <summary>
-        /// Concatenates a given <see cref="ReadOnlySpan{T}"/>, a char and a string
-        /// (in that order) into a single heap-allocated <see cref="ReadOnlySpan{T}"/>.
-        /// This will also trim out comments and remove excess whitespaces.
+        /// Expands the size of a char <see cref="Span{char}"/> by allocating a larger char[]
+        /// and copying all the data over to the new buffer.
         /// </summary>
-        private static ReadOnlySpan<char> ConcatLine(ReadOnlySpan<char> lineBuffer, char currentChar, string line)
+        /// <param name="charBuffer">The buffer to expand.</param>
+        private static void ExpandCharBuffer(ref Span<char> charBuffer)
         {
-            // We allocate enough characters for the entire line.
-            // We might not need this entire buffer though.
-            Span<char> buff = new char[lineBuffer.Length + 1 + line.Length];
-            
-            // We copy the lineBuffer to the beginning of buff.
-            lineBuffer.CopyTo(buff.Slice(0, lineBuffer.Length));
+            if (charBuffer.Length >= MaxNumberCharacterLength)
+                throw new FormatException("Numbers be less than " + MaxNumberCharacterLength + " characters in length.");
 
-            // The next character after all of that, we set it to currentChar.
-            int index = lineBuffer.Length;
-            buff[index++] = currentChar;
-
-            // We'll process the rest (the characters from the line string)
-            char lastWrittenChar = currentChar;
-            for (int i = 0; i < line.Length; i++)
-            {
-                currentChar = line[i];
-
-                // If we found a comment, the line ends here.
-                if (currentChar == LineCommentChar)
-                    break;
-
-                // If there are multiple sequential whitespace characters, we just place one WhiteSpace.
-                if (char.IsWhiteSpace(currentChar))
-                {
-                    if (lastWrittenChar == WhiteSpace)
-                        continue;
-
-                    currentChar = WhiteSpace;
-                }
-
-                buff[index++] = currentChar;
-                lastWrittenChar = currentChar;
-            }
-
-            // We've copied all the relevant characters. Let's slice and trim buff and return it.
-            return ((ReadOnlySpan<char>)buff.Slice(0, index)).TrimEnd();
+            Span<char> oldBuffer = charBuffer;
+            charBuffer = new char[Math.Min(charBuffer.Length * 2, MaxNumberCharacterLength)];
+            oldBuffer.CopyTo(charBuffer.Slice(0, oldBuffer.Length));
         }
 
         /// <summary>
