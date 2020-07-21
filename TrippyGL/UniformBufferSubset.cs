@@ -1,7 +1,8 @@
-#pragma warning disable CA1062 // Validate arguments of public methods
 using System;
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
+
+#pragma warning disable CA1062 // Validate arguments of public methods
 
 namespace TrippyGL
 {

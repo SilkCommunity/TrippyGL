@@ -234,7 +234,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calculates the required storage length in bytes required for a UniformBufferSubset with the specified storage length.
+        /// Calculates the required storage length in bytes required for an 
+        /// <see cref="IndexBufferSubset"/> with the specified storage length.
         /// </summary>
         /// <param name="elementType">The desired element type for the index buffer.</param>
         /// <param name="storageLength">The desired length for the subset measured in elements.</param>

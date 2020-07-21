@@ -105,6 +105,18 @@ namespace TrippyGL
         /// </summary>
         public static DepthTestingState Inverted => new DepthTestingState(true, DepthFunction.Greater, 0);
 
+        /// <summary>
+        /// Gets a <see cref="DepthTestingState"/> with the same settings as <see cref="Default"/>,
+        /// but writting to the depth buffer is disabled.
+        /// </summary>
+        public static DepthTestingState ReadOnly => new DepthTestingState(true, DepthFunction.Less, 1, 0, 1, false);
+
+        /// <summary>
+        /// Gets a <see cref="DepthTestingState"/> with the same settings as <see cref="Inverted"/>,
+        /// but writting to the depth buffer is disabled.
+        /// </summary>
+        public static DepthTestingState ReadOnlyInverted => new DepthTestingState(true, DepthFunction.Greater, 0, 0, 1, false);
+
         /// <summary>Gets a <see cref="DepthTestingState"/> where no depth testing is done and all fragments are written.</summary>
         public static DepthTestingState None => new DepthTestingState(false);
 

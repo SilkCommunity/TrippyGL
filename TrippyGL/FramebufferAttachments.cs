@@ -2,7 +2,6 @@
 
 namespace TrippyGL
 {
-
     /// <summary>
     /// Represents an attachment of a <see cref="TrippyGL.Texture"/> to a <see cref="FramebufferObject"/>.
     /// </summary>

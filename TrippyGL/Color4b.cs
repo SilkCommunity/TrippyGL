@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace TrippyGL
@@ -30,8 +31,21 @@ namespace TrippyGL
         /// </summary>
         public byte A;
 
-        /// <summary>Gets this <see cref="Color4b"/> represented as a single <see cref="uint"/> value.</summary>
-        public unsafe uint PackedValue => ((uint)A << 24) | ((uint)B << 16) | ((uint)G << 8) | R;
+        /// <summary>Gets or sets this <see cref="Color4b"/> represented as a single <see cref="uint"/> value.</summary>
+        public unsafe uint PackedValue
+        {
+            get => ((uint)A << 24) | ((uint)B << 16) | ((uint)G << 8) | R;
+            set
+            {
+                R = (byte)(value & 255);
+                value >>= 8;
+                G = (byte)(value & 255);
+                value >>= 8;
+                B = (byte)(value & 255);
+                value >>= 8;
+                A = (byte)(value & 255);
+            }
+        }
 
         /// <summary>
         /// Constructs a <see cref="Color4b"/> structure from the specified byte values.
@@ -56,6 +70,21 @@ namespace TrippyGL
             A = (byte)(a * 255);
         }
 
+        /// <summary>
+        /// Constructs a <see cref="Color4b"/> from the specified float values in
+        /// a <see cref="Vector4"/> represented on a normalized range (from 0.0 to 1.0).
+        /// </summary>
+        public Color4b(Vector4 rgba)
+        {
+            R = (byte)(rgba.X * 255);
+            G = (byte)(rgba.Y * 255);
+            B = (byte)(rgba.Z * 255);
+            A = (byte)(rgba.W * 255);
+        }
+
+        /// <summary>
+        /// Constructs a <see cref="Color4b"/> from a packed value
+        /// </summary>
         public Color4b(uint packedValue)
         {
             R = (byte)(packedValue & 255);
@@ -72,10 +101,22 @@ namespace TrippyGL
             uint value = (uint)A << 24 | (uint)R << 16 | (uint)G << 8 | B;
             return unchecked((int)value);
         }
+        
+        /// <summary>
+        /// Converts this <see cref="Color4b"/> into a <see cref="Vector4"/> by normalizing
+        /// the R, G, B, A and setting them to the X, Y, Z, W values on a <see cref="Vector4"/>.
+        /// </summary>
+        public Vector4 ToVector4()
+        {
+            return new Vector4(R / 255f, G / 255f, B / 255f, A / 255f);
+        }
 
         public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
 
         public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
+
+        public static explicit operator Vector4(Color4b color) => color.ToVector4();
+        public static explicit operator Color4b(Vector4 vector) => new Color4b(vector);
 
         /// <summary>
         /// Multiplies the RGB components of a <see cref="Color4b"/> by a scale, rounding to the nearest value.

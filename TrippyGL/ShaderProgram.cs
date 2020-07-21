@@ -5,12 +5,11 @@ namespace TrippyGL
 {
     /// <summary>
     /// Encapsulates an OpenGL program object for using shaders.
-    /// Shaders define how things are processed in the graphics card,
+    /// Shaders define how things are processed in the graphics pipeline,
     /// from calculating vertex positions to choosing the color of each fragment.
     /// </summary>
     public sealed class ShaderProgram : GraphicsResource
     {
-        // TODO: Change this to internal!!!
         /// <summary>The handle for the OpenGL Program object.</summary>
         public readonly uint Handle;
 
@@ -23,14 +22,11 @@ namespace TrippyGL
         /// <summary>The list of block uniforms in this <see cref="ShaderProgram"/>.</summary>
         public readonly ShaderBlockUniformList BlockUniforms;
 
-        /// <summary>The vertex attributes for this <see cref="ShaderProgram"/> queried from OpenGL at program linking.</summary>
+        /// <summary>The vertex attributes for this <see cref="ShaderProgram"/> queried from OpenGL.</summary>
         private ActiveVertexAttrib[] activeAttribs;
 
-        /// <summary>Gets the input attributes on this program, once it's been linked.</summary>
+        /// <summary>Gets the input attributes on this program.</summary>
         public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => activeAttribs;
-
-        /// <summary>Whether this <see cref="ShaderProgram"/> is the one currently in use on it's <see cref="GraphicsDevice"/>.</summary>
-        public bool IsCurrentlyInUse => GraphicsDevice.ShaderProgram == this;
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a vertex shader attached.</summary>
         public readonly bool HasVertexShader;
@@ -58,8 +54,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures all necessary states are set for a draw command to use this program, such as making
-        /// sure sampler or block uniforms are properly set.<para/>
+        /// Ensures all necessary states are set for a draw command to use this program,
+        /// such as making sure sampler or block uniforms are properly set.<para/>
         /// This should always be called before a draw operation and assumes this
         /// <see cref="ShaderProgram"/> is the one currently in use.
         /// </summary>

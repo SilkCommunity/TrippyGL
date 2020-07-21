@@ -196,9 +196,11 @@ namespace TrippyGL
         /// <summary>Gets a <see cref="BlendState"/> where fragments are written 'as is' without any mixing.</summary>
         public static BlendState Opaque => new BlendState(true);
 
-        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed with alpha.</summary>
-        public static BlendState AlphaBlend => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,
-            BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.One);
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed with non-premultiplied alpha.</summary>
+        public static BlendState NonPremultiplied => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed using the source's alpha.</summary>
+        public static BlendState AlphaBlend => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
 
         /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed by adding them together.</summary>
         public static BlendState Additive => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd,

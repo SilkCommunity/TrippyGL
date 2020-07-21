@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// An abstract <see cref="Texture"/> that supports multisampling.
+    /// An abstract <see cref="Texture"/> type that supports multisampling.
     /// </summary>
     public class TextureMultisamplable : Texture
     {

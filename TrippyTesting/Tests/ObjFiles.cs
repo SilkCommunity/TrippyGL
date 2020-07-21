@@ -69,7 +69,8 @@ namespace TrippyTesting.Tests
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
             time = 0;
 
-            texture = Texture2DExtensions.FromFile(graphicsDevice, "objs/stallTexture.png");
+            texture = Texture2DExtensions.FromFile(graphicsDevice, "objs/stallTexture.png", true);
+            texture.SetTextureFilters(TextureMinFilter.LinearMipmapLinear, TextureMagFilter.Linear);
 
             VertexNormalTexture[] cube = OBJLoader.FromFile<VertexNormalTexture>("objs/stall.obj");
 
@@ -116,8 +117,8 @@ namespace TrippyTesting.Tests
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            matrices.View = Matrix4x4.CreateLookAt(new Vector3(0, 2, -2), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            matrices.World = Matrix4x4.CreateScale(0.2f) * Matrix4x4.CreateRotationY(time * MathF.PI);
+            matrices.View = Matrix4x4.CreateLookAt(new Vector3(0, 1, -2), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+            matrices.World = Matrix4x4.CreateScale(0.2f) * Matrix4x4.CreateRotationY(time * MathF.PI / 4f);
             uniformSubset.SetValue(matrices);
 
             graphicsDevice.ShaderProgram = shaderProgram;

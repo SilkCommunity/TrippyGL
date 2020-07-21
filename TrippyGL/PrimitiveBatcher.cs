@@ -347,7 +347,7 @@ namespace TrippyGL
         public int GetNextCapacity(int currentCapacity, int requiredCapacity)
         {
             // Finds the smallest number that is greater than requiredCapacity and satisfies this equation:
-            // " newCapacity = oldCapacity * 2 ^ X " where X is an integer
+            // " newCapacity = oldCapacity * 2^X " where X is an integer
             // I swear to god this calculation literally just came to me without consuming any brainpower
 
             const double log2 = 0.30102999566398119521373889472449;

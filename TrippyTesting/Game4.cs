@@ -169,7 +169,7 @@ namespace TrippyTesting
                 return;
 
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.BlendState = BlendState.AlphaBlend;
+            graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthTestingEnabled = false;
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);

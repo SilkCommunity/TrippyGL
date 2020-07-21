@@ -4,7 +4,8 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Encapsulates an OpenGL texture object. This is the base class for all texture types and manages a lot of their internal workings.
+    /// Encapsulates an OpenGL texture object. This is the base class for all
+    /// texture types and manages some of their internal workings.
     /// </summary>
     public abstract class Texture : GraphicsResource
     {
@@ -88,6 +89,7 @@ namespace TrippyGL
         /// <summary>
         /// Generates mipmaps for this <see cref="Texture"/>.
         /// </summary>
+        /// <exception cref="InvalidOperationException"/>
         public void GenerateMipmaps()
         {
             if (isNotMipmappable)

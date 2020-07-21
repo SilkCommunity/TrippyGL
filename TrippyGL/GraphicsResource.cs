@@ -7,23 +7,23 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Encapsulates any graphics resource.
+    /// Base class for any graphics resource.
     /// These include <see cref="Texture"/>, <see cref="BufferObject"/>, <see cref="VertexArray"/>, etc.
     /// </summary>
     public abstract class GraphicsResource : IDisposable
     {
-        /// <summary>The <see cref="GraphicsDevice"/> that manages this <see cref="GraphicsResource"/>.</summary>
+        /// <summary>The <see cref="TrippyGL.GraphicsDevice"/> that manages this <see cref="GraphicsResource"/>.</summary>
         public GraphicsDevice GraphicsDevice { get; internal set; }
 
+        /// <summary>Gets this <see cref="GraphicsResource"/>'s GL object.</summary>
         internal GL GL => GraphicsDevice.GL;
 
         /// <summary>Whether this <see cref="GraphicsResource"/> has been disposed.</summary>
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Creates a <see cref="GraphicsResource"/>-s that uses the specified <see cref="GraphicsDevice"/>.
+        /// Creates a <see cref="GraphicsResource"/> that uses the specified <see cref="TrippyGL.GraphicsDevice"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="TrippyGL.GraphicsDevice"/> for this <see cref="GraphicsResource"/>.</param>
         internal GraphicsResource(GraphicsDevice graphicsDevice)
         {
             GraphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));

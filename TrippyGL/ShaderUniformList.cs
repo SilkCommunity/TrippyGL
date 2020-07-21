@@ -6,9 +6,9 @@ namespace TrippyGL
 {
     /// <summary>
     /// A list of <see cref="ShaderUniform"/> belonging to a <see cref="ShaderProgram"/>.
-    /// This class also does some controlling over these uniforms to make everything run nicely.
+    /// This class also does some controlling over these uniforms to make everything run properly.
     /// </summary>
-    public class ShaderUniformList
+    public sealed class ShaderUniformList
     {
         /// <summary>The <see cref="ShaderProgram"/> the uniforms belong to.</summary>
         public readonly ShaderProgram Program;
@@ -26,9 +26,9 @@ namespace TrippyGL
         private readonly List<Texture> textureList;
 
         /// <summary>
-        /// Whether the <see cref="textureList"/> is up to date or needs to be remade.<para/>
-        /// sampler <see cref="ShaderUniform"/>-s set this to true when their value has changed so the list gets
-        /// remade the next time it is needed.
+        /// Whether the <see cref="textureList"/> list is up to date or needs to be remade.<para/>
+        /// sampler-type <see cref="ShaderUniform"/>-s set this to true when their value is
+        /// changed so the list gets remade the next time it is needed.
         /// </summary>
         internal bool isTextureListDirty;
 
@@ -83,15 +83,17 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// When using sampler uniforms, this will make sure they all work together properly.
-        /// This is called by <see cref="ShaderProgram.EnsurePreDrawStates"/> after the program is ensured to be in use.
+        /// When using sampler uniforms, this will make sure they all work together properly. This is called
+        /// by <see cref="ShaderProgram.EnsurePreDrawStates"/> after the program is ensured to be in use.
         /// </summary>
         internal void EnsureSamplerUniformsSet()
         {
             // Quick explanation of this method:
-            // This method binds all the textures needed for the ShaderProgram's sampler-type uniforms to different texture units.
-            // Then, it tells each ShaderUniform to ensure the texture units it's samplers are using are the correct one for their textures.
-            // This is necessary because else, when using multiple samplers, you can't ensure they will all be using the correct texture.
+            // This method binds all the textures needed for the ShaderProgram's sampler-type
+            // uniforms to different texture units. Then, it tells each ShaderUniform to ensure
+            // it's samplers are using the correct texture units for their textures.
+            // This is necessary because otherwise, when using multiple samplers, you can't ensure
+            // they will all be using the correct texture, since texture units might mix up.
 
             if (hasSamplerUniforms)
             {

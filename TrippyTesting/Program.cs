@@ -1,6 +1,5 @@
 ﻿using Silk.NET.OpenGL;
 using System;
-using TrippyGL;
 
 namespace TrippyTesting
 {

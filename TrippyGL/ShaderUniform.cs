@@ -724,10 +724,11 @@ namespace TrippyGL
         #endregion
 
         /// <summary>
-        /// This is called by <see cref="ShaderUniformList.EnsureSamplerUniformsSet"/> after all the required sampler uniform
-        /// textures have been bound to different texture units.<para/>
-        /// This method assumes that the <see cref="textureValues"/> textures are all bound to texture units and ready to be used.
-        /// This method also assumes that the <see cref="ShaderProgram"/> that owns this uniform is the one currently in use.
+        /// This is called by <see cref="ShaderUniformList.EnsureSamplerUniformsSet"/> after all
+        /// the required sampler uniform textures have been bound to different texture units.<para/>
+        /// This method assumes that the <see cref="textureValues"/> textures are all bound to
+        /// texture units and ready to be used. This method also assumes that the
+        /// <see cref="ShaderProgram"/> that owns this uniform is the one currently in use.
         /// </summary>
         internal void ApplyUniformTextureValues()
         {
@@ -766,6 +767,10 @@ namespace TrippyGL
                 throw new InvalidOperationException(string.Concat("Tried to set a uniform with an incorrect type. You tried to set a ", type.ToString(), " while the uniform's type was ", UniformType.ToString()));
         }
 
+        /// <summary>
+        /// Checks that <see cref="UniformType"/> is the correct type and valueLength is less
+        /// than <see cref="Size"/>, and throws an exception otherwise.
+        /// </summary>
         private void ValidateArrayAndType(UniformType type, int valueLength)
         {
             ValidateUniformType(type);

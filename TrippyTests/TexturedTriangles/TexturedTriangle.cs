@@ -80,7 +80,7 @@ namespace TexturedTriangles
             satellite = Texture2DExtensions.FromFile(graphicsDevice, "satellite.png");
             satellite.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
 
-            graphicsDevice.BlendState = BlendState.AlphaBlend;
+            graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthTestingEnabled = false;
 
             stopwatch = Stopwatch.StartNew();

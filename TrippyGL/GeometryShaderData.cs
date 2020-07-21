@@ -4,14 +4,14 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Stores data about a geometry shader.
+    /// Stores data about a Geometry Shader.
     /// </summary>
     public readonly struct GeometryShaderData : IEquatable<GeometryShaderData>
     {
-        /// <summary>The PrimitiveType the geometry shader takes as input.</summary>
+        /// <summary>The <see cref="PrimitiveType"/> the geometry shader takes as input.</summary>
         public readonly PrimitiveType GeometryInputType;
 
-        /// <summary>The PrimitiveType the geometry shader takes as output.</summary>
+        /// <summary>The <see cref="PrimitiveType"/> the geometry shader takes as output.</summary>
         public readonly PrimitiveType GeometryOutputType;
 
         /// <summary>The amount of invocations the geometry shader will do.</summary>

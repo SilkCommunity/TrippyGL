@@ -21,6 +21,10 @@ namespace TrippyGL
     /// </summary>
     public sealed class GraphicsDevice : IDisposable
     {
+        /// <summary>
+        /// The <see cref="Silk.NET.OpenGL.GL"/> object that all <see cref="GraphicsResource"/>-s
+        /// on this <see cref="GraphicsDevice"/> will use to call GL functions.
+        /// </summary>
         public readonly GL GL;
 
         /// <summary>Whether this <see cref="GraphicsDevice"/> instance has been disposed.</summary>
@@ -591,9 +595,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a vertex array without first checking whether it's already bound.
+        /// Binds a <see cref="TrippyGL.VertexArray"/> without first checking whether it's already bound.
         /// </summary>
-        /// <param name="array">The array to bind.</param>
+        /// <param name="array">The <see cref="TrippyGL.VertexArray"/> to bind.</param>
         internal void ForceBindVertexArray(VertexArray array)
         {
             GL.BindVertexArray(array == null ? 0 : array.Handle);
@@ -628,9 +632,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Installs the given program into the rendering pipeline without first checking whether it's already in use.
+        /// Installs the given <see cref="TrippyGL.ShaderProgram"/> into the rendering
+        /// pipeline without first checking whether it's already in use.
         /// </summary>
-        /// <param name="program">The shader program to use.</param>
+        /// <param name="program">The <see cref="TrippyGL.ShaderProgram"/> to use.</param>
         internal void ForceUseShaderProgram(ShaderProgram program)
         {
             GL.UseProgram(program == null ? 0 : program.Handle);
@@ -661,7 +666,7 @@ namespace TrippyGL
         public int ActiveTextureUnit { get; private set; }
 
         /// <summary>
-        /// When a texture needs a new binding, it requests a texture unit from this method.
+        /// When a <see cref="Texture"/> needs a new binding, it requests a texture unit from this method.
         /// </summary>
         private int GetNextBindTextureUnit()
         {
@@ -701,10 +706,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a texture is bound to any texture unit, but doesn't ensure that texture unit is the currently active one.
-        /// Returns the texture unit to which the texture is bound.
+        /// Ensures a <see cref="Texture"/> is bound to any texture unit, but doesn't
+        /// ensure that texture unit is the currently active one.
         /// </summary>
-        /// <param name="texture">The texture to ensure is bound.</param>
+        /// <returns>The texture unit to which the <see cref="Texture"/> is bound.</returns>
         public int BindTexture(Texture texture)
         {
             if (texture == null)
@@ -716,10 +721,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Ensures a texture is bound to any texture unit, and that the texture unit to which the texture is bound is the currently active one.
-        /// Returns the texture unit to which the texture is bound.
+        /// Ensures a <see cref="Texture"/> is bound to any texture unit, and that the
+        /// texture unit to which said <see cref="Texture"/> is bound is the currently active one.
         /// </summary>
-        /// <param name="texture">The texture to ensure is bound and active.</param>
+        /// <returns>The texture unit to which the <see cref="Texture"/> is bound.</returns>
         public int BindTextureSetActive(Texture texture)
         {
             if (texture == null)
@@ -735,10 +740,12 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a texture to any texture unit. Returns the texture unit to which the texture is now bound to.
-        /// The returned texture unit will also always be the currently active one.
+        /// Binds a <see cref="Texture"/> to any texture unit.
         /// </summary>
-        /// <param name="texture">The texture to bind.</param>
+        /// <returns>
+        /// The texture unit to which the <see cref="Texture"/> is now bound to.
+        /// The returned texture unit will also always be the currently active one.
+        /// </returns>
         internal int ForceBindTexture(Texture texture)
         {
             SetActiveTexture(GetNextBindTextureUnit());
@@ -749,9 +756,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a texture to the current texture unit.
+        /// Binds a <see cref="Texture"/> to the currently active texture unit.
         /// </summary>
-        /// <param name="texture">The texture to bind.</param>
         internal void ForceBindTextureToCurrentUnit(Texture texture)
         {
             GL.BindTexture(texture.TextureType, texture.Handle);
@@ -762,7 +768,6 @@ namespace TrippyGL
         /// <summary>
         /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
-        /// <param name="textures">The <see cref="Texture"/>-s to ensure are bound.</param>
         public void BindAllTextures(ReadOnlySpan<Texture> textures)
         {
             if (textures.Length > textureBindings.Length)
@@ -805,7 +810,6 @@ namespace TrippyGL
         /// <summary>
         /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
-        /// <param name="textures">The <see cref="Texture"/>-s to ensure are bound.</param>
         public void BindAllTextures(List<Texture> textures)
         {
             if (textures == null)
@@ -849,9 +853,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether a texture is the one still bound to it's last bind location.
+        /// Returns whether a <see cref="Texture"/> is the one currently bound to it's last bind location.
         /// </summary>
-        /// <param name="texture">The texture to check if it's bound.</param>
         public bool IsTextureBound(Texture texture)
         {
             return texture != null && textureBindings[texture.lastBindUnit] == texture.Handle;
@@ -889,7 +892,7 @@ namespace TrippyGL
         private FramebufferObject readFramebuffer;
         private RenderbufferObject renderbuffer;
 
-        /// <summary>Gets or sets (binds) the framebuffer currently bound for drawing.</summary>
+        /// <summary>Gets or sets (binds) the <see cref="FramebufferObject"/> currently bound for drawing.</summary>
         public FramebufferObject DrawFramebuffer
         {
             get { return drawFramebuffer; }
@@ -903,7 +906,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the framebuffer currently bound for reading.</summary>
+        /// <summary>Gets or sets (binds) the <see cref="FramebufferObject"/> currently bound for reading.</summary>
         public FramebufferObject ReadFramebuffer
         {
             get { return readFramebuffer; }
@@ -917,7 +920,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Sets (binds) a framebuffer for both drawing and reading.</summary>
+        /// <summary>Sets (binds) a <see cref="FramebufferObject"/> for both drawing and reading.</summary>
         public FramebufferObject Framebuffer
         {
             set
@@ -931,7 +934,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Gets or sets (binds) the current renderbuffer.</summary>
+        /// <summary>Gets or sets (binds) the current <see cref="RenderbufferObject"/>.</summary>
         public RenderbufferObject Renderbuffer
         {
             get { return renderbuffer; }
@@ -946,9 +949,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a framebuffer for drawing without first checking whether it's already bound.
+        /// Binds a <see cref="FramebufferObject"/> for drawing without first checking whether it's already bound.
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to bind.</param>
         internal void ForceBindDrawFramebuffer(FramebufferObject framebuffer)
         {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
@@ -956,9 +958,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a framebuffer for reading without first checking whether it's already bound.
+        /// Binds a <see cref="FramebufferObject"/> for reading without first checking whether it's already bound.
         /// </summary>
-        /// <param name="framebuffer">The framebuffer to bind.</param>
         internal void ForceBindReadFramebuffer(FramebufferObject framebuffer)
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
@@ -966,9 +967,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a renderbuffer without first checking whether it's already bound.
+        /// Binds a <see cref="RenderbufferObject"/> without first checking whether it's already bound.
         /// </summary>
-        /// <param name="renderbuffer">The renderbuffer to bind.</param>
         internal void ForceBindRenderbuffer(RenderbufferObject renderbuffer)
         {
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbuffer.Handle);
@@ -976,7 +976,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Resets all saved states for <see cref="FramebufferObject"/>-s.
+        /// Resets all saved states for framebuffers and renderbuffers.
         /// You should only need to call this when interoperating with other libraries or using your own GL functions.
         /// </summary>
         public void ResetFramebufferStates()
@@ -996,7 +996,7 @@ namespace TrippyGL
 
         #region ClearColor
 
-        /// <summary>The current clear color.</summary>
+        /// <summary>Backing field for <see cref="ClearColor"/>.</summary>
         private Vector4 clearColor;
 
         /// <summary>
@@ -1017,7 +1017,7 @@ namespace TrippyGL
         #endregion
 
         #region Viewport
-        /// <summary>The current drawing viewport.</summary>
+        /// <summary>Backing field for <see cref="Viewport"/>.</summary>
         private Viewport viewport;
 
         /// <summary>Gets or sets the current viewport for drawing.</summary>
@@ -1057,10 +1057,10 @@ namespace TrippyGL
 
         #region ScissorTest
 
-        /// <summary>Whether scissor testing is currently enabled.</summary>
+        /// <summary>Backing field for <see cref="ScissorTestEnabled"/>.</summary>
         private bool scissorTestEnabled = false;
 
-        /// <summary>The current scissor rectangle.</summary>
+        /// <summary>Backing field for <see cref="ScissorRectangle"/>.</summary>
         private Viewport scissorRect;
 
         /// <summary>Gets or sets whether scissor testing is enable.</summary>
@@ -1096,6 +1096,13 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Sets the current scissor rectangle.
+        /// </summary>
+        /// <param name="x">The scissor rectangle's X.</param>
+        /// <param name="y">The scissor rectangle's Y.</param>
+        /// <param name="width">The scissor rectangle's width.</param>
+        /// <param name="height">The scissor rectangle's height.</param>
         public void SetScissorRectangle(int x, int y, uint width, uint height)
         {
             if (x != scissorRect.X || y != scissorRect.Y || width != scissorRect.Width || height != scissorRect.Height)
@@ -1116,6 +1123,10 @@ namespace TrippyGL
         private BlendState blendState = BlendState.Opaque;
 
         /// <summary>Gets or sets the <see cref="TrippyGL.BlendState"/> used for drawing.</summary>
+        /// <remarks>
+        /// Getting this property returns a cloned object. Modifying that object doesn't
+        /// automatically apply changes to this <see cref="GraphicsDevice"/>.
+        /// </remarks>
         public BlendState BlendState
         {
             get { return blendState.Clone(); } // Since BlendState is a class we shouldn't return a reference to our instance
@@ -1191,7 +1202,7 @@ namespace TrippyGL
         /// <summary>The current depth state.</summary>
         private DepthTestingState depthState = new DepthTestingState(false);
 
-        /// <summary>Sets the current depth testing state.</summary>
+        /// <summary>Sets the <see cref="DepthTestingState"/> used for drawing.</summary>
         /// <remarks>
         /// Getting this property returns a cloned object. Modifying that object doesn't
         /// automatically apply changes to this <see cref="GraphicsDevice"/>.
@@ -1379,7 +1390,6 @@ namespace TrippyGL
         /// <summary>
         /// Disables a gl_ClipDistance index.
         /// </summary>
-        /// <param name="index"></param>
         public void DisableClipDistance(int index)
         {
             if (clipDistancesEnabled[index])
@@ -1647,7 +1657,8 @@ namespace TrippyGL
         #endregion GraphicsResourceManagement
 
         /// <summary>
-        /// Ensures all OpenGL commands given before this function was called are not being queued up (doesn't wait for them to finish).
+        /// Ensures all OpenGL commands given before this function was called are
+        /// not being queued up (doesn't wait for them to finish).
         /// </summary>
         public void FlushCommands()
         {

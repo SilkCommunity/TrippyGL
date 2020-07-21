@@ -130,10 +130,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Tries to detach a <see cref="Texture"/> attached to the specified attachment point.
-        /// Returns whether the operation succeeded.
         /// </summary>
         /// <param name="point">The attachment point to check.</param>
         /// <param name="attachment">The detached <see cref="Texture"/> attachment, if the method returned true.</param>
+        /// <returns>Returns whether the operation succeeded.</returns>
         public bool TryDetachTexture(FramebufferAttachmentPoint point, out FramebufferTextureAttachment attachment)
         {
             for (int i = 0; i < textureAttachments.Count; i++)
@@ -152,10 +152,10 @@ namespace TrippyGL
 
         /// <summary>
         /// Tries to detach a <see cref="RenderbufferObject"/> attached to the specified point.
-        /// Returns whether the operation succeded.
         /// </summary>
         /// <param name="point">The attachment point to check.</param>
         /// <param name="attachment">The detached <see cref="RenderbufferObject"/> attachment, if the method returned true.</param>
+        /// <returns>Returns whether the operation succeded.</returns>
         public bool TryDetachRenderbuffer(FramebufferAttachmentPoint point, out FramebufferRenderbufferAttachment attachment)
         {
             for (int i = 0; i < renderbufferAttachments.Count; i++)

@@ -100,6 +100,7 @@ namespace TrippyGL
 
             // When something goes wrong, it's gonna be nice to have the line number on the exception's message ;)
             int currentLineNumber = 0;
+            bool doneParsingData = false;
 
             try
             {
@@ -128,13 +129,12 @@ namespace TrippyGL
                         currentChar = (char)streamReader.Read();
 
                         // The entire line might be just "v\n". This should throw an error.
-                        if (currentChar == NewlineIndicator)
+                        if (streamReader.EndOfStream || currentChar == NewlineIndicator)
                             throw new FormatException("Unexpected end of line");
 
                         // We check that character and 
                         if (char.IsWhiteSpace(currentChar))
                         {
-
                             // We need to load a Vector3 position
                             positions.Add(new Vector3(
                                 ReadNextFloat(streamReader, ref charBuffer),
@@ -183,7 +183,7 @@ namespace TrippyGL
 
                             // We verify validity and then store the index for position.
                             if (first < 1 || first > positions.Count)
-                                throw new FormatException("Invalid position index integer");
+                                throw new FormatException("Invalid position index integer: " + first.ToString());
                             indices.Add(first - 1);
 
                             // Note: The index for color is the same one as position, because colors are
@@ -193,7 +193,7 @@ namespace TrippyGL
                             if (loadNormals)
                             {
                                 if (third < 1 || third > normals.Count)
-                                    throw new FormatException("Invalid normal index integer");
+                                    throw new FormatException("Invalid normal index integer: " + third.ToString());
                                 indices.Add(third - 1);
                             }
 
@@ -201,7 +201,7 @@ namespace TrippyGL
                             if (loadTexCoords)
                             {
                                 if (second < 1 || second > texCoords.Count)
-                                    throw new FormatException("Invalid texture coordinates index integer");
+                                    throw new FormatException("Invalid texture coordinates index integer: " + second.ToString());
                                 indices.Add(second - 1);
                             }
 
@@ -214,6 +214,7 @@ namespace TrippyGL
                 }
 
                 // We're done reading the file. We now need to process the data.
+                doneParsingData = true;
                 T[] vertices = new T[vertexCount];
 
                 // Time to get funky
@@ -276,9 +277,9 @@ namespace TrippyGL
             }
             catch (Exception e)
             {
-                // If the error happened before the reader reached end of stream, it was an error
+                // If the error happened before doneParsingData was set to true, it was an error
                 // in a specific line. Otherwise, it was an error constructing the vertex data.
-                if (streamReader.EndOfStream)
+                if (doneParsingData)
                     throw new ObjLoaderException("Error processing obj data.", e);
                 else
                     throw new ObjLoaderException("Error in line " + currentLineNumber + ": " + e.Message, e);
@@ -385,7 +386,9 @@ namespace TrippyGL
             } while (!char.IsWhiteSpace(currentChar));
 
             // We parse the characters into a float and return it.
-            return float.Parse(charBuffer.Slice(0, index), NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
+            if (float.TryParse(charBuffer.Slice(0, index), NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture, out float result))
+                return result;
+            throw new FormatException("Invalid float format: \"" + charBuffer.Slice(0, index).ToString() + "\"");
         }
 
         /// <summary>
@@ -435,7 +438,14 @@ namespace TrippyGL
                     currentChar = (char)streamReader.Peek();
                 }
 
-                value = index == 0 ? -1 : int.Parse(charBuffer.Slice(0, index), NumberStyles.Integer, CultureInfo.InvariantCulture);
+                if (index == 0)
+                    value = -1;
+                else
+                {
+                    if (!int.TryParse(charBuffer.Slice(0, index), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+                        throw new FormatException("Invalid int format: \"" + charBuffer.Slice(0, index).ToString() + "\"");
+                }
+
                 return streamReader.EndOfStream || currentChar == NewlineIndicator;
             }
         }
