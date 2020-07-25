@@ -8,7 +8,7 @@ namespace TrippyGL
     /// Shaders define how things are processed in the graphics pipeline,
     /// from calculating vertex positions to choosing the color of each fragment.
     /// </summary>
-    public sealed class ShaderProgram : GraphicsResource
+    public class ShaderProgram : GraphicsResource
     {
         /// <summary>The handle for the OpenGL Program object.</summary>
         public readonly uint Handle;
@@ -26,7 +26,7 @@ namespace TrippyGL
         private ActiveVertexAttrib[] activeAttribs;
 
         /// <summary>Gets the input attributes on this program.</summary>
-        public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => activeAttribs;
+        public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => new ReadOnlySpan<ActiveVertexAttrib>(activeAttribs);
 
         /// <summary>Whether this <see cref="ShaderProgram"/> has a vertex shader attached.</summary>
         public readonly bool HasVertexShader;

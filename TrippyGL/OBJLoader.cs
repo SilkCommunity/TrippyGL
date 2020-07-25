@@ -104,7 +104,7 @@ namespace TrippyGL
 
             try
             {
-                // We will count the amount of vertices 
+                // In this variable we will count the amount of vertices 
                 int vertexCount = 0;
 
                 // This is the buffer we'll use to parse numbers. The initial buffer is a relatively

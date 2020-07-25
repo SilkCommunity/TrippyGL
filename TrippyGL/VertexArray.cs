@@ -16,7 +16,7 @@ namespace TrippyGL
         private readonly VertexAttribSource[] attribSources;
 
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>
-        public ReadOnlySpan<VertexAttribSource> AttribSources => attribSources;
+        public ReadOnlySpan<VertexAttribSource> AttribSources => new ReadOnlySpan<VertexAttribSource>(attribSources);
 
         public readonly IndexBufferSubset IndexBuffer;
 
@@ -216,7 +216,7 @@ namespace TrippyGL
         {
             T t = default;
             int attribCount = t.AttribDescriptionCount;
-            Span<VertexAttribDescription> attribDescriptions = attribCount > 256 ?
+            Span<VertexAttribDescription> attribDescriptions = attribCount > 32 ?
                 new VertexAttribDescription[attribCount] : stackalloc VertexAttribDescription[attribCount];
             t.WriteAttribDescriptions(attribDescriptions);
 

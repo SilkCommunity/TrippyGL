@@ -20,7 +20,7 @@ namespace TrippyGL
         public int Count => uniforms.Length;
 
         /// <summary>Gets the unsorted <see cref="ShaderUniform"/>-s from this list.</summary>
-        public ReadOnlySpan<ShaderUniform> Uniforms => uniforms;
+        public ReadOnlySpan<ShaderUniform> Uniforms => new ReadOnlySpan<ShaderUniform>(uniforms);
 
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
         private readonly List<Texture> textureList;

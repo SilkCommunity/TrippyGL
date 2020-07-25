@@ -60,7 +60,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new <see cref="BlendState"/> instance with the same values as this one.
+        /// Creates a new <see cref="DepthTestingState"/> instance with the same values as this one.
         /// </summary>
         public DepthTestingState Clone()
         {

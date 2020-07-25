@@ -8,26 +8,20 @@ using TrippyGL;
 
 namespace TrippyTesting.Tests
 {
-    class ObjFiles
+    class ObjDragon
     {
         System.Diagnostics.Stopwatch stopwatch;
-        public static Random r = new Random();
-        public static float time, deltaTime;
 
         IWindow window;
 
         GraphicsDevice graphicsDevice;
 
-        VertexBuffer<VertexNormalTexture> cubeBuffer;
-
-        Texture2D texture;
+        VertexBuffer<VertexNormal> vertexBuffer;
 
         ShaderProgram shaderProgram;
-        BufferObject uniformBuffer;
-        UniformBufferSubset<ThreeMat4> uniformSubset;
-        ThreeMat4 matrices;
 
-        public ObjFiles()
+
+        public ObjDragon()
         {
             window = CreateWindow();
 
@@ -67,41 +61,45 @@ namespace TrippyTesting.Tests
             Console.WriteLine("GL MaxSamples: " + graphicsDevice.MaxSamples);
 
             stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            time = 0;
 
-            texture = Texture2DExtensions.FromFile(graphicsDevice, "objs/stallTexture.png", true);
-            texture.SetTextureFilters(TextureMinFilter.LinearMipmapLinear, TextureMagFilter.Linear);
-
-            VertexNormalTexture[] cube = OBJLoader.FromFile<VertexNormalTexture>("objs/stall.obj");
-
-            cubeBuffer = new VertexBuffer<VertexNormalTexture>(graphicsDevice, cube, BufferUsageARB.StaticDraw);
+            VertexNormal[] dragon = OBJLoader.FromFile<VertexNormal>("objs/dragon.obj");
+            vertexBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, dragon, BufferUsageARB.StaticDraw);
 
             ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("objs/stall_vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("objs/stall_fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexNormalTexture>(new string[] { "vPosition", "vNormal", "vTexCoords" });
+            programBuilder.VertexShaderCode = File.ReadAllText("objs/dragon_vs.glsl");
+            programBuilder.FragmentShaderCode = File.ReadAllText("objs/dragon_fs.glsl");
+            programBuilder.SpecifyVertexAttribs<VertexNormal>(new string[] { "vPosition", "vNormal" });
             shaderProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
-            uniformBuffer = new BufferObject(graphicsDevice, UniformBufferSubset.CalculateRequiredSizeInBytes<ThreeMat4>(graphicsDevice, 1), BufferUsageARB.StreamDraw);
-            uniformSubset = new UniformBufferSubset<ThreeMat4>(uniformBuffer);
-            shaderProgram.BlockUniforms["MatrixBlock"].SetValue(uniformSubset);
+            //(inverse(View) * vec4(0.0, 0.0, 0.0, 1.0)).xyz
+            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 7, -15), new Vector3(0, 5, 0), new Vector3(0, 1, 0));
+            shaderProgram.Uniforms["View"].SetValueMat4(view);
+            Matrix4x4.Invert(view, out Matrix4x4 invertedView);
+            Vector4 camPos = Vector4.Transform(Vector4.UnitW, invertedView);
+            shaderProgram.Uniforms["cameraPos"].SetValueVec3(camPos.X, camPos.Y, camPos.Z);
 
-            shaderProgram.Uniforms["samp"].SetValueTexture(texture);
+            //shaderProgram.Uniforms["lightPos"].SetValueVec3(4, 0, -12);
+            shaderProgram.Uniforms["lightDir"].SetValueVec3(Vector3.Normalize(new Vector3(0, -1, 0)));
+            shaderProgram.Uniforms["lightColor"].SetValueVec4(Color4b.White);
+            shaderProgram.Uniforms["shineDamper"].SetValueFloat(8f);
+            shaderProgram.Uniforms["reflectivity"].SetValueFloat(1f);
 
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthState = DepthTestingState.Default;
+
+            // For some reason if we don't set enabled to true last, this doesnt work???
+            graphicsDevice.CullFaceMode = CullFaceMode.Back;
+            graphicsDevice.PolygonFrontFace = FrontFaceDirection.Ccw;
+            graphicsDevice.FaceCullingEnabled = true;
 
             OnWindowResized(window.Size);
         }
 
         private void OnWindowUpdate(double dtSeconds)
         {
-            float prevTime = time;
-            time = (float)stopwatch.Elapsed.TotalSeconds;
-            deltaTime = time - prevTime;
             GLEnum c;
             while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
             {
@@ -117,13 +115,11 @@ namespace TrippyTesting.Tests
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            matrices.View = Matrix4x4.CreateLookAt(new Vector3(0, 1, -2), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-            matrices.World = Matrix4x4.CreateScale(0.2f) * Matrix4x4.CreateRotationY(time * MathF.PI / 4f);
-            uniformSubset.SetValue(matrices);
+            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateRotationY((float)stopwatch.Elapsed.TotalSeconds));
 
             graphicsDevice.ShaderProgram = shaderProgram;
-            graphicsDevice.VertexArray = cubeBuffer;
-            graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, cubeBuffer.StorageLength);
+            graphicsDevice.VertexArray = vertexBuffer;
+            graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, vertexBuffer.StorageLength);
 
             window.SwapBuffers();
         }
@@ -135,15 +131,13 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
 
-            matrices.Projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, window.Size.Width / (float)window.Size.Height, 0.1f, 50f);
+            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, window.Size.Width / (float)window.Size.Height, 0.1f, 50f));
         }
 
         private void OnWindowClosing()
         {
-            cubeBuffer.Dispose();
-            uniformBuffer.Dispose();
+            vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            texture.Dispose();
             graphicsDevice.Dispose();
         }
     }

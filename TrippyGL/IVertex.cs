@@ -14,7 +14,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Gets the vertex attrib descriptors by writting them into a <see cref="Span{T}"/>.
-        /// The span must have a length of <see cref="AttribDescriptionCount"/>.
+        /// The <see cref="Span{T}"/> must have a length of <see cref="AttribDescriptionCount"/>.
         /// </summary>
         void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions);
     }

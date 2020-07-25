@@ -99,12 +99,7 @@ namespace TrippyGL
             else
                 GL.Disable(EnableCap.TextureCubeMapSeamless);
 
-            if (faceCullingEnabled)
-                GL.Enable(EnableCap.CullFace);
-            else
-                GL.Disable(EnableCap.CullFace);
-            GL.CullFace(cullFaceMode);
-            GL.FrontFace(polygonFrontFace);
+            ResetFaceCullingStates();
 
             if (rasterizerEnabled)
                 GL.Disable(EnableCap.RasterizerDiscard);
@@ -187,11 +182,20 @@ namespace TrippyGL
             MaxTransformFeedbackSeparateAttribs = GL.GetInteger(GLEnum.MaxTransformFeedbackSeparateAttribs);
             MaxShaderStorageBufferBindings = GL.GetInteger(GLEnum.MaxShaderStorageBufferBindings);
             MaxAtomicCounterBufferBindings = GL.GetInteger(GLEnum.MaxAtomicCounterBufferBindings);
+            MaxFragmentUniformComponents = GL.GetInteger(GetPName.MaxFragmentUniformComponents);
+            MaxUniformLocations = GL.GetInteger(GetPName.MaxUniformLocations);
+            MaxVaryingComponents = GL.GetInteger(GetPName.MaxVaryingComponents);
         }
 
         public int GLMajorVersion { get; private set; }
 
         public int GLMinorVersion { get; private set; }
+
+        public int MaxFragmentUniformComponents { get; private set; }
+
+        public int MaxUniformLocations { get; private set; }
+
+        public int MaxVaryingComponents { get; private set; }
 
         public int UniformBufferOffsetAlignment { get; private set; }
 
@@ -1300,11 +1304,8 @@ namespace TrippyGL
             {
                 if (faceCullingEnabled != value)
                 {
-                    if (value)
-                        GL.Enable(EnableCap.CullFace);
-                    else
-                        GL.Disable(EnableCap.CullFace);
                     faceCullingEnabled = value;
+                    ResetFaceCullingStates();
                 }
             }
         }
@@ -1335,6 +1336,19 @@ namespace TrippyGL
                     polygonFrontFace = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets all face culling states to the last values known by this <see cref="GraphicsDevice"/>.
+        /// </summary>
+        public void ResetFaceCullingStates()
+        {
+            if (faceCullingEnabled)
+                GL.Enable(EnableCap.CullFace);
+            else
+                GL.Disable(EnableCap.CullFace);
+            GL.CullFace(cullFaceMode);
+            GL.FrontFace(polygonFrontFace);
         }
 
         #endregion FaceCulling
