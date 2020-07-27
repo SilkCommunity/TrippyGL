@@ -8,7 +8,13 @@ namespace TrippyGL
         /// <summary>The size of a face from this <see cref="TextureCubemap"/>.</summary>
         public uint Size { get; private set; }
 
-        public unsafe TextureCubemap(GraphicsDevice graphicsDevice, uint size, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
+        /// <summary>
+        /// Creates a <see cref="TextureCubemap"/> with the desired parameters but no image data.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="size">The size (width and height) of the cubemap's faces.</param>
+        /// <param name="imageFormat">The image format for this <see cref="TextureCubemap"/>.</param>
+        public TextureCubemap(GraphicsDevice graphicsDevice, uint size, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
             : base(graphicsDevice, TextureTarget.TextureCubeMap, imageFormat)
         {
             ValidateTextureSize(size);
@@ -20,12 +26,15 @@ namespace TrippyGL
             GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
             GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
 
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+            unsafe
+            {
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, (int)PixelInternalFormat, size, size, 0, PixelFormat, PixelType, (void*)0);
+            }
         }
 
         /// <summary>

@@ -39,17 +39,7 @@ namespace TrippyGL
         /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns an empty <see cref="ShaderUniform"/>.
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
-        public ShaderUniform this[string name]
-        {
-            get
-            {
-                for (int i = 0; i < uniforms.Length; i++)
-                    if (uniforms[i].Name == name)
-                        return uniforms[i];
-
-                return default;
-            }
-        }
+        public ShaderUniform this[string name] => GetShaderByName(name);
 
         private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {
@@ -131,6 +121,19 @@ namespace TrippyGL
             }
 
             isTextureListDirty = false;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns an empty <see cref="ShaderUniform"/>.
+        /// </summary>
+        /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
+        public ShaderUniform GetShaderByName(ReadOnlySpan<char> name)
+        {
+            for (int i = 0; i < uniforms.Length; i++)
+                if (name.SequenceEqual(uniforms[i].Name))
+                    return uniforms[i];
+
+            return default;
         }
 
         public override string ToString()

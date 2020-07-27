@@ -37,9 +37,17 @@ namespace TrippyGL
         /// <summary>Whether this <see cref="ShaderProgram"/> has a fragment shader attached.</summary>
         public readonly bool HasFragmentShader;
 
-        internal ShaderProgram(GraphicsDevice graphicsDevice, uint handle, ActiveVertexAttrib[] activeAttribs) : base(graphicsDevice)
+        /// <summary>
+        /// Creates a <see cref="ShaderProgram"/> from an already compiled GL Program Object.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="programHandle">The GL Program Object's handle.</param>
+        /// <param name="activeAttribs">The active attributes, already queried from the program.</param>
+        /// <remarks>The active attributes must have already been checked to be valid.</remarks>
+        internal ShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs)
+            : base(graphicsDevice)
         {
-            Handle = handle;
+            Handle = programHandle;
             this.activeAttribs = activeAttribs;
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);

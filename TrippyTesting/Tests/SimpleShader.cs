@@ -70,7 +70,8 @@ namespace TrippyTesting.Tests
 
             SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
             {
-                DirectionalLights = 1
+                DirectionalLights = 1,
+                PositionalLights = 1
             };
             programBuilder.SpecifyVertexAttribs<VertexNormal>();
             dragonProgram = programBuilder.Create(graphicsDevice, true);
@@ -78,16 +79,21 @@ namespace TrippyTesting.Tests
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
+            dragonProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 6, -9), new Vector3(0, 4, 0), Vector3.UnitY);
+            dragonProgram.PositionalLights[0].SpecularColor = new Vector3(0, 0, 1);
+            dragonProgram.PositionalLights[0].DiffuseColor = new Vector3(0, 0, 1);
+            dragonProgram.DirectionalLights[0].DiffuseColor = new Vector3(1, 0, 0);
+            dragonProgram.DirectionalLights[0].SpecularColor = new Vector3(0, 1, 0);
+            dragonProgram.SpecularPower = 15f;
+            dragonProgram.Reflectivity = 1;
+            dragonProgram.AmbientLightColor = new Vector3(0, 0.17f, 0);
+
             programBuilder = new SimpleShaderProgramBuilder();
-            programBuilder.SpecifyVertexAttribs<VertexPosition>();
+            programBuilder.SpecifyVertexAttribs<VertexNormal>();
             dragonProgramTwo = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
-
-            dragonProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 6, -9), new Vector3(0, 4, 0), Vector3.UnitY);
-            dragonProgram.DirectionalLights[0].SpecularPower = 15f;
-            dragonProgram.Reflectivity = 1.75f;
 
             dragonProgramTwo.View = Matrix4x4.CreateLookAt(new Vector3(0, 6, -9), new Vector3(0, 4, 0), Vector3.UnitY);
             dragonProgramTwo.Color = new Vector4(1, 0, 0, 1);
@@ -109,19 +115,24 @@ namespace TrippyTesting.Tests
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
             stallProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 4, -6), new Vector3(0, 1.6f, 0), Vector3.UnitY);
-            stallProgram.DirectionalLights[0].SpecularPower = 15f;
-            stallProgram.Reflectivity = 1.75f;
+            stallProgram.SpecularPower = 15f;
+            stallProgram.Reflectivity = 1;
             stallProgram.Texture = stallTexture;
+            stallProgram.DirectionalLights[0].SpecularColor = new Vector3(0, 0, 1);
+            stallProgram.AmbientLightColor = new Vector3(0, 0.17f, 0);
 
-            programBuilder = new SimpleShaderProgramBuilder();
-            programBuilder.SpecifyVertexAttribs<VertexPosition>();
+            programBuilder = new SimpleShaderProgramBuilder()
+            {
+                TextureEnabled = true
+            };
+            programBuilder.SpecifyVertexAttribs<VertexNormalTexture>();
             stallProgramTwo = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
+            stallProgramTwo.Texture = stallTexture;
             stallProgramTwo.View = Matrix4x4.CreateLookAt(new Vector3(0, 4, -6), new Vector3(0, 1.6f, 0), Vector3.UnitY);
-            stallProgramTwo.Color = new Vector4(0, 1, 0, 1);
 
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthState = DepthTestingState.Default;
@@ -142,10 +153,13 @@ namespace TrippyTesting.Tests
         {
             if (window.IsClosing)
                 return;
+
             float time = (float)stopwatch.Elapsed.TotalSeconds;
 
             uint wd2 = (uint)window.Size.Width / 2;
             uint hd2 = (uint)window.Size.Height / 2;
+
+            dragonProgram.PositionalLights[0].Position = new Vector3(0, 8 * (time % 3) - 12 + 4, 0);
 
             graphicsDevice.ScissorTestEnabled = false;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);

@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Used to create <see cref="ShaderProgram"/> instances.
+    /// Used to construct <see cref="ShaderProgram"/> instances with the desired parameters.
     /// </summary>
     public struct ShaderProgramBuilder : IEquatable<ShaderProgramBuilder>
     {
@@ -109,6 +109,19 @@ namespace TrippyGL
             SpecifyVertexAttribs(attribDescriptions, attribNames);
         }
 
+        /// <summary>
+        /// Compiles shaders using the code from the different XShaderCode fields and creates a
+        /// GL Program Object by linking them together. Then, queries the active attributes and
+        /// ensures they match the provided ones in <see cref="specifiedAttribs"/>.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="ShaderProgram"/> will use.</param>
+        /// <param name="activeAttribs">The active attributes found by querying the linked program.</param>
+        /// <param name="getLogs">Whether to get compilation and linking logs from the shaders and program.</param>
+        /// <returns>The handle of the newly created GL Program Object.</returns>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="InvalidOperationException"/>
+        /// <exception cref="ShaderCompilationException"/>
+        /// <exception cref="ProgramLinkException"/>
         internal uint CreateInternal(GraphicsDevice graphicsDevice, out ActiveVertexAttrib[] activeAttribs, bool getLogs = false)
         {
             VertexShaderLog = null;
@@ -131,7 +144,6 @@ namespace TrippyGL
             uint fsHandle = 0;
 
             uint programHandle = 0;
-            bool success = true;
 
             // We encapsulate the logic in a try catch so whether there is an
             // exception or not, we glDeleteShader all the shader handles
@@ -139,6 +151,7 @@ namespace TrippyGL
             {
                 // We create the vertex shader, compile the code and check it's status
                 vsHandle = graphicsDevice.GL.CreateShader(ShaderType.VertexShader);
+
                 graphicsDevice.GL.ShaderSource(vsHandle, VertexShaderCode);
                 graphicsDevice.GL.CompileShader(vsHandle);
                 graphicsDevice.GL.GetShader(vsHandle, ShaderParameterName.CompileStatus, out int compileStatus);
@@ -186,11 +199,12 @@ namespace TrippyGL
                 uint attribIndex = 0;
                 for (uint i = 0; i < specifiedAttribs.Length; i++)
                 {
-                    if (string.IsNullOrWhiteSpace(specifiedAttribs[i].Name))
-                        continue;
+                    // Some attributes use more than 1 location, those ones we bind only once.
+                    // A null or empty name means we skip that attrib because the shader doesn't use it.
+                    // We still, though, have to advance attribIndex.
+                    if (!string.IsNullOrWhiteSpace(specifiedAttribs[i].Name))
+                        graphicsDevice.GL.BindAttribLocation(programHandle, attribIndex, specifiedAttribs[i].Name);
 
-                    // Some attributes use more than 1 location, those ones we bind only once
-                    graphicsDevice.GL.BindAttribLocation(programHandle, attribIndex, specifiedAttribs[i].Name);
                     attribIndex += TrippyUtils.GetVertexAttribTypeIndexCount(specifiedAttribs[i].AttribType);
                 }
 
@@ -231,9 +245,10 @@ namespace TrippyGL
             }
             catch
             {
-                // Settings success to false means the finally block will glDelete the programHandle
-                success = false;
-                throw; // We re-throw the exception
+                // If something went wrong, we're not returning a ShaderProgram, but we might have
+                // created the GL Program Object depending on what failed, so let's delete that.
+                graphicsDevice.GL.DeleteProgram(programHandle);
+                throw; // We re-throw the exception.
             }
             finally
             {
@@ -241,16 +256,14 @@ namespace TrippyGL
                 graphicsDevice.GL.DeleteShader(vsHandle);
                 graphicsDevice.GL.DeleteShader(gsHandle);
                 graphicsDevice.GL.DeleteShader(fsHandle);
-                if (!success && programHandle != 0)
-                    graphicsDevice.GL.DeleteProgram(programHandle);
             }
         }
 
         /// <summary>
-        /// Creates a <see cref="ShaderProgram"/> using the current values this <see cref="ShaderProgramBuilder"/> has.
+        /// Creates a <see cref="ShaderProgram"/> using the current values on this <see cref="ShaderProgramBuilder"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="ShaderProgram"/> will use.</param>
-        /// <param name="getLogs">Whether to get compilation and linking logs for the shaders and program.</param>
+        /// <param name="getLogs">Whether to get compilation and linking logs from the shaders and program.</param>
         public ShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
         {
             uint programHandle = CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, getLogs);
@@ -344,16 +357,16 @@ namespace TrippyGL
             }
         }
 
-        public bool Equals(ShaderProgramBuilder shaderProgramBuilder)
+        public bool Equals(ShaderProgramBuilder other)
         {
-            return ReferenceEquals(VertexShaderCode, shaderProgramBuilder.VertexShaderCode)
-                && ReferenceEquals(GeometryShaderCode, shaderProgramBuilder.GeometryShaderCode)
-                && ReferenceEquals(FragmentShaderCode, shaderProgramBuilder.FragmentShaderCode)
-                && specifiedAttribs == shaderProgramBuilder.specifiedAttribs
-                && ReferenceEquals(VertexShaderLog, shaderProgramBuilder.VertexShaderLog)
-                && ReferenceEquals(GeometryShaderLog, shaderProgramBuilder.GeometryShaderLog)
-                && ReferenceEquals(FragmentShaderLog, shaderProgramBuilder.FragmentShaderLog)
-                && ReferenceEquals(ProgramLog, shaderProgramBuilder.ProgramLog);
+            return ReferenceEquals(VertexShaderCode, other.VertexShaderCode)
+                && ReferenceEquals(GeometryShaderCode, other.GeometryShaderCode)
+                && ReferenceEquals(FragmentShaderCode, other.FragmentShaderCode)
+                && specifiedAttribs == other.specifiedAttribs
+                && ReferenceEquals(VertexShaderLog, other.VertexShaderLog)
+                && ReferenceEquals(GeometryShaderLog, other.GeometryShaderLog)
+                && ReferenceEquals(FragmentShaderLog, other.FragmentShaderLog)
+                && ReferenceEquals(ProgramLog, other.ProgramLog);
         }
 
         public override bool Equals(object obj)

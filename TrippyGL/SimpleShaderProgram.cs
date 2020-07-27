@@ -1,45 +1,52 @@
 ﻿using System;
 using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A simple, configurable <see cref="ShaderProgram"/> that provides basic functionality
+    /// without having to write any GLSL code.
+    /// </summary>
     public sealed class SimpleShaderProgram : ShaderProgram
     {
+        /// <summary>Whether this <see cref="SimpleShaderProgram"/> uses vertex colors.</summary>
         public readonly bool VertexColorsEnabled;
 
+        /// <summary>Whether this <see cref="SimpleShaderProgram"/> uses vertex texture coordinates.</summary>
         public readonly bool TextureEnabled;
 
+        /// <summary>Whether this <see cref="SimpleShaderProgram"/> uses vertex normals.</summary>
         public readonly bool LightningEnabled;
 
-        private readonly DirectionalLight[] directionalLights;
-        public ReadOnlySpan<DirectionalLight> DirectionalLights => new ReadOnlySpan<DirectionalLight>(directionalLights);
-
-        private readonly ShaderUniform reflectivityUniform;
-        private float reflectivity;
-        public float Reflectivity
-        {
-            get => reflectivity;
-            set
-            {
-                reflectivityUniform.SetValueFloat(value);
-                reflectivity = value;
-            }
-        }
-
-        private readonly ShaderUniform ambientLightColorUniform;
-        private Vector4 ambientLightColor;
-        public Vector4 AmbientLightColor
-        {
-            get => ambientLightColor;
-            set
-            {
-                ambientLightColorUniform.SetValueVec4(value);
-                ambientLightColor = value;
-            }
-        }
-
+        // These are all the uniforms for controlling this SimpleShaderProgram's parameters
         private readonly ShaderUniform worldUniform;
+        private readonly ShaderUniform viewUniform;
+        private readonly ShaderUniform projectionUniform;
+        private readonly ShaderUniform colorUniform;
+        private readonly ShaderUniform sampUniform;
+        private readonly ShaderUniform cameraPosUniform;
+        private readonly ShaderUniform reflectivityUniform;
+        private readonly ShaderUniform specularPowerUniform;
+        private readonly ShaderUniform ambientLightColorUniform;
+
+        // The last applied values for this SimpleShaderProgram's parameters
         private Matrix4x4 world;
+        private Matrix4x4 view;
+        private Matrix4x4 projection;
+        private Vector4 color;
+        private Texture2D texture;
+        private float reflectivity;
+        private float specularPower;
+        private Vector3 ambientLightColor;
+
+        // The lists of directional/positional lights, or null if there are none.
+        private readonly DirectionalLight[] directionalLights;
+        private readonly PositionalLight[] positionalLights;
+
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s World matrix.
+        /// </summary>
         public Matrix4x4 World
         {
             get => world;
@@ -50,9 +57,9 @@ namespace TrippyGL
             }
         }
 
-        private readonly ShaderUniform viewUniform;
-        private ShaderUniform cameraPosUniform;
-        private Matrix4x4 view;
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s View matrix.
+        /// </summary>
         public Matrix4x4 View
         {
             get => view;
@@ -70,8 +77,9 @@ namespace TrippyGL
             }
         }
 
-        private readonly ShaderUniform projectionUniform;
-        private Matrix4x4 projection;
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s Projection matrix.
+        /// </summary>
         public Matrix4x4 Projection
         {
             get => projection;
@@ -82,8 +90,12 @@ namespace TrippyGL
             }
         }
 
-        private readonly ShaderUniform colorUniform;
-        private Vector4 color;
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s default color.
+        /// </summary>
+        /// <remarks>
+        /// This color multiplies the output of the fragment shader.
+        /// </remarks>
         public Vector4 Color
         {
             get => color;
@@ -94,8 +106,13 @@ namespace TrippyGL
             }
         }
 
-        private readonly ShaderUniform sampUniform;
-        private Texture2D texture;
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s <see cref="Texture2D"/>.
+        /// </summary>
+        /// <remarks>
+        /// If enabled, the <see cref="SimpleShaderProgram"/> will sample this <see cref="Texture2D"/>
+        /// using the coordinates in the vertices as part of the output color calculation.
+        /// </remarks>
         public Texture2D Texture
         {
             get => texture;
@@ -106,46 +123,204 @@ namespace TrippyGL
             }
         }
 
-        public SimpleShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs,
-            bool vertColorsEnabled, int directionalLightCount)
-            : base(graphicsDevice, programHandle, activeAttribs)
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s material reflectivity parameter.
+        /// </summary>
+        /// <remarks>This only works when lightning is enabled.</remarks>
+        public float Reflectivity
         {
-            sampUniform = Uniforms["samp"];
-            ambientLightColorUniform = Uniforms["ambientLightColor"];
-            reflectivityUniform = Uniforms["reflectivity"];
-            worldUniform = Uniforms["World"];
-            viewUniform = Uniforms["View"];
-            projectionUniform = Uniforms["Projection"];
-            cameraPosUniform = Uniforms["cameraPos"];
-            colorUniform = Uniforms["color"];
-
-            VertexColorsEnabled = vertColorsEnabled;
-            TextureEnabled = !sampUniform.IsEmpty;
-            LightningEnabled = !cameraPosUniform.IsEmpty;
-
-            Color = new Vector4(1, 1, 1, 1);
-
-            World = Matrix4x4.Identity;
-            SetView(Matrix4x4.Identity, Vector3.Zero);
-            Projection = Matrix4x4.Identity;
-
-            if (directionalLightCount != 0)
+            get => reflectivity;
+            set
             {
-                directionalLights = new DirectionalLight[directionalLightCount];
-                for (int i = 0; i < directionalLightCount; i++)
-                {
-                    string itostring = i.ToString();
-                    directionalLights[i] = new DirectionalLight(Uniforms["lightDir" + itostring], Uniforms["lightColor" + itostring]);
-                }
-            }
-
-            if (LightningEnabled)
-            {
-                AmbientLightColor = new Vector4(0, 0, 0, 1);
-                Reflectivity = 1;
+                reflectivityUniform.SetValueFloat(value);
+                reflectivity = value;
             }
         }
 
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s specular light power parameter.
+        /// </summary>
+        /// <remarks>This only works when lightning is enabled.</remarks>
+        public float SpecularPower
+        {
+            get => specularPower;
+            set
+            {
+                specularPowerUniform.SetValueFloat(value);
+                specularPower = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s ambient lightning color.
+        /// </summary>
+        /// <remarks>This only works when lightning is enabled.</remarks>
+        public Vector3 AmbientLightColor
+        {
+            get => ambientLightColor;
+            set
+            {
+                ambientLightColorUniform.SetValueVec3(value);
+                ambientLightColor = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets this <see cref="SimpleShaderProgram"/>'s list of directional lights.
+        /// </summary>
+        public ReadOnlySpan<DirectionalLight> DirectionalLights => new ReadOnlySpan<DirectionalLight>(directionalLights);
+
+        /// <summary>
+        /// Gets this <see cref="SimpleShaderProgram"/>'s list of positional lights.
+        /// </summary>
+        public ReadOnlySpan<PositionalLight> PositionalLights => new ReadOnlySpan<PositionalLight>(positionalLights);
+
+        /// <summary>
+        /// Creates a <see cref="SimpleShaderProgram"/> from an already compiled GL Program Object.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="programHandle">The GL Program Object's handle.</param>
+        /// <param name="activeAttribs">The active attributes, already queried from the program.</param>
+        /// <param name="vertColorsEnabled">Whether this <see cref="SimpleShaderProgram"/> uses vertex colors.</param>
+        /// <param name="textureEnabled">Whether this <see cref="SimpleShaderProgram"/> uses a texture.</param>
+        /// <param name="directionalLightCount">The amount of directional lights on this <see cref="SimpleShaderProgram"/>.</param>
+        /// <param name="positionalLightCount">The amount of positional lights on this <see cref="SimpleShaderProgram"/>.</param>
+        internal SimpleShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs,
+            bool vertColorsEnabled, bool textureEnabled, int directionalLightCount, int positionalLightCount)
+            : base(graphicsDevice, programHandle, activeAttribs)
+        {
+            const string InvalidUniformMessage = "Uniform not found or is incorrect type: ";
+
+            // We set these booleans based on what we've got.
+            VertexColorsEnabled = vertColorsEnabled;
+            TextureEnabled = textureEnabled;
+            LightningEnabled = directionalLightCount != 0 || positionalLightCount != 0;
+
+            // These uniforms are always present- so let's get them and ensure they're valid.
+            worldUniform = Uniforms["World"];
+            if (worldUniform.UniformType != UniformType.FloatMat4)
+                throw new InvalidOperationException(InvalidUniformMessage + "World");
+            viewUniform = Uniforms["View"];
+            if (viewUniform.UniformType != UniformType.FloatMat4)
+                throw new InvalidOperationException(InvalidUniformMessage + "View");
+            projectionUniform = Uniforms["Projection"];
+            if (projectionUniform.UniformType != UniformType.FloatMat4)
+                throw new InvalidOperationException(InvalidUniformMessage + "Projection");
+            colorUniform = Uniforms["Color"];
+            if (colorUniform.UniformType != UniformType.FloatVec4)
+                throw new InvalidOperationException(InvalidUniformMessage + "Color");
+
+            // If texture is enabled, we get the uniform for sampling a texture.
+            if (TextureEnabled)
+            {
+                sampUniform = Uniforms["samp"];
+                if (sampUniform.UniformType != UniformType.Sampler2D)
+                    throw new InvalidOperationException(InvalidUniformMessage + "samp");
+            }
+
+            // If lightning is enabled, we get the uniforms for managing the lights.
+            if (LightningEnabled)
+            {
+                ambientLightColorUniform = Uniforms["ambientLightColor"];
+                if (ambientLightColorUniform.UniformType != UniformType.FloatVec3)
+                    throw new InvalidOperationException(InvalidUniformMessage + "ambientLightColor");
+                cameraPosUniform = Uniforms["cameraPos"];
+                if (cameraPosUniform.UniformType != UniformType.FloatVec3)
+                    throw new InvalidOperationException(InvalidUniformMessage + "cameraPos");
+                reflectivityUniform = Uniforms["reflectivity"];
+                if (reflectivityUniform.UniformType != UniformType.Float)
+                    throw new InvalidOperationException(InvalidUniformMessage + "reflectivity");
+                specularPowerUniform = Uniforms["specularPower"];
+                if (specularPowerUniform.UniformType != UniformType.Float)
+                    throw new InvalidOperationException(InvalidUniformMessage + "specularPower");
+
+                // We create the directional lights and store those arrays
+                // This also sets the default values on the lights
+                directionalLights = CreateDirectionalLights(directionalLightCount);
+                positionalLights = CreatePositionalLights(positionalLightCount);
+            }
+
+            // We set the default values for the different shader parameters.
+            World = Matrix4x4.Identity;
+            SetView(Matrix4x4.Identity, Vector3.Zero);
+            Projection = Matrix4x4.Identity;
+            Color = new Vector4(1, 1, 1, 1);
+
+            // If lightning is enabled, we set the default values for those parameters too.
+            if (LightningEnabled)
+            {
+                AmbientLightColor = Vector3.Zero;
+                Reflectivity = 1;
+                SpecularPower = 1;
+            }
+        }
+
+        /// <summary>
+        /// Creates an array of <see cref="DirectionalLight"/>-s for this <see cref="SimpleShaderProgram"/>
+        /// by getting the <see cref="ShaderUniform"/>-s from <see cref="ShaderProgram.Uniforms"/>.
+        /// </summary>
+        /// <param name="directionalLightCount">The amount of directional lights on this <see cref="SimpleShaderProgram"/>.</param>
+        private DirectionalLight[] CreateDirectionalLights(int directionalLightCount)
+        {
+            if (directionalLightCount <= 0)
+                return null;
+
+            DirectionalLight[] lights = new DirectionalLight[directionalLightCount];
+            for (int i = 0; i < directionalLightCount; i++)
+            {
+                string itostring = i.ToString();
+                ShaderUniform dirUniform = Uniforms["dLightDir" + itostring];
+                ShaderUniform diffColUniform = Uniforms["dLightDiffColor" + itostring];
+                ShaderUniform specColUniform = Uniforms["dLightSpecColor" + itostring];
+                if (dirUniform.UniformType != UniformType.FloatVec3 || diffColUniform.UniformType != UniformType.FloatVec3
+                    || specColUniform.UniformType != UniformType.FloatVec3)
+                    throw new InvalidOperationException("Invalid uniforms for " + nameof(DirectionalLight) + " number " + itostring);
+
+                lights[i] = new DirectionalLight(dirUniform, diffColUniform, specColUniform);
+            }
+
+            return lights;
+        }
+
+        /// <summary>
+        /// Creates an array of <see cref="PositionalLight"/>-s for this <see cref="SimpleShaderProgram"/>
+        /// by getting the <see cref="ShaderUniform"/>-s from <see cref="ShaderProgram.Uniforms"/>.
+        /// </summary>
+        /// <param name="positionalLightCount">The amount of positional lights on this <see cref="SimpleShaderProgram"/>.</param>
+        private PositionalLight[] CreatePositionalLights(int positionalLightCount)
+        {
+            if (positionalLightCount <= 0)
+                return null;
+
+            PositionalLight[] lights = new PositionalLight[positionalLightCount];
+            for (int i = 0; i < positionalLightCount; i++)
+            {
+                string itostring = i.ToString();
+                ShaderUniform posUniform = Uniforms["pLightPos" + itostring];
+                ShaderUniform diffColUniform = Uniforms["pLightDiffColor" + itostring];
+                ShaderUniform specColUniform = Uniforms["pLightSpecColor" + itostring];
+                if (posUniform.UniformType != UniformType.FloatVec3 || diffColUniform.UniformType != UniformType.FloatVec3
+                    || specColUniform.UniformType != UniformType.FloatVec3)
+                    throw new InvalidOperationException("Invalid uniforms for " + nameof(PositionalLight) + " number " + itostring);
+
+                lights[i] = new PositionalLight(posUniform, diffColUniform, specColUniform);
+            }
+
+            return lights;
+        }
+
+        /// <summary>
+        /// Sets this <see cref="SimpleShaderProgram"/>'s View matrix, alongside the camera's position.
+        /// </summary>
+        /// <param name="view">The view matrix.</param>
+        /// <param name="cameraPos">The camera's position in world space.</param>
+        /// <remarks>
+        /// The camera's position is needed for specular lightning calculations. If lightning is disabled,
+        /// this parameter will be ignored.<para/>
+        /// If the camera's position is known, setting the view matrix here is more performant than
+        /// setting it in <see cref="View"/> because otherwise the camera's position needs to be
+        /// calculated, and this is done by inversing the view matrix and multiplying that by (0, 0, 0, 1).
+        /// </remarks>
         public void SetView(in Matrix4x4 view, in Vector3 cameraPos)
         {
             viewUniform.SetValueMat4(view);

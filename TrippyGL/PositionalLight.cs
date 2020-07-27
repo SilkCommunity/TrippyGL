@@ -5,13 +5,13 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a directional light on a shader and provides functionality
-    /// to change it's diffuse/specular colors and direction.
+    /// Represents a positional light on a shader and provides functionality
+    /// to change it's diffuse/specular colors and position.
     /// </summary>
-    public sealed class DirectionalLight
+    public sealed class PositionalLight
     {
-        /// <summary>The uniform for setting this light's direction.</summary>
-        private readonly ShaderUniform directionUniform;
+        /// <summary>The uniform for setting this light's position.</summary>
+        private readonly ShaderUniform positionUniform;
 
         /// <summary>The uniform for setting this light's diffuse color.</summary>
         private readonly ShaderUniform diffuseColorUniform;
@@ -19,8 +19,8 @@ namespace TrippyGL
         /// <summary>The uniform for setting this light's specular color.</summary>
         private readonly ShaderUniform specularColorUniform;
 
-        /// <summary>The last known value of this light's direction.</summary>
-        private Vector3 direction;
+        /// <summary>The last known value of this light's position.</summary>
+        private Vector3 position;
 
         /// <summary>The last known value of this light's diffuse color.</summary>
         private Vector3 diffuseColor;
@@ -29,15 +29,15 @@ namespace TrippyGL
         private Vector3 specularColor;
 
         /// <summary>
-        /// Gets or sets this light's direction.
+        /// Gets or sets this light's position.
         /// </summary>
-        public Vector3 Direction
+        public Vector3 Position
         {
-            get => direction;
+            get => position;
             set
             {
-                direction = Vector3.Normalize(value);
-                directionUniform.SetValueVec3(direction);
+                positionUniform.SetValueVec3(value);
+                position = value;
             }
         }
 
@@ -68,27 +68,27 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a <see cref="DirectionalLight"/> with the specified <see cref="ShaderUniform"/>-s.
+        /// Creates a <see cref="PositionalLight"/> with the specified <see cref="ShaderUniform"/>-s.
         /// </summary>
-        /// <param name="directionUniform">The uniform for setting this light's direction. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
+        /// <param name="positionUniform">The uniform for setting this light's position. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
         /// <param name="diffuseColorUniform">The uniform for setting this light's diffuse color. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
         /// <param name="specularColorUniform">The uniform for setting this light's specular color. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
-        public DirectionalLight(ShaderUniform directionUniform, ShaderUniform diffuseColorUniform, ShaderUniform specularColorUniform)
+        public PositionalLight(ShaderUniform positionUniform, ShaderUniform diffuseColorUniform, ShaderUniform specularColorUniform)
         {
             const string WrongUniformsMessage = "The provided uniforms must be the correct type.";
 
-            if (directionUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(directionUniform));
+            if (positionUniform.UniformType != UniformType.FloatVec3)
+                throw new ArgumentException(WrongUniformsMessage, nameof(positionUniform));
             if (diffuseColorUniform.UniformType != UniformType.FloatVec3)
                 throw new ArgumentException(WrongUniformsMessage, nameof(diffuseColorUniform));
             if (specularColorUniform.UniformType != UniformType.FloatVec3)
                 throw new ArgumentException(WrongUniformsMessage, nameof(specularColorUniform));
 
-            this.directionUniform = directionUniform;
+            this.positionUniform = positionUniform;
             this.diffuseColorUniform = diffuseColorUniform;
             this.specularColorUniform = specularColorUniform;
 
-            Direction = new Vector3(0, -1, 0);
+            Position = new Vector3(0, 0, 0);
             DiffuseColor = new Vector3(1, 1, 1);
             SpecularColor = new Vector3(1, 1, 1);
         }
