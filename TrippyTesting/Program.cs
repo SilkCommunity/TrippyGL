@@ -7,7 +7,7 @@ namespace TrippyTesting
     {
         static void Main(string[] args)
         {
-            new Tests.SimpleShader().Run();
+            new Tests.Test3DBatcher().Run();
         }
 
         public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)

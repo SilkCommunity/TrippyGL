@@ -10,7 +10,6 @@ namespace TrippyGL
     /// Provides a limited but simple way to store vertex data in a single <see cref="BufferObject"/>.
     /// </summary>
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
-
     public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : unmanaged, IVertex
     {
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex and index data.</summary>

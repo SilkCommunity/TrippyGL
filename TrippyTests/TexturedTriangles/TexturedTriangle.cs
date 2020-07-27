@@ -19,7 +19,7 @@ namespace TexturedTriangles
 
         VertexBuffer<VertexColorTexture> quadBuffer;
         VertexBuffer<VertexColorTexture> trianglesBuffer;
-        ShaderProgram shaderProgram;
+        SimpleShaderProgram shaderProgram;
 
         Texture2D background;
         Texture2D satellite;
@@ -65,10 +65,12 @@ namespace TexturedTriangles
 
             trianglesBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, trianglesVertex, BufferUsageARB.StaticDraw);
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexColorTexture>(new string[] { "vPosition", "vColor", "vTexCoords" });
+            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
+            {
+                VertexColorsEnabled = true,
+                TextureEnabled = true
+            };
+            programBuilder.ConfigureVertexAttribs<VertexColorTexture>();
             shaderProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
@@ -76,9 +78,11 @@ namespace TexturedTriangles
 
             background = Texture2DExtensions.FromFile(graphicsDevice, "texture.png");
             background.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            background.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
 
             satellite = Texture2DExtensions.FromFile(graphicsDevice, "satellite.png");
             satellite.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
+            satellite.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
 
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthTestingEnabled = false;
@@ -93,14 +97,14 @@ namespace TexturedTriangles
 
             graphicsDevice.ShaderProgram = shaderProgram;
 
-            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
-            shaderProgram.Uniforms["samp"].SetValueTexture(background);
+            shaderProgram.World = Matrix4x4.Identity;
+            shaderProgram.Texture = background;
             graphicsDevice.VertexArray = trianglesBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, trianglesBuffer.StorageLength);
 
             graphicsDevice.VertexArray = quadBuffer;
 
-            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateScale(0.6f));
+            shaderProgram.World = Matrix4x4.CreateScale(0.6f);
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             float time = (float)stopwatch.Elapsed.TotalSeconds * MathF.PI * 0.1f;
@@ -108,8 +112,8 @@ namespace TexturedTriangles
             satelliteMatrix *= Matrix4x4.CreateRotationZ(MathF.Sin(time) * 0.2f);
             satelliteMatrix *= Matrix4x4.CreateTranslation(0f, 0.2f, 0f);
             satelliteMatrix *= Matrix4x4.CreateRotationZ(MathF.Cos(time) * 0.33f);
-            shaderProgram.Uniforms["World"].SetValueMat4(satelliteMatrix);
-            shaderProgram.Uniforms["samp"].SetValueTexture(satellite);
+            shaderProgram.World = satelliteMatrix;
+            shaderProgram.Texture = satellite;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
             Window.SwapBuffers();
@@ -121,7 +125,7 @@ namespace TexturedTriangles
                 return;
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(size.Width / (float)size.Height, 1f, 0.01f, 10f));
+            shaderProgram.Projection = Matrix4x4.CreateOrthographic(size.Width / (float)size.Height, 1f, 0.01f, 10f);
         }
 
         protected override void OnUnload()

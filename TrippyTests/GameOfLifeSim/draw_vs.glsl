@@ -10,6 +10,6 @@ out vec2 fTexCoords;
 
 void main() {
     vec2 pp = (Transform * vec3(vPosition.xy, 1.0)).xy;
-    gl_Position = Projection * vec4(pp.xy, 0.0, 1.0);
+    gl_Position = Projection * vec4(pp, 0.0, 1.0);
     fTexCoords = vTexCoords;
 }

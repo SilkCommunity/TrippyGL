@@ -73,7 +73,7 @@ namespace TrippyTesting.Tests
                 DirectionalLights = 1,
                 PositionalLights = 1
             };
-            programBuilder.SpecifyVertexAttribs<VertexNormal>();
+            programBuilder.ConfigureVertexAttribs<VertexNormal>();
             dragonProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
@@ -89,7 +89,7 @@ namespace TrippyTesting.Tests
             dragonProgram.AmbientLightColor = new Vector3(0, 0.17f, 0);
 
             programBuilder = new SimpleShaderProgramBuilder();
-            programBuilder.SpecifyVertexAttribs<VertexNormal>();
+            programBuilder.ConfigureVertexAttribs<VertexNormal>();
             dragonProgramTwo = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
@@ -108,7 +108,7 @@ namespace TrippyTesting.Tests
                 TextureEnabled = true,
                 DirectionalLights = 1
             };
-            programBuilder.SpecifyVertexAttribs<VertexNormalTexture>();
+            programBuilder.ConfigureVertexAttribs<VertexNormalTexture>();
             stallProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
@@ -125,7 +125,7 @@ namespace TrippyTesting.Tests
             {
                 TextureEnabled = true
             };
-            programBuilder.SpecifyVertexAttribs<VertexNormalTexture>();
+            programBuilder.ConfigureVertexAttribs<VertexNormalTexture>();
             stallProgramTwo = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);

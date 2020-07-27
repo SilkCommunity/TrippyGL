@@ -12,11 +12,11 @@ namespace SimpleTriangle
     class SimpleTriangle : TestBase
     {
         VertexBuffer<VertexColor> vertexBuffer;
-        ShaderProgram shaderProgram;
+        SimpleShaderProgram shaderProgram;
 
         protected override void OnLoad()
         {
-            Span<VertexColor> vertexData = stackalloc VertexColor[3]
+            Span<VertexColor> vertexData = stackalloc VertexColor[]
             {
                 new VertexColor(new Vector3(-0.5f, -0.5f, 0), new Color4b(255, 0, 0, 255)),
                 new VertexColor(new Vector3(0, 0.5f, 0), new Color4b(0, 255, 0, 255)),
@@ -26,10 +26,11 @@ namespace SimpleTriangle
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)vertexData.Length, BufferUsageARB.StaticDraw);
             vertexBuffer.DataSubset.SetData(vertexData);
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
+            {
+                VertexColorsEnabled = true
+            };
+            programBuilder.ConfigureVertexAttribs<VertexColor>();
             shaderProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);

@@ -15,7 +15,7 @@ namespace SimpleCube
         Stopwatch stopwatch;
 
         VertexBuffer<VertexColor> vertexBuffer;
-        ShaderProgram shaderProgram;
+        SimpleShaderProgram shaderProgram;
 
         protected override void OnLoad()
         {
@@ -38,17 +38,17 @@ namespace SimpleCube
 
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticCopy);
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexColor>(new string[] { "vPosition", "vColor" });
+            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
+            {
+                VertexColorsEnabled = true
+            };
+            programBuilder.ConfigureVertexAttribs<VertexColor>();
             shaderProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
-            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
-            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(0, 1.0f, -1.5f), Vector3.Zero, Vector3.UnitY));
+            shaderProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 1.0f, -1.5f), Vector3.Zero, Vector3.UnitY);
 
             graphicsDevice.DepthState = DepthTestingState.Default;
             graphicsDevice.BlendState = BlendState.Opaque;
@@ -62,7 +62,7 @@ namespace SimpleCube
             graphicsDevice.ClearColor = Vector4.Zero;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateRotationY(2 * (float)stopwatch.Elapsed.TotalSeconds));
+            shaderProgram.World = Matrix4x4.CreateRotationY(2 * (float)stopwatch.Elapsed.TotalSeconds);
             graphicsDevice.ShaderProgram = shaderProgram;
             graphicsDevice.VertexArray = vertexBuffer;
 
@@ -77,7 +77,7 @@ namespace SimpleCube
                 return;
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI/2f, size.Width / (float)size.Height, 0.01f, 100f));
+            shaderProgram.Projection = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.Width / (float)size.Height, 0.01f, 100f);
         }
 
         protected override void OnUnload()

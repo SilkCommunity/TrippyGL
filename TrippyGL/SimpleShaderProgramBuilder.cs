@@ -11,7 +11,7 @@ namespace TrippyGL
     {
         private static WeakReference<StringBuilder> stringBuilderReference;
 
-        /// <summary>The version-profile string for GLSL to use. If null, "330 core" will be used.</summary>
+        /// <summary>The version-profile string for GLSL to use. If null, the current GL version will be used.</summary>
         public string GLSLVersionString;
 
         /// <summary>The index of the vertex attribute from which the <see cref="SimpleShaderProgram"/> will read vertex positions.</summary>
@@ -65,7 +65,7 @@ namespace TrippyGL
         /// Any attribute left unassigned is set to -1.
         /// </remarks>
         /// <typeparam name="T">The type of vertex the <see cref="SimpleShaderProgram"/> will use.</typeparam>
-        public void SpecifyVertexAttribs<T>() where T : unmanaged, IVertex
+        public void ConfigureVertexAttribs<T>() where T : unmanaged, IVertex
         {
             // We get the attrib descriptions from the vertex.
             T tmp = default;
@@ -203,7 +203,8 @@ namespace TrippyGL
 
 
                 builder.Append("#version ");
-                builder.Append(GLSLVersionString ?? "330 core\n\n");
+                builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
+                builder.Append("\n\n");
 
                 builder.Append("uniform vec4 Color;\n\n");
 
