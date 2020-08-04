@@ -169,7 +169,8 @@ namespace TrippyGL
                 bool useLightning = LightningEnabled;
 
                 builder.Append("#version ");
-                builder.Append(GLSLVersionString ?? "330 core\n\n");
+                builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
+                builder.Append("\n\n");
 
                 builder.Append("uniform mat4 World, View, Projection;\n");
 
@@ -237,6 +238,8 @@ namespace TrippyGL
                         builder.Append(itostring);
                         builder.Append(";\nuniform vec3 pLightSpecColor");
                         builder.Append(itostring);
+                        builder.Append(";\nuniform vec3 pAttConfig");
+                        builder.Append(itostring);
                         builder.Append(";\n");
                     }
                 }
@@ -248,12 +251,20 @@ namespace TrippyGL
 
                 if (useLightning)
                 {
-                    builder.Append("\nvec3 calcLight(in vec3 norm, in vec3 toCamVec, in vec3 ldir, in vec3 diffcol, in vec3 speccol) {\n");
-                    builder.Append("float brightness = max(0.0, dot(norm, -ldir));\n");
-                    builder.Append("vec3 reflectedDir = reflect(ldir, norm);\n");
+                    builder.Append("\nvec3 calcDirLight(in vec3 norm, in vec3 toCamVec, in vec3 lDir, in vec3 diffCol, in vec3 specCol) {\n");
+                    builder.Append("float brightness = max(0.0, dot(norm, -lDir));\n");
+                    builder.Append("vec3 reflectedDir = reflect(lDir, norm);\n");
                     builder.Append("float specFactor = max(0.0, dot(reflectedDir, toCamVec));\n");
                     builder.Append("float dampedFactor = pow(specFactor, specularPower);\n");
-                    builder.Append("return brightness * diffcol + (dampedFactor * reflectivity) * speccol;\n}\n");
+                    builder.Append("return brightness * diffCol + (dampedFactor * reflectivity) * specCol;\n}\n");
+
+                    if (PositionalLights > 0)
+                    {
+                        builder.Append("\nvec3 calcPosLight(in vec3 norm, in vec3 toCamVec, in vec3 lPos, in vec3 diffCol, in vec3 specCol, in vec3 attConfig) {\n");
+                        builder.Append("float d = distance(fPosition, lPos);\n");
+                        builder.Append("return calcDirLight(norm, toCamVec, normalize(fPosition - lPos), diffCol, specCol) * clamp(1.0 / (attConfig.x + attConfig.y*d + attConfig.z*d*d), 0.0, 1.0);\n");
+                        builder.Append("}\n");
+                    }
                 }
 
                 builder.Append("\nvoid main() {\n");
@@ -266,7 +277,7 @@ namespace TrippyGL
                     for (int i = 0; i < DirectionalLights; i++)
                     {
                         string itostring = i.ToString();
-                        builder.Append("light += calcLight(unitNormal, unitToCameraVec, dLightDir");
+                        builder.Append("light += calcDirLight(unitNormal, unitToCameraVec, dLightDir");
                         builder.Append(itostring);
                         builder.Append(", dLightDiffColor");
                         builder.Append(itostring);
@@ -278,11 +289,13 @@ namespace TrippyGL
                     for (int i = 0; i < PositionalLights; i++)
                     {
                         string itostring = i.ToString();
-                        builder.Append("light += calcLight(unitNormal, unitToCameraVec, normalize(fPosition - pLightPos");
+                        builder.Append("light += calcPosLight(unitNormal, unitToCameraVec, pLightPos");
                         builder.Append(itostring);
-                        builder.Append("), pLightDiffColor");
+                        builder.Append(", pLightDiffColor");
                         builder.Append(itostring);
                         builder.Append(", pLightSpecColor");
+                        builder.Append(itostring);
+                        builder.Append(", pAttConfig");
                         builder.Append(itostring);
                         builder.Append(");\n");
                     }

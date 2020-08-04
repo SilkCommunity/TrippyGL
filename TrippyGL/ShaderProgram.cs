@@ -38,6 +38,13 @@ namespace TrippyGL
         public readonly bool HasFragmentShader;
 
         /// <summary>
+        /// Used internally. When a sampler-type <see cref="ShaderUniform"/> is modified, this value
+        /// is set to true. The value is then used on <see cref="ShaderUniformList.EnsureSamplerUniformsSet"/>
+        /// to know whether the textures need to be bound and set
+        /// </summary>
+        internal bool areSamplerUniformsDirty;
+
+        /// <summary>
         /// Creates a <see cref="ShaderProgram"/> from an already compiled GL Program Object.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
@@ -51,6 +58,7 @@ namespace TrippyGL
             this.activeAttribs = activeAttribs;
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);
+            areSamplerUniformsDirty = Uniforms.hasSamplerUniforms;
         }
 
         /// <summary>
@@ -69,7 +77,7 @@ namespace TrippyGL
         /// </summary>
         internal void EnsurePreDrawStates()
         {
-            Uniforms?.EnsureSamplerUniformsSet();
+            Uniforms.EnsureSamplerUniformsSet();
             BlockUniforms.EnsureBufferBindingsSet();
         }
 

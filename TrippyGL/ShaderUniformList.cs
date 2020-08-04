@@ -6,9 +6,8 @@ namespace TrippyGL
 {
     /// <summary>
     /// A list of <see cref="ShaderUniform"/> belonging to a <see cref="ShaderProgram"/>.
-    /// This class also does some controlling over these uniforms to make everything run properly.
     /// </summary>
-    public sealed class ShaderUniformList
+    public readonly struct ShaderUniformList : IEquatable<ShaderUniformList>
     {
         /// <summary>The <see cref="ShaderProgram"/> the uniforms belong to.</summary>
         public readonly ShaderProgram Program;
@@ -25,21 +24,17 @@ namespace TrippyGL
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
         private readonly List<Texture> textureList;
 
-        /// <summary>
-        /// Whether the <see cref="textureList"/> list is up to date or needs to be remade.<para/>
-        /// sampler-type <see cref="ShaderUniform"/>-s set this to true when their value is
-        /// changed so the list gets remade the next time it is needed.
-        /// </summary>
-        internal bool isTextureListDirty;
-
         /// <summary>Whether this list contains at least one sampler-type (or sampler-array-type) <see cref="ShaderUniform"/>.</summary>
-        private readonly bool hasSamplerUniforms;
+        internal readonly bool hasSamplerUniforms;
 
         /// <summary>
         /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns an empty <see cref="ShaderUniform"/>.
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
         public ShaderUniform this[string name] => GetShaderByName(name);
+
+        /// <summary>Whether this <see cref="ShaderUniformList"/> has any values.</summary>
+        public bool IsEmpty => Program == null;
 
         private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {
@@ -62,15 +57,21 @@ namespace TrippyGL
                     samplerUniformsTextureCount += uniform.Size;
             }
 
-            if (samplerUniformsTextureCount == 0) // If there are no sampler uniforms, then we mark this as false and don't
-                hasSamplerUniforms = false; // create any of the sampler uniform variables nor do any of their processes
+            if (samplerUniformsTextureCount == 0)
+            {
+                hasSamplerUniforms = false;
+                textureList = null;
+            }
             else
             {
                 hasSamplerUniforms = true;
                 textureList = new List<Texture>(samplerUniformsTextureCount);
-                isTextureListDirty = true;
             }
         }
+
+        public static bool operator ==(ShaderUniformList left, ShaderUniformList right) => left.Equals(right);
+
+        public static bool operator !=(ShaderUniformList left, ShaderUniformList right) => !left.Equals(right);
 
         /// <summary>
         /// When using sampler uniforms, this will make sure they all work together properly. This is called
@@ -87,7 +88,7 @@ namespace TrippyGL
 
             if (hasSamplerUniforms)
             {
-                if (isTextureListDirty)
+                if (Program.areSamplerUniformsDirty)
                     RemakeTextureList();
 
                 Program.GraphicsDevice.BindAllTextures(textureList);
@@ -120,7 +121,7 @@ namespace TrippyGL
                 }
             }
 
-            isTextureListDirty = false;
+            Program.areSamplerUniformsDirty = false;
         }
 
         /// <summary>
@@ -141,6 +142,30 @@ namespace TrippyGL
             return string.Concat(nameof(Count) + "=", Count.ToString());
         }
 
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Program.GetHashCode();
+                for (int i = 0; i < uniforms.Length; i++)
+                    hashCode = (hashCode * 397) ^ uniforms[i].GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public bool Equals(ShaderUniformList other)
+        {
+            return Program == other.Program
+                && uniforms == other.uniforms;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ShaderBlockUniformList shaderBlockUniformList)
+                return Equals(shaderBlockUniformList);
+            return false;
+        }
+
         /// <summary>
         /// Creates a <see cref="ShaderUniformList"/> and queries the uniforms for a given <see cref="ShaderProgram"/>.<para/>
         /// The <see cref="ShaderProgram"/> must already have had it's block uniforms queried prior to this.
@@ -152,7 +177,7 @@ namespace TrippyGL
             int totalUniformBlockCount = program.BlockUniforms == null ? 0 : program.BlockUniforms.TotalUniformCount;
 
             if (totalUniformCount - totalUniformBlockCount <= 0)
-                return null;
+                return default;
             return new ShaderUniformList(program, totalUniformCount, totalUniformBlockCount);
         }
     }

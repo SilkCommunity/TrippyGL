@@ -299,11 +299,12 @@ namespace TrippyGL
                 ShaderUniform posUniform = Uniforms["pLightPos" + itostring];
                 ShaderUniform diffColUniform = Uniforms["pLightDiffColor" + itostring];
                 ShaderUniform specColUniform = Uniforms["pLightSpecColor" + itostring];
+                ShaderUniform attConfigUniform = Uniforms["pAttConfig" + itostring];
                 if (posUniform.UniformType != UniformType.FloatVec3 || diffColUniform.UniformType != UniformType.FloatVec3
-                    || specColUniform.UniformType != UniformType.FloatVec3)
+                    || specColUniform.UniformType != UniformType.FloatVec3 || attConfigUniform.UniformType != UniformType.FloatVec3)
                     throw new InvalidOperationException("Invalid uniforms for " + nameof(PositionalLight) + " number " + itostring);
 
-                lights[i] = new PositionalLight(posUniform, diffColUniform, specColUniform);
+                lights[i] = new PositionalLight(posUniform, diffColUniform, specColUniform, attConfigUniform);
             }
 
             return lights;

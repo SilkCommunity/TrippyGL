@@ -251,7 +251,7 @@ namespace TrippyGL
             if (textureValues[uniformIndex] != texture)
             {
                 textureValues[uniformIndex] = texture;
-                OwnerProgram.Uniforms.isTextureListDirty = true;
+                OwnerProgram.areSamplerUniformsDirty = true;
             }
         }
 
@@ -276,7 +276,7 @@ namespace TrippyGL
                 }
             }
 
-            OwnerProgram.Uniforms.isTextureListDirty |= isDirty;
+            OwnerProgram.areSamplerUniformsDirty |= isDirty;
         }
         #endregion
 

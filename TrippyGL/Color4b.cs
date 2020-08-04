@@ -32,7 +32,7 @@ namespace TrippyGL
         public byte A;
 
         /// <summary>Gets or sets this <see cref="Color4b"/> represented as a single <see cref="uint"/> value.</summary>
-        public unsafe uint PackedValue
+        public uint PackedValue
         {
             get => ((uint)A << 24) | ((uint)B << 16) | ((uint)G << 8) | R;
             set
