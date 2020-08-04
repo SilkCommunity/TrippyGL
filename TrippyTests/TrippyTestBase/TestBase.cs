@@ -99,13 +99,13 @@ namespace TrippyTestBase
         {
             Console.WriteLine("Loading window...");
             InputContext = Window.CreateInput();
-            InputContext.ConnectionChanged += InputContext_ConnectionChanged;
+            InputContext.ConnectionChanged += OnInputContextConnectionChanged;
             foreach (IKeyboard keyboard in InputContext.Keyboards)
-                InputContext_ConnectionChanged(keyboard, keyboard.IsConnected);
+                OnInputContextConnectionChanged(keyboard, keyboard.IsConnected);
             foreach (IMouse mouse in InputContext.Mice)
-                InputContext_ConnectionChanged(mouse, mouse.IsConnected);
+                OnInputContextConnectionChanged(mouse, mouse.IsConnected);
             foreach (IGamepad gamepad in InputContext.Gamepads)
-                InputContext_ConnectionChanged(gamepad, gamepad.IsConnected);
+                OnInputContextConnectionChanged(gamepad, gamepad.IsConnected);
 
             graphicsDevice = new GraphicsDevice(GL.GetApi(Window));
             graphicsDevice.DebugMessagingEnabled = true;
@@ -124,7 +124,7 @@ namespace TrippyTestBase
             OnResized(Window.Size);
         }
 
-        private void InputContext_ConnectionChanged(IInputDevice device, bool status)
+        private void OnInputContextConnectionChanged(IInputDevice device, bool status)
         {
             if (device is IKeyboard keyboard)
             {

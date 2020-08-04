@@ -1,5 +1,4 @@
-﻿using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 using System;
 using System.IO;
 using System.Numerics;
@@ -16,15 +15,15 @@ namespace SimpleCubemap
     {
         TextureCubemap cubemap;
         ShaderProgram shaderProgram;
+        ShaderUniform viewUniform;
         VertexBuffer<VertexPosition> vertexBuffer;
 
-        IGamepad currentGamepad;
-        Vector2 thumbstickDir;
-        Vector2 cameraRot;
-        System.Drawing.PointF lastMousePos;
+        InputManager3D inputManager;
 
         protected override void OnLoad()
         {
+            inputManager = new InputManager3D(InputContext);
+
             cubemap = TextureCubemapExtensions.FromFiles(
                 graphicsDevice,
                 "cubemap/back.png", "cubemap/front.png",
@@ -44,7 +43,8 @@ namespace SimpleCubemap
 
             shaderProgram.Uniforms["cubemap"].SetValueTexture(cubemap);
             shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.Identity);
-            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.Identity);
+            viewUniform = shaderProgram.Uniforms["View"];
+            viewUniform.SetValueMat4(Matrix4x4.Identity);
 
             Span<VertexPosition> vertexData = stackalloc VertexPosition[]
             {
@@ -73,58 +73,18 @@ namespace SimpleCubemap
         protected override void OnUpdate(double dt)
         {
             base.OnUpdate(dt);
-
-            if (currentGamepad != null && currentGamepad.IsConnected)
-            {
-                const float sensitivity = 5f;
-                cameraRot.Y += thumbstickDir.X * (float)dt * sensitivity;
-                cameraRot.X = Math.Clamp(cameraRot.X + thumbstickDir.Y * (float)dt * sensitivity, -1.57f, 1.57f);
-                UpdateCamera();
-            }
         }
 
         protected override void OnRender(double dt)
         {
+            inputManager.Update((float)dt);
+
             graphicsDevice.ShaderProgram = shaderProgram;
+            viewUniform.SetValueMat4(inputManager.CalculateViewMatrixNoTranslation());
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             Window.SwapBuffers();
-        }
-
-        protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
-        {
-            if (sender.IsButtonPressed(MouseButton.Left))
-            {
-                const float sensitivity = 1f / 200f;
-                cameraRot.Y += (position.X - lastMousePos.X) * sensitivity;
-                cameraRot.X = Math.Clamp(cameraRot.X + (position.Y - lastMousePos.Y) * sensitivity, -1.57f, 1.57f);
-
-                lastMousePos = position;
-
-                UpdateCamera();
-            }
-        }
-
-        protected override void OnMouseDown(IMouse sender, MouseButton button)
-        {
-            if (button == MouseButton.Left)
-                lastMousePos = sender.Position;
-        }
-
-        protected override void OnGamepadThumbstickMoved(IGamepad sender, Thumbstick thumbstick)
-        {
-            if (thumbstick.Index == 0)
-            {
-                currentGamepad = sender;
-                if (Math.Abs(thumbstick.Position) < 0.2)
-                    thumbstickDir = default;
-                else
-                {
-                    thumbstickDir.X = thumbstick.X;
-                    thumbstickDir.Y = thumbstick.Y;
-                }
-            }
         }
 
         protected override void OnResized(System.Drawing.Size size)
@@ -134,11 +94,6 @@ namespace SimpleCubemap
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
             shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.Width / (float)size.Height, 0.01f, 10f));
-        }
-
-        private void UpdateCamera()
-        {
-            shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateRotationY(cameraRot.Y) * Matrix4x4.CreateRotationX(cameraRot.X));
         }
 
         protected override void OnUnload()
