@@ -19,6 +19,9 @@ namespace TrippyGL
         /// <summary>This character is used to separate different indices when specifying a vertex.</summary>
         private const char IndicesSeparator = '/';
 
+        /// <summary>This character is used to indicate the start of a comment that goes until the end of the line.</summary>
+        private const char CommentIndicator = '#';
+
         /// <summary>The length of a char buffer used to parse numbers.</summary>
         private const int CharBufferLength = 32;
 
@@ -45,13 +48,13 @@ namespace TrippyGL
         /// <param name="file">The path to the OBJ file on disk.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
-        public static T[] FromFile<T>(string file) where T : unmanaged
+        public static T[] FromFile<T>(string file, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
         {
             if (string.IsNullOrEmpty(file))
                 throw new ArgumentNullException(nameof(file));
 
             using FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return FromStream<T>(new StreamReader(fs));
+            return FromStream<T>(new StreamReader(fs), options);
         }
 
         /// <summary>
@@ -61,12 +64,12 @@ namespace TrippyGL
         /// <param name="stream">The <see cref="Stream"/> from which the OBJ file will be read from.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
-        public static T[] FromStream<T>(Stream stream) where T : unmanaged
+        public static T[] FromStream<T>(Stream stream, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            return FromStream<T>(new StreamReader(stream));
+            return FromStream<T>(new StreamReader(stream), options);
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace TrippyGL
         /// <param name="streamReader">The <see cref="StreamReader"/> from which the OBJ file will be read from.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
-        public static T[] FromStream<T>(StreamReader streamReader) where T : unmanaged
+        public static T[] FromStream<T>(StreamReader streamReader, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
         {
             if (streamReader == null)
                 throw new ArgumentNullException(nameof(streamReader));
@@ -93,6 +96,8 @@ namespace TrippyGL
             // Let's ensure the vertex type is valid.
             if (!loadNormals && !loadColors && !loadTexCoords && !(tmp is VertexPosition || tmp is Vector3))
                 throw new ObjLoaderException("Vertex format not supported. Use a library-provided format instead.");
+
+            bool largePolygons = !options.HasFlag(ObjLoadOptions.TrianglesOnly);
 
             // We're gonna need lists to store temporary data. Let's get them form here.
             GetLists(loadNormals, loadColors, loadTexCoords, out List<Vector3> positions, out List<Vector3> normals,
@@ -119,7 +124,10 @@ namespace TrippyGL
                     // This will skip empty lines (or lines that are only whitespaces) and advance
                     // the reader to skip any whitespaces at the beginning of a line.
                     if (SkipWhitespaces(streamReader))
+                    {
+                        SkipLine(streamReader);
                         continue;
+                    }
 
                     // We read the next character (it's guaranteed not to be a whitespace).
                     char currentChar = (char)streamReader.Read();
@@ -174,42 +182,70 @@ namespace TrippyGL
                     }
                     else if (currentChar == 'f')
                     {
-                        // This line is specifying a face. We need to read three vertices.
-                        for (int i = 0; i < 3; i++)
+                        // This line is specifying a face. We need to read a polygon face.
+                        // The way we load faces into triangles is by making a triangle fan.
+                        // Example: vertices 0 1 2 3 4 5 will be turned into the triangles:
+                        // (0 1 2) (0 2 3) (0 3 4) (0 4 5)
+                        // Looking at this you can see that for each triangle, we need to know
+                        // the polygon's first vertex, and the last vertex of the previous triangle.
+
+                        // We start by loading the first two vertices and verifying their indices.
+                        // The indices of the first vertex will be in "first0", "second0" and "third0".
+                        ReadThreeIntegers(streamReader, ref charBuffer, out int first0, out int second0, out int third0);
+                        VerifyIndices(first0, second0, third0);
+                        ReadThreeIntegers(streamReader, ref charBuffer, out int lastFirst, out int lastSecond, out int lastThird);
+                        VerifyIndices(lastFirst, lastSecond, lastThird);
+
+                        // When we add the indices to the list we need to substract one, because OBJ indices
+                        // start at 1 (and array indices start at 0, fuck all languages where it doesn't).
+                        first0--;
+                        second0--;
+                        third0--;
+                        lastFirst--;
+                        lastSecond--;
+                        lastThird--;
+
+                        // We now load the third vertex
+                        ReadThreeIntegers(streamReader, ref charBuffer, out int first, out int second, out int third);
+
+                        do
                         {
-                            // Each vertex is specified with up to three integers, which specify the
-                            // indices for position, normal and texture coordinates.
-                            ReadThreeIntegers(streamReader, ref charBuffer, out int first, out int second, out int third);
+                            // We have to add one more triangle. Let's start by verifying the last indices we read.
+                            VerifyIndices(first, second, third);
 
-                            // We verify validity and then store the index for position.
-                            if (first < 1 || first > positions.Count)
-                                throw new FormatException("Invalid position index integer: " + first.ToString());
-                            indices.Add(first - 1);
+                            // We add the polygon's first vertex.
+                            indices.Add(first0);
+                            if (loadNormals) indices.Add(third0);
+                            if (loadTexCoords) indices.Add(second0);
 
-                            // Note: The index for color is the same one as position, because colors are
-                            // specified (if they are present) alongside positions.
+                            // We add the last vertex (taken from the previous triangle)
+                            indices.Add(lastFirst);
+                            if (loadNormals) indices.Add(lastThird);
+                            if (loadTexCoords) indices.Add(lastSecond);
 
-                            // If we're loading normals, we verify validity for that index and store it.
-                            if (loadNormals)
-                            {
-                                if (third < 1 || third > normals.Count)
-                                    throw new FormatException("Invalid normal index integer: " + third.ToString());
-                                indices.Add(third - 1);
-                            }
+                            first--;
+                            second--;
+                            third--;
 
-                            // If we're loading texcoords, we verify validity for that index and store it.
-                            if (loadTexCoords)
-                            {
-                                if (second < 1 || second > texCoords.Count)
-                                    throw new FormatException("Invalid texture coordinates index integer: " + second.ToString());
-                                indices.Add(second - 1);
-                            }
+                            // We add the current vertex and increment vertexCount by 3.
+                            indices.Add(first);
+                            if (loadNormals) indices.Add(third);
+                            if (loadTexCoords) indices.Add(second);
 
-                            // We increment the counter for how many vertices we have.
-                            vertexCount++;
-                        }
+                            vertexCount += 3;
+
+                            // The next triangle will need to know the last vertex of the previous triangle.
+                            lastFirst = first;
+                            lastSecond = second;
+                            lastThird = third;
+
+                            // If largePolygons is disabled, this process ends after only one triangle.
+                            // Otherwise, this process continues while there are more vertices in this line.
+                        } while (largePolygons && TryReadThreeIntegers(streamReader, ref charBuffer, out first, out second, out third));
                     }
 
+                    // The entire while cycle ensures the end of the line isn't reached until now.
+                    // This ensures our currentLineNumber is counting correctly.
                     SkipLine(streamReader);
                 }
 
@@ -289,6 +325,22 @@ namespace TrippyGL
                 // We're done here. Let's return the lists so they can be reused if needed.
                 ReturnLists(positions, normals, colors, texCoords, indices);
             }
+
+            // Verifies that the given indices read from a group of three integers are valid.
+            void VerifyIndices(int first, int second, int third)
+            {
+                // We check that the position index is valid.
+                if (first < 1 || first > positions.Count)
+                    throw new FormatException("Invalid position index integer: " + first.ToString());
+
+                // If we're loading normals, we check that the normal index is valid.
+                if (loadNormals && (third < 1 || third > normals.Count))
+                    throw new FormatException("Invalid normal index integer: " + third.ToString());
+
+                // If we're loading texcoords, we check that the texcoord index is valid.
+                if (loadTexCoords && (second < 1 || second > texCoords.Count))
+                    throw new FormatException("Invalid texture coordinates index integer: " + second.ToString());
+            }
         }
 
         /// <summary>
@@ -305,19 +357,23 @@ namespace TrippyGL
         /// is not a whitespace character, but goes no further than the end of the line.
         /// </summary>
         /// <returns>Whether the end of the line (or stream) was reached.</returns>
+        /// <remarks>
+        /// In case a newline character is reached, the next char to be returned by
+        /// <see cref="StreamReader.Read()"/> will be a newline character.
+        /// </remarks>
         private static bool SkipWhitespaces(StreamReader streamReader)
         {
             while (!streamReader.EndOfStream)
             {
                 char c = (char)streamReader.Peek();
 
+                if (c == NewlineIndicator || c == CommentIndicator)
+                    return true;
+
                 if (!char.IsWhiteSpace(c))
                     return false;
 
                 streamReader.Read();
-
-                if (c == NewlineIndicator)
-                    return true;
             }
 
             return true;
@@ -397,9 +453,10 @@ namespace TrippyGL
         /// </summary>
         private static void ReadThreeIntegers(StreamReader streamReader, ref Span<char> charBuffer, out int first, out int second, out int third)
         {
-            // First, let's skip any whitespaces before the integers group
+            // First, let's skip any whitespaces before the integers group.
             SkipWhitespacesNoEOL(streamReader);
 
+            // We read the first integer. If there are no more in the group, we return here.
             if (ParseNextInt(streamReader, ref charBuffer, out first))
             {
                 second = -1;
@@ -407,47 +464,92 @@ namespace TrippyGL
                 return;
             }
 
+            // We do the same with reading the second integer.
             if (ParseNextInt(streamReader, ref charBuffer, out second))
             {
                 third = -1;
                 return;
             }
 
+            // We read the third integer and skip characters until the next whitespace,
+            // so any following read integers operation starts looking in the correct place.
             ParseNextInt(streamReader, ref charBuffer, out third);
             SkipUntilWhitespace(streamReader);
+        }
 
-            // Parses a single int from the group of three. The parsed integer is set to the value param
-            // and the function returns whether the end of the line/stream was reached.
-            static bool ParseNextInt(StreamReader streamReader, ref Span<char> charBuffer, out int value)
+        /// <summary>
+        /// Parses a group of three integers in between whitespaces, with each integer separated by
+        /// <see cref="IndicesSeparator"/> characters. Missing values will be set to -1.
+        /// </summary>
+        /// <returns>True if integers were found, or false if the end of line was found.</returns>
+        private static bool TryReadThreeIntegers(StreamReader streamReader, ref Span<char> charBuffer, out int first, out int second, out int third)
+        {
+            // First, let's skip any whitespaces before the integers group. If the end of the line
+            // was reached, we return false to indicate so.
+            if (SkipWhitespaces(streamReader))
             {
-                int index = 0;
-                char currentChar = (char)streamReader.Peek();
-                while (!char.IsWhiteSpace(currentChar))
-                {
-                    streamReader.Read();
-                    if (currentChar == IndicesSeparator)
-                        break;
-
-                    if (index == charBuffer.Length)
-                        ExpandCharBuffer(ref charBuffer);
-                    charBuffer[index++] = currentChar;
-
-                    if (streamReader.EndOfStream)
-                        break;
-
-                    currentChar = (char)streamReader.Peek();
-                }
-
-                if (index == 0)
-                    value = -1;
-                else
-                {
-                    if (!int.TryParse(charBuffer.Slice(0, index), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-                        throw new FormatException("Invalid int format: \"" + charBuffer.Slice(0, index).ToString() + "\"");
-                }
-
-                return streamReader.EndOfStream || currentChar == NewlineIndicator;
+                first = -1;
+                second = -1;
+                third = -1;
+                return false;
             }
+
+            // We read the first integer, If there's no more integers in the group, we return true.
+            if (ParseNextInt(streamReader, ref charBuffer, out first))
+            {
+                second = -1;
+                third = -1;
+                return true;
+            }
+
+            // Now we do the same with reading the second integer.
+            if (ParseNextInt(streamReader, ref charBuffer, out second))
+            {
+                third = -1;
+                return true;
+            }
+
+            // We read the third integer and skip characters until the next whitespace,
+            // so any following read integers operation starts looking in the correct place.
+            ParseNextInt(streamReader, ref charBuffer, out third);
+            SkipUntilWhitespace(streamReader);
+            return true;
+        }
+
+        /// <summary>
+        /// Parses a single int from the group of three. The parsed integer is set to the value param
+        /// and the function. Empty strings will be turned into the integer -1.
+        /// </summary>
+        /// <returns>Whether the end of the line/stream was reached.</returns>
+        static bool ParseNextInt(StreamReader streamReader, ref Span<char> charBuffer, out int value)
+        {
+            int index = 0;
+            char currentChar = (char)streamReader.Peek();
+            while (!char.IsWhiteSpace(currentChar) && currentChar != CommentIndicator)
+            {
+                streamReader.Read();
+                if (currentChar == IndicesSeparator)
+                    break;
+
+                if (index == charBuffer.Length)
+                    ExpandCharBuffer(ref charBuffer);
+                charBuffer[index++] = currentChar;
+
+                if (streamReader.EndOfStream)
+                    break;
+
+                currentChar = (char)streamReader.Peek();
+            }
+
+            if (index == 0)
+                value = -1;
+            else
+            {
+                if (!int.TryParse(charBuffer.Slice(0, index), NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+                    throw new FormatException("Invalid int format: \"" + charBuffer.Slice(0, index).ToString() + "\"");
+            }
+
+            return streamReader.EndOfStream || currentChar == NewlineIndicator || currentChar == CommentIndicator;
         }
 
         /// <summary>
@@ -575,5 +677,18 @@ namespace TrippyGL
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Provides options for loading OBJ files.
+    /// </summary>
+    [Flags]
+    public enum ObjLoadOptions
+    {
+        /// <summary>Specifies default options when loading an OBJ file.</summary>
+        None = 0,
+
+        /// <summary>Any face with more than 3 vertices is stripped down to just the first 3 vertices.</summary>
+        TrianglesOnly = 1
     }
 }
