@@ -226,7 +226,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            return Buffer.GetHashCode();
+            return HashCode.Combine(Buffer);
         }
 
         public bool Equals(VertexBuffer<T> other)

@@ -48,12 +48,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = Position.GetHashCode();
-                hashCode = (hashCode * 397) ^ TexCoords.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(Position, TexCoords);
         }
 
         public bool Equals(VertexTexture other)

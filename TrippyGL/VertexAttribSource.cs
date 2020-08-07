@@ -104,12 +104,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = BufferSubset.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttribDescription.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(BufferSubset, AttribDescription);
         }
 
         public override bool Equals(object obj)

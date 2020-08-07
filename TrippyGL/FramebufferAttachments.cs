@@ -27,12 +27,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = Texture.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(Texture, AttachmentPoint);
         }
 
         public bool Equals(FramebufferTextureAttachment other)
@@ -73,12 +68,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = Renderbuffer.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttachmentPoint.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(Renderbuffer, AttachmentPoint);
         }
 
         public bool Equals(FramebufferRenderbufferAttachment other)

@@ -96,14 +96,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = X.GetHashCode();
-                hashCode = (hashCode * 397) ^ Y.GetHashCode();
-                hashCode = (hashCode * 397) ^ Width.GetHashCode();
-                hashCode = (hashCode * 397) ^ Height.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(X, Y, Width, Height);
         }
 
         public bool Equals(Viewport other)

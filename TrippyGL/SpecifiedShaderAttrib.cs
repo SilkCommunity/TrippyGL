@@ -37,12 +37,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = AttribType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.InvariantCulture);
-                return hashCode;
-            }
+            return HashCode.Combine(AttribType, Name);
         }
 
         public bool Equals(SpecifiedShaderAttrib shaderAttrib)

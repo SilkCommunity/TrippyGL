@@ -51,14 +51,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = Location.GetHashCode();
-                hashCode = (hashCode * 397) ^ Size.GetHashCode();
-                hashCode = (hashCode * 397) ^ AttribType.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.InvariantCulture);
-                return hashCode;
-            }
+            return HashCode.Combine(Location, Size, AttribType, Name);
         }
 
         public bool Equals(ActiveVertexAttrib other)

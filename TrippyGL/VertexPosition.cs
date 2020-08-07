@@ -48,7 +48,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            return Position.GetHashCode();
+            return HashCode.Combine(Position);
         }
 
         public bool Equals(VertexPosition other)

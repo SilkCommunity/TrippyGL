@@ -86,13 +86,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = Program.GetHashCode();
-                for (int i = 0; i < uniforms.Length; i++)
-                    hashCode = (hashCode * 397) ^ uniforms[i].GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(Program);
         }
 
         public bool Equals(ShaderBlockUniformList other)

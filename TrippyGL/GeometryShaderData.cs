@@ -51,14 +51,7 @@ namespace TrippyGL
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = GeometryInputType.GetHashCode();
-                hashCode = (hashCode * 397) ^ GeometryOutputType.GetHashCode();
-                hashCode = (hashCode * 397) ^ GeometryShaderInvocations.GetHashCode();
-                hashCode = (hashCode * 397) ^ GeometryVerticesOut.GetHashCode();
-                return hashCode;
-            }
+            return HashCode.Combine(GeometryInputType, GeometryOutputType, GeometryShaderInvocations, GeometryVerticesOut);
         }
 
         public bool Equals(GeometryShaderData other)
