@@ -11,8 +11,7 @@ namespace TrippyTesting.Tests
     class ObjDragon
     {
         System.Diagnostics.Stopwatch stopwatch;
-
-        IWindow window;
+        readonly IWindow window;
 
         GraphicsDevice graphicsDevice;
 

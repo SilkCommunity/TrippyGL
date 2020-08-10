@@ -23,7 +23,7 @@ namespace TrippyGL
         public readonly ShaderBlockUniformList BlockUniforms;
 
         /// <summary>The vertex attributes for this <see cref="ShaderProgram"/> queried from OpenGL.</summary>
-        private ActiveVertexAttrib[] activeAttribs;
+        private readonly ActiveVertexAttrib[] activeAttribs;
 
         /// <summary>Gets the input attributes on this program.</summary>
         public ReadOnlySpan<ActiveVertexAttrib> ActiveAttribs => new ReadOnlySpan<ActiveVertexAttrib>(activeAttribs);

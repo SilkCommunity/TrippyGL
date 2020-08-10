@@ -10,8 +10,7 @@ namespace TrippyTesting.Tests
     class SimpleShader
     {
         System.Diagnostics.Stopwatch stopwatch;
-
-        IWindow window;
+        readonly IWindow window;
 
         GraphicsDevice graphicsDevice;
 

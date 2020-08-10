@@ -10,7 +10,7 @@ namespace TrippyTesting
 {
     class WindowTemplate
     {
-        IWindow window;
+        readonly IWindow window;
         IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;

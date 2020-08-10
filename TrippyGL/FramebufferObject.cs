@@ -21,8 +21,8 @@ namespace TrippyGL
         /// <summary>The amount of samples this <see cref="FramebufferObject"/> has.</summary>
         public uint Samples { get; private set; }
 
-        private List<FramebufferTextureAttachment> textureAttachments;
-        private List<FramebufferRenderbufferAttachment> renderbufferAttachments;
+        private readonly List<FramebufferTextureAttachment> textureAttachments;
+        private readonly List<FramebufferRenderbufferAttachment> renderbufferAttachments;
 
         /// <summary>The amount of <see cref="Texture"/> attachments this <see cref="FramebufferObject"/> has.</summary>
         public int TextureAttachmentCount => textureAttachments.Count;

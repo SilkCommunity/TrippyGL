@@ -12,9 +12,8 @@ namespace TrippyTesting
     {
         System.Diagnostics.Stopwatch stopwatch;
         float time;
-        Random r = new Random();
-
-        IWindow window;
+        readonly Random r = new Random();
+        readonly IWindow window;
 
         ShaderProgram program;
         BufferObject buffer;

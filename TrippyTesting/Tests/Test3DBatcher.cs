@@ -15,8 +15,7 @@ namespace TrippyTesting.Tests
         System.Diagnostics.Stopwatch stopwatch;
         public static Random r = new Random();
         public static float time, deltaTime;
-
-        IWindow window;
+        readonly IWindow window;
         IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;
