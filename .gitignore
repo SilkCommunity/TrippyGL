@@ -70,7 +70,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
-*.obj
+# *.obj # disabled because of OBJ model files
 *.iobj
 *.pch
 *.pdb
