@@ -268,7 +268,7 @@ namespace TrippyTesting.Tests
                 return;
 
             graphicsDevice.BlendingEnabled = false;
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.TextureCubemapSeamlessEnabled = true;
             graphicsDevice.DrawFramebuffer = fbo1;

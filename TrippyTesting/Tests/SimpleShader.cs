@@ -134,7 +134,7 @@ namespace TrippyTesting.Tests
             stallProgramTwo.View = Matrix4x4.CreateLookAt(new Vector3(0, 4, -6), new Vector3(0, 1.6f, 0), Vector3.UnitY);
 
             graphicsDevice.BlendingEnabled = false;
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
 
             OnWindowResized(window.Size);
         }

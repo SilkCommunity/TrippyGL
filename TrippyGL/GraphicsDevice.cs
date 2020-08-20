@@ -72,41 +72,29 @@ namespace TrippyGL
             ResetClipDistanceStates();
 
             GL.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, clearColor.W);
-
             GL.Viewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            GL.PolygonMode(GLEnum.FrontAndBack, polygonMode);
 
-            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
             if (scissorTestEnabled)
                 GL.Enable(EnableCap.ScissorTest);
             else
                 GL.Disable(EnableCap.ScissorTest);
+            GL.Scissor(scissorRect.X, scissorRect.Y, scissorRect.Width, scissorRect.Height);
 
-            if (blendState.IsOpaque)
-                GL.Disable(EnableCap.Blend);
-            else
-                GL.Enable(EnableCap.Blend);
-            GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
-            GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
-            GL.BlendColor(blendState.BlendColor.X, blendState.BlendColor.Y, blendState.BlendColor.Z, blendState.BlendColor.W);
-
-            if (depthState.DepthTestingEnabled)
-                GL.Enable(EnableCap.DepthTest);
-            else
-                GL.Disable(EnableCap.DepthTest);
+            ResetBlendStates();
+            ResetDepthStates();
+            ResetStencilStates();
+            ResetFaceCullingStates();
 
             if (cubemapSeamlessEnabled)
                 GL.Enable(EnableCap.TextureCubeMapSeamless);
             else
                 GL.Disable(EnableCap.TextureCubeMapSeamless);
 
-            ResetFaceCullingStates();
-
             if (rasterizerEnabled)
                 GL.Disable(EnableCap.RasterizerDiscard);
             else
                 GL.Enable(EnableCap.RasterizerDiscard);
-
-            GL.PolygonMode(GLEnum.FrontAndBack, polygonMode);
         }
 
         #region DebugMessaging
@@ -1125,7 +1113,7 @@ namespace TrippyGL
         /// </remarks>
         public BlendState BlendState
         {
-            get { return blendState.Clone(); } // Since BlendState is a class we shouldn't return a reference to our instance
+            get => blendState.Clone(); // Since BlendState is a class we shouldn't return a reference to our instance
             set
             {
                 // The specified BlendState's fields are copied into blendState, because we need to store all the
@@ -1177,7 +1165,7 @@ namespace TrippyGL
         /// <summary>Enables or disables color blending.</summary>
         public bool BlendingEnabled
         {
-            get { return !blendState.IsOpaque; }
+            get => !blendState.IsOpaque;
             set
             {
                 if (blendState.IsOpaque == value)
@@ -1191,21 +1179,33 @@ namespace TrippyGL
             }
         }
 
+        public void ResetBlendStates()
+        {
+            if (blendState.IsOpaque)
+                GL.Disable(EnableCap.Blend);
+            else
+                GL.Enable(EnableCap.Blend);
+
+            GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
+            GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
+            GL.BlendColor(blendState.BlendColor.X, blendState.BlendColor.Y, blendState.BlendColor.Z, blendState.BlendColor.W);
+        }
+
         #endregion BlendState
 
-        #region DepthTestingState
+        #region DepthState
 
         /// <summary>The current depth state.</summary>
-        private readonly DepthTestingState depthState = new DepthTestingState(false);
+        private readonly DepthState depthState = new DepthState(false);
 
-        /// <summary>Sets the <see cref="DepthTestingState"/> used for drawing.</summary>
+        /// <summary>Sets the <see cref="TrippyGL.DepthState"/> used for drawing.</summary>
         /// <remarks>
         /// Getting this property returns a cloned object. Modifying that object doesn't
         /// automatically apply changes to this <see cref="GraphicsDevice"/>.
         /// </remarks>
-        public DepthTestingState DepthState
+        public DepthState DepthState
         {
-            get { return depthState.Clone(); }
+            get => depthState.Clone();
             set
             {
                 if (value != null && value.DepthTestingEnabled)
@@ -1252,7 +1252,7 @@ namespace TrippyGL
         /// <summary>Enables or disables depth testing.</summary>
         public bool DepthTestingEnabled
         {
-            get { return depthState.DepthTestingEnabled; }
+            get => depthState.DepthTestingEnabled;
             set
             {
                 if (depthState.DepthTestingEnabled != value)
@@ -1266,10 +1266,10 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>The current depth to set on a clear depth operation.</summary>
+        /// <summary>The depth value to set on a clear depth operation.</summary>
         public float ClearDepth
         {
-            get { return depthState.ClearDepth; }
+            get => depthState.ClearDepth;
             set
             {
                 if (depthState.ClearDepth != value)
@@ -1278,6 +1278,154 @@ namespace TrippyGL
                     depthState.ClearDepth = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets all depth states to the last values known by this <see cref="GraphicsDevice"/>.
+        /// </summary>
+        public void ResetDepthStates()
+        {
+            if (depthState.DepthTestingEnabled)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
+
+            GL.DepthFunc(depthState.DepthComparison);
+            GL.ClearDepth(depthState.ClearDepth);
+            GL.DepthRange(depthState.DepthRangeNear, depthState.DepthRangeFar);
+            GL.DepthMask(depthState.DepthBufferWrittingEnabled);
+        }
+
+        #endregion
+
+        #region StencilState
+
+        /// <summary>The current stencil state.</summary>
+        private readonly StencilState stencilState = new StencilState(false);
+
+        /// <summary>Sets the <see cref="TrippyGL.StencilState"/> used for drawing.</summary>
+        /// <remarks>
+        /// Getting this property returns a cloned object. Modifying that object
+        /// doesn't automatically apply changes to this <see cref="GraphicsDevice"/>.
+        /// </remarks>
+        public StencilState StencilState
+        {
+            get => stencilState.Clone();
+            set
+            {
+                if (value != null && value.StencilTestingEnabled)
+                {
+                    if (stencilState.StencilTestingEnabled)
+                    {
+                        GL.Enable(EnableCap.StencilTest);
+                        stencilState.StencilTestingEnabled = true;
+                    }
+
+                    if (stencilState.ClearStencil != value.ClearStencil)
+                    {
+                        GL.ClearStencil(value.ClearStencil);
+                        stencilState.ClearStencil = value.ClearStencil;
+                    }
+
+                    if (stencilState.FrontWriteMask != value.FrontWriteMask)
+                    {
+                        GL.StencilMaskSeparate(StencilFaceDirection.Front, value.FrontWriteMask);
+                        stencilState.FrontWriteMask = value.FrontWriteMask;
+                    }
+
+                    if (stencilState.BackWriteMask != value.BackWriteMask)
+                    {
+                        GL.StencilMaskSeparate(StencilFaceDirection.Back, value.BackWriteMask);
+                        stencilState.BackWriteMask = value.BackWriteMask;
+                    }
+
+                    if (stencilState.FrontFunction != value.FrontFunction || stencilState.FrontRefValue != value.FrontRefValue || stencilState.FrontTestMask != value.FrontTestMask)
+                    {
+                        GL.StencilFuncSeparate(StencilFaceDirection.Front, value.FrontFunction, value.FrontRefValue, value.FrontTestMask);
+                        stencilState.FrontFunction = value.FrontFunction;
+                        stencilState.FrontRefValue = value.FrontRefValue;
+                        stencilState.FrontTestMask = value.FrontTestMask;
+                    }
+
+                    if (stencilState.BackFunction != value.BackFunction || stencilState.BackRefValue != value.BackRefValue || stencilState.BackTestMask != value.BackTestMask)
+                    {
+                        GL.StencilFuncSeparate(StencilFaceDirection.Back, value.BackFunction, value.BackRefValue, value.BackTestMask);
+                        stencilState.BackFunction = value.BackFunction;
+                        stencilState.BackRefValue = value.BackRefValue;
+                        stencilState.BackTestMask = value.BackTestMask;
+                    }
+
+                    if (stencilState.FrontStencilFailOperation != value.FrontStencilFailOperation || stencilState.FrontDepthFailOperation != value.FrontDepthFailOperation || stencilState.FrontPassOperation != value.FrontPassOperation)
+                    {
+                        GL.StencilOpSeparate(StencilFaceDirection.Front, value.FrontStencilFailOperation, value.FrontDepthFailOperation, value.FrontPassOperation);
+                        stencilState.FrontStencilFailOperation = value.FrontStencilFailOperation;
+                        stencilState.FrontDepthFailOperation = value.FrontDepthFailOperation;
+                        stencilState.FrontPassOperation = value.FrontPassOperation;
+                    }
+
+                    if (stencilState.BackStencilFailOperation != value.BackStencilFailOperation || stencilState.BackDepthFailOperation != value.BackDepthFailOperation || stencilState.BackPassOperation != value.BackPassOperation)
+                    {
+                        GL.StencilOpSeparate(StencilFaceDirection.Back, value.BackStencilFailOperation, value.BackDepthFailOperation, value.BackPassOperation);
+                        stencilState.BackStencilFailOperation = value.BackStencilFailOperation;
+                        stencilState.BackDepthFailOperation = value.BackDepthFailOperation;
+                        stencilState.BackPassOperation = value.BackPassOperation;
+                    }
+                }
+                else if (StencilState.StencilTestingEnabled)
+                {
+                    GL.Disable(EnableCap.StencilTest);
+                    stencilState.StencilTestingEnabled = false;
+                }
+            }
+        }
+
+        /// <summary>Enables or disables stencil testing.</summary>
+        public bool StencilTestingEnabled
+        {
+            get => stencilState.StencilTestingEnabled;
+            set
+            {
+                if (stencilState.StencilTestingEnabled != value)
+                {
+                    if (value)
+                        GL.Enable(EnableCap.StencilTest);
+                    else
+                        GL.Disable(EnableCap.StencilTest);
+                    stencilState.StencilTestingEnabled = value;
+                }
+            }
+        }
+
+        /// <summary>The stencil value to set on a clear stencil operation.</summary>
+        public int ClearStencil
+        {
+            get => stencilState.ClearStencil;
+            set
+            {
+                if (stencilState.ClearStencil != value)
+                {
+                    GL.ClearStencil(value);
+                    stencilState.ClearStencil = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets all stencil states to the last values known by this <see cref="GraphicsDevice"/>.
+        /// </summary>
+        public void ResetStencilStates()
+        {
+            if (stencilState.StencilTestingEnabled)
+                GL.Enable(EnableCap.StencilTest);
+            else
+                GL.Disable(EnableCap.StencilTest);
+            GL.ClearStencil(stencilState.ClearStencil);
+            GL.StencilMaskSeparate(StencilFaceDirection.Front, stencilState.FrontWriteMask);
+            GL.StencilMaskSeparate(StencilFaceDirection.Back, stencilState.BackWriteMask);
+            GL.StencilFuncSeparate(StencilFaceDirection.Front, stencilState.FrontFunction, stencilState.FrontRefValue, stencilState.FrontTestMask);
+            GL.StencilFuncSeparate(StencilFaceDirection.Back, stencilState.BackFunction, stencilState.BackRefValue, stencilState.BackTestMask);
+            GL.StencilOpSeparate(StencilFaceDirection.Front, stencilState.FrontStencilFailOperation, stencilState.FrontDepthFailOperation, stencilState.FrontPassOperation);
+            GL.StencilOpSeparate(StencilFaceDirection.Back, stencilState.BackStencilFailOperation, stencilState.BackDepthFailOperation, stencilState.BackPassOperation);
         }
 
         #endregion

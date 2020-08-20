@@ -49,7 +49,7 @@ namespace SimpleCube
 
             shaderProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 1.0f, -1.5f), Vector3.Zero, Vector3.UnitY);
 
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
             graphicsDevice.BlendState = BlendState.Opaque;
 
             stopwatch = Stopwatch.StartNew();

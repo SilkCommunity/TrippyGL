@@ -117,7 +117,7 @@ namespace InstancedCubes
 
             shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(0, 5, -4), Vector3.Zero, Vector3.UnitY));
 
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
             graphicsDevice.BlendingEnabled = false;
 
             stopwatch = Stopwatch.StartNew();

@@ -87,7 +87,7 @@ namespace TrippyTesting.Tests
             shaderProgram.Uniforms["reflectivity"].SetValueFloat(1f);
 
             graphicsDevice.BlendingEnabled = false;
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
 
             // For some reason if we don't set enabled to true last, this doesnt work???
             graphicsDevice.CullFaceMode = CullFaceMode.Back;

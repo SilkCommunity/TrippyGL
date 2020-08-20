@@ -4,22 +4,22 @@ using Silk.NET.OpenGL;
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a way to use depth testing. The depth testing function can be configured to obtain
+    /// Stores states used depth testing. The depth testing function can be configured to obtain
     /// different results, such as discarding faraway fragments or discarding the nearest ones.
     /// </summary>
-    public sealed class DepthTestingState : IEquatable<DepthTestingState>
+    public sealed class DepthState : IEquatable<DepthState>
     {
         /// <summary>
         /// Whether depth testing is enabled for this depth state.
-        /// If false, all other <see cref="DepthTestingState"/> parameters are irrelevant.
+        /// If false, all other <see cref="DepthState"/> parameters are irrelevant.
         /// </summary>
         public bool DepthTestingEnabled;
 
-        /// <summary>The function for comparing depth values to determine whether the new value passes the depth test.</summary>
-        public DepthFunction DepthComparison;
-
         /// <summary>The depth value to use when clearing a depth buffer.</summary>
         public float ClearDepth;
+
+        /// <summary>The function for comparing depth values to determine whether the new value passes the depth test.</summary>
+        public DepthFunction DepthComparison;
 
         private double depthNear, depthFar;
 
@@ -41,7 +41,7 @@ namespace TrippyGL
         public bool DepthBufferWrittingEnabled;
 
         /// <summary>
-        /// Create a <see cref="DepthTestingState"/> with the specified depth testing parameters.
+        /// Create a <see cref="DepthState"/> with the specified depth testing parameters.
         /// </summary>
         /// <param name="testingEnabled">Whether depth testing is enabled.</param>
         /// <param name="comparison">The comparison mode that determines when a depth test succeedes.</param>
@@ -49,7 +49,8 @@ namespace TrippyGL
         /// <param name="nearRange">The near depth value for the depth's range.</param>
         /// <param name="farRange">The far depth value for the depth's range.</param>
         /// <param name="depthBufferWrittingEnabled">Whether writting into the depth buffer is enabled.</param>
-        public DepthTestingState(bool testingEnabled, DepthFunction comparison = DepthFunction.Less, float clearDepth = 1, double nearRange = 0, double farRange = 1, bool depthBufferWrittingEnabled = true)
+        public DepthState(bool testingEnabled, DepthFunction comparison = DepthFunction.Less, float clearDepth = 1,
+            double nearRange = 0, double farRange = 1, bool depthBufferWrittingEnabled = true)
         {
             DepthTestingEnabled = testingEnabled;
             DepthComparison = comparison;
@@ -60,19 +61,19 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Creates a new <see cref="DepthTestingState"/> instance with the same values as this one.
+        /// Creates a new <see cref="DepthState"/> instance with the same values as this one.
         /// </summary>
-        public DepthTestingState Clone()
+        public DepthState Clone()
         {
-            return new DepthTestingState(DepthTestingEnabled, DepthComparison, ClearDepth, depthNear, depthFar, DepthBufferWrittingEnabled);
+            return new DepthState(DepthTestingEnabled, DepthComparison, ClearDepth, depthNear, depthFar, DepthBufferWrittingEnabled);
         }
 
         public override string ToString()
         {
             if (!DepthTestingEnabled)
-                return "Disabled";
+                return "DepthState Disabled";
 
-            return string.Concat("Enabled, ",
+            return string.Concat("DepthState Enabled, ",
                 nameof(DepthComparison) + "=\"", DepthComparison.ToString(), "\"",
                 ", " + nameof(ClearDepth) + "=\"", ClearDepth.ToString(), "\"",
                 ", DepthRange=[", depthNear.ToString(), ", ", depthFar.ToString(), "]",
@@ -80,7 +81,7 @@ namespace TrippyGL
             );
         }
 
-        public bool Equals(DepthTestingState other)
+        public bool Equals(DepthState other)
         {
             return other != null
                 && DepthTestingEnabled == other.DepthTestingEnabled
@@ -94,31 +95,31 @@ namespace TrippyGL
         #region Static Members
 
         /// <summary>
-        /// The default, most common <see cref="DepthTestingState"/>.
+        /// The default, most common <see cref="DepthState"/>.
         /// Checks that the depth of a fragment is closer to the camera or else, discards the fragment.
         /// </summary>
-        public static DepthTestingState Default => new DepthTestingState(true);
+        public static DepthState Default => new DepthState(true);
 
         /// <summary>
-        /// The default and most common <see cref="DepthTestingState"/> but with an inverted
+        /// The default and most common <see cref="DepthState"/> but with an inverted
         /// comparison, so fragments will be discarded if they're closer to the camera.
         /// </summary>
-        public static DepthTestingState Inverted => new DepthTestingState(true, DepthFunction.Greater, 0);
+        public static DepthState Inverted => new DepthState(true, DepthFunction.Greater, 0);
 
         /// <summary>
-        /// Gets a <see cref="DepthTestingState"/> with the same settings as <see cref="Default"/>,
+        /// Gets a <see cref="DepthState"/> with the same settings as <see cref="Default"/>,
         /// but writting to the depth buffer is disabled.
         /// </summary>
-        public static DepthTestingState ReadOnly => new DepthTestingState(true, DepthFunction.Less, 1, 0, 1, false);
+        public static DepthState ReadOnly => new DepthState(true, DepthFunction.Less, 1, 0, 1, false);
 
         /// <summary>
-        /// Gets a <see cref="DepthTestingState"/> with the same settings as <see cref="Inverted"/>,
+        /// Gets a <see cref="DepthState"/> with the same settings as <see cref="Inverted"/>,
         /// but writting to the depth buffer is disabled.
         /// </summary>
-        public static DepthTestingState ReadOnlyInverted => new DepthTestingState(true, DepthFunction.Greater, 0, 0, 1, false);
+        public static DepthState ReadOnlyInverted => new DepthState(true, DepthFunction.Greater, 0, 0, 1, false);
 
-        /// <summary>Gets a <see cref="DepthTestingState"/> where no depth testing is done and all fragments are written.</summary>
-        public static DepthTestingState None => new DepthTestingState(false);
+        /// <summary>Gets a <see cref="DepthState"/> where no depth testing is done and all fragments are written.</summary>
+        public static DepthState None => new DepthState(false);
 
         #endregion
     }

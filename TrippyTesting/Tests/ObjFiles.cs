@@ -91,7 +91,7 @@ namespace TrippyTesting.Tests
             shaderProgram.Uniforms["samp"].SetValueTexture(texture);
 
             graphicsDevice.BlendingEnabled = false;
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
 
             OnWindowResized(window.Size);
         }

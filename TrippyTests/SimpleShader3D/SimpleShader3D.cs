@@ -160,7 +160,7 @@ namespace SimpleShader3D
             modelsProgram.PositionalLights[0].Position = lampPosition;
             lampProgram.World = Matrix4x4.CreateScale(0.015f) * Matrix4x4.CreateTranslation(lampPosition.X, lampPosition.Y - 0.85f, lampPosition.Z);
 
-            graphicsDevice.DepthState = DepthTestingState.Default;
+            graphicsDevice.DepthState = DepthState.Default;
             graphicsDevice.BlendingEnabled = false;
 
             stopwatch = Stopwatch.StartNew();
