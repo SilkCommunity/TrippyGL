@@ -273,6 +273,17 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Returns whether the given <see cref="UniformType"/> is a sampler 2D type which can
+        /// sample from a <see cref="Texture2D"/>.
+        /// </summary>
+        public static bool IsUniformSampler2DType(UniformType type)
+        {
+            return type == UniformType.Sampler2D || type == UniformType.Sampler2DMultisample
+                || type == UniformType.IntSampler2D || type == UniformType.IntSampler2DMultisample
+                || type == UniformType.UnsignedIntSampler2D || type == UniformType.UnsignedIntSampler2DMultisample;
+        }
+
+        /// <summary>
         /// Turns a value from the <see cref="TextureImageFormat"/> enum into the necessary
         /// enums to create a <see cref="Texture"/>'s image/storage.
         /// </summary>

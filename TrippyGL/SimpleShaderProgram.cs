@@ -24,7 +24,7 @@ namespace TrippyGL
         private readonly ShaderUniform viewUniform;
         private readonly ShaderUniform projectionUniform;
         private readonly ShaderUniform colorUniform;
-        private readonly ShaderUniform sampUniform;
+        internal readonly ShaderUniform sampUniform;
         private readonly ShaderUniform cameraPosUniform;
         private readonly ShaderUniform reflectivityUniform;
         private readonly ShaderUniform specularPowerUniform;

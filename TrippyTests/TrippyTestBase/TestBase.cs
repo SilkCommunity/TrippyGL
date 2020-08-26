@@ -21,6 +21,7 @@ namespace TrippyTestBase
         public bool AllowToggleFullscreen = true;
         private Size preFullscreenSize;
         private Point preFullscreenPosition;
+        private WindowState preFullscreenState;
 
         public bool IsFullscreen
         {
@@ -39,18 +40,21 @@ namespace TrippyTestBase
                         screenSize = new Size(Window.Monitor.Bounds.Width, Window.Monitor.Bounds.Height);
                     preFullscreenSize = Window.Size;
                     preFullscreenPosition = Window.Position;
+                    preFullscreenState = Window.WindowState;
+                    Window.Size = screenSize;
                     Window.WindowState = WindowState.Fullscreen;
                     Window.Size = screenSize;
                 }
                 else
                 {
-                    Window.WindowState = WindowState.Normal;
                     if (preFullscreenSize.Width < 10 || preFullscreenSize.Height < 10)
                     {
                         preFullscreenSize = GetNewWindowSize(Window.Monitor);
                         preFullscreenPosition = new Point(Window.Monitor.Bounds.X + 50, Window.Monitor.Bounds.Y + 50);
+                        preFullscreenState = WindowState.Normal;
                     }
 
+                    Window.WindowState = preFullscreenState;
                     Window.Size = preFullscreenSize;
                     Window.Position = preFullscreenPosition;
                 }

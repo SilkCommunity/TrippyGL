@@ -81,6 +81,26 @@ namespace TrippyGL
             BlockUniforms.EnsureBufferBindingsSet();
         }
 
+        /// <summary>
+        /// Tries to find an <see cref="ActiveVertexAttrib"/> in this <see cref="ShaderProgram"/> with
+        /// the specified location.
+        /// </summary>
+        /// <param name="location">The location to look for an <see cref="ActiveVertexAttrib"/> at.</param>
+        /// <param name="attrib">The <see cref="ActiveVertexAttrib"/> that was found, if one was found.</param>
+        /// <returns>Whether an attribute was found in said location.</returns>
+        public bool TryFindAttributeByLocation(int location, out ActiveVertexAttrib attrib)
+        {
+            for(int i=0; i<activeAttribs.Length; i++)
+                if(activeAttribs[i].Location == location)
+                {
+                    attrib = activeAttribs[i];
+                    return true;
+                }
+
+            attrib = default;
+            return false;
+        }
+
         protected override void Dispose(bool isManualDispose)
         {
             if (isManualDispose && GraphicsDevice.ShaderProgram == this)

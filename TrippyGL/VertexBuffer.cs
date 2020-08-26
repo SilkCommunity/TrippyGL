@@ -36,6 +36,9 @@ namespace TrippyGL
         /// <summary>Whether this <see cref="VertexBuffer{T}"/> is all null (because, for example, it hasn't been created yet).</summary>
         public bool IsEmpty => Buffer == null;
 
+        /// <summary>Whether this <see cref="VertexBuffer{T}"/> has been disposed.</summary>
+        public bool IsDisposed => Buffer.IsDisposed;
+
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer and usage hint.
         /// </summary>
