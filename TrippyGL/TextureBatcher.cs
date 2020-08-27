@@ -7,12 +7,13 @@ namespace TrippyGL
 {
     public sealed class TextureBatcher : IDisposable
     {
-        private const uint InitialBatchItemsCapacity = 64;
+        public const uint InitialBatchItemsCapacity = 128;
         private const uint MaxBatchItemCapacity = 4096;
         private const uint InitialBufferCapacity = InitialBatchItemsCapacity * 3;
         private const uint MaxBufferCapacity = MaxBatchItemCapacity * 6;
 
-        private readonly PrimitiveBatcher<VertexColorTexture> primitiveBatcher;
+        private VertexColorTexture[] triangles;
+        private int triangleIndex;
 
         private readonly VertexBuffer<VertexColorTexture> vertexBuffer;
 
@@ -27,18 +28,19 @@ namespace TrippyGL
 
         public bool IsDisposed => vertexBuffer.IsDisposed;
 
-        public TextureBatcher(GraphicsDevice graphicsDevice)
+        public TextureBatcher(GraphicsDevice graphicsDevice, uint initialBatchCapacity = InitialBatchItemsCapacity)
         {
             if (graphicsDevice == null)
                 throw new ArgumentNullException(nameof(graphicsDevice));
 
-            primitiveBatcher = new PrimitiveBatcher<VertexColorTexture>(PrimitiveBatcher<int>.InitialCapacity, 0);
-            batchItems = new TextureBatchItem[InitialBatchItemsCapacity];
+            if (initialBatchCapacity <= 0)
+                throw new ArgumentOutOfRangeException(nameof(initialBatchCapacity), nameof(initialBatchCapacity) + " must be greater than 0.");
+
+            batchItems = new TextureBatchItem[initialBatchCapacity];
             batchItemCount = 0;
             IsActive = false;
             vertexBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, InitialBufferCapacity, BufferUsageARB.StreamDraw);
-
-
+            triangleIndex = 0;
         }
 
         public void SetShaderProgram(SimpleShaderProgram simpleProgram)
@@ -46,7 +48,7 @@ namespace TrippyGL
             if (simpleProgram == null)
                 throw new ArgumentNullException(nameof(simpleProgram));
 
-            SetShaderProgram(simpleProgram, simpleProgram.sampUniform);
+            SetShaderProgram(simpleProgram, simpleProgram.TextureEnabled ? simpleProgram.sampUniform : default);
         }
 
         public void SetShaderProgram(ShaderProgram shaderProgram, ShaderUniform textureUniform)
@@ -57,14 +59,14 @@ namespace TrippyGL
             if (shaderProgram == null)
                 throw new ArgumentNullException(nameof(shaderProgram));
 
-            if (textureUniform.IsEmpty)
-                throw new ArgumentNullException(nameof(textureUniform));
+            if (!textureUniform.IsEmpty)
+            {
+                if (textureUniform.OwnerProgram != shaderProgram)
+                    throw new ArgumentException(nameof(textureUniform) + " must belong to the provided " + nameof(ShaderProgram), nameof(textureUniform));
 
-            if (!TrippyUtils.IsUniformSampler2DType(textureUniform.UniformType))
-                throw new ArgumentException("The provided " + nameof(ShaderUniform) + " must be a Sampler2D type.", nameof(textureUniform));
-
-            if (textureUniform.OwnerProgram != shaderProgram)
-                throw new ArgumentException(nameof(textureUniform) + " must belong to the provided " + nameof(ShaderProgram), nameof(textureUniform));
+                if (!TrippyUtils.IsUniformSampler2DType(textureUniform.UniformType))
+                    throw new ArgumentException("The provided " + nameof(ShaderUniform) + " must be a Sampler2D type.", nameof(textureUniform));
+            }
 
             ActiveVertexAttrib attrib;
             if (!shaderProgram.TryFindAttributeByLocation(0, out attrib) || attrib.AttribType != AttributeType.FloatVec3)
@@ -91,6 +93,7 @@ namespace TrippyGL
             if (IsActive)
                 throw new InvalidOperationException("This " + nameof(TextureBatcher) + " has already begun.");
 
+            batchItemCount = 0;
             BeginMode = beginMode;
             IsActive = true;
         }
@@ -116,7 +119,7 @@ namespace TrippyGL
 
             if (currentCapacity < requiredCapacity)
                 Array.Resize(ref batchItems, Math.Min(TrippyMath.GetNextCapacity(currentCapacity, requiredCapacity), (int)MaxBatchItemCapacity));
-            return requiredCapacity <= currentCapacity;
+            return requiredCapacity <= batchItems.Length;
         }
 
         private void EnsureBufferCapacity(int requiredCapacity)
@@ -127,6 +130,9 @@ namespace TrippyGL
 
             if (currentCapacity < requiredCapacity)
                 vertexBuffer.RecreateStorage(Math.Min((uint)TrippyMath.GetNextCapacity((int)currentCapacity, requiredCapacity), MaxBufferCapacity));
+
+            if (triangles == null || triangles.Length < vertexBuffer.StorageLength)
+                triangles = new VertexColorTexture[vertexBuffer.StorageLength];
         }
 
         private TextureBatchItem GetNextBatchItem()
@@ -134,7 +140,7 @@ namespace TrippyGL
             if (!EnsureBatchListCapacity(batchItemCount + 1))
             {
                 if (BeginMode == BatcherBeginMode.OnTheFly || BeginMode == BatcherBeginMode.Immediate)
-                    Flush();
+                    Flush(true);
                 else
                     throw new InvalidOperationException("Too many " + nameof(TextureBatcher) + " items. Try drawing less per Begin()-End() cycle or use OnTheFly or Immediate begin modes.");
             }
@@ -160,7 +166,7 @@ namespace TrippyGL
             if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
             {
                 if (batchItems[batchItemCount - 1].Texture != texture)
-                    Flush();
+                    Flush(true);
             }
 
             TextureBatchItem item = GetNextBatchItem();
@@ -171,7 +177,7 @@ namespace TrippyGL
                 item.SetValue(texture, position, source, color, scale, rotation, origin, depth);
 
             if (BeginMode == BatcherBeginMode.Immediate)
-                Flush();
+                Flush(true);
             else
             {
                 item.SortValue = BeginMode switch
@@ -184,7 +190,28 @@ namespace TrippyGL
             }
         }
 
-        private void Flush()
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, float scale,
+            float rotation = 0, Vector2 origin = default, float depth = 0)
+        {
+            Draw(texture, position, source, color, new Vector2(scale, scale), rotation, origin, depth);
+        }
+
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color)
+        {
+            Draw(texture, position, source, color, new Vector2(1, 1));
+        }
+
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source)
+        {
+            Draw(texture, position, source, Color4b.White, new Vector2(1, 1));
+        }
+
+        public void Draw(Texture2D texture, Vector2 position, Color4b color)
+        {
+            Draw(texture, position, null, color, new Vector2(1, 1));
+        }
+
+        private void Flush(bool sameTextureEnsured)
         {
             // We ensure there is at least one batch item.
             if (batchItemCount == 0)
@@ -199,29 +226,37 @@ namespace TrippyGL
             while (itemStartIndex < batchItemCount)
             {
                 Texture2D currentTexture = batchItems[itemStartIndex].Texture;
-                int itemEndIndex = FindDifferentTexture(currentTexture, itemStartIndex + 1);
+                int itemEndIndex = sameTextureEnsured ? batchItemCount : FindDifferentTexture(currentTexture, itemStartIndex + 1);
                 Span<TextureBatchItem> items = batchItems.AsSpan(itemStartIndex, itemEndIndex - itemStartIndex);
                 itemStartIndex = itemEndIndex;
 
                 EnsureBufferCapacity(items.Length * 6);
-                int vbStorageLength = (int)vertexBuffer.StorageLength;
-                int batchItemsPerDrawCall = vbStorageLength / 6;
-                primitiveBatcher.EnsureTriangleSpace(vbStorageLength, false);
+                int batchItemsPerDrawCall = (int)vertexBuffer.StorageLength / 6;
 
                 graphicsDevice.VertexArray = vertexBuffer;
                 graphicsDevice.ShaderProgram = ShaderProgram;
-                TextureUniform.SetValueTexture(currentTexture);
+                if (!TextureUniform.IsEmpty)
+                    TextureUniform.SetValueTexture(currentTexture);
 
                 for (int startIndex = 0; startIndex < items.Length; startIndex += batchItemsPerDrawCall)
                 {
                     int endIndex = Math.Min(startIndex + batchItemsPerDrawCall, items.Length);
 
-                    primitiveBatcher.ClearTriangles();
+                    triangleIndex = 0;
                     for (int i = startIndex; i < endIndex; i++)
-                        items[i].AddToBatcher(primitiveBatcher);
+                    {
+                        TextureBatchItem item = items[i];
+                        triangles[triangleIndex++] = item.VertexTL;
+                        triangles[triangleIndex++] = item.VertexTR;
+                        triangles[triangleIndex++] = item.VertexBR;
 
-                    vertexBuffer.DataSubset.SetData(primitiveBatcher.TriangleVertices);
-                    graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, (uint)primitiveBatcher.TriangleVertexCount);
+                        triangles[triangleIndex++] = item.VertexTL;
+                        triangles[triangleIndex++] = item.VertexBR;
+                        triangles[triangleIndex++] = item.VertexBL;
+                    }
+
+                    vertexBuffer.DataSubset.SetData(triangles.AsSpan(0, triangleIndex));
+                    graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, (uint)triangleIndex);
                 }
             }
 
@@ -240,7 +275,7 @@ namespace TrippyGL
             if (!IsActive)
                 throw new InvalidOperationException("Begin() must be called before End().");
 
-            Flush();
+            Flush(false);
 
             IsActive = false;
         }
