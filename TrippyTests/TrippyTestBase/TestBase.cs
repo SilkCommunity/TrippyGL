@@ -74,6 +74,8 @@ namespace TrippyTestBase
             {
                 API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3)),
                 VSync = VSyncMode.On,
+                UpdatesPerSecond = 60,
+                FramesPerSecond = 60,
                 UseSingleThreadedWindow = true,
                 RunningSlowTolerance = 30,
                 Size = windowSize,

@@ -167,20 +167,20 @@ namespace TrippyGL
         /// <summary>
         /// Constructs a completely randomized <see cref="Color4b"/>.
         /// </summary>
-        /// <param name="r">The <see cref="System.Random"/> to use for randomizing.</param>
-        public static Color4b Random(Random r)
+        /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
+        public static Color4b Random(Random random)
         {
-            uint val = unchecked((uint)r.Next());
+            uint val = unchecked((uint)random.Next());
             return new Color4b(val);
         }
 
         /// <summary>
         /// Constructs a randomized <see cref="Color4b"/> with an alpha value of 255.
         /// </summary>
-        /// <param name="r">The <see cref="System.Random"/> to use for randomizing.</param>
-        public static Color4b RandomFullAlpha(Random r)
+        /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
+        public static Color4b RandomFullAlpha(Random random)
         {
-            Color4b color = Random(r);
+            Color4b color = Random(random);
             color.A = 255; // yeah.
             return color;
         }

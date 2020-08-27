@@ -29,7 +29,7 @@ namespace TrippyGL
         /// The maximum allowed length in characters for a number. This will limit the maximum
         /// size of the char buffer from which numbers are parsed.
         /// </summary>
-        private const int MaxNumberCharacterLength = 512;
+        private const int MaxNumberCharacterLength = 128;
 
         // These lists can be used and reused by the obj loading functions so they don't have to
         // instantiate and then discard a new list each time they're called.

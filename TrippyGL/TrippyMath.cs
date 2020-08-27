@@ -16,7 +16,7 @@ namespace TrippyGL
         /// <remarks>
         /// This is calculated with the following equation:<para/>
         /// <code>
-        /// newCapacity = currentCapacity * pow(2, ceiling(log2(requiredCapacity) - log2(currentCapacity)));
+        /// newCapacity = currentCapacity * pow(2, ceiling(log2(requiredCapacity/currentCapacity)));
         /// </code>
         /// </remarks>
         public static int GetNextCapacity(int currentCapacity, int requiredCapacity)
@@ -24,8 +24,8 @@ namespace TrippyGL
             // Finds the smallest number that is greater than requiredCapacity and satisfies this equation:
             // " newCapacity = oldCapacity * 2^X " where X is an integer
 
-            const double log2 = 0.30102999566398119521373889472449;
-            int power = (int)Math.Ceiling(Math.Log(requiredCapacity) / log2 - Math.Log(currentCapacity) / log2);
+            const double log2 = 0.69314718055994530941723212145818;
+            int power = (int)Math.Ceiling(Math.Log(requiredCapacity / (double)currentCapacity) / log2);
             return currentCapacity * IntegerPow(2, power);
         }
 
@@ -79,6 +79,16 @@ namespace TrippyGL
                 a *= a;
             }
             return r;
+        }
+
+        public static float NextFloat(this Random random, float max)
+        {
+            return (float)random.NextDouble() * max;
+        }
+
+        public static float NextFloat(this Random random, float min, float max)
+        {
+            return (float)random.NextDouble() * (max - min) + min;
         }
     }
 }
