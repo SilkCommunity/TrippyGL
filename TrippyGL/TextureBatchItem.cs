@@ -4,16 +4,31 @@ using System.Numerics;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Used internally by <see cref="TextureBatcher"/> to store the vertices for each Draw().
+    /// </summary>
     internal class TextureBatchItem : IComparable<TextureBatchItem>
     {
+        /// <summary>The <see cref="Texture2D"/> to draw the vertices with.</summary>
         public Texture2D Texture;
+
+        /// <summary>
+        /// A value used for sorting. It's value might come from different places depending
+        /// on the <see cref="TextureBatcher.BeginMode"/>.</summary>
         public float SortValue;
 
+        /// <summary>The top-left vertex.</summary>
         public VertexColorTexture VertexTL;
+        /// <summary>The top-right vertex.</summary>
         public VertexColorTexture VertexTR;
+        /// <summary>The bottom-left vertex.</summary>
         public VertexColorTexture VertexBL;
+        /// <summary>The bottom-right vertex.</summary>
         public VertexColorTexture VertexBR;
 
+        /// <summary>
+        /// Calculates and sets all the values on this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// </summary>
         public void SetValue(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale, float rotation, Vector2 origin, float depth)
         {
             Texture = texture;
@@ -43,6 +58,10 @@ namespace TrippyGL
             VertexBR.Color = color;
         }
 
+        /// <summary>
+        /// Calculates and sets all the values on this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>
+        /// without calculating rotation.
+        /// </summary>
         public void SetValue(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale, Vector2 origin, float depth)
         {
             Texture = texture;
@@ -66,11 +85,9 @@ namespace TrippyGL
             VertexBR.Color = color;
         }
 
-        public void AddToBatcher(PrimitiveBatcher<VertexColorTexture> primitiveBatcher)
-        {
-            primitiveBatcher.AddQuad(VertexTL, VertexTR, VertexBR, VertexBL);
-        }
-
+        /// <summary>
+        /// Compares this item's <see cref="SortValue"/> with another item's.
+        /// </summary>
         public int CompareTo(TextureBatchItem other)
         {
             return SortValue.CompareTo(other.SortValue);

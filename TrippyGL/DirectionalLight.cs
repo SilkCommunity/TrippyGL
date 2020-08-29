@@ -10,6 +10,8 @@ namespace TrippyGL
     /// </summary>
     public sealed class DirectionalLight
     {
+        internal static string IncorrectUniformMessage = "The provided uniforms must be the correct type.";
+
         /// <summary>The uniform for setting this light's direction.</summary>
         private readonly ShaderUniform directionUniform;
 
@@ -75,14 +77,12 @@ namespace TrippyGL
         /// <param name="specularColorUniform">The uniform for setting this light's specular color. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
         public DirectionalLight(ShaderUniform directionUniform, ShaderUniform diffuseColorUniform, ShaderUniform specularColorUniform)
         {
-            const string WrongUniformsMessage = "The provided uniforms must be the correct type.";
-
             if (directionUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(directionUniform));
+                throw new ArgumentException(IncorrectUniformMessage, nameof(directionUniform));
             if (diffuseColorUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(diffuseColorUniform));
+                throw new ArgumentException(IncorrectUniformMessage, nameof(diffuseColorUniform));
             if (specularColorUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(specularColorUniform));
+                throw new ArgumentException(IncorrectUniformMessage, nameof(specularColorUniform));
 
             this.directionUniform = directionUniform;
             this.diffuseColorUniform = diffuseColorUniform;

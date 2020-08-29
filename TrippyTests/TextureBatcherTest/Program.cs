@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TextureBatcherTest
+﻿namespace TextureBatcherTest
 {
     class Program
     {

@@ -42,7 +42,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer and usage hint.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this <see cref="VertexBuffer{T}"/> will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
         /// <param name="indexElementType">The type of index element to use.</param>
@@ -82,7 +82,7 @@ namespace TrippyGL
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length, optional index buffer,
         /// usage hint and initial vertex data.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this <see cref="VertexBuffer{T}"/> will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="indexStorageLength">The length for the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements, or 0 for no index storage.</param>
         /// <param name="indexElementType">The type of index element to use.</param>
@@ -98,7 +98,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified initial vertex data and length but no index buffer.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this <see cref="VertexBuffer{T}"/> will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial vertex data.</param>
@@ -113,7 +113,7 @@ namespace TrippyGL
         /// Creates a <see cref="VertexBuffer{T}"/> with specified initial vertex data and
         /// same length as that data <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this <see cref="VertexBuffer{T}"/> will use.</param>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial vertex data.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, ReadOnlySpan<T> data, BufferUsageARB usageHint)
@@ -125,7 +125,7 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="VertexBuffer{T}"/> with specified length and undefined initial data.
         /// </summary>
-        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this <see cref="VertexBuffer{T}"/> will use.</param>
         /// <param name="storageLength">The length for the <see cref="VertexBuffer{T}"/>'s element storage measured in vertices.</param>
         /// <param name="usageHint">Used by the graphics driver to optimize performance.</param>
         public VertexBuffer(GraphicsDevice graphicsDevice, uint storageLength, BufferUsageARB usageHint)

@@ -100,16 +100,14 @@ namespace TrippyGL
         /// <param name="attenuationConfigUniform">The uniform for setting this light's attenuation config. Must be of type <see cref="UniformType.FloatVec3"/>.</param>
         public PositionalLight(ShaderUniform positionUniform, ShaderUniform diffuseColorUniform, ShaderUniform specularColorUniform, ShaderUniform attenuationConfigUniform)
         {
-            const string WrongUniformsMessage = "The provided uniforms must be the correct type.";
-
             if (positionUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(positionUniform));
+                throw new ArgumentException(DirectionalLight.IncorrectUniformMessage, nameof(positionUniform));
             if (diffuseColorUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(diffuseColorUniform));
+                throw new ArgumentException(DirectionalLight.IncorrectUniformMessage, nameof(diffuseColorUniform));
             if (specularColorUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(specularColorUniform));
+                throw new ArgumentException(DirectionalLight.IncorrectUniformMessage, nameof(specularColorUniform));
             if (attenuationConfigUniform.UniformType != UniformType.FloatVec3)
-                throw new ArgumentException(WrongUniformsMessage, nameof(attenuationConfigUniform));
+                throw new ArgumentException(DirectionalLight.IncorrectUniformMessage, nameof(attenuationConfigUniform));
 
             this.positionUniform = positionUniform;
             this.diffuseColorUniform = diffuseColorUniform;
