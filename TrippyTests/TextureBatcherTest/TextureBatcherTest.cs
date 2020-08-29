@@ -36,6 +36,7 @@ namespace TextureBatcherTest
             {
                 TextureEnabled = true,
                 VertexColorsEnabled = true,
+                ExcludeWorldMatrix = true
             };
             programBuilder.ConfigureVertexAttribs<VertexColorTexture>();
             shaderProgram = programBuilder.Create(graphicsDevice, true);

@@ -19,6 +19,9 @@ namespace TrippyGL
         /// <summary>Whether this <see cref="SimpleShaderProgram"/> uses vertex normals.</summary>
         public readonly bool LightningEnabled;
 
+        /// <summary>Whether this <see cref="SimpleShaderProgram"/> includes a World matrix in the vertex shader.</summary>
+        public readonly bool HasWorldUniform;
+
         // These are all the uniforms for controlling this SimpleShaderProgram's parameters
         private readonly ShaderUniform worldUniform;
         private readonly ShaderUniform viewUniform;
@@ -198,7 +201,8 @@ namespace TrippyGL
 
             // These uniforms are always present- so let's get them and ensure they're valid.
             worldUniform = Uniforms["World"];
-            if (worldUniform.UniformType != UniformType.FloatMat4)
+            HasWorldUniform = !worldUniform.IsEmpty;
+            if (HasWorldUniform && worldUniform.UniformType != UniformType.FloatMat4)
                 throw new InvalidOperationException(InvalidUniformMessage + "World");
             viewUniform = Uniforms["View"];
             if (viewUniform.UniformType != UniformType.FloatMat4)
@@ -241,7 +245,8 @@ namespace TrippyGL
             }
 
             // We set the default values for the different shader parameters.
-            World = Matrix4x4.Identity;
+            if (HasWorldUniform)
+                World = Matrix4x4.Identity;
             SetView(Matrix4x4.Identity, Vector3.Zero);
             Projection = Matrix4x4.Identity;
             Color = new Vector4(1, 1, 1, 1);

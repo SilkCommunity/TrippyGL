@@ -36,6 +36,9 @@ namespace TrippyGL
         /// <summary>The amount of positional lights to include in the <see cref="SimpleShaderProgram"/>. Zero to disable.</summary>
         public int PositionalLights;
 
+        /// <summary>Whether to exclude the World matrix from the vertex shader.</summary>
+        public bool ExcludeWorldMatrix;
+
         /// <summary>
         /// Gets whether the current configuration of this <see cref="SimpleShaderProgramBuilder"/>
         /// will make a created <see cref="SimpleShaderProgram"/> include lighting calculations.
@@ -172,7 +175,9 @@ namespace TrippyGL
                 builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
                 builder.Append("\n\n");
 
-                builder.Append("uniform mat4 World, View, Projection;\n");
+                if (!ExcludeWorldMatrix)
+                    builder.Append("uniform mat4 World;\n");
+                builder.Append("uniform mat4 View, Projection;\n");
 
                 builder.Append("\nin vec3 vPosition;\n");
                 if (useLightning) builder.Append("in vec3 vNormal;\n");
@@ -184,12 +189,18 @@ namespace TrippyGL
                 if (TextureEnabled) builder.Append("out vec2 fTexCoords;\n");
 
                 builder.Append("\nvoid main() {\n");
-                builder.Append("vec4 worldPos = World * vec4(vPosition, 1.0);\n");
+                if (ExcludeWorldMatrix)
+                    builder.Append("vec4 worldPos = vec4(vPosition, 1.0);\n");
+                else
+                    builder.Append("vec4 worldPos = World * vec4(vPosition, 1.0);\n");
                 builder.Append("gl_Position = Projection * View * worldPos;\n\n");
                 if (useLightning)
                 {
                     builder.Append("fPosition = worldPos.xyz;\n");
-                    builder.Append("fNormal = (World * vec4(vNormal, 0.0)).xyz;\n");
+                    if (ExcludeWorldMatrix)
+                        builder.Append("fNormal = vNormal;\n");
+                    else
+                        builder.Append("fNormal = (World * vec4(vNormal, 0.0)).xyz;\n");
                 }
                 if (VertexColorsEnabled) builder.Append("fColor = vColor;\n");
                 if (TextureEnabled) builder.Append("fTexCoords = vTexCoords;\n");
