@@ -1,8 +1,22 @@
 # TrippyGL
-A simple and lightweight, yet highly versatile OpenGL graphics library built on top of Silk.NET.
+A simple and lightweight, yet highly versatile OpenGL graphics library built on top of [Silk.NET](https://github.com/Ultz/Silk.NET/).
 
-Will target mainly OpenGL 4.0, but will include some 4.X features and can work with GL 3.X.
+TrippyGL is built for .NET Standard 2.1, which means you can run this on any .NET Standard 2.1 compliant platform such as .NET Core!
 
-Currently in development.
+Targets OpenGL 3.0 and up.
+
+The TrippyGL.ImageSharp project provides integration with [ImageSharp](https://github.com/SixLabors/ImageSharp) for easy texture loading and saving.
+
+For windowing and input, the [Silk.NET.Windowing](https://www.nuget.org/packages/Silk.NET.Windowing) and [Silk.NET.Input](https://www.nuget.org/packages/Silk.NET.Input) packages can be used.
+
+Currently in development, but nearing a first release!
 
 ![](img_terrain.png)
+
+![](img_lighting.png)
+
+![](img_fractal.png)
+
+![](img_conways.png)
+
+![](img_bouncyballs.png)
