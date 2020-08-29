@@ -8,11 +8,13 @@ namespace TextureBatcherTest
     {
         public static Texture2D texture;
 
+        Vector2[] trail;
         Vector2 position;
         Vector2 velocity;
 
         public Diamond()
         {
+            trail = new Vector2[5];
             Reset();
         }
 
@@ -45,7 +47,17 @@ namespace TextureBatcherTest
 
         public void Draw(TextureBatcher textureBatcher)
         {
+            for (int i = trail.Length - 1; i >= 0; i--)
+            {
+                byte alpha = (byte)(127 - i * 127 / trail.Length);
+                textureBatcher.Draw(texture, trail[i], new Color4b(255, 255, 255, alpha));
+            }
+
             textureBatcher.Draw(texture, position, Color4b.White);
+
+            for (int i = trail.Length - 1; i != 0; i--)
+                trail[i] = trail[i - 1];
+            trail[0] = position;
         }
 
         public void Reset()
