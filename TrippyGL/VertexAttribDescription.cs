@@ -40,7 +40,7 @@ namespace TrippyGL
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribDescription(AttributeType attribType, uint attribDivisor = 0)
         {
-            CheckAttribDivisor(attribDivisor);
+            ValidateAttribDivisor(attribDivisor);
 
             TrippyUtils.GetVertexAttribTypeData(attribType, out AttribIndicesUseCount, out Size, out AttribBaseType);
             SizeInBytes = TrippyUtils.GetVertexAttribSizeInBytes(AttribBaseType) * (uint)Size * AttribIndicesUseCount;
@@ -59,7 +59,7 @@ namespace TrippyGL
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
         public VertexAttribDescription(AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
         {
-            CheckAttribDivisor(attribDivisor);
+            ValidateAttribDivisor(attribDivisor);
 
             if (normalized)
             {
@@ -115,11 +115,27 @@ namespace TrippyGL
             );
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexAttribDescription"/> that specifies padding for an
+        /// amount of bytes calculated based on the baseType and size parameters.
+        /// </summary>
+        /// <remarks>
+        /// Padding indicators ignore padding based on type that occurs when using compensation
+        /// for struct padding (which is the default behavior in <see cref="VertexArray"/>).
+        /// </remarks>
         public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, uint size)
         {
             return new VertexAttribDescription(TrippyUtils.GetVertexAttribSizeInBytes(baseType) * size);
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexAttribDescription"/> that specifies padding for the amount
+        /// of bytes used by a specified <see cref="AttributeType"/>.
+        /// </summary>
+        /// <remarks>
+        /// Padding indicators ignore padding based on type that occurs when using compensation
+        /// for struct padding (which is the default behavior in <see cref="VertexArray"/>).
+        /// </remarks>
         public static VertexAttribDescription CreatePadding(AttributeType attribType)
         {
             TrippyUtils.GetVertexAttribTypeData(attribType, out uint indexUseCount, out int size, out VertexAttribPointerType baseType);
@@ -127,7 +143,7 @@ namespace TrippyGL
             return new VertexAttribDescription(typeSize * (uint)size * indexUseCount);
         }
 
-        private static void CheckAttribDivisor(uint attribDivisor)
+        private static void ValidateAttribDivisor(uint attribDivisor)
         {
             if (attribDivisor < 0)
                 throw new ArgumentOutOfRangeException(nameof(attribDivisor), attribDivisor, nameof(attribDivisor) + " must be greater than 0");

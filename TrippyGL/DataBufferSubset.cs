@@ -96,20 +96,22 @@ namespace TrippyGL
             if (destOffset + dataLength > dest.StorageLength)
                 throw new BufferCopyException("There isn't enough data in the dest buffer to copy " + nameof(dataLength) + " elements");
 
-            if (source == dest)
+            uint elementSize = source.ElementSize;
+            int sourceStart = (int)(source.StorageOffsetInBytes + sourceOffset * elementSize);
+            int destStart = (int)(dest.StorageOffsetInBytes + destOffset * elementSize);
+
+            if (source.Buffer == dest.Buffer)
             {
                 // We're copying from and to the same buffer? Let's ensure the sections don't overlap then
-
-                if ((destOffset + dataLength <= sourceOffset) || (destOffset > sourceOffset + dataLength))
+                int dataLengthBytes = (int)(dataLength * elementSize);
+                if (sourceStart < destStart + dataLengthBytes && sourceStart + dataLengthBytes > destStart)
                     throw new BufferCopyException("When copying to and from the same " + nameof(BufferObject) + ", the ranges must not overlap");
-                // This checks that the dest range is either fully to the left or fully to the right of the source range
             }
 
             // Everything looks fine, let's perform the copy operation!
             g.CopyReadBuffer = source.Buffer;
             g.CopyWriteBuffer = dest.Buffer;
-            uint elementSize = source.ElementSize;
-            source.Buffer.GL.CopyBufferSubData(CopyBufferSubDataTarget.CopyReadBuffer, CopyBufferSubDataTarget.CopyWriteBuffer, (int)(source.StorageOffsetInBytes + sourceOffset * elementSize), (int)(dest.StorageOffsetInBytes + destOffset * elementSize), dataLength * elementSize);
+            source.Buffer.GL.CopyBufferSubData(CopyBufferSubDataTarget.CopyReadBuffer, CopyBufferSubDataTarget.CopyWriteBuffer, sourceStart, destStart, dataLength * elementSize);
         }
 
         /// <summary>

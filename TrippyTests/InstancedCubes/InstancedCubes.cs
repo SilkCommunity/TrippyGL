@@ -91,7 +91,7 @@ namespace InstancedCubes
 
             // The second subset contains the data for each instance. For each one of these
             // Vector4-s, another cube will be rendered.
-            offsetData = new VertexDataBufferSubset<Vector4>(buffer, vertexData.NextByteInBuffer, (uint)offsets.Length, offsets);
+            offsetData = new VertexDataBufferSubset<Vector4>(buffer, vertexData.StorageEndInBytes, (uint)offsets.Length, offsets);
 
             // The vertex specification will specify first a FloatVec3, followed by 4 normalized
             // bytes (the color), and as third attribute we will have the offset data (which is per instance)

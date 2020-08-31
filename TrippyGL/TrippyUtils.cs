@@ -211,27 +211,6 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>
-        /// Copies the given <see cref="VertexAttribDescription"/>s into a new array, but leaves out the descriptions that are only used for padding.
-        /// </summary>
-        public static VertexAttribDescription[] CopyVertexAttribDescriptionsWithoutPaddingDescriptors(ReadOnlySpan<VertexAttribDescription> descriptions)
-        {
-            // TODO: Make this output into a Span somehow
-
-            int length = 0; // First we calculate the length of the new array
-            for (int i = 0; i < descriptions.Length; i++)
-                if (!descriptions[i].IsPadding)
-                    length++;
-
-            VertexAttribDescription[] res = new VertexAttribDescription[length];
-            int index = 0; // Then we copy the non-padding elements to the new array
-            for (int i = 0; i < descriptions.Length; i++)
-                if (!descriptions[i].IsPadding)
-                    res[index++] = descriptions[i];
-
-            return res; // Finally we return the new array
-        }
-
 
 
         /// <summary>

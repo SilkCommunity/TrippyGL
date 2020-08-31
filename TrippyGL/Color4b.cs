@@ -2,36 +2,39 @@ using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
+#pragma warning disable CA1062 // Validate arguments of public methods
+
 namespace TrippyGL
 {
     /// <summary>
-    /// Represents a color with 4 byte components (R, G, B, A).
+    /// A color with 4 unsigned byte components (R, G, B, A).
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct Color4b : IEquatable<Color4b>
     {
         /// <summary>
-        /// The red component of this <see cref="Color4b"/> structure.
+        /// The red component of this <see cref="Color4b"/>.
         /// </summary>
         public byte R;
 
         /// <summary>
-        /// The green component of this <see cref="Color4b"/> structure.
+        /// The green component of this <see cref="Color4b"/>.
         /// </summary>
         public byte G;
 
         /// <summary>
-        /// The blue component of this <see cref="Color4b"/> structure.
+        /// The blue component of this <see cref="Color4b"/>.
         /// </summary>
         public byte B;
 
         /// <summary>
-        /// The alpha component of this <see cref="Color4b"/> structure.
+        /// The alpha component of this <see cref="Color4b"/>.
         /// </summary>
         public byte A;
 
         /// <summary>Gets or sets this <see cref="Color4b"/> represented as a single <see cref="uint"/> value.</summary>
+        /// <remarks>Red is stored in the least significant 8 bits, and Alpha in the most significant 8 bits.</remarks>
         public uint PackedValue
         {
             get => ((uint)A << 24) | ((uint)B << 16) | ((uint)G << 8) | R;
@@ -64,10 +67,10 @@ namespace TrippyGL
         /// </summary>
         public Color4b(float r, float g, float b, float a = 1)
         {
-            R = (byte)(r * 255);
-            G = (byte)(g * 255);
-            B = (byte)(b * 255);
-            A = (byte)(a * 255);
+            R = (byte)(r * 255 + 0.5f);
+            G = (byte)(g * 255 + 0.5f);
+            B = (byte)(b * 255 + 0.5f);
+            A = (byte)(a * 255 + 0.5f);
         }
 
         /// <summary>
@@ -76,14 +79,14 @@ namespace TrippyGL
         /// </summary>
         public Color4b(Vector4 rgba)
         {
-            R = (byte)(rgba.X * 255);
-            G = (byte)(rgba.Y * 255);
-            B = (byte)(rgba.Z * 255);
-            A = (byte)(rgba.W * 255);
+            R = (byte)(rgba.X * 255 + 0.5f);
+            G = (byte)(rgba.Y * 255 + 0.5f);
+            B = (byte)(rgba.Z * 255 + 0.5f);
+            A = (byte)(rgba.W * 255 + 0.5f);
         }
 
         /// <summary>
-        /// Constructs a <see cref="Color4b"/> from a packed value
+        /// Constructs a <see cref="Color4b"/> from a packed value.
         /// </summary>
         public Color4b(uint packedValue)
         {
@@ -96,15 +99,21 @@ namespace TrippyGL
             A = (byte)(packedValue & 255);
         }
 
+        /// <summary>
+        /// Converts this <see cref="Color4b"/> into ARGB format.
+        /// </summary>
+        /// <remarks>
+        /// Blue is stored in the 8 least significant bits, and Alpha in the 8 most significant bits.
+        /// </remarks>
         public int ToArgb()
         {
-            uint value = (uint)A << 24 | (uint)R << 16 | (uint)G << 8 | B;
+            uint value = ((uint)A << 24) | ((uint)R << 16) | ((uint)G << 8) | B;
             return unchecked((int)value);
         }
-        
+
         /// <summary>
         /// Converts this <see cref="Color4b"/> into a <see cref="Vector4"/> by normalizing
-        /// the R, G, B, A and setting them to the X, Y, Z, W values on a <see cref="Vector4"/>.
+        /// the (R, G, B, A) components into a range [0-1].
         /// </summary>
         public Vector4 ToVector4()
         {

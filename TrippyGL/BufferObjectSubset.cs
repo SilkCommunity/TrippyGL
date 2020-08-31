@@ -26,9 +26,11 @@ namespace TrippyGL
         /// <summary>
         /// The index of the next byte in the <see cref="BufferObject"/>'s storage after this subset
         /// (a byte that does NOT belong to this subset but is sequentially next to this subset's end).<para/>
-        /// This is equal to (<see cref="StorageOffsetInBytes"/> + <see cref="StorageLengthInBytes"/>).
         /// </summary>
-        public uint NextByteInBuffer => StorageOffsetInBytes + StorageLengthInBytes;
+        /// <remarks>
+        /// This is equal to (<see cref="StorageOffsetInBytes"/> + <see cref="StorageLengthInBytes"/>).
+        /// </remarks>
+        public uint StorageEndInBytes => StorageOffsetInBytes + StorageLengthInBytes;
 
         /// <summary>
         /// The index in the <see cref="GraphicsDevice.bufferBindings"/> array where this

@@ -108,7 +108,7 @@ namespace TrippyTesting.Tests
 
             ptcBuffer = new BufferObject(graphicsDevice, (uint)(MaxParticles * 64 + VertexColor.SizeInBytes * vertices.Length), BufferUsageARB.StaticDraw);
             matSubset = new VertexDataBufferSubset<Matrix4x4>(ptcBuffer, 0, MaxParticles);
-            vertexSubset = new VertexDataBufferSubset<VertexColor>(ptcBuffer, matSubset.NextByteInBuffer, (uint)vertices.Length, vertices);
+            vertexSubset = new VertexDataBufferSubset<VertexColor>(ptcBuffer, matSubset.StorageEndInBytes, (uint)vertices.Length, vertices);
 
             ptcArray = new VertexArray(graphicsDevice, new VertexAttribSource[]
             {

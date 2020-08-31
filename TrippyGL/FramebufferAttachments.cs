@@ -7,9 +7,17 @@ namespace TrippyGL
     /// </summary>
     public readonly struct FramebufferTextureAttachment : IEquatable<FramebufferTextureAttachment>
     {
+        /// <summary>The <see cref="Texture"/> in this framebuffer attachment.</summary>
         public readonly Texture Texture;
+
+        /// <summary>The attachment point to which this attachment is attached in a <see cref="FramebufferObject"/>.</summary>
         public readonly FramebufferAttachmentPoint AttachmentPoint;
 
+        /// <summary>
+        /// Creates a <see cref="FramebufferTextureAttachment"/>.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture"/> to attach in this attachment.</param>
+        /// <param name="attachmentPoint">The attachment point to which this attachment attaches to.</param>
         public FramebufferTextureAttachment(Texture texture, FramebufferAttachmentPoint attachmentPoint)
         {
             Texture = texture;
@@ -48,9 +56,17 @@ namespace TrippyGL
     /// </summary>
     public readonly struct FramebufferRenderbufferAttachment : IEquatable<FramebufferRenderbufferAttachment>
     {
+        /// <summary>The <see cref="RenderbufferObject"/> in this framebuffer attachment.</summary>
         public readonly RenderbufferObject Renderbuffer;
+
+        /// <summary>The attachment point to which this attachment is attached in a <see cref="FramebufferObject"/>.</summary>
         public readonly FramebufferAttachmentPoint AttachmentPoint;
 
+        /// <summary>
+        /// Creates a <see cref="FramebufferRenderbufferAttachment"/>.
+        /// </summary>
+        /// <param name="renderbuffer">The <see cref="RenderbufferObject"/> to attach in this attachment.</param>
+        /// <param name="attachmentPoint">The attachment point to which this attachment attaches to.</param>
         public FramebufferRenderbufferAttachment(RenderbufferObject renderbuffer, FramebufferAttachmentPoint attachmentPoint)
         {
             Renderbuffer = renderbuffer;

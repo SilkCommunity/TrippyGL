@@ -4,6 +4,8 @@ using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
+
 namespace TrippyGL
 {
     /// <summary>

@@ -92,11 +92,25 @@ namespace TrippyGL
             return string.Concat(AttribDescription.ToString(), ", bufferHandle=", BufferSubset?.BufferHandle.ToString());
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexAttribSource"/> that specifies padding for an
+        /// amount of bytes calculated based on the baseType and size parameters.
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset in which the padding will be applied.</param>
         public static VertexAttribSource CreatePadding(DataBufferSubset bufferSubset, VertexAttribPointerType baseType, uint size)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(baseType, size));
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexAttribSource"/> that specifies padding for the amount
+        /// of bytes used by a specified <see cref="AttributeType"/>.
+        /// </summary>
+        /// <param name="bufferSubset">The buffer subset in which the padding will be applied.</param>
+        /// <remarks>
+        /// Padding indicators ignore padding based on type that occurs when using compensation
+        /// for struct padding (which is the default behavior in <see cref="VertexArray"/>).
+        /// </remarks>
         public static VertexAttribSource CreatePadding(DataBufferSubset bufferSubset, AttributeType attribType)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(attribType));

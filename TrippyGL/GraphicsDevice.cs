@@ -99,7 +99,7 @@ namespace TrippyGL
 
         #region DebugMessaging
 
-        private bool debugMessagingEnabled = false;
+        private bool debugMessagingEnabled;
 
         /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
         public event GLDebugMessageReceivedHandler DebugMessage;
@@ -1042,7 +1042,7 @@ namespace TrippyGL
         #region ScissorTest
 
         /// <summary>Backing field for <see cref="ScissorTestEnabled"/>.</summary>
-        private bool scissorTestEnabled = false;
+        private bool scissorTestEnabled;
 
         /// <summary>Backing field for <see cref="ScissorRectangle"/>.</summary>
         private Viewport scissorRect;
@@ -1432,7 +1432,7 @@ namespace TrippyGL
 
         #region FaceCulling
 
-        private bool faceCullingEnabled = false;
+        private bool faceCullingEnabled;
         private CullFaceMode cullFaceMode = CullFaceMode.Back;
         private FrontFaceDirection polygonFrontFace = FrontFaceDirection.Ccw;
 
