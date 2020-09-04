@@ -37,7 +37,7 @@ namespace TrippyGL
         /// <param name="xOffset">The X coordinate of the first pixel to write.</param>
         /// <param name="width">The amount of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetData(void* ptr, int xOffset, uint width, PixelFormat pixelFormat = 0)
+        public unsafe void SetDataPtr(void* ptr, int xOffset, uint width, PixelFormat pixelFormat = 0)
         {
             ValidateRectOperation(xOffset, width);
 
@@ -47,7 +47,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Sets the data of an area of the <see cref="Texture1D"/>. The amount of pixels written
-        /// is the length of the given <see cref="ReadOnlySpan{T}"/>
+        /// is the length of the given <see cref="ReadOnlySpan{T}"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as this <see cref="Texture1D"/>'s pixels.</typeparam>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the pixel data.</param>
@@ -56,7 +56,7 @@ namespace TrippyGL
         public unsafe void SetData<T>(ReadOnlySpan<T> data, int xOffset = 0, PixelFormat pixelFormat = 0) where T : unmanaged
         {
             fixed (void* ptr = data)
-                SetData(ptr, xOffset, (uint)data.Length, pixelFormat);
+                SetDataPtr(ptr, xOffset, (uint)data.Length, pixelFormat);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void GetData(void* ptr, PixelFormat pixelFormat = 0)
+        public unsafe void GetDataPtr(void* ptr, PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
             GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
@@ -82,7 +82,7 @@ namespace TrippyGL
                 throw new ArgumentException("Insufficient space to store the requested pixel data", nameof(data));
 
             fixed (void* ptr = data)
-                GetData(ptr, pixelFormat);
+                GetDataPtr(ptr, pixelFormat);
         }
 
         /// <summary>

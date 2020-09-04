@@ -39,6 +39,18 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Sets the data of one of the <see cref="TextureCubemap"/>'s faces from a stream.
+        /// </summary>
+        /// <param name="texture">The <see cref="TextureCubemap"/> to set data for.</param>
+        /// <param name="face">The face of the cubemap to set data for.</param>
+        /// <param name="stream">The stream from which to load an image.</param>
+        public static void SetData(this TextureCubemap texture, CubemapFace face, Stream stream)
+        {
+            using Image<Rgba32> image = Image.Load<Rgba32>(stream);
+            SetData(texture, face, stream);
+        }
+
+        /// <summary>
         /// Sets the data of one of the <see cref="TextureCubemap"/>'s faces from a file.
         /// </summary>
         /// <param name="texture">The <see cref="TextureCubemap"/> to set data for.</param>
@@ -66,21 +78,29 @@ namespace TrippyGL
             using Image<Rgba32> negx = Image.Load<Rgba32>(imgNegX);
 
             if (negx.Width != negx.Height)
-                throw new InvalidOperationException("The width and height of all the images must be the same for a cubemap");
+                throw new InvalidOperationException("The width and height of all the images must be the same for a cubemap.");
 
             TextureCubemap cubemap = new TextureCubemap(graphicsDevice, (uint)negx.Width);
 
-            cubemap.SetData(CubemapFace.NegativeX, negx);
-            cubemap.SetData(CubemapFace.PositiveX, imgPosX);
-            cubemap.SetData(CubemapFace.NegativeY, imgNegY);
-            cubemap.SetData(CubemapFace.PositiveY, imgPosY);
-            cubemap.SetData(CubemapFace.NegativeZ, imgNegZ);
-            cubemap.SetData(CubemapFace.PositiveZ, imgPosZ);
+            try
+            {
+                cubemap.SetData(CubemapFace.NegativeX, negx);
+                cubemap.SetData(CubemapFace.PositiveX, imgPosX);
+                cubemap.SetData(CubemapFace.NegativeY, imgNegY);
+                cubemap.SetData(CubemapFace.PositiveY, imgPosY);
+                cubemap.SetData(CubemapFace.NegativeZ, imgNegZ);
+                cubemap.SetData(CubemapFace.PositiveZ, imgPosZ);
 
-            if (generateMipmaps)
-                cubemap.GenerateMipmaps();
+                if (generateMipmaps)
+                    cubemap.GenerateMipmaps();
 
-            return cubemap;
+                return cubemap;
+            }
+            catch
+            {
+                cubemap.Dispose();
+                throw;
+            }
         }
     }
 }

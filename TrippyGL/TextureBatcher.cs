@@ -1,7 +1,7 @@
-﻿using Silk.NET.OpenGL;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {

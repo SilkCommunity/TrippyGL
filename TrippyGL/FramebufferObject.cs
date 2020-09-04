@@ -277,7 +277,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Reads pixels from this <see cref="FramebufferObject"/> starting from the lower left.
+        /// Reads pixels from this <see cref="FramebufferObject"/>.
         /// </summary>
         /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="x">The X coordinate of the first pixel to read.</param>
@@ -286,7 +286,7 @@ namespace TrippyGL
         /// <param name="height">The height of the rectangle of pixels to read.</param>
         /// <param name="pixelFormat">The format the pixel data will be read as.</param>
         /// <param name="pixelType">The format the pixel data is stored as.</param>
-        public unsafe void ReadPixels(void* ptr, int x, int y, uint width, uint height, ReadPixelsFormat pixelFormat = ReadPixelsFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
+        public unsafe void ReadPixelsPtr(void* ptr, int x, int y, uint width, uint height, ReadPixelsFormat pixelFormat = ReadPixelsFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte)
         {
             if (x < 0)
                 throw new ArgumentException(nameof(x) + " must be greater than or equal to 0", nameof(x));
@@ -311,7 +311,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Reads pixels from this <see cref="FramebufferObject"/> starting from the lower left.
+        /// Reads pixels from this <see cref="FramebufferObject"/>.
         /// </summary>
         /// <typeparam name="T">A struct with the same format as a pixel to read.</typeparam>
         /// <param name="data">The span to which the data will be written.</param>
@@ -327,7 +327,7 @@ namespace TrippyGL
                 throw new ArgumentException(nameof(data) + " must be able to hold the requested pixel data", nameof(data));
 
             fixed (void* ptr = data)
-                ReadPixels(ptr, x, y, width, height, pixelFormat, pixelType);
+                ReadPixelsPtr(ptr, x, y, width, height, pixelFormat, pixelType);
         }
 
         public override string ToString()

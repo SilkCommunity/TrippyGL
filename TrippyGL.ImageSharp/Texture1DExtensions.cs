@@ -13,6 +13,63 @@ namespace TrippyGL
     public static class Texture1DExtensions
     {
         /// <summary>
+        /// Sets the data of an area of the <see cref="Texture1D"/> from an <see cref="Image{Rgba32}"/>.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture1D"/> whose image to set.</param>
+        /// <param name="x">The x position of the first pixel to set.</param>
+        /// <param name="image">The image to set the data from. The width is taken from here.</param>
+        public static void SetData(this Texture1D texture, int x, Image<Rgba32> image)
+        {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            if (texture.ImageFormat != TextureImageFormat.Color4b)
+                throw new ArgumentException(nameof(texture), ImageUtils.TextureFormatMustBeColor4bError);
+
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+
+            texture.SetData<Rgba32>(pixels, x, PixelFormat.Rgba);
+        }
+
+        /// <summary>
+        /// Sets the data of the entire <see cref="Texture1D"/> from an <see cref="Image{Rgba32}"/>.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture1D"/> whose image to set.</param>
+        /// <param name="image">The image to set the data from. The width is taken from here.</param>
+        public static void SetData(this Texture1D texture, Image<Rgba32> image)
+        {
+            SetData(texture, 0, image);
+        }
+
+        /// <summary>
+        /// Gets the data of the entire <see cref="Texture1D"/>.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture1D"/> to get the image from.</param>
+        /// <param name="image">The image in which to write the pixel data.</param>
+        public static void GetData(this Texture1D texture, Image<Rgba32> image)
+        {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            if (texture.ImageFormat != TextureImageFormat.Color4b)
+                throw new ArgumentException(nameof(texture), ImageUtils.TextureFormatMustBeColor4bError);
+
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            if (image.Width * image.Height != texture.Width)
+                throw new ArgumentException(nameof(image), ImageUtils.ImageSizeMustMatchTextureSizeError);
+
+            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
+                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+            texture.GetData(pixels, PixelFormat.Rgba);
+        }
+
+        /// <summary>
         /// Creates a <see cref="Texture1D"/> from an <see cref="Image{Rgba32}"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the resource will use.</param>
@@ -28,13 +85,34 @@ namespace TrippyGL
 
             if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
                 throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
+
             Texture1D texture = new Texture1D(graphicsDevice, (uint)(image.Width * image.Height));
-            texture.SetData<Rgba32>(pixels, 0, PixelFormat.Rgba);
+            try
+            {
+                texture.SetData<Rgba32>(pixels, 0, PixelFormat.Rgba);
 
-            if (generateMipmaps)
-                texture.GenerateMipmaps();
+                if (generateMipmaps)
+                    texture.GenerateMipmaps();
 
-            return texture;
+                return texture;
+            }
+            catch
+            {
+                texture.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Texture1D"/> from a <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the resource will use.</param>
+        /// <param name="stream">The stream from which to load an image.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture1D"/>.</param>
+        public static Texture1D FromStream(GraphicsDevice graphicsDevice, Stream stream, bool generateMipmaps = false)
+        {
+            using Image<Rgba32> image = Image.Load<Rgba32>(stream);
+            return FromImage(graphicsDevice, image, generateMipmaps);
         }
 
         /// <summary>
@@ -50,7 +128,27 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Saves this <see cref="Texture1D"/>'s image as an image file.
+        /// Saves this <see cref="Texture1D"/>'s image to a stream.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture1D"/> whose image to save.</param>
+        /// <param name="stream">The stream to save the texture image to.</param>
+        /// <param name="imageFormat">The format the image will be saved as.</param>
+        public static void SaveAsImage(this Texture1D texture, Stream stream, SaveImageFormat imageFormat)
+        {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            if (stream == null)
+                throw new ArgumentException(nameof(stream));
+
+            IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
+            using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, 1);
+            texture.GetData(image);
+            image.Save(stream, format);
+        }
+
+        /// <summary>
+        /// Saves this <see cref="Texture1D"/>'s image to a file.
         /// If the file already exists, it will be replaced.
         /// </summary>
         /// <param name="texture">The <see cref="Texture1D"/> whose image to save.</param>
@@ -58,23 +156,8 @@ namespace TrippyGL
         /// <param name="imageFormat">The format the image will be saved as.</param>
         public static void SaveAsImage(this Texture1D texture, string file, SaveImageFormat imageFormat)
         {
-            if (texture == null)
-                throw new ArgumentNullException(nameof(texture));
-
-            if (string.IsNullOrEmpty(file))
-                throw new ArgumentException("You must specify a file name", nameof(file));
-
-            if (texture.ImageFormat != TextureImageFormat.Color4b)
-                throw new InvalidOperationException("In order to save a texture as image, it must be in " + nameof(Color4b) + " format");
-
-            IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
-            using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, 1);
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-            texture.GetData(pixels, PixelFormat.Rgba);
-
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
-            image.Save(fileStream, format);
+            SaveAsImage(texture, fileStream, imageFormat);
         }
     }
 }

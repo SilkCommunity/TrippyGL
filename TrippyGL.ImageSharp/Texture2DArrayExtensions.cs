@@ -6,6 +6,9 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// Extension methods for <see cref="Texture2DArray"/>
+    /// </summary>
     public static class Texture2DArrayExtensions
     {
         /// <summary>
@@ -31,6 +34,18 @@ namespace TrippyGL
             if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
                 throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
             texture.SetData<Rgba32>(pixels, depthLevel, PixelFormat.Rgba);
+        }
+
+        /// <summary>
+        /// Sets the data of one of the <see cref="Texture2DArray"/>'s images from a stream.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2DArray"/> to set data for.</param>
+        /// <param name="depthLevel">The array layer to set the data for.</param>
+        /// <param name="stream">The stream from which to load an image.</param>
+        public static void SetData(this Texture2DArray texture, int depthLevel, Stream stream)
+        {
+            using Image<Rgba32> image = Image.Load<Rgba32>(stream);
+            SetData(texture, depthLevel, image);
         }
 
         /// <summary>

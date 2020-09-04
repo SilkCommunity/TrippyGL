@@ -102,22 +102,12 @@ namespace TrippyGL
 
             // Sort by buffer object, so all sources that share BufferObject are grouped together.
             // This facilitates calculating the offset values, since we only need to work with one offset at a time
-            // rather than save the offset of each buffer simultaneously
-            Array.Sort(calls, (x, y) =>
-            {
-                int cmp = x.source.BufferSubset.BufferHandle.CompareTo(y.source.BufferSubset.BufferHandle);
-                if (cmp != 0)
-                    return cmp;
-
-                cmp = x.index.CompareTo(y.index);
-                if (cmp != 0)
-                    return cmp;
-
-                return x.originalIndex.CompareTo(y.originalIndex);
-            });
-            // That the calls array is now sorted. First by buffer handle, secondly by attrib index
+            // rather than save the offset of each buffer simultaneously.
+            Array.Sort(calls);
+            // The calls array is now sorted. First by buffer handle, secondly by attrib index
             // and lastly, if two items have the same buffer handle and attrib index, they are sorted
             // by the original index they had in the calls array.
+            // This logic is implemented in AttribCallDesc.CompareTo()
 
             if (compensateStructPadding)
             {
@@ -255,7 +245,7 @@ namespace TrippyGL
         /// Manages the calls for a single vertex attribute.
         /// This is a helper struct used in <see cref="VertexArray.UpdateVertexAttributes(bool, int)"/>
         /// </summary>
-        private struct AttribCallDesc
+        private struct AttribCallDesc : IComparable<AttribCallDesc>
         {
             public VertexAttribSource source;
             public uint index, offset;
@@ -280,6 +270,19 @@ namespace TrippyGL
                         gl.VertexAttribDivisor(index + i, source.AttribDescription.AttribDivisor);
                     offs += source.AttribDescription.SizeInBytes / source.AttribDescription.AttribIndicesUseCount;
                 }
+            }
+
+            public int CompareTo(AttribCallDesc other)
+            {
+                int cmp = source.BufferSubset.BufferHandle.CompareTo(other.source.BufferSubset.BufferHandle);
+                if (cmp != 0)
+                    return cmp;
+
+                cmp = index.CompareTo(other.index);
+                if (cmp != 0)
+                    return cmp;
+
+                return originalIndex.CompareTo(other.originalIndex);
             }
 
             public override string ToString()

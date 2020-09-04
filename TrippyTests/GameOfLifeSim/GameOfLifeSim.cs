@@ -150,6 +150,9 @@ namespace GameOfLifeSim
 
         protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
         {
+            if (Window.IsClosing)
+                return;
+
             if (sender.IsButtonPressed(MouseButton.Left))
             {
                 offset.X += (position.X - lastMousePos.X) * mouseMoveScale / scale;
@@ -167,6 +170,9 @@ namespace GameOfLifeSim
 
         protected override void OnMouseScroll(IMouse sender, ScrollWheel scroll)
         {
+            if (Window.IsClosing)
+                return;
+
             scaleExponent = Math.Clamp(scaleExponent + scroll.Y * 0.05f, -5.5f, 1.0f);
             scale = MathF.Pow(10, scaleExponent);
             UpdateTransformMatrix();
@@ -174,6 +180,9 @@ namespace GameOfLifeSim
 
         protected override void OnKeyDown(IKeyboard sender, Key key, int n)
         {
+            if (Window.IsClosing)
+                return;
+
             switch (key)
             {
                 case Key.Home:

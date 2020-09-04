@@ -47,7 +47,7 @@ namespace TrippyGL
         /// <param name="rectWidth">The width of the rectangle of pixels to write.</param>
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetData(CubemapFace face, void* ptr, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0)
+        public unsafe void SetDataPtr(CubemapFace face, void* ptr, int rectX, int rectY, uint rectWidth, uint rectHeight, PixelFormat pixelFormat = 0)
         {
             ValidateCubemapFace(face);
             ValidateRectOperation(rectX, rectY, rectWidth, rectHeight);
@@ -97,7 +97,7 @@ namespace TrippyGL
         /// <param name="face">The face of the cubemap to set data for.</param>
         /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void GetData(CubemapFace face, void* ptr, PixelFormat pixelFormat = 0)
+        public unsafe void GetDataPtr(CubemapFace face, void* ptr, PixelFormat pixelFormat = 0)
         {
             ValidateCubemapFace(face);
             GraphicsDevice.BindTextureSetActive(this);

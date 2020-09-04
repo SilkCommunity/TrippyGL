@@ -10,6 +10,10 @@ namespace TrippyGL
     {
         internal const string ImageNotContiguousError = "To load/save an image, it's backing memory must be contiguous. Consider using smaller image sizes or changing your ImageSharp memory allocation settings to allow larger buffers.";
 
+        internal const string ImageSizeMustMatchTextureSizeError = "The size of the image must match the size of the texture";
+
+        internal const string TextureFormatMustBeColor4bError = "The texture's format must be Color4b (RGBA)";
+
         /// <summary>
         /// Gets an appropiate <see cref="IImageFormat"/> for the given <see cref="SaveImageFormat"/>.
         /// </summary>

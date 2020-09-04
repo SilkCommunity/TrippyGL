@@ -40,7 +40,7 @@ namespace TrippyGL
         /// <param name="rectHeight">The height of the rectangle of pixels to write.</param>
         /// <param name="rectDepth">The depth of the rectangle of pixels to write.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void SetData(void* ptr, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0)
+        public unsafe void SetDataPtr(void* ptr, int rectX, int rectY, int rectZ, uint rectWidth, uint rectHeight, uint rectDepth, PixelFormat pixelFormat = 0)
         {
             ValidateNotMultisampledPixelAccess();
             ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
@@ -90,7 +90,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="ptr">The pointer to which the pixel data will be written.</param>
         /// <param name="pixelFormat">The pixel format the data will be read as. 0 for this texture's default.</param>
-        public unsafe void GetData(void* ptr, PixelFormat pixelFormat = 0)
+        public unsafe void GetDataPtr(void* ptr, PixelFormat pixelFormat = 0)
         {
             ValidateNotMultisampledPixelAccess();
             GraphicsDevice.BindTextureSetActive(this);
