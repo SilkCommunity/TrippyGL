@@ -9,7 +9,7 @@ namespace TrippyGL
     /// </summary>
     public readonly struct ShaderUniform : IEquatable<ShaderUniform>
     {
-        /// <summary>Gets an empty <see cref="ShaderUniform"/></summary>
+        /// <summary>Gets an empty <see cref="ShaderUniform"/>.</summary>
         public static ShaderUniform Empty => default;
 
         /// <summary>The name with which this uniform is declared on the <see cref="ShaderProgram"/>.</summary>

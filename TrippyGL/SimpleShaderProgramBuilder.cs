@@ -166,6 +166,7 @@ namespace TrippyGL
 
             StringBuilder builder = GetStringBuilder();
             ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
+            uint programHandle = 0;
 
             try
             {
@@ -335,8 +336,15 @@ namespace TrippyGL
                     attribs[TexCoordsAttributeIndex] = new SpecifiedShaderAttrib(TextureEnabled ? "vTexCoords" : null, AttributeType.FloatVec2);
                 programBuilder.SpecifyVertexAttribs(attribs);
 
-                uint programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, getLogs);
+                programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, getLogs);
                 return new SimpleShaderProgram(graphicsDevice, programHandle, activeAttribs, VertexColorsEnabled, TextureEnabled, DirectionalLights, PositionalLights);
+            }
+            catch
+            {
+                // If anything goes wrong, we delete the program handle (since we're not returning a
+                // ShaderProgram so it'd get lost into oblivion otherwise) and re-throw the exception.
+                graphicsDevice.GL.DeleteProgram(programHandle);
+                throw;
             }
             finally
             {

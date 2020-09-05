@@ -23,6 +23,7 @@ namespace TrippyGL
         /// <summary>Whether <see cref="FragmentShaderCode"/> is not null or white spaces.</summary>
         public bool HasFragmentShader => !string.IsNullOrWhiteSpace(FragmentShaderCode);
 
+        /// <summary>The specified attributes ordered by attribute index.</summary>
         private SpecifiedShaderAttrib[] specifiedAttribs;
         /// <summary>Whether vertex attributes have been specified to this <see cref="ShaderProgramBuilder"/>.</summary>
         public bool HasAttribsSpecified => specifiedAttribs != null;
@@ -53,7 +54,7 @@ namespace TrippyGL
         /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>
         /// </summary>
         /// <param name="attribs">The vertex attributes in order of index.</param>
-        /// <param name="attribNames">The names of the attributes in the same order as previously.</param>
+        /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
         public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribDescription> attribs, ReadOnlySpan<string> attribNames)
         {
             int length = 0;
@@ -75,7 +76,7 @@ namespace TrippyGL
         /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>
         /// </summary>
         /// <param name="attribs">The vertex attributes in order of index.</param>
-        /// <param name="attribNames">The names of the attributes in the same order as previously.</param>
+        /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
         public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribSource> attribs, ReadOnlySpan<string> attribNames)
         {
             int length = 0;
@@ -97,7 +98,7 @@ namespace TrippyGL
         /// Specifies the vertex attributes for the <see cref="ShaderProgram"/>.
         /// </summary>
         /// <typeparam name="T">The type of vertex to use.</typeparam>
-        /// <param name="attribNames">The names of the attributes in order of index.</param>
+        /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
         public void SpecifyVertexAttribs<T>(ReadOnlySpan<string> attribNames) where T : unmanaged, IVertex
         {
             T t = default;

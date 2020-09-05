@@ -75,6 +75,9 @@ namespace TextureBatcherTest
                 balls[i] = new Ball();
 
             stopwatch = Stopwatch.StartNew();
+
+            graphicsDevice.CullFaceMode = CullFaceMode.Back;
+            graphicsDevice.FaceCullingEnabled = true;
         }
 
         protected override void OnUpdate(double dt)
@@ -135,6 +138,7 @@ namespace TextureBatcherTest
                     byte alpha = (byte)Math.Max(0, 255 - Math.Abs(x) - Math.Abs(y));
                     textureBatcher.Draw(rectangleTexture, new Vector2(mousePos.X + x, mousePos.Y + y), null, new Color4b(255, 255, 255, alpha), new Vector2(1, 1), time, new Vector2(0.5f, 0.5f), (-x - y) / 500f);
                 }
+
             textureBatcher.End();
 
             Window.SwapBuffers();

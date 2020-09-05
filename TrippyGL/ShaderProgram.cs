@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Silk.NET.OpenGL;
 
 namespace TrippyGL
@@ -90,8 +91,8 @@ namespace TrippyGL
         /// <returns>Whether an attribute was found in said location.</returns>
         public bool TryFindAttributeByLocation(int location, out ActiveVertexAttrib attrib)
         {
-            for(int i=0; i<activeAttribs.Length; i++)
-                if(activeAttribs[i].Location == location)
+            for (int i = 0; i < activeAttribs.Length; i++)
+                if (activeAttribs[i].Location == location)
                 {
                     attrib = activeAttribs[i];
                     return true;
@@ -108,6 +109,38 @@ namespace TrippyGL
 
             GL.DeleteProgram(Handle);
             base.Dispose(isManualDispose);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ShaderProgram"/> by compiling the given strings as code.
+        /// </summary>
+        /// <typeparam name="T">The type of vertex to configure the input of the <see cref="ShaderProgram"/> for.</typeparam>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="ShaderProgram"/> will use.</param>
+        /// <param name="vsCode">The vertex shader code for the <see cref="ShaderProgram"/>.</param>
+        /// <param name="fsCode">The fragment shader code for the <see cref="ShaderProgram"/>.</param>
+        /// <param name="attribNames">The names of the attributes ordered by attribute index.</param>
+        public static ShaderProgram FromCode<T>(GraphicsDevice graphicsDevice, string vsCode, string fsCode, params string[] attribNames) where T : unmanaged, IVertex
+        {
+            ShaderProgramBuilder builder = new ShaderProgramBuilder()
+            {
+                VertexShaderCode = vsCode,
+                FragmentShaderCode = fsCode,
+            };
+            builder.SpecifyVertexAttribs<T>(attribNames);
+            return builder.Create(graphicsDevice);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="ShaderProgram"/> by compiling the contents of the specified files as code.
+        /// </summary>
+        /// <typeparam name="T">The type of vertex to configure the input of the <see cref="ShaderProgram"/> for.</typeparam>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="ShaderProgram"/> will use.</param>
+        /// <param name="vsFile">The path to the file containing the vertex shader code.</param>
+        /// <param name="fsFile">The path to the file containing the fragment shader code.</param>
+        /// <param name="attribNames">The names of the attributes ordered by attribute index.</param>
+        public static ShaderProgram FromFiles<T>(GraphicsDevice graphicsDevice, string vsFile, string fsFile, params string[] attribNames) where T : unmanaged, IVertex
+        {
+            return FromCode<T>(graphicsDevice, File.ReadAllText(vsFile), File.ReadAllText(fsFile), attribNames);
         }
     }
 }

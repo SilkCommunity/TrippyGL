@@ -334,5 +334,33 @@ namespace TrippyGL
                 cameraPosUniform.SetValueVec3(cameraPos);
             this.view = view;
         }
+
+        /// <summary>
+        /// Creates a <see cref="SimpleShaderProgram"/> to use with a specified vertex type.
+        /// </summary>
+        /// <typeparam name="T">The type of vertex the <see cref="SimpleShaderProgram"/> will use.</typeparam>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="SimpleShaderProgram"/> will use.</param>
+        /// <param name="positionalLights">The amount of positional lights to include in the shader.</param>
+        /// <param name="directionalLights">The amount of directional lights to include in the shader.</param>
+        /// <param name="excludeWorldMatrix">Whether to exclude the World matrix from the vertex shader.</param>
+        /// <remarks>
+        /// Texture sampling and vertex colors will be included if the given vertex type has attributes
+        /// to supply these. The first FloatVec4 attribute will be taken as color and the first FloatVec2
+        /// attribute will be taken as texture coordinates.
+        /// </remarks>
+        public static SimpleShaderProgram Create<T>(GraphicsDevice graphicsDevice, int positionalLights = 0,
+            int directionalLights = 0, bool excludeWorldMatrix = true) where T : unmanaged, IVertex
+        {
+            SimpleShaderProgramBuilder builder = new SimpleShaderProgramBuilder()
+            {
+                PositionalLights = positionalLights,
+                DirectionalLights = directionalLights,
+                ExcludeWorldMatrix = excludeWorldMatrix
+            };
+            builder.ConfigureVertexAttribs<T>();
+            builder.VertexColorsEnabled = builder.ColorAttributeIndex >= 0;
+            builder.TextureEnabled = builder.TexCoordsAttributeIndex >= 0;
+            return builder.Create(graphicsDevice);
+        }
     }
 }

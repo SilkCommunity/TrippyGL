@@ -241,6 +241,80 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch, using raw vertices.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="VertexTL">The top-left vertex.</param>
+        /// <param name="VertexTR">The top-right vertex.</param>
+        /// <param name="VertexBR">The botom-right vertex.</param>
+        /// <param name="VertexBL">The bottom-left vertex.</param>
+        /// <remarks>
+        /// Even though the vertices are named by position, that positioning doesn't have to be followed.
+        /// The vertices are drawn as two triangles composed as (TL, BR, TR) (TL, BL, BR).<para/>
+        /// If sorting by depth is used, the depth for these vertices will be the Z coordinate of the
+        /// top-left vertex.
+        /// </remarks>
+        public void DrawRaw(Texture2D texture, in VertexColorTexture VertexTL, in VertexColorTexture VertexTR,
+            in VertexColorTexture VertexBR, in VertexColorTexture VertexBL)
+        {
+            ValidateBeginCalled();
+
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            // If BeginMode is OnTheFly, before doing anything we check whether we should flush.
+            if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
+            {
+                // We should flush if the texture that's being added isn't the same as the texture
+                // on the items already in batchItems.
+                if (batchItems[0].Texture != texture)
+                    Flush(true);
+            }
+
+            // We get the next batch item in the array and set it's values.
+            TextureBatchItem item = GetNextBatchItem();
+            item.VertexTL = VertexTL;
+            item.VertexTR = VertexTR;
+            item.VertexBR = VertexBR;
+            item.VertexBL = VertexBL;
+            item.Texture = texture;
+
+            // If BeginMode is Immediate, we need to flush now. Otherwise, we set the item's SortValue.
+            if (BeginMode == BatcherBeginMode.Immediate)
+                Flush(true);
+            else
+            {
+                item.SortValue = BeginMode switch
+                {
+                    BatcherBeginMode.SortByTexture => texture.Handle,
+                    BatcherBeginMode.SortFrontToBack => VertexTL.Position.Z,
+                    BatcherBeginMode.SortBackToFront => -VertexTL.Position.Z,
+                    _ => 0
+                };
+            }
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch, using raw vertices
+        /// whose position first gets transformed by a matrix.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="VertexTL">The top-left vertex.</param>
+        /// <param name="VertexTR">The top-right vertex.</param>
+        /// <param name="VertexBR">The botom-right vertex.</param>
+        /// <param name="VertexBL">The bottom-left vertex.</param>
+        /// <param name="matrix">The matrix for transforming the vertex positions.</param>
+        public void DrawRaw(Texture2D texture, VertexColorTexture VertexTL, VertexColorTexture VertexTR,
+            VertexColorTexture VertexBR, VertexColorTexture VertexBL, in Matrix4x4 matrix)
+        {
+            VertexTL.Position = Vector3.Transform(VertexTL.Position, matrix);
+            VertexTR.Position = Vector3.Transform(VertexTR.Position, matrix);
+            VertexBR.Position = Vector3.Transform(VertexBR.Position, matrix);
+            VertexBL.Position = Vector3.Transform(VertexBL.Position, matrix);
+            DrawRaw(texture, VertexTL, VertexTR, VertexBR, VertexBL);
+        }
+
+        /// <summary>
         /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
         /// </summary>
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
@@ -411,12 +485,12 @@ namespace TrippyGL
                     {
                         TextureBatchItem item = items[i];
                         triangles[triangleIndex++] = item.VertexTL;
-                        triangles[triangleIndex++] = item.VertexTR;
                         triangles[triangleIndex++] = item.VertexBR;
+                        triangles[triangleIndex++] = item.VertexTR;
 
                         triangles[triangleIndex++] = item.VertexTL;
-                        triangles[triangleIndex++] = item.VertexBR;
                         triangles[triangleIndex++] = item.VertexBL;
+                        triangles[triangleIndex++] = item.VertexBR;
                     }
 
                     // We copy the vertices over to the vertexBuffer and draw them.

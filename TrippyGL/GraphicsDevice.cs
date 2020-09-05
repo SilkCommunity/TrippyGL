@@ -1450,7 +1450,7 @@ namespace TrippyGL
             }
         }
 
-        /// <summary>Sets the face culling mode to use when face culling is enabled.</summary>
+        /// <summary>Sets which polygon face to cull when face culling is enabled.</summary>
         public CullFaceMode CullFaceMode
         {
             get { return cullFaceMode; }
