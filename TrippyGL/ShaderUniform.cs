@@ -12,6 +12,9 @@ namespace TrippyGL
         /// <summary>Gets an empty <see cref="ShaderUniform"/>.</summary>
         public static ShaderUniform Empty => default;
 
+        /// <summary>Whether this <see cref="ShaderUniform"/> has null values.</summary>
+        public bool IsEmpty => OwnerProgram == null;
+
         /// <summary>The name with which this uniform is declared on the <see cref="ShaderProgram"/>.</summary>
         public readonly string Name;
 
@@ -34,9 +37,6 @@ namespace TrippyGL
         private readonly Texture[] textureValues;
         /// <summary>For sampler uniforms, the texture units last set as the uniform's value/s.</summary>
         private readonly int[] textureLastAppliedUnits;
-
-        /// <summary>Whether this <see cref="ShaderUniform"/> instance has null values.</summary>
-        public bool IsEmpty => OwnerProgram == null;
 
         /// <summary>
         /// Provides direct read-only access to this <see cref="ShaderUniform"/>'s set textures.

@@ -9,6 +9,9 @@ namespace TrippyGL
     /// </summary>
     public readonly struct ShaderUniformList : IEquatable<ShaderUniformList>
     {
+        /// <summary>Whether this <see cref="ShaderUniformList"/> has null values.</summary>
+        public bool IsEmpty => Program == null;
+
         /// <summary>The <see cref="ShaderProgram"/> the uniforms belong to.</summary>
         public readonly ShaderProgram Program;
 
@@ -32,9 +35,6 @@ namespace TrippyGL
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
         public ShaderUniform this[string name] => GetShaderByName(name);
-
-        /// <summary>Whether this <see cref="ShaderUniformList"/> has any values.</summary>
-        public bool IsEmpty => Program == null;
 
         private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {

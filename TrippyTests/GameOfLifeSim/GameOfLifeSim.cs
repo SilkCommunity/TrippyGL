@@ -19,8 +19,7 @@ namespace GameOfLifeSim
 
         VertexBuffer<VertexTexture> vertexBuffer;
 
-        Texture2D tex1, tex2;
-        FramebufferObject fbo1, fbo2;
+        Framebuffer2D fbo1, fbo2;
 
         ShaderProgram simProgram;
         ShaderUniform simPrevUniform;
@@ -50,13 +49,13 @@ namespace GameOfLifeSim
 
             vertexBuffer = new VertexBuffer<VertexTexture>(graphicsDevice, vertices, BufferUsageARB.StaticDraw);
 
-            fbo1 = FramebufferObject.Create2D(ref tex1, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
-            fbo2 = FramebufferObject.Create2D(ref tex2, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
+            fbo1 = new Framebuffer2D(graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);//FramebufferObject.Create2D(ref tex1, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
+            fbo2 = new Framebuffer2D(graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);//FramebufferObject.Create2D(ref tex2, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
 
-            tex1.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
-            tex2.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
-            tex1.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
-            tex2.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
+            fbo1.Texture.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
+            fbo2.Texture.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
+            fbo1.Texture.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
+            fbo2.Texture.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
 
             r = new Random();
 
@@ -64,7 +63,6 @@ namespace GameOfLifeSim
             programBuilder.VertexShaderCode = File.ReadAllText("sim_vs.glsl");
             programBuilder.FragmentShaderCode = File.ReadAllText("sim_fs.glsl");
             programBuilder.SpecifyVertexAttribs<VertexTexture>(new string[] { "vPosition", "vTexCoords" });
-
             simProgram = programBuilder.Create(graphicsDevice, true);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
@@ -96,7 +94,7 @@ namespace GameOfLifeSim
             graphicsDevice.Framebuffer = fbo2;
             graphicsDevice.SetViewport(0, 0, fbo1.Width, fbo1.Height);
             graphicsDevice.ShaderProgram = simProgram;
-            simPrevUniform.SetValueTexture(tex1);
+            simPrevUniform.SetValueTexture(fbo1);
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             graphicsDevice.Framebuffer = null;
@@ -104,16 +102,12 @@ namespace GameOfLifeSim
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             graphicsDevice.SetViewport(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height);
             graphicsDevice.ShaderProgram = drawProgram;
-            drawSampUniform.SetValueTexture(tex2);
+            drawSampUniform.SetValueTexture(fbo2);
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
-            FramebufferObject tmpFbo = fbo2;
+            Framebuffer2D tmpFbo = fbo2;
             fbo2 = fbo1;
             fbo1 = tmpFbo;
-
-            Texture2D tmpTex = tex2;
-            tex2 = tex1;
-            tex1 = tmpTex;
 
             Window.SwapBuffers();
         }
@@ -141,8 +135,6 @@ namespace GameOfLifeSim
             vertexBuffer.Dispose();
             fbo1.Dispose();
             fbo2.Dispose();
-            tex1.Dispose();
-            tex2.Dispose();
             simProgram.Dispose();
             drawProgram.Dispose();
             graphicsDevice.Dispose();
@@ -193,10 +185,10 @@ namespace GameOfLifeSim
                     break;
 
                 case Key.R:
-                    Color4b[] noise = new Color4b[tex1.Width * tex1.Height];
+                    Color4b[] noise = new Color4b[fbo1.Width * fbo1.Height];
                     for (int i = 0; i < noise.Length; i++)
                         noise[i] = new Color4b((byte)r.Next(256), (byte)r.Next(255), (byte)r.Next(255), 255);
-                    tex1.SetData<Color4b>(noise);
+                    fbo1.Texture.SetData<Color4b>(noise);
                     break;
             }
         }

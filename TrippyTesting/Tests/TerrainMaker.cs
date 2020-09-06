@@ -28,8 +28,7 @@ namespace TrippyTesting.Tests
 
         VertexBuffer<VertexColor> waterBuffer;
         ShaderProgram waterProgram;
-        Texture2D refractionTex, reflectionTex;
-        FramebufferObject refractionFbo, reflectionFbo;
+        Framebuffer2D refractionFbo, reflectionFbo;
         Texture2D distortMap, normalMap;
 
         TextureCubemap cubemap;
@@ -147,13 +146,11 @@ namespace TrippyTesting.Tests
             waterProgram.Uniforms["distortMap"].SetValueTexture(distortMap);
             waterProgram.Uniforms["normalMap"].SetValueTexture(normalMap);
 
-            refractionTex = null;
-            reflectionTex = null;
-            refractionFbo = FramebufferObject.Create2D(ref refractionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
-            reflectionFbo = FramebufferObject.Create2D(ref reflectionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
-            refractionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
-            reflectionTex.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
-            refractionTex.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            refractionFbo = new Framebuffer2D(graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f, 0, TextureImageFormat.Color4b, true);//FramebufferObject.Create2D(ref refractionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
+            reflectionFbo = new Framebuffer2D(graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f, 0, TextureImageFormat.Color4b, true);//FramebufferObject.Create2D(ref reflectionTex, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth32f);
+            refractionFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            reflectionFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            refractionFbo.Texture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
             #endregion
 
@@ -318,8 +315,8 @@ namespace TrippyTesting.Tests
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, terrBuffer.StorageLength);
 
             graphicsDevice.VertexArray = waterBuffer;
-            waterProgram.Uniforms["refractionSamp"].SetValueTexture(refractionTex);
-            waterProgram.Uniforms["reflectionSamp"].SetValueTexture(reflectionTex);
+            waterProgram.Uniforms["refractionSamp"].SetValueTexture(refractionFbo);
+            waterProgram.Uniforms["reflectionSamp"].SetValueTexture(reflectionFbo);
             graphicsDevice.ShaderProgram = waterProgram;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
 
@@ -376,8 +373,8 @@ namespace TrippyTesting.Tests
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);
             cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
 
-            FramebufferObject.Resize2D(refractionFbo, (uint)size.Width, (uint)size.Height);
-            FramebufferObject.Resize2D(reflectionFbo, (uint)size.Width, (uint)size.Height);
+            refractionFbo.Resize((uint)size.Width, (uint)size.Height);
+            reflectionFbo.Resize((uint)size.Width, (uint)size.Height);
         }
 
         private void OnWindowClosing()

@@ -21,8 +21,8 @@ namespace TrippyGL
         /// <summary>The amount of samples this <see cref="FramebufferObject"/> has.</summary>
         public uint Samples { get; private set; }
 
-        private readonly List<FramebufferTextureAttachment> textureAttachments;
-        private readonly List<FramebufferRenderbufferAttachment> renderbufferAttachments;
+        internal readonly List<FramebufferTextureAttachment> textureAttachments;
+        internal readonly List<FramebufferRenderbufferAttachment> renderbufferAttachments;
 
         /// <summary>The amount of <see cref="Texture"/> attachments this <see cref="FramebufferObject"/> has.</summary>
         public int TextureAttachmentCount => textureAttachments.Count;
@@ -48,7 +48,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Attaches a texture to this <see cref="FramebufferObject"/> in a specified attachment point.
+        /// Attaches a <see cref="Texture"/> to this <see cref="FramebufferObject"/> in a specified attachment point.
         /// </summary>
         /// <param name="texture">The <see cref="Texture"/> to attach.</param>
         /// <param name="attachmentPoint">The attachment point to attach the <see cref="Texture"/> to.</param>
@@ -60,13 +60,13 @@ namespace TrippyGL
             ValidateAttachmentTypeExists(attachmentPoint);
             ValidateAttachmentTypeNotUsed(attachmentPoint);
 
-            if (attachmentPoint == FramebufferAttachmentPoint.Depth && !TrippyUtils.IsImageFormatDepthType(texture.ImageFormat))
+            if (attachmentPoint == FramebufferAttachmentPoint.Depth && !TrippyUtils.IsImageFormatDepthOnly(texture.ImageFormat))
                 throw new InvalidFramebufferAttachmentException("When attaching a texture to a depth attachment point, the texture's format must be depth-only");
 
-            if (attachmentPoint == FramebufferAttachmentPoint.DepthStencil && !TrippyUtils.IsImageFormatDepthStencilType(texture.ImageFormat))
+            if (attachmentPoint == FramebufferAttachmentPoint.DepthStencil && !TrippyUtils.IsImageFormatDepthStencil(texture.ImageFormat))
                 throw new InvalidFramebufferAttachmentException("When attaching a texture to a depth-stencil attachment point, the texture's format must be depth-stencil");
 
-            if (attachmentPoint == FramebufferAttachmentPoint.Stencil && !TrippyUtils.IsImageFormatStencilType(texture.ImageFormat))
+            if (attachmentPoint == FramebufferAttachmentPoint.Stencil && !TrippyUtils.IsImageFormatStencilOnly(texture.ImageFormat))
                 throw new InvalidFramebufferAttachmentException("When attaching a texture to a stencil attachment point, the texture's format must be stencil-only");
 
             if (TrippyUtils.IsFramebufferAttachmentPointColor(attachmentPoint) && !TrippyUtils.IsImageFormatColorRenderable(texture.ImageFormat))
@@ -261,19 +261,39 @@ namespace TrippyGL
         /// <summary>
         /// Gets a <see cref="Texture"/> attachment from this <see cref="FramebufferObject"/>.
         /// </summary>
-        /// <param name="index">The enumeration index for the <see cref="Texture"/> attachment.</param>
-        public FramebufferTextureAttachment GetTextureAttachment(int index)
+        /// <param name="attachmentPoint">The point to look for a texture attachment at.</param>
+        /// <param name="attachment">The attachment found.</param>
+        /// <returns>Whether a texture attachment was found at the specified attachment point.</returns>
+        public bool TryGetTextureAttachment(FramebufferAttachmentPoint attachmentPoint, out FramebufferTextureAttachment attachment)
         {
-            return textureAttachments[index];
+            for (int i=0; i<textureAttachments.Count; i++)
+                if(textureAttachments[i].AttachmentPoint == attachmentPoint)
+                {
+                    attachment = textureAttachments[i];
+                    return true;
+                }
+
+            attachment = default;
+            return false;
         }
 
         /// <summary>
         /// Gets a <see cref="RenderbufferObject"/> attachment from this <see cref="FramebufferObject"/>.
         /// </summary>
-        /// <param name="index">The enumeration index for the <see cref="RenderbufferObject"/> attachment.</param>
-        public FramebufferRenderbufferAttachment GetRenderbufferAttachment(int index)
+        /// <param name="attachmentPoint">The point to look for a renderbuffer attachment at.</param>
+        /// <param name="attachment">The attachment found.</param>
+        /// <returns>Whether a renderbuffer attachment was found at the specified attachment point.</returns>
+        public bool TryGetRenderbufferAttachment(FramebufferAttachmentPoint attachmentPoint, out FramebufferRenderbufferAttachment attachment)
         {
-            return renderbufferAttachments[index];
+            for (int i=0; i<renderbufferAttachments.Count; i++)
+                if(renderbufferAttachments[i].AttachmentPoint == attachmentPoint)
+                {
+                    attachment = renderbufferAttachments[i];
+                    return true;
+                }
+
+            attachment = default;
+            return false;
         }
 
         /// <summary>
@@ -334,9 +354,9 @@ namespace TrippyGL
         {
             return string.Concat(
                 nameof(Handle) + "=", Handle.ToString(),
-                ", " + nameof(Width) + "=", Width.ToString(),
-                ", " + nameof(Height) + "=", Height.ToString(),
-                ", " + nameof(Samples) + "=", Samples.ToString(),
+                ", Width=", Width.ToString(),
+                ", Height=", Height.ToString(),
+                ", Samples=", Samples.ToString(),
                 ", " + nameof(TextureAttachmentCount) + "=", TextureAttachmentCount.ToString(),
                 ", " + nameof(RenderbufferAttachmentCount) + "=", RenderbufferAttachmentCount.ToString()
             );
@@ -393,6 +413,7 @@ namespace TrippyGL
                 throw new InvalidOperationException("The " + nameof(FramebufferObject) + " already has this type of attachment");
         }
 
+        /*
         /// <summary>
         /// Creates a typical 2D framebuffer with a 2D texture and, if specified, depth and/or stencil.
         /// </summary>
@@ -451,5 +472,7 @@ namespace TrippyGL
 
             framebuffer.UpdateFramebufferData();
         }
+        
+         */
     }
 }

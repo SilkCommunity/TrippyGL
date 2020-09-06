@@ -397,11 +397,11 @@ namespace TrippyGL
         {
             if (IsImageFormatColorRenderable(format))
                 return PixelFormat.Rgba;
-            else if (IsImageFormatDepthType(format))
+            else if (IsImageFormatDepthOnly(format))
                 return PixelFormat.DepthComponent;
-            else if (IsImageFormatDepthStencilType(format))
+            else if (IsImageFormatDepthStencil(format))
                 return PixelFormat.DepthStencil;
-            else if (IsImageFormatStencilType(format))
+            else if (IsImageFormatStencilOnly(format))
                 return PixelFormat.StencilIndex;
             throw new ArgumentException("The given " + nameof(TextureImageFormat) + " isn't valid");
         }
@@ -428,7 +428,7 @@ namespace TrippyGL
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-only format.
         /// </summary>
-        public static bool IsImageFormatDepthType(TextureImageFormat imageFormat)
+        public static bool IsImageFormatDepthOnly(TextureImageFormat imageFormat)
         {
             return imageFormat >= TextureImageFormat.Depth16 && imageFormat <= TextureImageFormat.Depth32f;
         }
@@ -438,7 +438,7 @@ namespace TrippyGL
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a stencil-only format.
         /// </summary>
-        public static bool IsImageFormatStencilType(TextureImageFormat imageFormat)
+        public static bool IsImageFormatStencilOnly(TextureImageFormat imageFormat)
         {
             return false; //there are no stencil-only image formats haha yes
         }
@@ -448,7 +448,7 @@ namespace TrippyGL
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-stencil format.
         /// </summary>
-        public static bool IsImageFormatDepthStencilType(TextureImageFormat imageFormat)
+        public static bool IsImageFormatDepthStencil(TextureImageFormat imageFormat)
         {
             return imageFormat == TextureImageFormat.Depth24Stencil8;
         }
@@ -512,6 +512,24 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Gets the default valid <see cref="FramebufferAttachmentPoint"/> for a <see cref="TextureImageFormat"/>
+        /// (depth/stencil/depthstencil/color0).
+        /// </summary>
+        public static FramebufferAttachmentPoint GetCorrespondingTextureFramebufferAttachmentPoint(TextureImageFormat format)
+        {
+            if (IsImageFormatColorRenderable(format))
+                return FramebufferAttachmentPoint.Color0;
+            if (IsImageFormatDepthOnly(format))
+                return FramebufferAttachmentPoint.Depth;
+            if (IsImageFormatDepthStencil(format))
+                return FramebufferAttachmentPoint.DepthStencil;
+            if (IsImageFormatStencilOnly(format))
+                return FramebufferAttachmentPoint.Stencil;
+
+            throw new ArgumentException("Given " + nameof(TextureImageFormat) + " has no default valid " + nameof(FramebufferAttachmentPoint));
+        }
+
+        /// <summary>
         /// Gets the default valid <see cref="FramebufferAttachmentPoint"/> for a <see cref="RenderbufferFormat"/>
         /// (depth/stencil/depthstencil/color0).
         /// </summary>
@@ -527,6 +545,21 @@ namespace TrippyGL
                 return FramebufferAttachmentPoint.Stencil;
 
             throw new ArgumentException("Given " + nameof(RenderbufferFormat) + " has no default valid " + nameof(FramebufferAttachmentPoint));
+        }
+
+        /// <summary>
+        /// Gets the <see cref="TextureImageFormat"/> that corresponds for a give <see cref="DepthStencilFormat"/>.
+        /// </summary>
+        public static TextureImageFormat DepthStencilFormatToTextureFormat(DepthStencilFormat depthStencilFormat)
+        {
+            return depthStencilFormat switch
+            {
+                DepthStencilFormat.Depth16 => TextureImageFormat.Depth16,
+                DepthStencilFormat.Depth24 => TextureImageFormat.Depth24,
+                DepthStencilFormat.Depth32f => TextureImageFormat.Depth32f,
+                DepthStencilFormat.Depth24Stencil8 => TextureImageFormat.Depth24Stencil8,
+                _ => throw new ArgumentException("Specified depth-stencil format can't be used in a texture.", nameof(DepthStencilFormat))
+            };
         }
     }
 }

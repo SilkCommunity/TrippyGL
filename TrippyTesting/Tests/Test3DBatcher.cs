@@ -32,8 +32,7 @@ namespace TrippyTesting.Tests
         VertexBuffer<VertexColorTexture> texBuffer;
         SimpleShaderProgram texProgram;
 
-        FramebufferObject fbo1, fbo2;
-        Texture2D tex1, tex2;
+        Framebuffer2D fbo1, fbo2;
 
         Vector3 cameraPos;
         float rotY, rotX;
@@ -161,12 +160,10 @@ namespace TrippyTesting.Tests
             cubemap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             cubemapProgram.Uniforms["samp"].SetValueTexture(cubemap);
 
-            tex1 = null;
-            tex2 = null;
-            fbo1 = FramebufferObject.Create2D(ref tex1, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth24Stencil8);
-            fbo2 = FramebufferObject.Create2D(ref tex2, graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth24);
-            tex1.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
-            tex2.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            fbo1 = new Framebuffer2D(graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth24Stencil8);
+            fbo2 = new Framebuffer2D(graphicsDevice, (uint)window.Size.Width, (uint)window.Size.Height, DepthStencilFormat.Depth24);
+            fbo1.Texture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            fbo2.Texture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
             OnWindowResized(window.Size);
         }
@@ -175,8 +172,8 @@ namespace TrippyTesting.Tests
         {
             if (key == Key.Enter)
             {
-                fbo2.SaveAsImage(string.Concat("fbo", MathF.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
-                tex2.SaveAsImage(string.Concat("tex", MathF.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
+                fbo2.Framebuffer.SaveAsImage(string.Concat("fbo", MathF.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
+                fbo2.Texture.SaveAsImage(string.Concat("tex", MathF.Round(time, 1).ToString(), ".png"), SaveImageFormat.Png);
             }
         }
 
@@ -418,7 +415,7 @@ namespace TrippyTesting.Tests
             float ratio = fbo1.Width / (float)fbo1.Height;
             mat = Matrix4x4.CreateScale(-ratio * 10f, 10f, 1f) * Matrix4x4.CreateTranslation(2.5f, 2, 12);
             texProgram.World = mat;
-            texProgram.Texture = tex2;
+            texProgram.Texture = fbo2;
             graphicsDevice.ShaderProgram = texProgram;
             graphicsDevice.VertexArray = texBuffer.VertexArray;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
@@ -427,12 +424,9 @@ namespace TrippyTesting.Tests
             graphicsDevice.DrawFramebuffer = null;
             graphicsDevice.BlitFramebuffer(0, 0, (int)fbo1.Width, (int)fbo1.Height, 0, 0, (int)fbo1.Width, (int)fbo1.Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-            FramebufferObject fbotmp = fbo1;
+            Framebuffer2D fbotmp = fbo1;
             fbo1 = fbo2;
             fbo2 = fbotmp;
-            Texture2D textmp = tex1;
-            tex1 = tex2;
-            tex2 = textmp;
 
             window.SwapBuffers();
         }
@@ -451,8 +445,8 @@ namespace TrippyTesting.Tests
             cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
             texProgram.Projection = proj;
 
-            FramebufferObject.Resize2D(fbo1, (uint)size.Width, (uint)size.Height);
-            FramebufferObject.Resize2D(fbo2, (uint)size.Width, (uint)size.Height);
+            fbo1.Resize((uint)size.Width, (uint)size.Height);
+            fbo2.Resize((uint)size.Width, (uint)size.Height);
         }
 
         private void OnWindowClosing()

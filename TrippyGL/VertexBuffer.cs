@@ -12,6 +12,9 @@ namespace TrippyGL
     /// <typeparam name="T">The type of vertex to use. Must be a struct and implement <see cref="IVertex"/>.</typeparam>
     public readonly struct VertexBuffer<T> : IDisposable, IEquatable<VertexBuffer<T>> where T : unmanaged, IVertex
     {
+        /// <summary>Whether this <see cref="VertexBuffer{T}"/> has null values.</summary>
+        public bool IsEmpty => Buffer == null;
+
         /// <summary>The <see cref="BufferObject"/> that stores all the vertex and index data.</summary>
         public readonly BufferObject Buffer;
 
@@ -32,9 +35,6 @@ namespace TrippyGL
 
         /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements.</summary>
         public uint IndexStorageLength => IndexSubset.StorageLength;
-
-        /// <summary>Whether this <see cref="VertexBuffer{T}"/> is all null (because, for example, it hasn't been created yet).</summary>
-        public bool IsEmpty => Buffer == null;
 
         /// <summary>Whether this <see cref="VertexBuffer{T}"/> has been disposed.</summary>
         public bool IsDisposed => Buffer.IsDisposed;
@@ -141,7 +141,6 @@ namespace TrippyGL
         public static implicit operator VertexArray(VertexBuffer<T> vertexBuffer) => vertexBuffer.VertexArray;
 
         public static bool operator ==(VertexBuffer<T> left, VertexBuffer<T> right) => left.Equals(right);
-
         public static bool operator !=(VertexBuffer<T> left, VertexBuffer<T> right) => !left.Equals(right);
 
         /// <summary>
