@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     /// <summary>
     /// Extension methods for <see cref="Texture2DArray"/>

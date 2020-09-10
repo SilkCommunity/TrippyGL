@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     /// <summary>
     /// Extension methods for <see cref="TextureCubemap"/>.

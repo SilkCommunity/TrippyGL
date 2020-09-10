@@ -1,12 +1,14 @@
-using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
 using System.Numerics;
-using TrippyGL;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
+using TrippyGL;
+using TrippyGL.ImageSharp;
+using TrippyGL.Utils;
 
 namespace TrippyTesting.Tests
 {
@@ -200,10 +202,10 @@ namespace TrippyTesting.Tests
         {
             if (btn == MouseButton.Left)
                 oldLocation = sender.Position;
-            if (btn == MouseButton.Right)
+            else if (btn == MouseButton.Right)
             {
-                Vector3 forward = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
-                Vector3 center = cameraPos + forward * Math.Clamp(sender.ScrollWheels[0].Y * 0.1f, 0.1f, 50f);
+                //Vector3 forward = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
+                //Vector3 center = cameraPos + forward * Math.Clamp(sender.ScrollWheels[0].Y * 0.1f, 0.1f, 50f);
                 //fuckables.Add(new Fuckable(getRandMesh(), center));
             }
         }
@@ -336,7 +338,7 @@ namespace TrippyTesting.Tests
             for (int i = 1; i < circleFan.Length - 1; i++)
             {
                 float rot = (i - 1) * MathF.PI * 2f / (circleFan.Length - 2);
-                circleFan[i] = new VertexColor(new Vector3(MathF.Cos(rot), 0, MathF.Sin(rot)), randomCol());
+                circleFan[i] = new VertexColor(new Vector3(MathF.Cos(rot), 0, MathF.Sin(rot)), Color4b.RandomFullAlpha(r));
             }
             circleFan[circleFan.Length - 1] = circleFan[1];
 
@@ -438,8 +440,6 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
 
-            float wid = size.Width / (float)size.Height;
-            wid *= 0.5f;
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * 0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
             batcherProgram.Projection = proj;
             cubemapProgram.Uniforms["Projection"].SetValueMat4(proj);
@@ -454,7 +454,7 @@ namespace TrippyTesting.Tests
             graphicsDevice.Dispose();
         }
 
-        public static VertexColor[] getRandMesh()
+        public static VertexColor[] GetRandMesh()
         {
             switch (r.Next(5))
             {
@@ -492,7 +492,7 @@ namespace TrippyTesting.Tests
 
             VertexColor[] arr = new VertexColor[r.Next(30) + 3];
             for (int i = 0; i < arr.Length; i++)
-                arr[i] = new VertexColor(new Vector3(randomf(-1f, 1f), randomf(-1f, 1f), randomf(-1f, 1f)), randomCol());
+                arr[i] = new VertexColor(new Vector3(r.NextFloat(-1f, 1f), r.NextFloat(-1f, 1f), r.NextFloat(-1f, 1f)), Color4b.RandomFullAlpha(r));
             return arr;
         }
 
@@ -518,19 +518,6 @@ namespace TrippyTesting.Tests
                 arr[i].Position = vertex[i].Position;
             }
             return arr;
-        }
-
-        public static float randomf(float max)
-        {
-            return (float)r.NextDouble() * max;
-        }
-        public static float randomf(float min, float max)
-        {
-            return (float)r.NextDouble() * (max - min) + min;
-        }
-        public static Color4b randomCol()
-        {
-            return new Color4b((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256), 255);
         }
     }
 }

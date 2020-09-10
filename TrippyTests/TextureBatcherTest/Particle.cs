@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using TrippyGL;
+using TrippyGL.Utils;
 
 namespace TextureBatcherTest
 {

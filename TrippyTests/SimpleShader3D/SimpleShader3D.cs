@@ -7,6 +7,7 @@ using System.Numerics;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 using TrippyTestBase;
 
 namespace SimpleShader3D
@@ -176,7 +177,7 @@ namespace SimpleShader3D
             {
                 lampPosition = inputManager.CameraPosition + 2.5f * inputManager.CalculateForwardVector();
                 modelsProgram.PositionalLights[0].Position = lampPosition;
-                lampProgram.World = Matrix4x4.CreateScale(0.015f) * Matrix4x4.CreateTranslation(lampPosition.X, lampPosition.Y-0.85f, lampPosition.Z);
+                lampProgram.World = Matrix4x4.CreateScale(0.015f) * Matrix4x4.CreateTranslation(lampPosition.X, lampPosition.Y - 0.85f, lampPosition.Z);
             }
 
             graphicsDevice.FaceCullingEnabled = false;
@@ -208,7 +209,7 @@ namespace SimpleShader3D
             graphicsDevice.VertexArray = dragonBuffer;
             modelsProgram.World = Matrix4x4.CreateScale(0.33f) * Matrix4x4.CreateRotationY(time * 0.1f * MathF.PI) * Matrix4x4.CreateTranslation(-1, 0.5f, -2);
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, dragonBuffer.StorageLength);
-            
+
             graphicsDevice.VertexArray = donutBuffer;
             modelsProgram.World = Matrix4x4.CreateScale(0.7f) * Matrix4x4.CreateTranslation(2, 0, 2);
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, donutBuffer.StorageLength);

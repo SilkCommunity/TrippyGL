@@ -1,9 +1,9 @@
-﻿using Silk.NET.Input;
+﻿using System;
+using Silk.NET.Input;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
-using System;
 using TrippyGL;
 
 namespace TrippyTesting

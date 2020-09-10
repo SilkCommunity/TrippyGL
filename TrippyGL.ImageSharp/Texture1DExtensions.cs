@@ -5,7 +5,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     /// <summary>
     /// Extension methods for <see cref="Texture1D"/>.

@@ -1,10 +1,11 @@
-﻿using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
-using System;
+﻿using System;
 using System.IO;
 using System.Numerics;
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {

@@ -2,8 +2,8 @@
 using System.Drawing;
 using System.IO;
 using System.Numerics;
-using TrippyGL;
 using Silk.NET.OpenGL;
+using TrippyGL;
 using TrippyTestBase;
 
 namespace ComplexVertexFormats

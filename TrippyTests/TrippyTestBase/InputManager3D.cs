@@ -1,7 +1,7 @@
 ﻿using System;
-using Silk.NET.Input.Common;
-using System.Numerics;
 using System.Drawing;
+using System.Numerics;
+using Silk.NET.Input.Common;
 
 namespace TrippyTestBase
 {

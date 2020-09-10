@@ -1,11 +1,11 @@
 ﻿using System;
-using Silk.NET.Input.Common;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
 using System.Drawing;
 using Silk.NET.Input;
-using TrippyGL;
+using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
+using TrippyGL;
 
 namespace TrippyTestBase
 {

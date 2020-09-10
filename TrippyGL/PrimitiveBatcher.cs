@@ -1,4 +1,5 @@
 using System;
+using TrippyGL.Utils;
 
 namespace TrippyGL
 {

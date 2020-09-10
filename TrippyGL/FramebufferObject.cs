@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Silk.NET.OpenGL;
+using TrippyGL.Utils;
 
 namespace TrippyGL
 {
@@ -266,8 +267,8 @@ namespace TrippyGL
         /// <returns>Whether a texture attachment was found at the specified attachment point.</returns>
         public bool TryGetTextureAttachment(FramebufferAttachmentPoint attachmentPoint, out FramebufferTextureAttachment attachment)
         {
-            for (int i=0; i<textureAttachments.Count; i++)
-                if(textureAttachments[i].AttachmentPoint == attachmentPoint)
+            for (int i = 0; i < textureAttachments.Count; i++)
+                if (textureAttachments[i].AttachmentPoint == attachmentPoint)
                 {
                     attachment = textureAttachments[i];
                     return true;
@@ -285,8 +286,8 @@ namespace TrippyGL
         /// <returns>Whether a renderbuffer attachment was found at the specified attachment point.</returns>
         public bool TryGetRenderbufferAttachment(FramebufferAttachmentPoint attachmentPoint, out FramebufferRenderbufferAttachment attachment)
         {
-            for (int i=0; i<renderbufferAttachments.Count; i++)
-                if(renderbufferAttachments[i].AttachmentPoint == attachmentPoint)
+            for (int i = 0; i < renderbufferAttachments.Count; i++)
+                if (renderbufferAttachments[i].AttachmentPoint == attachmentPoint)
                 {
                     attachment = renderbufferAttachments[i];
                     return true;

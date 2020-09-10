@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     /// <summary>
     /// Extension methods for <see cref="Texture2D"/>.

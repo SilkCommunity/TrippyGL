@@ -1,11 +1,12 @@
-﻿using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using Silk.NET.Input.Common;
+using Silk.NET.OpenGL;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 using TrippyTestBase;
 
 namespace TextureBatcherTest

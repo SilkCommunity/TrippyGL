@@ -1,12 +1,13 @@
+using System;
+using System.IO;
+using System.Numerics;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
-using System;
-using System.IO;
-using System.Numerics;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting.Tests
 {
@@ -259,8 +260,8 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Vector3 cameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
-            Vector3 invertedCameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(-rotX), MathF.Sin(-rotX), MathF.Sin(rotY) * MathF.Cos(-rotX));
+            //Vector3 cameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
+            //Vector3 invertedCameraDir = new Vector3(MathF.Cos(rotY) * MathF.Cos(-rotX), MathF.Sin(-rotX), MathF.Sin(rotY) * MathF.Cos(-rotX));
 
             Matrix4x4 view = Matrix4x4.CreateLookAt(cameraPos, cameraPos + new Vector3(MathF.Cos(rotY), MathF.Tan(rotX), MathF.Sin(rotY)), Vector3.UnitY);
             Vector3 invertedCameraPos = new Vector3(cameraPos.X, WATER_TOP * 2 - cameraPos.Y, cameraPos.Z);
@@ -346,10 +347,10 @@ namespace TrippyTesting.Tests
         {
             if (btn == MouseButton.Left)
                 oldLocation = sender.Position;
-            if (btn == MouseButton.Right)
+            else if (btn == MouseButton.Right)
             {
-                Vector3 forward = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
-                Vector3 center = cameraPos + forward * Math.Clamp(sender.ScrollWheels[0].Y * 0.1f, 0.1f, 50f);
+                //Vector3 forward = new Vector3(MathF.Cos(rotY) * MathF.Cos(rotX), MathF.Sin(rotX), MathF.Sin(rotY) * MathF.Cos(rotX));
+                //Vector3 center = cameraPos + forward * Math.Clamp(sender.ScrollWheels[0].Y * 0.1f, 0.1f, 50f);
                 //fuckables.Add(new Fuckable(getRandMesh(), center));
             }
         }
@@ -366,8 +367,6 @@ namespace TrippyTesting.Tests
 
             graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
 
-            float wid = size.Width / (float)size.Height;
-            wid *= 0.5f;
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI * 0.5f, size.Width / (float)size.Height, 0.0001f, 100f);
             terrProgram.Uniforms["Projection"].SetValueMat4(proj);
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);

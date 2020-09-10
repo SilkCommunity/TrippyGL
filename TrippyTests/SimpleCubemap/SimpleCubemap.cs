@@ -1,8 +1,9 @@
-﻿using Silk.NET.OpenGL;
-using System;
+﻿using System;
 using System.IO;
 using System.Numerics;
+using Silk.NET.OpenGL;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 using TrippyTestBase;
 
 namespace SimpleCubemap

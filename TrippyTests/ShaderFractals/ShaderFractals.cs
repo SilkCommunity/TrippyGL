@@ -1,11 +1,11 @@
-﻿using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using Silk.NET.Input.Common;
+using Silk.NET.OpenGL;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using TrippyGL;
 using TrippyTestBase;
 

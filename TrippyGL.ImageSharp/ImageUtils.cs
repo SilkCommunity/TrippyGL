@@ -1,7 +1,7 @@
 ﻿using System;
 using SixLabors.ImageSharp.Formats;
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     /// <summary>
     /// Contains helper image-related methods used across the library.

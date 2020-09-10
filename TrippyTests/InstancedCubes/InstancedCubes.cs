@@ -1,8 +1,8 @@
-﻿using Silk.NET.OpenGL;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 

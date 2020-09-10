@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using Silk.NET.OpenGL;
+using TrippyGL.Utils;
 
 namespace TrippyGL
 {
@@ -73,7 +74,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(ShaderUniform left, ShaderUniform right) => left.Equals(right);
-
         public static bool operator !=(ShaderUniform left, ShaderUniform right) => !left.Equals(right);
 
         #region SetValue1

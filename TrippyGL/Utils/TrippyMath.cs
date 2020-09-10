@@ -2,7 +2,7 @@ using System;
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
-namespace TrippyGL
+namespace TrippyGL.Utils
 {
     /// <summary>
     /// Provides some general help math-related functions and values.
@@ -31,63 +31,38 @@ namespace TrippyGL
             return currentCapacity * IntegerPow(2, power);
         }
 
-        public static int IntegerPow(int a, int b)
+        /// <summary>
+        /// Calculates an integer value, raised to an integer exponent. Only works with positive values.
+        /// </summary>
+        public static int IntegerPow(int value, int exponent)
         {
             int r = 1;
-            while (b > 0)
+            while (exponent > 0)
             {
-                if ((b & 1) == 1)
-                    r *= a;
-                b >>= 1;
-                a *= a;
+                if ((exponent & 1) == 1)
+                    r *= value;
+                exponent >>= 1;
+                value *= value;
             }
             return r;
         }
 
-        public static long IntegerLongPow(long a, long b)
-        {
-            long r = 1;
-            while (b > 0)
-            {
-                if ((b & 1) == 1)
-                    r *= a;
-                b >>= 1;
-                a *= a;
-            }
-            return r;
-        }
-
-        public static uint UnsignedIntegerPow(uint a, uint b)
-        {
-            uint r = 1;
-            while (b > 0)
-            {
-                if ((b & 1) == 1)
-                    r *= a;
-                b >>= 1;
-                a *= a;
-            }
-            return r;
-        }
-
-        public static ulong UnsignedIntegerLongPow(ulong a, ulong b)
-        {
-            ulong r = 1;
-            while (b > 0)
-            {
-                if ((b & 1) == 1)
-                    r *= a;
-                b >>= 1;
-                a *= a;
-            }
-            return r;
-        }
-
+        /// <summary>
+        /// Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> object to use for generating random numbers.</param>
+        /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
         public static float NextFloat(this Random random, float max)
         {
             return (float)random.NextDouble() * max;
         }
 
+        /// <summary>
+        /// Returns a random floating-point number in the range [min, max) (or (max, min] if min>max)
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> object to use for generating random numbers.</param>
+        /// <param name="min">The inclusive minimum value of the random number to be generated.</param>
+        /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
         public static float NextFloat(this Random random, float min, float max)
         {
             return (float)random.NextDouble() * (max - min) + min;

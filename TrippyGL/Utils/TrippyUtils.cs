@@ -1,7 +1,7 @@
 using System;
 using Silk.NET.OpenGL;
 
-namespace TrippyGL
+namespace TrippyGL.Utils
 {
     /// <summary>
     /// Contains various methods used throughout the library.

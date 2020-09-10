@@ -1,10 +1,11 @@
-using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-using Silk.NET.Windowing.Common;
 using System;
 using System.IO;
 using System.Numerics;
+using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
+using Silk.NET.Windowing.Common;
 using TrippyGL;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting
 {
@@ -207,7 +208,7 @@ namespace TrippyTesting
             graphicsDevice.Dispose();
         }
 
-        float wave(float spd, float amp, float offset = 0f)
+        float Wave(float spd, float amp, float offset = 0f)
         {
             return MathF.Sin(time * spd + offset) * amp;
         }
