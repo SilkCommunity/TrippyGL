@@ -23,7 +23,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(SpecifiedShaderAttrib left, SpecifiedShaderAttrib right) => left.Equals(right);
-
         public static bool operator !=(SpecifiedShaderAttrib left, SpecifiedShaderAttrib right) => !left.Equals(right);
 
         /// <summary>

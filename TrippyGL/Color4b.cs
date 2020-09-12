@@ -121,7 +121,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
-
         public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
 
         public static explicit operator Vector4(Color4b color) => color.ToVector4();

@@ -100,7 +100,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(VertexAttribDescription left, VertexAttribDescription right) => left.Equals(right);
-
         public static bool operator !=(VertexAttribDescription left, VertexAttribDescription right) => !(left == right);
 
         public override string ToString()

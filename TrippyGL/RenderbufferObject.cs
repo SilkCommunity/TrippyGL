@@ -70,7 +70,6 @@ namespace TrippyGL
         protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteRenderbuffer(Handle);
-            base.Dispose(isManualDispose);
         }
 
         internal void ValidateSampleCount(uint samples)

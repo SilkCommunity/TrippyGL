@@ -108,7 +108,6 @@ namespace TrippyGL
                 GraphicsDevice.ShaderProgram = null;
 
             GL.DeleteProgram(Handle);
-            base.Dispose(isManualDispose);
         }
 
         /// <summary>

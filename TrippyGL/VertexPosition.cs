@@ -27,11 +27,9 @@ namespace TrippyGL
         }
 
         public static bool operator ==(VertexPosition left, VertexPosition right) => left.Equals(right);
-
         public static bool operator !=(VertexPosition left, VertexPosition right) => !left.Equals(right);
 
         public static implicit operator Vector3(VertexPosition vertexPosition) => vertexPosition.Position;
-
         public static implicit operator VertexPosition(Vector3 position) => new VertexPosition(position);
 
         public int AttribDescriptionCount => 1;

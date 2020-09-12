@@ -379,7 +379,6 @@ namespace TrippyGL
             }
 
             GL.DeleteFramebuffer(Handle);
-            base.Dispose(isManualDispose);
         }
 
         /// <summary>

@@ -174,7 +174,6 @@ namespace TrippyGL
                 GraphicsDevice.VertexArray = null;
 
             GL.DeleteVertexArray(Handle);
-            base.Dispose(isManualDispose);
         }
 
         public override string ToString()

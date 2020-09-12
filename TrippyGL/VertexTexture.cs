@@ -30,7 +30,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(VertexTexture left, VertexTexture right) => left.Equals(right);
-
         public static bool operator !=(VertexTexture left, VertexTexture right) => !left.Equals(right);
 
         public int AttribDescriptionCount => 2;

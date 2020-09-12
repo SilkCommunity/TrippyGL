@@ -39,7 +39,6 @@ namespace TrippyGL
         public string ProgramLog;
 
         public static bool operator ==(ShaderProgramBuilder left, ShaderProgramBuilder right) => left.Equals(right);
-
         public static bool operator !=(ShaderProgramBuilder left, ShaderProgramBuilder right) => !left.Equals(right);
 
         /// <summary>

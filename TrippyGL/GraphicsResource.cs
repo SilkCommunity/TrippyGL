@@ -41,10 +41,7 @@ namespace TrippyGL
         /// Resources override this method to implement their disposing code.
         /// </summary>
         /// <param name="isManualDispose">Whether the call to this function happened because of a call to <see cref="Dispose()"/> or by the destructor.</param>
-        protected virtual void Dispose(bool isManualDispose)
-        {
-
-        }
+        protected abstract void Dispose(bool isManualDispose);
 
         /// <summary>
         /// Disposes this <see cref="GraphicsResource"/> without notifying <see cref="GraphicsDevice"/>.

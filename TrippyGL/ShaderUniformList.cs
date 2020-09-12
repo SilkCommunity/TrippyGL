@@ -70,7 +70,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(ShaderUniformList left, ShaderUniformList right) => left.Equals(right);
-
         public static bool operator !=(ShaderUniformList left, ShaderUniformList right) => !left.Equals(right);
 
         /// <summary>

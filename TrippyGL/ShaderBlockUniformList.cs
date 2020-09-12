@@ -65,7 +65,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(ShaderBlockUniformList left, ShaderBlockUniformList right) => left.Equals(right);
-
         public static bool operator !=(ShaderBlockUniformList left, ShaderBlockUniformList right) => !left.Equals(right);
 
         /// <summary>

@@ -34,7 +34,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(VertexNormalColor left, VertexNormalColor right) => left.Equals(right);
-
         public static bool operator !=(VertexNormalColor left, VertexNormalColor right) => !left.Equals(right);
 
         public int AttribDescriptionCount => 3;

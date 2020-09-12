@@ -59,7 +59,6 @@ namespace TrippyGL
         protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteBuffer(Handle);
-            base.Dispose(isManualDispose);
         }
 
         public override string ToString()

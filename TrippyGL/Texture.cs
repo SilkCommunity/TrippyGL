@@ -104,7 +104,6 @@ namespace TrippyGL
         protected override void Dispose(bool isManualDispose)
         {
             GL.DeleteTexture(Handle);
-            base.Dispose(isManualDispose);
         }
 
         public override string ToString()
