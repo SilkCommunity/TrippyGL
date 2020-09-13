@@ -45,14 +45,7 @@ namespace ShaderFractals
 
             vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "vs.glsl", "fs.glsl", "vPosition");
 
             transformUniform = shaderProgram.Uniforms["Transform"];
             cUniform = shaderProgram.Uniforms["c"];
@@ -148,7 +141,6 @@ namespace ShaderFractals
         {
             vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
 
         private void UpdateTransformMatrix()

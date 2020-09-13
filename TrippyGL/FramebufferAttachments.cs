@@ -25,7 +25,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => left.Equals(right);
-
         public static bool operator !=(FramebufferTextureAttachment left, FramebufferTextureAttachment right) => !left.Equals(right);
 
         public override string ToString()
@@ -74,7 +73,6 @@ namespace TrippyGL
         }
 
         public static bool operator ==(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => left.Equals(right);
-
         public static bool operator !=(FramebufferRenderbufferAttachment left, FramebufferRenderbufferAttachment right) => !left.Equals(right);
 
         public override string ToString()

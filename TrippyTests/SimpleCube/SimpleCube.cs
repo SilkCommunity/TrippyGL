@@ -37,15 +37,7 @@ namespace SimpleCube
 
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticCopy);
 
-            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
-            {
-                VertexColorsEnabled = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexColor>();
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
             shaderProgram.View = Matrix4x4.CreateLookAt(new Vector3(0, 1.0f, -1.5f), Vector3.Zero, Vector3.UnitY);
 
@@ -83,7 +75,6 @@ namespace SimpleCube
         {
             vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

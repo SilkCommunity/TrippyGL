@@ -111,9 +111,6 @@ namespace InstancedCubes
                 new SpecifiedShaderAttrib("vOffset", AttributeType.FloatVec4)
             });
             shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
 
             shaderProgram.Uniforms["View"].SetValueMat4(Matrix4x4.CreateLookAt(new Vector3(0, 5, -4), Vector3.Zero, Vector3.UnitY));
 
@@ -152,7 +149,6 @@ namespace InstancedCubes
             vertexArray.Dispose();
             buffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

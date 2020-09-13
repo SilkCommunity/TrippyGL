@@ -14,18 +14,23 @@ namespace TrippyTestBase
     /// </summary>
     public abstract class TestBase
     {
+        /// <summary>This application's <see cref="IWindow"/></summary>
         public IWindow Window { private set; get; }
+
+        /// <summary>This application window's <see cref="IInputContext"/>.</summary>
         public IInputContext InputContext { private set; get; }
 
         /// <summary>Whether to allow the user to toggle fullscreen mode by pressing F11.</summary>
         public bool AllowToggleFullscreen = true;
+
         private Size preFullscreenSize;
         private Point preFullscreenPosition;
         private WindowState preFullscreenState;
 
+        /// <summary>Gets or sets whether the window is currently on fullscreen mode.</summary>
         public bool IsFullscreen
         {
-            get { return Window.WindowState == WindowState.Fullscreen; }
+            get => Window.WindowState == WindowState.Fullscreen;
             set
             {
                 if (value == IsFullscreen)
@@ -61,6 +66,7 @@ namespace TrippyTestBase
             }
         }
 
+        /// <summary>The <see cref="GraphicsDevice"/> whose drawing commands go to the application's window.</summary>
         public GraphicsDevice graphicsDevice;
 
         public TestBase(string title = null, int preferredDepthBufferBits = 0)
@@ -89,6 +95,9 @@ namespace TrippyTestBase
             Window = Silk.NET.Windowing.Window.Create(windowOpts);
         }
 
+        /// <summary>
+        /// Shows the window and starts the event loop.
+        /// </summary>
         public void Run()
         {
             Console.WriteLine("Running project...");
@@ -96,7 +105,7 @@ namespace TrippyTestBase
             Window.Update += OnUpdate;
             Window.Render += Window_Render;
             Window.Resize += OnResized;
-            Window.Closing += OnUnload;
+            Window.Closing += Window_Closing;
 
             Window.Run();
         }
@@ -113,9 +122,12 @@ namespace TrippyTestBase
             foreach (IGamepad gamepad in InputContext.Gamepads)
                 OnInputContextConnectionChanged(gamepad, gamepad.IsConnected);
 
-            graphicsDevice = new GraphicsDevice(GL.GetApi(Window));
-            graphicsDevice.DebugMessagingEnabled = true;
+            graphicsDevice = new GraphicsDevice(GL.GetApi(Window))
+            {
+                DebugMessagingEnabled = true
+            };
             graphicsDevice.DebugMessage += OnDebugMessage;
+            graphicsDevice.ShaderCompiled += GraphicsDevice_ShaderCompiled;
 
             Console.WriteLine(string.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));
             Console.WriteLine("GL Version String: " + graphicsDevice.GLVersion);
@@ -200,6 +212,12 @@ namespace TrippyTestBase
                 OnRender(dt);
         }
 
+        private void Window_Closing()
+        {
+            OnUnload();
+            graphicsDevice.Dispose();
+        }
+
         protected abstract void OnLoad();
         protected abstract void OnRender(double dt);
         protected abstract void OnResized(Size size);
@@ -227,6 +245,65 @@ namespace TrippyTestBase
         protected virtual void OnGamepadButtonUp(IGamepad sender, Button button) { }
         protected virtual void OnGamepadThumbstickMoved(IGamepad sender, Thumbstick thumbstick) { }
         protected virtual void OnGamepadTriggerMoved(IGamepad sender, Trigger trigger) { }
+
+        private void GraphicsDevice_ShaderCompiled(GraphicsDevice sender, in ShaderProgramBuilder programBuilder, bool success)
+        {
+            bool hasVsLog = !string.IsNullOrEmpty(programBuilder.VertexShaderLog);
+            bool hasGsLog = !string.IsNullOrEmpty(programBuilder.GeometryShaderLog);
+            bool hasFsLog = !string.IsNullOrEmpty(programBuilder.FragmentShaderLog);
+            bool hasProgramLog = !string.IsNullOrEmpty(programBuilder.ProgramLog);
+            bool printLogs = false;
+
+            if (success)
+            {
+                if (hasVsLog || hasGsLog || hasFsLog || hasProgramLog)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Shader compiled with possible warnings:");
+                    printLogs = true;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Shader compiled succesfully.");
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Shader compilation error:");
+                printLogs = true;
+            }
+
+            if (printLogs)
+            {
+                if (hasVsLog)
+                {
+                    Console.WriteLine("VertexShader log:");
+                    Console.WriteLine(programBuilder.VertexShaderLog);
+                }
+
+                if (hasGsLog)
+                {
+                    Console.WriteLine("GeometryShader log:");
+                    Console.WriteLine(programBuilder.GeometryShaderLog);
+                }
+
+                if (hasFsLog)
+                {
+                    Console.WriteLine("FragmentShader log:");
+                    Console.WriteLine(programBuilder.FragmentShaderLog);
+                }
+
+                if (hasProgramLog)
+                {
+                    Console.WriteLine("Program log:");
+                    Console.WriteLine(programBuilder.ProgramLog);
+                }
+            }
+
+            Console.ResetColor();
+        }
 
         /// <summary>
         /// Calculates the size to use for a new window as two thirds the size of the main monitor.

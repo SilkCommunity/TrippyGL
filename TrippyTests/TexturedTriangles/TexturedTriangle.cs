@@ -65,16 +65,7 @@ namespace TexturedTriangles
 
             trianglesBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, trianglesVertex, BufferUsageARB.StaticDraw);
 
-            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
-            {
-                VertexColorsEnabled = true,
-                TextureEnabled = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexColorTexture>();
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice);
 
             background = Texture2DExtensions.FromFile(graphicsDevice, "texture.png");
             background.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
@@ -135,7 +126,6 @@ namespace TexturedTriangles
             shaderProgram.Dispose();
             background.Dispose();
             satellite.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

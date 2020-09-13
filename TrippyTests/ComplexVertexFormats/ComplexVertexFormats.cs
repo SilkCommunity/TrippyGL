@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Numerics;
 using Silk.NET.OpenGL;
 using TrippyGL;
@@ -36,15 +35,7 @@ namespace ComplexVertexFormats
             };
 
             vertexBuffer = new VertexBuffer<ComplexVertex>(graphicsDevice, vertices, BufferUsageARB.StaticDraw);
-
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs1.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs1.glsl");
-            programBuilder.SpecifyVertexAttribs<ComplexVertex>(new string[] { "sixtyThree", "X", "nothing0", "colorR", "matrix1", "colorG", "sixtyFour", "Y", "colorB", "Z", "oneTwoThreeFour", "alwaysZero", "alsoZero" });
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = ShaderProgram.FromFiles<ComplexVertex>(graphicsDevice, "vs1.glsl", "fs1.glsl", new string[] { "sixtyThree", "X", "nothing0", "colorR", "matrix1", "colorG", "sixtyFour", "Y", "colorB", "Z", "oneTwoThreeFour", "alwaysZero", "alsoZero" });
 
             shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.Identity);
 
@@ -76,7 +67,6 @@ namespace ComplexVertexFormats
         {
             vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

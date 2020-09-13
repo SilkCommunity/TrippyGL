@@ -33,17 +33,7 @@ namespace TextureBatcherTest
 
         protected override void OnLoad()
         {
-            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
-            {
-                TextureEnabled = true,
-                VertexColorsEnabled = true,
-                ExcludeWorldMatrix = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexColorTexture>();
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice, 0, 0, true);
 
             particleTexture = Texture2DExtensions.FromFile(graphicsDevice, "particles.png");
             particleTexture.SetTextureFilters(TextureMinFilter.Nearest, TextureMagFilter.Nearest);
@@ -176,7 +166,6 @@ namespace TextureBatcherTest
             ballTexture.Dispose();
             diamondTexture.Dispose();
             textureBatcher.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

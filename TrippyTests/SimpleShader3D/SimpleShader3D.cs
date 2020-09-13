@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Numerics;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
@@ -85,27 +84,12 @@ namespace SimpleShader3D
 
             cubeBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cube, BufferUsageARB.StaticDraw);
 
-            ShaderProgramBuilder skyProgramBuilder = new ShaderProgramBuilder();
-            skyProgramBuilder.VertexShaderCode = File.ReadAllText("skyVs.glsl");
-            skyProgramBuilder.FragmentShaderCode = File.ReadAllText("skyFs.glsl");
-            skyProgramBuilder.SpecifyVertexAttribs<VertexPosition>(new string[] { "vPosition" });
-            skyProgram = skyProgramBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + skyProgramBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + skyProgramBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + skyProgramBuilder.ProgramLog);
+            skyProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "skyVs.glsl", "skyFs.glsl", "vPosition");
 
             VertexColor[] linesArray = CreateLines();
             linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, linesArray, BufferUsageARB.StaticDraw);
 
-            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
-            {
-                VertexColorsEnabled = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexColor>();
-            linesProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
             VertexNormal[] dragonModel = OBJLoader.FromFile<VertexNormal>("dragon.obj");
             dragonBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, dragonModel, BufferUsageARB.StaticDraw);
@@ -116,31 +100,15 @@ namespace SimpleShader3D
             VertexNormal[] sphereModel = OBJLoader.FromFile<VertexNormal>("sphere.obj");
             sphereBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, sphereModel, BufferUsageARB.StaticDraw);
 
-            programBuilder = new SimpleShaderProgramBuilder()
-            {
-                DirectionalLights = 1,
-                PositionalLights = 1
-            };
-            programBuilder.ConfigureVertexAttribs<VertexNormal>();
-            modelsProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            modelsProgram = SimpleShaderProgram.Create<VertexNormal>(graphicsDevice, 1, 1);
 
             lampTexture = Texture2DExtensions.FromFile(graphicsDevice, "lamp_texture.png");
 
             VertexNormalTexture[] lampModel = OBJLoader.FromFile<VertexNormalTexture>("lamp.obj");
             lampBuffer = new VertexBuffer<VertexNormalTexture>(graphicsDevice, lampModel, BufferUsageARB.StaticDraw);
 
-            programBuilder = new SimpleShaderProgramBuilder()
-            {
-                TextureEnabled = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexNormalTexture>();
-            lampProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            lampProgram = SimpleShaderProgram.Create<VertexNormalTexture>(graphicsDevice);
+
             lampProgram.Texture = lampTexture;
             lampProgram.Color = new Vector4(3, 3, 3, 1);
 
@@ -262,7 +230,6 @@ namespace SimpleShader3D
 
             skyProgram.Dispose();
             cubeBuffer.Dispose();
-            graphicsDevice.Dispose();
         }
 
         private static VertexColor[] CreateLines()

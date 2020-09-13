@@ -22,18 +22,8 @@ namespace SimpleTriangle
                 new VertexColor(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255)),
             };
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, (uint)vertexData.Length, BufferUsageARB.StaticDraw);
-            vertexBuffer.DataSubset.SetData(vertexData);
-
-            SimpleShaderProgramBuilder programBuilder = new SimpleShaderProgramBuilder()
-            {
-                VertexColorsEnabled = true
-            };
-            programBuilder.ConfigureVertexAttribs<VertexColor>();
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
+            shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
         }
 
         protected override void OnRender(double dt)
@@ -63,7 +53,6 @@ namespace SimpleTriangle
         {
             vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

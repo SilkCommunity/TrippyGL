@@ -37,7 +37,7 @@ namespace TrippyGL
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="initialTextureAttachments">An estimate of how many texture attachments will be used.</param>
         /// <param name="initialRenderbufferAttachments">An estimate of how many renderbuffer attachments will be used.</param>
-        public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 1, int initialRenderbufferAttachments = 1)
+        public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 0, int initialRenderbufferAttachments = 0)
             : base(graphicsDevice)
         {
             Samples = 0;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Numerics;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
@@ -24,9 +23,7 @@ namespace GameOfLifeSim
         ShaderProgram simProgram;
         ShaderUniform simPrevUniform;
 
-        ShaderProgram drawProgram;
-        ShaderUniform drawTransformUniform;
-        ShaderUniform drawSampUniform;
+        SimpleShaderProgram drawProgram;
 
         PointF lastMousePos;
         float mouseMoveScale;
@@ -59,26 +56,11 @@ namespace GameOfLifeSim
 
             r = new Random();
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("sim_vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("sim_fs.glsl");
-            programBuilder.SpecifyVertexAttribs<VertexTexture>(new string[] { "vPosition", "vTexCoords" });
-            simProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
-
-            programBuilder.VertexShaderCode = File.ReadAllText("draw_vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("draw_fs.glsl");
-            drawProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            simProgram = ShaderProgram.FromFiles<VertexTexture>(graphicsDevice, "sim_vs.glsl", "sim_fs.glsl", new string[] { "vPosition", "vTexCoords" });
+            drawProgram = SimpleShaderProgram.Create<VertexTexture>(graphicsDevice);
 
             simProgram.Uniforms["pixelDelta"].SetValueVec2(1f / SimulationWidth, 1f / SimulationHeight);
             simPrevUniform = simProgram.Uniforms["previous"];
-            drawTransformUniform = drawProgram.Uniforms["Transform"];
-            drawSampUniform = drawProgram.Uniforms["samp"];
 
             graphicsDevice.BlendingEnabled = false;
             graphicsDevice.DepthTestingEnabled = false;
@@ -102,7 +84,7 @@ namespace GameOfLifeSim
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
             graphicsDevice.SetViewport(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height);
             graphicsDevice.ShaderProgram = drawProgram;
-            drawSampUniform.SetValueTexture(fbo2);
+            drawProgram.Texture = fbo2;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
             Framebuffer2D tmpFbo = fbo2;
@@ -119,12 +101,12 @@ namespace GameOfLifeSim
 
             if (size.Width < size.Height)
             {
-                drawProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f * size.Width / size.Height, 2f, 0.01f, 10f));
+                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f * size.Width / size.Height, 2f, 0.01f, 10f);
                 mouseMoveScale = 2f / size.Height;
             }
             else
             {
-                drawProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f, 2f * size.Height / size.Width, 0.01f, 10f));
+                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f, 2f * size.Height / size.Width, 0.01f, 10f);
                 mouseMoveScale = 2f / size.Width;
             }
 
@@ -137,7 +119,6 @@ namespace GameOfLifeSim
             fbo2.Dispose();
             simProgram.Dispose();
             drawProgram.Dispose();
-            graphicsDevice.Dispose();
         }
 
         protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
@@ -195,9 +176,8 @@ namespace GameOfLifeSim
 
         private void UpdateTransformMatrix()
         {
-            Matrix3x2 mat = Matrix3x2.CreateScale(SimulationWidth / (float)SimulationHeight, 1f) * Matrix3x2.CreateTranslation(offset) * Matrix3x2.CreateScale(scale);
-            drawTransformUniform.SetValueMat3x2(mat);
-            //Window.Title = "offset=" + offset.ToString() + ", scale=" + scale.ToString() + ", scaleExponent=" + scaleExponent.ToString();
+            Matrix4x4 mat = Matrix4x4.CreateScale(SimulationWidth / (float)SimulationHeight, 1f, 1f) * Matrix4x4.CreateTranslation(offset.X, offset.Y, 0) * Matrix4x4.CreateScale(scale);
+            drawProgram.SetView(mat, Vector3.Zero);
         }
     }
 }

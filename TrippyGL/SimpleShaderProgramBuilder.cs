@@ -123,8 +123,7 @@ namespace TrippyGL
         /// <see cref="SimpleShaderProgramBuilder"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="SimpleShaderProgram"/> will use.</param>
-        /// <param name="getLogs">Whether to get compilation and linking logs from the shaders and program.</param>
-        public SimpleShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
+        public SimpleShaderProgram Create(GraphicsDevice graphicsDevice)
         {
             const string DifferentVertexAttribIndicesError = "All specified vertex attribute indices must be different.";
 
@@ -335,7 +334,10 @@ namespace TrippyGL
                     attribs[TexCoordsAttributeIndex] = new SpecifiedShaderAttrib(TextureEnabled ? "vTexCoords" : null, AttributeType.FloatVec2);
                 programBuilder.SpecifyVertexAttribs(attribs);
 
-                programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, getLogs);
+                // TODO: Change the getLogs parameter to false
+                // Also, once we know the SimpleShaderProgram's code is flawless we should change this
+                // somehow so it doesn't raise the GraphicsDevice.ShaderCompiled event.
+                programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, true);
                 return new SimpleShaderProgram(graphicsDevice, programHandle, activeAttribs, VertexColorsEnabled, TextureEnabled, DirectionalLights, PositionalLights);
             }
             catch

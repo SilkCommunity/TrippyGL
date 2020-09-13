@@ -5,6 +5,8 @@ using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
+    public delegate void ShaderCompiledEventHandler(GraphicsDevice sender, in ShaderProgramBuilder programBuilder, bool success);
+
     /// <summary>
     /// Represents the method that will handle an OpenGL debug message event.
     /// </summary>
@@ -106,7 +108,7 @@ namespace TrippyGL
         /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
         {
-            get { return debugMessagingEnabled; }
+            get => debugMessagingEnabled;
             set
             {
                 if (value)
@@ -372,6 +374,28 @@ namespace TrippyGL
         }
 
         #endregion DrawingFunctions
+
+        #region ShaderCompiledEvent
+
+        /// <summary>
+        /// Occurs whenever a <see cref="TrippyGL.ShaderProgram"/> compiles, whether it fails or succeeds.
+        /// </summary>
+        /// <remarks>
+        /// Even if the shaders were compiled specifying not to get compilation logs, if compilation failed
+        /// then logs will be queried from OpenGL anyway, but only for the particular thing that failed.<para/>
+        /// The "success" parameter will only be true if the whole operation, including program linking, succeeded.
+        /// </remarks>
+        public event ShaderCompiledEventHandler ShaderCompiled;
+
+        /// <summary>
+        /// Raises the <see cref="ShaderCompiled"/> event.
+        /// </summary>
+        internal void OnShaderCompiled(in ShaderProgramBuilder programBuilder, bool success)
+        {
+            ShaderCompiled?.Invoke(this, programBuilder, success);
+        }
+
+        #endregion
 
         #region GraphicsResource Management
 

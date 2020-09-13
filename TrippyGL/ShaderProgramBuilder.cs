@@ -145,6 +145,7 @@ namespace TrippyGL
             uint fsHandle = 0;
 
             uint programHandle = 0;
+            bool success = false;
 
             // We encapsulate the logic in a try catch so whether there is an
             // exception or not, we glDeleteShader all the shader handles
@@ -242,6 +243,7 @@ namespace TrippyGL
                     throw new InvalidOperationException("The specified vertex attributes don't match the ones declared in the shaders");
 
                 // Done!
+                success = true;
                 return programHandle;
             }
             catch
@@ -257,6 +259,7 @@ namespace TrippyGL
                 graphicsDevice.GL.DeleteShader(vsHandle);
                 graphicsDevice.GL.DeleteShader(gsHandle);
                 graphicsDevice.GL.DeleteShader(fsHandle);
+                graphicsDevice.OnShaderCompiled(this, success);
             }
         }
 

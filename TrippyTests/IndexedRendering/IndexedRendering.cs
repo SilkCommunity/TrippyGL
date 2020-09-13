@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using TrippyGL;
@@ -46,14 +44,7 @@ namespace IndexedRendering
                 indexStart += Indices.AllNumbersIndices[i].Length;
             }
 
-            ShaderProgramBuilder programBuilder = new ShaderProgramBuilder();
-            programBuilder.VertexShaderCode = File.ReadAllText("vs.glsl");
-            programBuilder.FragmentShaderCode = File.ReadAllText("fs.glsl");
-            programBuilder.SpecifyVertexAttribs<SimpleVertex>(new string[] { "vPosition" });
-            shaderProgram = programBuilder.Create(graphicsDevice, true);
-            Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
-            Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
-            Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
+            shaderProgram = ShaderProgram.FromFiles<SimpleVertex>(graphicsDevice, "vs.glsl", "fs.glsl", "vPosition");
 
             shaderProgram.Uniforms["color"].SetValueVec4(1f, 0f, 0f, 1f);
 
@@ -94,7 +85,6 @@ namespace IndexedRendering
         {
             vertexBuffer.Dispose();
             shaderProgram.Dispose();
-            graphicsDevice.Dispose();
         }
     }
 }

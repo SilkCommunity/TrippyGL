@@ -349,7 +349,7 @@ namespace TrippyGL
         /// attribute will be taken as texture coordinates.
         /// </remarks>
         public static SimpleShaderProgram Create<T>(GraphicsDevice graphicsDevice, int positionalLights = 0,
-            int directionalLights = 0, bool excludeWorldMatrix = true) where T : unmanaged, IVertex
+            int directionalLights = 0, bool excludeWorldMatrix = false) where T : unmanaged, IVertex
         {
             SimpleShaderProgramBuilder builder = new SimpleShaderProgramBuilder()
             {
