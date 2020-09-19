@@ -5,6 +5,13 @@ namespace TrippyTesting
 {
     class Program
     {
+        // WARNING
+        // This "TrippyTesting" project is old AF and will be deleted pretty soon.
+        // DO NOT USE THESE FOR TESTING THE LIBRARY! Use the projects inside
+        // the TrippyTests folder instead.
+        // Unless you're here to look at the beautiful TerrainMaker one, I'll
+        // probably make a similar one for TrippyTests at some point.
+
         static void Main(string[] args)
         {
             new Tests.TerrainMaker().Run();

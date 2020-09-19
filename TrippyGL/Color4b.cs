@@ -131,6 +131,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="color">The <see cref="Color4b"/> to multiply.</param>
         /// <param name="scale">The scale to multiply by.</param>
+        /// <seealso cref="MultiplyIncludeAlpha(Color4b, float)"/>
         public static Color4b Multiply(Color4b color, float scale)
         {
             return new Color4b((byte)(color.R * scale + 0.5f), (byte)(color.G * scale + 0.5f), (byte)(color.B * scale + 0.5f), color.A);

@@ -7,6 +7,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using TrippyGL;
+using TrippyGL.Utils;
 
 namespace TrippyTesting.Tests
 {
@@ -97,13 +98,13 @@ namespace TrippyTesting.Tests
 
             const int maxvert = 128;
             VertexColor[] vertices = new VertexColor[maxvert + 1];
-            vertices[0] = new VertexColor(new Vector3(0, 0, 0), randomCol());
+            vertices[0] = new VertexColor(new Vector3(0, 0, 0), Color4b.RandomFullAlpha(r));
             for (int i = 0; i < maxvert; i++)
             {
                 float rot = i * MathF.PI * 2f / maxvert;
                 float scale = i * 10f / maxvert % 0.5f + 0.5f;
                 scale = 3f * scale * scale - 2f * scale * scale * scale;
-                vertices[i + 1] = new VertexColor(new Vector3(MathF.Cos(rot) * scale, MathF.Sin(rot) * scale, 0f), Color4b.Multiply(randomCol(), 0.1f));
+                vertices[i + 1] = new VertexColor(new Vector3(MathF.Cos(rot) * scale, MathF.Sin(rot) * scale, 0f), Color4b.Multiply(Color4b.RandomFullAlpha(r), 0.1f));
             }
 
             ptcBuffer = new BufferObject(graphicsDevice, (uint)(MaxParticles * 64 + VertexColor.SizeInBytes * vertices.Length), BufferUsageARB.StaticDraw);
@@ -194,21 +195,6 @@ namespace TrippyTesting.Tests
             graphicsDevice.Dispose();
         }
 
-        public static Color4b randomCol()
-        {
-            return new Color4b((byte)r.Next(256), (byte)r.Next(256), (byte)r.Next(256), 255);
-        }
-
-        public static float randomf(float max)
-        {
-            return (float)r.NextDouble() * max;
-        }
-
-        public static float randomf(float min, float max)
-        {
-            return (float)r.NextDouble() * (max - min) + min;
-        }
-
         private class Particle
         {
             Vector2 position;
@@ -222,7 +208,7 @@ namespace TrippyTesting.Tests
 
             public Particle()
             {
-                position = new Vector2(0, randomf(100));
+                position = new Vector2(0, r.NextFloat(100));
                 rotation = 0;
                 scale = 1;
             }
@@ -250,11 +236,11 @@ namespace TrippyTesting.Tests
             public void Reset(Vector2 mousePos)
             {
                 position = mousePos;
-                direction.X = randomf(-40f, 40f);
-                direction.Y = randomf(-6f, 70f);
-                scale = randomf(1.3f, 2.2f);
-                scaleSpeed = randomf(-0.75f, 0.5f);
-                rotSpeed = randomf(-3f, 3f);
+                direction.X = r.NextFloat(-40f, 40f);
+                direction.Y = r.NextFloat(-6f, 70f);
+                scale = r.NextFloat(1.3f, 2.2f);
+                scaleSpeed = r.NextFloat(-0.75f, 0.5f);
+                rotSpeed = r.NextFloat(-3f, 3f);
             }
 
             public Matrix4x4 GenerateMatrix()

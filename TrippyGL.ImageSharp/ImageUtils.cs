@@ -29,4 +29,12 @@ namespace TrippyGL.ImageSharp
             };
         }
     }
+
+    /// <summary>
+    /// Specifies image file formats.
+    /// </summary>
+    public enum SaveImageFormat
+    {
+        Png, Jpeg, Bmp, Gif
+    }
 }

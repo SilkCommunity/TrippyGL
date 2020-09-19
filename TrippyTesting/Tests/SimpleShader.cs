@@ -74,7 +74,7 @@ namespace TrippyTesting.Tests
                 PositionalLights = 1
             };
             programBuilder.ConfigureVertexAttribs<VertexNormal>();
-            dragonProgram = programBuilder.Create(graphicsDevice, true);
+            dragonProgram = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
@@ -90,7 +90,7 @@ namespace TrippyTesting.Tests
 
             programBuilder = new SimpleShaderProgramBuilder();
             programBuilder.ConfigureVertexAttribs<VertexNormal>();
-            dragonProgramTwo = programBuilder.Create(graphicsDevice, true);
+            dragonProgramTwo = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
@@ -109,7 +109,7 @@ namespace TrippyTesting.Tests
                 DirectionalLights = 1
             };
             programBuilder.ConfigureVertexAttribs<VertexNormalTexture>();
-            stallProgram = programBuilder.Create(graphicsDevice, true);
+            stallProgram = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
@@ -126,7 +126,7 @@ namespace TrippyTesting.Tests
                 TextureEnabled = true
             };
             programBuilder.ConfigureVertexAttribs<VertexNormalTexture>();
-            stallProgramTwo = programBuilder.Create(graphicsDevice, true);
+            stallProgramTwo = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);

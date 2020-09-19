@@ -154,7 +154,7 @@ namespace TrippyGL
         private void ValidateTextureSize(uint width, uint height)
         {
             if (width <= 0 || width > GraphicsDevice.MaxTextureSize)
-                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
+                throw new ArgumentOutOfRangeException(nameof(width), width, nameof(width) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");
 
             if (height <= 0 || height > GraphicsDevice.MaxTextureSize)
                 throw new ArgumentOutOfRangeException(nameof(height), height, nameof(height) + " must be in the range (0, " + nameof(GraphicsDevice.MaxTextureSize) + "]");

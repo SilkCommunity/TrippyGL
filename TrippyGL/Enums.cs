@@ -50,14 +50,6 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// Specifies image file formats.
-    /// </summary>
-    public enum SaveImageFormat
-    {
-        Png, Jpeg, Bmp, Gif
-    }
-
-    /// <summary>
     /// Specifies the attachment points on a <see cref="FramebufferObject"/>.
     /// </summary>
     public enum FramebufferAttachmentPoint

@@ -97,7 +97,7 @@ namespace TrippyTesting.Tests
                 VertexColorsEnabled = true
             };
             programBuilder.ConfigureVertexAttribs<VertexColor>();
-            batcherProgram = programBuilder.Create(graphicsDevice, true);
+            batcherProgram = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
@@ -130,7 +130,7 @@ namespace TrippyTesting.Tests
                 TextureEnabled = true
             };
             programBuilder.ConfigureVertexAttribs<VertexColorTexture>();
-            texProgram = programBuilder.Create(graphicsDevice, true);
+            texProgram = programBuilder.Create(graphicsDevice);
             Console.WriteLine("VS Log: " + programBuilder.VertexShaderLog);
             Console.WriteLine("FS Log: " + programBuilder.FragmentShaderLog);
             Console.WriteLine("Program Log: " + programBuilder.ProgramLog);
