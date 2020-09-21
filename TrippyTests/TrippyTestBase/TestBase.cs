@@ -36,6 +36,7 @@ namespace TrippyTestBase
                 if (value == IsFullscreen)
                     return;
 
+                Window.Resize -= OnResized;
                 if (value)
                 {
                     Size screenSize;
@@ -46,7 +47,6 @@ namespace TrippyTestBase
                     preFullscreenSize = Window.Size;
                     preFullscreenPosition = Window.Position;
                     preFullscreenState = Window.WindowState;
-                    Window.Size = screenSize;
                     Window.WindowState = WindowState.Fullscreen;
                     Window.Size = screenSize;
                 }
@@ -63,6 +63,9 @@ namespace TrippyTestBase
                     Window.Size = preFullscreenSize;
                     Window.Position = preFullscreenPosition;
                 }
+
+                Window.Resize += OnResized;
+                OnResized(Window.Size);
             }
         }
 

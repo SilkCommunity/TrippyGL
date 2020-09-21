@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 namespace TrippyGL
 {
@@ -24,8 +25,8 @@ namespace TrippyGL
         /// </summary>
         public int Right
         {
-            get { return X + (int)Width; }
-            set { Width = (uint)(value - X); }
+            get => X + (int)Width;
+            set => Width = (uint)(value - X);
         }
 
         /// <summary>
@@ -33,8 +34,8 @@ namespace TrippyGL
         /// </summary>
         public int Bottom
         {
-            get { return Y + (int)Height; }
-            set { Height = (uint)(value - Y); }
+            get => Y + (int)Height;
+            set => Height = (uint)(value - Y);
         }
 
         /// <summary>
@@ -48,13 +49,28 @@ namespace TrippyGL
             Height = height;
         }
 
+        /// <summary>
+        /// Creates a <see cref="Viewport"/> from a <see cref="Rectangle"/>.
+        /// </summary>
+        /// <param name="rectangle"></param>
+        public Viewport(in Rectangle rectangle)
+        {
+            X = rectangle.X;
+            Y = rectangle.Y;
+            Width = (uint)rectangle.Width;
+            Height = (uint)rectangle.Height;
+        }
+
         public static bool operator ==(Viewport left, Viewport right) => left.Equals(right);
         public static bool operator !=(Viewport left, Viewport right) => !left.Equals(right);
+
+        public static explicit operator Rectangle(Viewport viewport) => new Rectangle(viewport.X, viewport.Y, (int)viewport.Width, (int)viewport.Height);
+        public static explicit operator Viewport(Rectangle rectangle) => new Viewport(rectangle);
 
         /// <summary>
         /// Returns whether another <see cref="Viewport"/> is enclosed fully inside this <see cref="Viewport"/>.
         /// </summary>
-        public bool Contains(Viewport other)
+        public bool Contains(in Viewport other)
         {
             return X <= other.X && Y <= other.Y && Right >= other.Right && Bottom >= other.Bottom;
         }
@@ -62,7 +78,7 @@ namespace TrippyGL
         /// <summary>
         /// Returns whether another <see cref="Viewport"/> intersects at least one pixel with this <see cref="Viewport"/>.
         /// </summary>
-        public bool Intersects(Viewport other)
+        public bool Intersects(in Viewport other)
         {
             return other.X < X + Width && X < (other.X + other.Width)
                 && other.Y < Y + Height && Y < other.Y + other.Height;
@@ -71,7 +87,7 @@ namespace TrippyGL
         /// <summary>
         /// Returns a <see cref="Viewport"/> whose area is the intersection between this and another <see cref="Viewport"/>.
         /// </summary>
-        public Viewport Intersection(Viewport other)
+        public Viewport Intersection(in Viewport other)
         {
             int x1 = Math.Max(X, other.X);
             int x2 = Math.Min(Right, other.Right);

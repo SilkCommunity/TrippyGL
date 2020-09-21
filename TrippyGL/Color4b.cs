@@ -86,6 +86,19 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Constructs a <see cref="Color4b"/> from the specified float values in
+        /// a <see cref="Vector3"/> represented in a normalized range (from 0.0 to 1.0)
+        /// and full alpha.
+        /// </summary>
+        public Color4b(Vector3 rgb)
+        {
+            R = (byte)(rgb.X * 255 + 0.5f);
+            G = (byte)(rgb.Y * 255 + 0.5f);
+            B = (byte)(rgb.Z * 255 + 0.5f);
+            A = 255;
+        }
+
+        /// <summary>
         /// Constructs a <see cref="Color4b"/> from a packed value.
         /// </summary>
         public Color4b(uint packedValue)
@@ -179,7 +192,8 @@ namespace TrippyGL
         /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
         public static Color4b Random(Random random)
         {
-            uint val = unchecked((uint)random.Next());
+            // A single random value isn't enough, it's only 31 bits... So we use two.
+            uint val = (uint)random.Next() | ((uint)random.Next() << 31);
             return new Color4b(val);
         }
 
@@ -189,8 +203,8 @@ namespace TrippyGL
         /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
         public static Color4b RandomFullAlpha(Random random)
         {
-            Color4b color = Random(random);
-            color.A = 255; // yeah.
+            uint val = (uint)random.Next();
+            Color4b color = new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255));
             return color;
         }
 
