@@ -136,8 +136,8 @@ namespace TrippyGL
         public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
         public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
 
-        public static explicit operator Vector4(Color4b color) => color.ToVector4();
-        public static explicit operator Color4b(Vector4 vector) => new Color4b(vector);
+        public static implicit operator Vector4(Color4b color) => color.ToVector4();
+        public static implicit operator Color4b(Vector4 vector) => new Color4b(vector);
 
         /// <summary>
         /// Multiplies the RGB components of a <see cref="Color4b"/> by a scale, rounding to the nearest value.
@@ -185,6 +185,75 @@ namespace TrippyGL
                 B == other.B &&
                 A == other.A;
         }
+
+        /// <summary>
+        /// Creates a <see cref="Color4b"/> with RGB values calculated from the given HSV values.
+        /// </summary>
+        public static Color4b FromHSV(float hue, float saturation, float value)
+        {
+            // Based on https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+
+            float c = value * saturation;
+            float x = c * (1 - Math.Abs((hue * 6) % 2 - 1));
+            float m = value - c;
+
+            float r, g, b;
+            if (hue < 0.0f)
+            {
+                r = 0;
+                g = 0;
+                b = 0;
+            }
+            else if (hue < 60.0f / 360.0f)
+            {
+                r = c;
+                g = x;
+                b = 0;
+            }
+            else if (hue < 120.0f / 360.0f)
+            {
+                r = x;
+                g = c;
+                b = 0;
+            }
+            else if (hue < 180.0f / 360.0f)
+            {
+                r = 0;
+                g = c;
+                b = x;
+            }
+            else if (hue < 240.0f / 360.0f)
+            {
+                r = 0;
+                g = x;
+                b = c;
+            }
+            else if (hue < 300.0f / 360.0f)
+            {
+                r = x;
+                g = 0;
+                b = c;
+            }
+            else if (hue < 360)
+            {
+                r = c;
+                g = 0;
+                b = x;
+            }
+            else
+            {
+                r = 0;
+                g = 0;
+                b = 0;
+            }
+
+            return new Color4b(r + m, g + m, b + m);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Color4b"/> with RGB values calculated from the given HSV values.
+        /// </summary>
+        public static Color4b FromHSV(in Vector3 values) => FromHSV(values.X, values.Y, values.Z);
 
         /// <summary>
         /// Constructs a completely randomized <see cref="Color4b"/>.
