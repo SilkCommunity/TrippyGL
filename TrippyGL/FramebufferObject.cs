@@ -35,16 +35,14 @@ namespace TrippyGL
         /// Creates a <see cref="FramebufferObject"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
-        /// <param name="initialTextureAttachments">An estimate of how many texture attachments will be used.</param>
-        /// <param name="initialRenderbufferAttachments">An estimate of how many renderbuffer attachments will be used.</param>
-        public FramebufferObject(GraphicsDevice graphicsDevice, int initialTextureAttachments = 0, int initialRenderbufferAttachments = 0)
+        public FramebufferObject(GraphicsDevice graphicsDevice)
             : base(graphicsDevice)
         {
             Samples = 0;
             Width = 0;
             Height = 0;
-            textureAttachments = new List<FramebufferTextureAttachment>(initialTextureAttachments);
-            renderbufferAttachments = new List<FramebufferRenderbufferAttachment>(initialRenderbufferAttachments);
+            textureAttachments = new List<FramebufferTextureAttachment>();
+            renderbufferAttachments = new List<FramebufferRenderbufferAttachment>();
             Handle = GL.GenFramebuffer();
         }
 

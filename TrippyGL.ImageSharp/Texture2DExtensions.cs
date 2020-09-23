@@ -52,7 +52,8 @@ namespace TrippyGL.ImageSharp
         /// </summary>
         /// <param name="texture">The <see cref="Texture2D"/> to get the image from.</param>
         /// <param name="image">The image in which to write the pixel data.</param>
-        public static void GetData(this Texture2D texture, Image<Rgba32> image)
+        /// <param name="flip">Whether to flip the image after the pixels are read.</param>
+        public static void GetData(this Texture2D texture, Image<Rgba32> image, bool flip = false)
         {
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture));
@@ -69,7 +70,9 @@ namespace TrippyGL.ImageSharp
             if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
                 throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
             texture.GetData(pixels, PixelFormat.Rgba);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
+
+            if (flip)
+                image.Mutate(x => x.Flip(FlipMode.Vertical));
         }
 
         /// <summary>
@@ -112,7 +115,6 @@ namespace TrippyGL.ImageSharp
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the resource will use.</param>
         /// <param name="stream">The stream from which to load an image.</param>
         /// <param name="generateMipmaps">Whether to generate mipmaps for the <see cref="Texture2D"/>.</param>
-        /// <returns></returns>
         public static Texture2D FromStream(GraphicsDevice graphicsDevice, Stream stream, bool generateMipmaps = false)
         {
             using Image<Rgba32> image = Image.Load<Rgba32>(stream);
@@ -137,7 +139,8 @@ namespace TrippyGL.ImageSharp
         /// <param name="texture">The <see cref="Texture2D"/> whose image to save.</param>
         /// <param name="stream">The stream to save the texture image to.</param>
         /// <param name="imageFormat">The format the image will be saved as.</param>
-        public static void SaveAsImage(this Texture2D texture, Stream stream, SaveImageFormat imageFormat)
+        /// <param name="flip">Whether to flip the image after the pixels are read.</param>
+        public static void SaveAsImage(this Texture2D texture, Stream stream, SaveImageFormat imageFormat, bool flip = false)
         {
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture));
@@ -150,7 +153,7 @@ namespace TrippyGL.ImageSharp
 
             IImageFormat format = ImageUtils.GetFormatFor(imageFormat);
             using Image<Rgba32> image = new Image<Rgba32>((int)texture.Width, (int)texture.Height);
-            texture.GetData(image);
+            texture.GetData(image, flip);
             image.Save(stream, format);
         }
 
@@ -161,10 +164,11 @@ namespace TrippyGL.ImageSharp
         /// <param name="texture">The <see cref="Texture2D"/> whose image to save.</param>
         /// <param name="file">The name of the file where the image will be saved.</param>
         /// <param name="imageFormat">The format the image will be saved as.</param>
-        public static void SaveAsImage(this Texture2D texture, string file, SaveImageFormat imageFormat)
+        /// <param name="flip">Whether to flip the image after the pixels are read.</param>
+        public static void SaveAsImage(this Texture2D texture, string file, SaveImageFormat imageFormat, bool flip = false)
         {
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
-            SaveAsImage(texture, fileStream, imageFormat);
+            SaveAsImage(texture, fileStream, imageFormat, flip);
         }
     }
 }
