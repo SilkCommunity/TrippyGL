@@ -11,6 +11,10 @@ For windowing and input, the [Silk.NET.Windowing](https://www.nuget.org/packages
 
 Currently in development, but nearing a first release!
 
+## Need Help?
+Feel free to come ask questions over at the [TrippyGL Discord server](https://discord.gg/3j5Q4zN)!
+
+## Gallery
 ![](img_terrain.png)
 
 ![](img_lighting.png)
