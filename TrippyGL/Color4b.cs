@@ -194,7 +194,7 @@ namespace TrippyGL
             // Based on https://www.rapidtables.com/convert/color/hsv-to-rgb.html
 
             float c = value * saturation;
-            float x = c * (1 - Math.Abs((hue * 6) % 2 - 1));
+            float x = c * (1 - Math.Abs(hue * 6 % 2 - 1));
             float m = value - c;
 
             float r, g, b;
@@ -234,7 +234,7 @@ namespace TrippyGL
                 g = 0;
                 b = c;
             }
-            else if (hue < 360)
+            else if (hue <= 1f)
             {
                 r = c;
                 g = 0;
@@ -261,9 +261,10 @@ namespace TrippyGL
         /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
         public static Color4b Random(Random random)
         {
-            // A single random value isn't enough, it's only 31 bits... So we use two.
-            uint val = (uint)random.Next() | ((uint)random.Next() << 31);
-            return new Color4b(val);
+            // A single random value isn't enough, it's only 31 bits...
+            // So we use one for RGB and an extra one for alpha.
+            uint val = (uint)random.Next();
+            return new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255), (byte)(random.Next() & 255));
         }
 
         /// <summary>
