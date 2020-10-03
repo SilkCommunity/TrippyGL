@@ -46,7 +46,7 @@ namespace TrippyGL
             GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
 
             if (!IsGLVersionAtLeast(3, 0))
-                throw new PlatformNotSupportedException("TrippyGL only supports OpenGL 3.0 and up!");
+                throw new PlatformNotSupportedException("TrippyGL only supports OpenGL 3.0 and up.");
 
             InitIsAvailableVariables();
 

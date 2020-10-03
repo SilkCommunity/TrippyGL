@@ -26,15 +26,15 @@ namespace TrippyGL
         /// <summary>The near depth value for the depth's range. Must be in the [0, 1] range.</summary>
         public double DepthRangeNear
         {
-            get { return depthNear; }
-            set { depthNear = Math.Clamp(value, 0, 1); }
+            get => depthNear;
+            set => depthNear = Math.Clamp(value, 0, 1);
         }
 
         /// <summary>The far depth value for the depth's range. Must be in the [0, 1] range.</summary>
         public double DepthRangeFar
         {
-            get { return depthFar; }
-            set { depthFar = Math.Clamp(value, 0, 1); }
+            get => depthFar;
+            set => depthFar = Math.Clamp(value, 0, 1);
         }
 
         /// <summary>Whether the depth buffer will be written to when a depth check succeeds.</summary>

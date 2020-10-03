@@ -41,12 +41,9 @@ namespace TrippyGL
             set
             {
                 R = (byte)(value & 255);
-                value >>= 8;
-                G = (byte)(value & 255);
-                value >>= 8;
-                B = (byte)(value & 255);
-                value >>= 8;
-                A = (byte)(value & 255);
+                G = (byte)((value >> 8) & 255);
+                B = (byte)((value >> 16) & 255);
+                A = (byte)((value >> 24) & 255);
             }
         }
 
@@ -104,12 +101,9 @@ namespace TrippyGL
         public Color4b(uint packedValue)
         {
             R = (byte)(packedValue & 255);
-            packedValue >>= 8;
-            G = (byte)(packedValue & 255);
-            packedValue >>= 8;
-            B = (byte)(packedValue & 255);
-            packedValue >>= 8;
-            A = (byte)(packedValue & 255);
+            G = (byte)((packedValue >> 8) & 255);
+            B = (byte)((packedValue >> 16) & 255);
+            A = (byte)((packedValue >> 24) & 255);
         }
 
         /// <summary>

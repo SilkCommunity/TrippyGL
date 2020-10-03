@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
@@ -676,6 +677,42 @@ namespace TrippyGL
                         texCoordsReference.SetTarget(texCoords);
                 }
             }
+        }
+
+        /// <summary>
+        /// Calculates the bounds that contain a list of vertices.
+        /// </summary>
+        /// <typeparam name="T">The type of vertex. The first 12 bytes of this struct should be the X, Y and Z floats.</typeparam>
+        /// <param name="vertices">The vertices of which to calculate the bounds.</param>
+        /// <param name="min">The minimum coordinates found in the vertices.</param>
+        /// <param name="max">The maximum coordinates found in the vertices.</param>
+        /// <returns>The size of the model, equal to max-min.</returns>
+        /// <remarks>
+        /// This function will not work properly if the (X, Y, Z) floats aren't in the first 12 bytes of the vertices.
+        /// </remarks>
+        public static Vector3 MeasureModel<T>(ReadOnlySpan<T> vertices, out Vector3 min, out Vector3 max) where T : unmanaged
+        {
+            if (Marshal.SizeOf<T>() < 12)
+                throw new InvalidOperationException("Can't measure model: vertex size is less than 12 bytes.");
+
+            min = default;
+            max = default;
+
+            // To make this work with any type of vertex, we use pointers to extract the position.
+            T tmp;
+            Vector3 tmpPosition;
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                tmp = vertices[i];
+                unsafe
+                {
+                    tmpPosition = *((Vector3*)&tmp);
+                }
+                min = Vector3.Min(min, tmpPosition);
+                max = Vector3.Max(max, tmpPosition);
+            }
+
+            return max - min;
         }
     }
 
