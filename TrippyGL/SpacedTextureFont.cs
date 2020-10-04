@@ -4,12 +4,19 @@ using System.Numerics;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A <see cref="TextureFont"/> where characters can have different advance values but no kerning.
+    /// </summary>
     public class SpacedTextureFont : TextureFont
     {
         private readonly float[] advances;
 
+        /// <summary>The advance values for the characters in this font.</summary>
         public ReadOnlySpan<float> Advances => new ReadOnlySpan<float>(advances);
 
+        /// <summary>
+        /// Creates a <see cref="SpacedTextureFont"/>.
+        /// </summary>
         public SpacedTextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
                Rectangle[] sources, float[] advances, float ascender, float descender, float lineGap, string name)
                : base(texture, size, firstChar, lastChar, renderOffsets, sources, ascender, descender, lineGap, name)

@@ -6,14 +6,21 @@ using System.Numerics;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A <see cref="TextureFont"/> where characters can have different advance values and kerning.
+    /// </summary>
     public class KerningTextureFont : TextureFont
     {
         private readonly float[] advances;
 
         private readonly Vector2[,] kerningOffsets;
 
+        /// <summary>The advance values for the characters in this font.</summary>
         public ReadOnlySpan<float> Advances => new ReadOnlySpan<float>(advances);
 
+        /// <summary>
+        /// Creates a <see cref="KerningTextureFont"/>.
+        /// </summary>
         public KerningTextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
                Rectangle[] sources, Vector2[,] kerningOffsets, float[] advances, float ascender,
                float descender, float lineGap, string name)

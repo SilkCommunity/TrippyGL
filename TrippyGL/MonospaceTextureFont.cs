@@ -4,10 +4,17 @@ using System.Numerics;
 
 namespace TrippyGL
 {
+    /// <summary>
+    /// A <see cref="TextureFont"/> where all the characters have the same advance value.
+    /// </summary>
     public class MonospaceTextureFont : TextureFont
     {
+        /// <summary>The advance value for any character in this font.</summary>
         public readonly float Advance;
 
+        /// <summary>
+        /// Creates a <see cref="MonospaceTextureFont"/>.
+        /// </summary>
         public MonospaceTextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
             Rectangle[] sources, float advance, float ascender, float descender, float lineGap, string name)
             : base(texture, size, firstChar, lastChar, renderOffsets, sources, ascender, descender, lineGap, name)
