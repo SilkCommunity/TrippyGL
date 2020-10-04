@@ -263,14 +263,7 @@ namespace TrippyGL
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture));
 
-            // If BeginMode is OnTheFly, before doing anything we check whether we should flush.
-            if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
-            {
-                // We should flush if the texture that's being added isn't the same as the texture
-                // on the items already in batchItems.
-                if (batchItems[0].Texture != texture)
-                    Flush(true);
-            }
+            FlushIfNeeded(texture);
 
             // We get the next batch item in the array and set it's values.
             TextureBatchItem item = GetNextBatchItem();
@@ -334,14 +327,7 @@ namespace TrippyGL
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture));
 
-            // If BeginMode is OnTheFly, before doing anything we check whether we should flush.
-            if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
-            {
-                // We should flush if the texture that's being added isn't the same as the texture
-                // on the items already in batchItems.
-                if (batchItems[0].Texture != texture)
-                    Flush(true);
-            }
+            FlushIfNeeded(texture);
 
             // We get the next batch item in the array and set it's values.
             TextureBatchItem item = GetNextBatchItem();
@@ -415,6 +401,61 @@ namespace TrippyGL
         public void Draw(Texture2D texture, Vector2 position, Color4b color)
         {
             Draw(texture, position, null, color, new Vector2(1, 1));
+        }
+
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color)
+        {
+            if (text.IsEmpty)
+                return;
+
+            FlushIfNeeded(font.Texture);
+
+            float y = position.Y + font.LineGap;
+            float x = position.X;
+
+            bool isFirstInLine = true;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (text[i] == '\n')
+                {
+                    x = position.X;
+                    y += font.LineAdvance;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 koff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    koff = font.GetKerning(c, text[i - 1]);
+                    x += koff.X;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c), source, color, new Vector2(1, 1), default, 0f);
+                }
+
+                x += font.GetAdvance(c);
+            }
+        }
+
+        private void FlushIfNeeded(Texture2D nextTexture)
+        {
+            // If BeginMode is OnTheFly, before doing anything we check whether we should flush.
+            if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
+            {
+                // We should flush if the texture that's being added isn't the same as the texture
+                // on the items already in batchItems.
+                if (batchItems[0].Texture != nextTexture)
+                    Flush(true);
+            }
         }
 
         /// <summary>

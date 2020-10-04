@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using TrippyGL.ImageSharp;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+#pragma warning disable CA2000 // Dispose objects before losing scope
 
 namespace TrippyGL.ImageSharp
 {
@@ -46,15 +49,55 @@ namespace TrippyGL.ImageSharp
                         fontData.KerningOffsets[i, c] = textureFont.GetKerning((char)(i + fontData.FirstChar), (char)(c + fontData.FirstChar));
             }
 
-            fontData.TextureImage = new Image<Rgba32>((int)textureFont.Texture.Width, (int)textureFont.Texture.Height);
-            textureFont.Texture.GetData(fontData.TextureImage);
-
             return fontData;
         }
 
-        public static void SaveToFile(this TextureFont textureFont, string file)
+        public static TextureFont[] CreateFonts(GraphicsDevice graphicsDevice, TextureFontData[] fontDatas, Image<Rgba32> image, bool generateMipmaps = false)
         {
-            CreateFontData(textureFont).SaveToFile(file);
+            Texture2D texture = Texture2DExtensions.FromImage(graphicsDevice, image, generateMipmaps);
+
+            try
+            {
+                TextureFont[] fonts = new TextureFont[fontDatas.Length];
+
+                for (int i = 0; i < fonts.Length; i++)
+                    fonts[i] = fontDatas[i].CreateFont(texture);
+                return fonts;
+            }
+            catch
+            {
+                texture.Dispose();
+                throw;
+            }
+        }
+
+        public static TextureFont[] FromFileMultiple(GraphicsDevice graphicsDevice, string file, bool generateMipmaps = false)
+        {
+            using FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return FromStreamMultiple(graphicsDevice, new BinaryReader(fileStream), generateMipmaps);
+        }
+
+        public static TextureFont[] FromStreamMultiple(GraphicsDevice graphicsDevice, Stream stream, bool generateMipmaps = false)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream));
+
+            return FromStreamMultiple(graphicsDevice, new BinaryReader(stream), generateMipmaps);
+        }
+
+        public static TextureFont[] FromStreamMultiple(GraphicsDevice graphicsDevice, BinaryReader streamReader, bool generateMipmaps = false)
+        {
+            if (graphicsDevice == null)
+                throw new ArgumentNullException(nameof(graphicsDevice));
+
+            if (streamReader == null)
+                throw new ArgumentNullException(nameof(streamReader));
+
+            TextureFontData[] fontDatas = TextureFontData.FromStream(streamReader, out Image<Rgba32> image);
+            using (image)
+            {
+                return CreateFonts(graphicsDevice, fontDatas, image, generateMipmaps);
+            }
         }
     }
 }

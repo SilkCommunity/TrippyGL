@@ -93,5 +93,15 @@ namespace TrippyGL
 
             return new Vector2(lineWidth, LineAdvance - LineGap);
         }
+
+        /// <summary>
+        /// Creates a <see cref="SpacedTextureFont"/> that contains the exact same information
+        /// as this <see cref="KerningTextureFont"/>, except for the kerning.
+        /// </summary>
+        public SpacedTextureFont ToKerningless()
+        {
+            return new SpacedTextureFont(Texture, Size, FirstChar, LastChar, renderOffsets, sources, advances,
+                Ascender, Descender, LineGap, Name);
+        }
     }
 }

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrippyGL.FontBuilding\TrippyGL.FontBuilding.csproj" />
     <ProjectReference Include="..\TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj" />
     <ProjectReference Include="..\TrippyGL\TrippyGL.csproj" />
   </ItemGroup>

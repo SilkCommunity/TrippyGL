@@ -8,13 +8,12 @@ using TrippyGL.ImageSharp;
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
-namespace TrippyGL
+namespace TrippyGL.ImageSharp
 {
     public sealed class TextureFontData
     {
         public const ushort MaxFontNameLength = 128;
 
-        public Image<Rgba32> TextureImage;
         public float Size;
 
         public char FirstChar;
@@ -36,57 +35,41 @@ namespace TrippyGL
 
         public System.Drawing.Rectangle[] SourceRectangles;
 
-        public TextureFont CreateFont(GraphicsDevice graphicsDevice, bool generateMipmaps = false)
+        public TextureFont CreateFont(Texture2D texture)
         {
-            Texture2D texture = Texture2DExtensions.FromImage(graphicsDevice, TextureImage, generateMipmaps);
-
-            try
+            if (KerningOffsets != null)
             {
-                if (KerningOffsets != null)
+                if (Advances.Length == 1 && Advances.Length != CharCount)
                 {
-                    if (Advances.Length == 1 && Advances.Length != CharCount)
-                    {
-                        float adv = Advances[0];
-                        Advances = new float[CharCount];
-                        for (int i = 0; i < Advances.Length; i++)
-                            Advances[i] = adv;
-                    }
-
-                    return new KerningTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                        SourceRectangles, KerningOffsets, Advances, Ascender, Descender, LineGap, Name);
+                    float adv = Advances[0];
+                    Advances = new float[CharCount];
+                    for (int i = 0; i < Advances.Length; i++)
+                        Advances[i] = adv;
                 }
 
-                if (Advances.Length == 1)
-                {
-                    return new MonospaceTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                        SourceRectangles, Advances[0], Ascender, Descender, LineGap, Name);
-                }
-
-                return new SpacedTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                    SourceRectangles, Advances, Ascender, Descender, LineGap, Name);
+                return new KerningTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
+                    SourceRectangles, KerningOffsets, Advances, Ascender, Descender, LineGap, Name);
             }
-            catch
+
+            if (Advances.Length == 1)
             {
-                texture.Dispose();
-                throw;
+                return new MonospaceTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
+                    SourceRectangles, Advances[0], Ascender, Descender, LineGap, Name);
             }
+
+            return new SpacedTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
+                SourceRectangles, Advances, Ascender, Descender, LineGap, Name);
         }
 
-        public void SaveToFile(string file)
-        {
-            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write);
-            SaveToStream(new BinaryWriter(fileStream));
-        }
-
-        public void SaveToStream(Stream stream)
+        public void WriteToStream(Stream stream)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
 
-            SaveToStream(new BinaryWriter(stream));
+            WriteToStream(new BinaryWriter(stream));
         }
 
-        public void SaveToStream(BinaryWriter streamWriter)
+        public void WriteToStream(BinaryWriter streamWriter)
         {
             if (streamWriter == null)
                 throw new ArgumentNullException(nameof(streamWriter));
@@ -125,12 +108,7 @@ namespace TrippyGL
             if (KerningOffsets != null && (KerningOffsets.GetLength(0) != charCount || KerningOffsets.GetLength(1) != charCount))
                 throw new ArgumentException("The length on both dimentions of the " + nameof(KerningOffsets) + " array must be equal to " + nameof(CharCount));
 
-            if (TextureImage == null)
-                throw new ArgumentNullException(nameof(TextureImage));
-
             FontTypeByte typeByte = KerningOffsets == null ? (Advances.Length == 1 ? FontTypeByte.Monospace : FontTypeByte.Spaced) : FontTypeByte.SpacedWithKerning;
-
-            WritePreamble(streamWriter.BaseStream);
 
             streamWriter.Write(0);
             streamWriter.Write(0);
@@ -193,21 +171,12 @@ namespace TrippyGL
                 streamWriter.Write(RenderOffsets[i].X);
                 streamWriter.Write(RenderOffsets[i].Y);
             }
-
-            streamWriter.Write('p');
-            streamWriter.Write('n');
-            streamWriter.Write('g');
-
-            TextureImage.SaveAsPng(streamWriter.BaseStream);
         }
 
         public static TextureFontData FromStream(BinaryReader streamReader)
         {
             if (streamReader == null)
                 throw new ArgumentNullException(nameof(streamReader));
-
-            if (!ReadPreamble(streamReader.BaseStream))
-                throw new FontLoadingException("Wrong preamble.");
 
             streamReader.ReadInt32();
             streamReader.ReadInt32();
@@ -297,12 +266,6 @@ namespace TrippyGL
                 renderOffsets[i] = new Vector2(x, y);
             }
 
-            char pChar = streamReader.ReadChar();
-            char nChar = streamReader.ReadChar();
-            char gChar = streamReader.ReadChar();
-
-            Image<Rgba32> image = Image.Load<Rgba32>(streamReader.BaseStream, out SixLabors.ImageSharp.Formats.IImageFormat format);
-
             return new TextureFontData()
             {
                 Size = size,
@@ -316,7 +279,6 @@ namespace TrippyGL
                 KerningOffsets = kerningOffsets,
                 SourceRectangles = sources,
                 RenderOffsets = renderOffsets,
-                TextureImage = image
             };
         }
 
@@ -342,6 +304,77 @@ namespace TrippyGL
                 && stream.ReadByte() == 69
                 && stream.ReadByte() == 33
                 && stream.ReadByte() == 222;
+        }
+
+        public static TextureFontData[] FromFile(string file, out Image<Rgba32> image)
+        {
+            using FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return FromStream(new BinaryReader(fileStream), out image);
+        }
+
+        public static TextureFontData[] FromStream(Stream stream, out Image<Rgba32> image)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream));
+
+            return FromStream(new BinaryReader(stream), out image);
+        }
+
+        public static TextureFontData[] FromStream(BinaryReader streamReader, out Image<Rgba32> image)
+        {
+            if (streamReader == null)
+                throw new ArgumentNullException(nameof(streamReader));
+
+            if (!ReadPreamble(streamReader.BaseStream))
+                throw new FontLoadingException("Wrong preamble. Ensure you're loading the correct data.");
+
+            streamReader.ReadInt32();
+            streamReader.ReadInt32();
+            streamReader.ReadInt32();
+            streamReader.ReadInt32();
+
+            ushort fontCount = streamReader.ReadUInt16();
+
+            TextureFontData[] fontDatas = new TextureFontData[fontCount];
+            for (int i = 0; i < fontDatas.Length; i++)
+                fontDatas[i] = FromStream(streamReader);
+
+            char pChar = streamReader.ReadChar();
+            char nChar = streamReader.ReadChar();
+            char gChar = streamReader.ReadChar();
+
+            image = Image.Load<Rgba32>(streamReader.BaseStream, out SixLabors.ImageSharp.Formats.IImageFormat format);
+            return fontDatas;
+        }
+
+        public static void WriteToStream(BinaryWriter streamWriter, TextureFontData[] fontDatas, Image<Rgba32> image)
+        {
+            if (streamWriter == null)
+                throw new ArgumentNullException(nameof(streamWriter));
+
+            if (fontDatas == null || fontDatas.Length == 0)
+                throw new ArgumentNullException(nameof(fontDatas));
+
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            WritePreamble(streamWriter.BaseStream);
+
+            streamWriter.Write(0);
+            streamWriter.Write(0);
+            streamWriter.Write(0);
+            streamWriter.Write(0);
+
+            streamWriter.Write((ushort)fontDatas.Length);
+
+            for (int i = 0; i < fontDatas.Length; i++)
+                fontDatas[i].WriteToStream(streamWriter);
+
+            streamWriter.Write('p');
+            streamWriter.Write('n');
+            streamWriter.Write('g');
+
+            image.SaveAsPng(streamWriter.BaseStream);
         }
 
         internal enum FontTypeByte : byte

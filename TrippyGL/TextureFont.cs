@@ -48,10 +48,10 @@ namespace TrippyGL
         public readonly float LineGap;
 
         /// <summary>Offsets that should be directly applied to the characters when drawing them.</summary>
-        private readonly Vector2[] renderOffsets;
+        protected readonly Vector2[] renderOffsets;
 
         /// <summary>The areas in <see cref="Texture"/> where each character is located.</summary>
-        private readonly Rectangle[] sources;
+        protected readonly Rectangle[] sources;
 
         /// <summary>
         /// Creates a <see cref="TextureFont"/>.
