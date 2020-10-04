@@ -9,8 +9,8 @@ namespace TrippyGL
         public readonly float Advance;
 
         public MonospaceTextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
-            Rectangle[] sources, float advance, float lineAdvance, float ascender, float descender, float lineGap)
-            : base(texture, size, firstChar, lastChar, renderOffsets, sources, lineAdvance, ascender, descender, lineGap)
+            Rectangle[] sources, float advance, float ascender, float descender, float lineGap, string name)
+            : base(texture, size, firstChar, lastChar, renderOffsets, sources, ascender, descender, lineGap, name)
         {
             Advance = advance;
         }

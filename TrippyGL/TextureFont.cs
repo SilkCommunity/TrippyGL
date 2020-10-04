@@ -15,6 +15,8 @@ namespace TrippyGL
 
         public readonly float Size;
 
+        public readonly string Name;
+
         public readonly char FirstChar;
         public readonly char LastChar;
         public readonly int CharCount;
@@ -30,7 +32,7 @@ namespace TrippyGL
         private readonly Rectangle[] sources;
 
         public TextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
-            Rectangle[] sources, float lineAdvance, float ascender, float descender, float lineGap)
+            Rectangle[] sources, float ascender, float descender, float lineGap, string name)
         {
             if (lastChar < firstChar)
                 throw new ArgumentException(nameof(firstChar) + " must be lower or equal than " + nameof(lastChar) + ".");
@@ -50,8 +52,9 @@ namespace TrippyGL
             FirstChar = firstChar;
             LastChar = lastChar;
             Size = size;
+            Name = name;
 
-            LineAdvance = lineAdvance;
+            LineAdvance = ascender - descender + lineGap;
             Ascender = ascender;
             Descender = descender;
             LineGap = lineGap;
