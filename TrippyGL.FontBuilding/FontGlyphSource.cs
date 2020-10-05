@@ -20,7 +20,7 @@ namespace TrippyGL.FontBuilding
         private readonly IPathCollection[] glyphPaths;
         private readonly Color?[][] pathColors;
 
-        private ShapeGraphicsOptions shapeGraphicsOptions;
+        private readonly ShapeGraphicsOptions shapeGraphicsOptions;
 
         private readonly System.Drawing.Point[] glyphSizes;
 
@@ -44,16 +44,14 @@ namespace TrippyGL.FontBuilding
 
         public FontGlyphSource(IFontInstance fontInstance, float size, string name, char firstChar = ' ', char lastChar = '~')
         {
-            if (fontInstance == null)
-                throw new ArgumentNullException(nameof(fontInstance));
-
             if (!float.IsFinite(size) || float.IsNegative(size))
                 throw new ArgumentOutOfRangeException(nameof(size), size, "Size must be finite and positive.");
 
             if (lastChar < firstChar)
                 throw new ArgumentException("LastChar can't be lower than FirstChar");
 
-            FontInstance = fontInstance;
+            FontInstance = fontInstance ?? throw new ArgumentNullException(nameof(fontInstance));
+
             FirstChar = firstChar;
             LastChar = lastChar;
             Size = size;

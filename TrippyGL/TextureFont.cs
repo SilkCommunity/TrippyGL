@@ -53,6 +53,9 @@ namespace TrippyGL
         /// <summary>The areas in <see cref="Texture"/> where each character is located.</summary>
         protected readonly Rectangle[] sources;
 
+        /// <summary>Whether the graphics resources used by this <see cref="TextureFont"/> have been disposed.</summary>
+        public bool IsDisposed => Texture.IsDisposed;
+
         /// <summary>
         /// Creates a <see cref="TextureFont"/>.
         /// </summary>

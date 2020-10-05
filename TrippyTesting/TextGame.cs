@@ -8,7 +8,8 @@ using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyGL.FontBuilding;
 using SixLabors.Fonts;
-using SixLabors.ImageSharp.PixelFormats;
+using Silk.NET.Input;
+using Silk.NET.Input.Common;
 
 namespace TrippyTesting
 {
@@ -18,14 +19,16 @@ namespace TrippyTesting
 
         readonly Random r = new Random();
         readonly IWindow window;
+        IInputContext inputContext;
 
         GraphicsDevice graphicsDevice;
 
         SimpleShaderProgram program;
         TextureBatcher batcher;
 
+        string str = "Text!";
         Texture2D whitepx;
-        Texture2D jeru;
+        TextureFont[] fonts;
         TextureFont font;
 
         public TextGame()
@@ -39,6 +42,26 @@ namespace TrippyTesting
             window.Closing += OnWindowClosing;
         }
 
+        private void TextGame_KeyChar(IKeyboard sender, char c)
+        {
+            if (c == '\b' && str.Length != 0)
+            {
+                str = str.Substring(0, str.Length - 1);
+            }
+            else if (c == '\n' || font.HasCharacter(c))
+            {
+                str += c;
+            }
+        }
+
+        private void TextGame_KeyDown(IKeyboard sender, Key key, int i_dont_know_what_the_fuck_this_int_is_for)
+        {
+            if (key == Key.Backspace)
+                TextGame_KeyChar(sender, '\b');
+            else if (key == Key.Enter)
+                TextGame_KeyChar(sender, '\n');
+        }
+
         private IWindow CreateWindow()
         {
             GraphicsAPI graphicsApi = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(4, 0));
@@ -49,6 +72,10 @@ namespace TrippyTesting
 
         public void OnWindowLoad()
         {
+            inputContext = window.CreateInput();
+            inputContext.Keyboards[0].KeyChar += TextGame_KeyChar;
+            inputContext.Keyboards[0].KeyDown += TextGame_KeyDown;
+
             graphicsDevice = new GraphicsDevice(GL.GetApi(window));
             graphicsDevice.DebugMessagingEnabled = true;
             graphicsDevice.DebugMessage += Program.OnDebugMessage;
@@ -59,13 +86,25 @@ namespace TrippyTesting
 
             whitepx = new Texture2D(graphicsDevice, 1, 1);
             whitepx.SetData<Color4b>(new Color4b[] { Color4b.White });
-            jeru = Texture2DExtensions.FromFile(graphicsDevice, "data4/jeru.png");
 
-            Font fontFile = SystemFonts.CreateFont("Arial", 48f, FontStyle.Regular);
-            TextureFontData fontData = FontBuilder.CreateFontData(new FontGlyphSource(fontFile), out SixLabors.ImageSharp.Image<Rgba32> image, SixLabors.ImageSharp.Color.Transparent);
-            Texture2D fontTexture = Texture2DExtensions.FromImage(graphicsDevice, image);
-            font = fontData.CreateFont(fontTexture);
-            fontTexture.SaveAsImage("fontitus.png", SaveImageFormat.Png);
+            string someFileName = "font.tglf";
+            FontFamily family = SystemFonts.Find("Arial");
+            //Font fontFile = SystemFonts.CreateFont("Arial", 72f, FontStyle.Regular);
+            //TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(fontFile);
+
+            TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(
+                new Font[] { family.CreateFont(72f, FontStyle.Regular), family.CreateFont(64f, FontStyle.Italic),
+                             family.CreateFont(56f, FontStyle.Bold), family.CreateFont(48f, FontStyle.BoldItalic)});
+
+            trippyFontFile.WriteToFile(someFileName);
+
+            trippyFontFile = null;
+            GC.Collect(GC.MaxGeneration);
+
+            trippyFontFile = TrippyFontFile.FromFile(someFileName);
+            fonts = trippyFontFile.CreateFonts(graphicsDevice);
+            font = fonts[0];
+            font.Texture.SaveAsImage("pitaiken.png", SaveImageFormat.Png);
 
             stopwatch = Stopwatch.StartNew();
 
@@ -91,6 +130,9 @@ namespace TrippyTesting
             if (window.IsClosing)
                 return;
 
+            font = fonts[(stopwatch.ElapsedMilliseconds / 500) % fonts.Length];
+            font = fonts[0];
+
             graphicsDevice.BlendingEnabled = true;
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthTestingEnabled = false;
@@ -98,11 +140,16 @@ namespace TrippyTesting
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             batcher.Begin(BatcherBeginMode.OnTheFly);
+            Vector2 measured = font.Measure(str);
             Vector2 position = new Vector2(50, 100);
-            batcher.Draw(jeru, position, Color4b.White);
 
-            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(1, font.Size));
-            batcher.DrawString(font, "ola ole AVAVA", position, Color4b.White);
+            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(measured.X, 1));
+            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(1, measured.Y));
+            batcher.Draw(whitepx, position + new Vector2(0, measured.Y), null, Color4b.Red, new Vector2(measured.X, 1));
+            batcher.Draw(whitepx, position + new Vector2(measured.X, 0), null, Color4b.Red, new Vector2(1, measured.Y));
+
+
+            batcher.DrawString(font, str, position, Color4b.White);
             batcher.End();
 
             window.SwapBuffers();

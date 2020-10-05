@@ -37,34 +37,31 @@ namespace TrippyGL
             if (text.IsEmpty)
                 return default;
 
-            Vector2 size = new Vector2(0, LineAdvance - LineGap);
-
-            float lineWidth;
+            int lineCount = 1;
+            int maxCharsPerLine = 0;
             int charsInLine = 0;
             for (int i = 0; i < text.Length; i++)
             {
                 if (text[i] == NewlineIndicator)
                 {
-                    lineWidth = charsInLine * Advance;
-                    if (lineWidth > size.X)
-                        size.X = lineWidth;
-                    size.Y += LineAdvance;
+                    if (charsInLine > maxCharsPerLine)
+                        maxCharsPerLine = charsInLine;
+                    lineCount++;
                     charsInLine = 0;
                 }
                 else
                     charsInLine++;
             }
 
-            lineWidth = charsInLine * Advance;
-            if (lineWidth > size.X)
-                size.X = lineWidth;
+            if (charsInLine > maxCharsPerLine)
+                maxCharsPerLine = charsInLine;
 
-            return size;
+            return new Vector2(Advance * maxCharsPerLine, lineCount * LineAdvance);
         }
 
         public override Vector2 MeasureLine(ReadOnlySpan<char> text)
         {
-            return new Vector2(text.Length * Advance, LineAdvance - LineGap);
+            return new Vector2(text.Length * Advance, LineAdvance);
         }
     }
 }

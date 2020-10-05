@@ -41,8 +41,7 @@ namespace TrippyGL
             if (text.IsEmpty)
                 return default;
 
-            Vector2 size = new Vector2(0, LineAdvance - LineGap);
-
+            Vector2 size = new Vector2(0, LineAdvance);
             float lineWidth = 0;
 
             for (int i = 0; i < text.Length; i++)

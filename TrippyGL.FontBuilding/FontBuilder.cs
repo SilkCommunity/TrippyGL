@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -11,7 +12,7 @@ namespace TrippyGL.FontBuilding
 {
     public static class FontBuilder
     {
-        public static TextureFontData[] CreateFontDatas(ReadOnlySpan<IGlyphSource> glyphSources, out Image<Rgba32> image, Color backgroundColor)
+        public static TrippyFontFile CreateFontFile(ReadOnlySpan<IGlyphSource> glyphSources, Color? backgroundColor = null)
         {
             int charCount = 0;
             for (int i = 0; i < glyphSources.Length; i++)
@@ -46,55 +47,102 @@ namespace TrippyGL.FontBuilding
 
             RectanglePacker.Pack(packingRects, out PackingRectangle bounds);
 
-            image = new Image<Rgba32>((int)bounds.Width, (int)bounds.Height);
-            image.Mutate(x => x.Fill(backgroundColor));
-
-            System.Drawing.Rectangle[][] sourceRectangles = new System.Drawing.Rectangle[glyphSources.Length][];
-            for (int i = 0; i < sourceRectangles.Length; i++)
-                sourceRectangles[i] = new System.Drawing.Rectangle[glyphSources[i].LastChar - glyphSources[i].FirstChar + 1];
-
-            for (int i = 0; i < packingRects.Length; i++)
+            Image<Rgba32> image = new Image<Rgba32>((int)bounds.Width, (int)bounds.Height);
+            try
             {
-                PackingRectangle rect = packingRects[i];
+                Color bgColor = backgroundColor ?? Color.Transparent;
+                image.Mutate(x => x.Fill(bgColor));
 
-                int glyphSourceIndex = 0;
-                for (; idsStart[glyphSourceIndex] > rect.Id; glyphSourceIndex++) ;
+                System.Drawing.Rectangle[][] sourceRectangles = new System.Drawing.Rectangle[glyphSources.Length][];
+                for (int i = 0; i < sourceRectangles.Length; i++)
+                    sourceRectangles[i] = new System.Drawing.Rectangle[glyphSources[i].LastChar - glyphSources[i].FirstChar + 1];
 
-                int charIndex = rect.Id - idsStart[glyphSourceIndex];
-                int charCode = charIndex + glyphSources[glyphSourceIndex].FirstChar;
-
-                sourceRectangles[glyphSourceIndex][charIndex] = new System.Drawing.Rectangle((int)rect.X + 1, (int)rect.Y + 1, (int)rect.Width - 2, (int)rect.Height - 2);
-                glyphSources[glyphSourceIndex].DrawGlyphToImage(charCode, new System.Drawing.Point((int)rect.X + 1, (int)rect.Y + 1), image);
-            }
-
-            TextureFontData[] fontDatas = new TextureFontData[glyphSources.Length];
-            for (int i = 0; i < fontDatas.Length; i++)
-            {
-                fontDatas[i] = new TextureFontData()
+                for (int i = 0; i < packingRects.Length; i++)
                 {
-                    Size = glyphSources[i].Size,
-                    FirstChar = glyphSources[i].FirstChar,
-                    LastChar = glyphSources[i].LastChar,
-                    Ascender = glyphSources[i].Ascender,
-                    Descender = glyphSources[i].Descender,
-                    LineGap = glyphSources[i].LineGap,
-                    Name = glyphSources[i].Name,
-                    RenderOffsets = glyphSources[i].GetRenderOffsets(),
-                    SourceRectangles = sourceRectangles[i]
-                };
+                    PackingRectangle rect = packingRects[i];
 
-                glyphSources[i].GetAdvances(out fontDatas[i].Advances);
+                    int glyphSourceIndex = 0;
+                    while (glyphSourceIndex + 1 < idsStart.Length && idsStart[glyphSourceIndex + 1] < rect.Id)
+                        glyphSourceIndex++;
 
-                if (!glyphSources[i].TryGetKerning(out fontDatas[i].KerningOffsets))
-                    fontDatas[i].KerningOffsets = null;
+                    int charIndex = rect.Id - idsStart[glyphSourceIndex];
+                    int charCode = charIndex + glyphSources[glyphSourceIndex].FirstChar;
+
+                    sourceRectangles[glyphSourceIndex][charIndex] = new System.Drawing.Rectangle((int)rect.X + 1, (int)rect.Y + 1, (int)rect.Width - 2, (int)rect.Height - 2);
+                    glyphSources[glyphSourceIndex].DrawGlyphToImage(charCode, new System.Drawing.Point((int)rect.X + 1, (int)rect.Y + 1), image);
+                }
+
+                TextureFontData[] fontDatas = new TextureFontData[glyphSources.Length];
+                for (int i = 0; i < fontDatas.Length; i++)
+                {
+                    fontDatas[i] = new TextureFontData()
+                    {
+                        Size = glyphSources[i].Size,
+                        FirstChar = glyphSources[i].FirstChar,
+                        LastChar = glyphSources[i].LastChar,
+                        Ascender = glyphSources[i].Ascender,
+                        Descender = glyphSources[i].Descender,
+                        LineGap = glyphSources[i].LineGap,
+                        Name = glyphSources[i].Name,
+                        RenderOffsets = glyphSources[i].GetRenderOffsets(),
+                        SourceRectangles = sourceRectangles[i]
+                    };
+
+                    glyphSources[i].GetAdvances(out fontDatas[i].Advances);
+
+                    if (!glyphSources[i].TryGetKerning(out fontDatas[i].KerningOffsets))
+                        fontDatas[i].KerningOffsets = null;
+                }
+
+                return new TrippyFontFile(fontDatas, image);
             }
-
-            return fontDatas;
+            catch
+            {
+                image.Dispose();
+                throw;
+            }
         }
 
-        public static TextureFontData CreateFontData(IGlyphSource glyphSources, out Image<Rgba32> image, Color backgroundColor)
+        public static TrippyFontFile CreateFontFile(IGlyphSource glyphSources, Color? backgroundColor = null)
         {
-            return CreateFontDatas(new IGlyphSource[] { glyphSources }, out image, backgroundColor)[0];
+            return CreateFontFile(new IGlyphSource[] { glyphSources }, backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(ReadOnlySpan<Font> fonts, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            IGlyphSource[] glyphSources = new IGlyphSource[fonts.Length];
+            for (int i = 0; i < fonts.Length; i++)
+                glyphSources[i] = new FontGlyphSource(fonts[i], firstChar, lastChar);
+            return CreateFontFile(glyphSources, backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(ReadOnlySpan<IFontInstance> fonts, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            IGlyphSource[] glyphSources = new IGlyphSource[fonts.Length];
+            for (int i = 0; i < fonts.Length; i++)
+                glyphSources[i] = new FontGlyphSource(fonts[i], size, firstChar, lastChar);
+            return CreateFontFile(glyphSources, backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(Font font, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            return CreateFontFile(new FontGlyphSource(font, firstChar, lastChar), backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(IFontInstance font, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            return CreateFontFile(new FontGlyphSource(font, size, firstChar, lastChar), backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(string fontFile, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            using FileStream fileStream = new FileStream(fontFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return CreateFontFile(fileStream, size, firstChar, lastChar, backgroundColor);
+        }
+
+        public static TrippyFontFile CreateFontFile(Stream fontStream, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            return CreateFontFile(FontInstance.LoadFont(fontStream), size, firstChar, lastChar, backgroundColor);
         }
     }
 }

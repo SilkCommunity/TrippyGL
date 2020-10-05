@@ -431,7 +431,7 @@ namespace TrippyGL
                     isFirstInLine = false;
                 else
                 {
-                    koff = font.GetKerning(c, text[i - 1]);
+                    koff = font.GetKerning(text[i - 1], c);
                     x += koff.X;
                 }
 
