@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL.Fonts
 {
     public class FontLoadingException : Exception
     {

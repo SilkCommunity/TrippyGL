@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TrippyGL.Utils.Rectpack
+namespace TrippyGL.Fonts.Rectpack
 {
     /// <summary>
     /// A static class providing functionality for packing rectangles into a bin as small as possible.

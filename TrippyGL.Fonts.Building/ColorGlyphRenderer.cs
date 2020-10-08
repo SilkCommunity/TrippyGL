@@ -1,37 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-
 using SixLabors.Fonts;
-using System.Linq;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL.FontBuilding
+namespace TrippyGL.Fonts.Extensions
 {
     /// <summary>
-    /// rendering surface that Fonts can use to generate Shapes.
+    /// Rendering surface that Fonts can use to generate Shapes.
     /// </summary>
     internal class ColorGlyphRenderer : IColorGlyphRenderer
     {
         protected readonly PathBuilder builder = new PathBuilder();
-        private readonly List<FontRectangle> glyphBounds = new List<FontRectangle>();
+
         private readonly List<IPath> paths = new List<IPath>();
         private readonly List<Color?> colors = new List<Color?>();
+
         private Vector2 currentPoint = default;
         private Color? currentColor = null;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GlyphBuilder"/> class.
+        /// Initializes a new instance of the <see cref="ColorGlyphRenderer"/> class.
         /// </summary>
         public ColorGlyphRenderer()
         {
-            // glyphs are renderd realative to bottom left so invert the Y axis to allow it to render on top left origin surface
             builder = new PathBuilder();
         }
 
         /// <summary>
-        /// Get the colors for each path, where null means use user provided brush
+        /// Get the colors for each path, where null means use user provided brush.
         /// </summary>
         public Color?[] PathColors => colors.ToArray();
 
@@ -40,17 +38,9 @@ namespace TrippyGL.FontBuilding
         /// </summary>
         public IPathCollection Paths => new PathCollection(paths);
 
-        /// <summary>
-        /// Gets the paths that have been rendered by this.
-        /// </summary>
-        public IPathCollection Boxes => new PathCollection(glyphBounds.Select(x => new RectangularPolygon(x.Location, x.Size)));
-
         void IGlyphRenderer.EndText() { }
 
-        void IGlyphRenderer.BeginText(FontRectangle rect)
-        {
-            BeginText(rect);
-        }
+        void IGlyphRenderer.BeginText(FontRectangle rect) => BeginText(rect);
 
         protected virtual void BeginText(FontRectangle rect) { }
 
@@ -63,7 +53,6 @@ namespace TrippyGL.FontBuilding
         {
             currentColor = null;
             builder.Clear();
-            glyphBounds.Add(rect);
             return BeginGlyph(rect, cachKey);
         }
 
@@ -167,7 +156,6 @@ namespace TrippyGL.FontBuilding
         {
             builder.Reset();
             builder.SetOrigin(new PointF(x, y));
-            glyphBounds.Clear();
             paths.Clear();
             colors.Clear();
             currentPoint = default;

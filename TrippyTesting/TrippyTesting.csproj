@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrippyGL.FontBuilding\TrippyGL.FontBuilding.csproj" />
+    <ProjectReference Include="..\TrippyGL.Fonts.Building\TrippyGL.Fonts.Building.csproj" />
+    <ProjectReference Include="..\TrippyGL.Fonts.Extensions\TrippyGL.Fonts.Extensions.csproj" />
+    <ProjectReference Include="..\TrippyGL.Fonts\TrippyGL.Fonts.csproj" />
     <ProjectReference Include="..\TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj" />
     <ProjectReference Include="..\TrippyGL\TrippyGL.csproj" />
   </ItemGroup>

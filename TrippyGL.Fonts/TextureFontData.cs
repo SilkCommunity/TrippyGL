@@ -5,7 +5,7 @@ using System.Numerics;
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL.Fonts
 {
     public sealed class TextureFontData
     {
@@ -31,32 +31,6 @@ namespace TrippyGL.ImageSharp
         public Vector2[] RenderOffsets;
 
         public System.Drawing.Rectangle[] SourceRectangles;
-
-        public TextureFont CreateFont(Texture2D texture)
-        {
-            if (KerningOffsets != null)
-            {
-                if (Advances.Length == 1 && Advances.Length != CharCount)
-                {
-                    float adv = Advances[0];
-                    Advances = new float[CharCount];
-                    for (int i = 0; i < Advances.Length; i++)
-                        Advances[i] = adv;
-                }
-
-                return new KerningTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                    SourceRectangles, KerningOffsets, Advances, Ascender, Descender, LineGap, Name);
-            }
-
-            if (Advances.Length == 1)
-            {
-                return new MonospaceTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                    SourceRectangles, Advances[0], Ascender, Descender, LineGap, Name);
-            }
-
-            return new SpacedTextureFont(texture, Size, FirstChar, LastChar, RenderOffsets,
-                SourceRectangles, Advances, Ascender, Descender, LineGap, Name);
-        }
 
         public void WriteToStream(BinaryWriter streamWriter)
         {

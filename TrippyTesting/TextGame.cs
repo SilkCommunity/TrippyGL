@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
+using Silk.NET.Input;
+using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
-using TrippyGL;
-using TrippyGL.ImageSharp;
-using TrippyGL.FontBuilding;
 using SixLabors.Fonts;
-using Silk.NET.Input;
-using Silk.NET.Input.Common;
+using TrippyGL;
+using TrippyGL.Fonts;
+using TrippyGL.Fonts.Extensions;
+using TrippyGL.ImageSharp;
 
 namespace TrippyTesting
 {
@@ -92,7 +93,7 @@ namespace TrippyTesting
             //Font fontFile = SystemFonts.CreateFont("Arial", 72f, FontStyle.Regular);
             //TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(fontFile);
 
-            TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(
+            TrippyFontFile trippyFontFile = FontBuilderExtensions.CreateFontFile(
                 new Font[] { family.CreateFont(72f, FontStyle.Regular), family.CreateFont(64f, FontStyle.Italic),
                              family.CreateFont(56f, FontStyle.Bold), family.CreateFont(48f, FontStyle.BoldItalic)});
 

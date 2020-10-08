@@ -2,12 +2,12 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL.FontBuilding
+namespace TrippyGL.Fonts
 {
     public interface IGlyphSource
     {
         public char FirstChar { get; }
-        
+
         public char LastChar { get; }
 
         public float Size { get; }

@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.PixelFormats;
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL.Fonts
 {
     public class TrippyFontFile : IDisposable
     {
@@ -21,7 +21,7 @@ namespace TrippyGL.ImageSharp
             Image = image;
         }
 
-        private void ValidateFields()
+        public void ThrowIfAnyNull()
         {
             if (FontDatas == null || FontDatas.Length == 0)
                 throw new InvalidOperationException(nameof(FontDatas) + " can't be null.");
@@ -31,30 +31,6 @@ namespace TrippyGL.ImageSharp
 
             if (Image == null)
                 throw new InvalidOperationException(nameof(Image) + " can't be null.");
-        }
-
-        public TextureFont[] CreateFonts(GraphicsDevice graphicsDevice, bool generateMipmaps = false)
-        {
-            if (graphicsDevice == null)
-                throw new ArgumentNullException(nameof(graphicsDevice));
-
-            ValidateFields();
-
-            Texture2D texture = new Texture2D(graphicsDevice, (uint)Image.Width, (uint)Image.Height, generateMipmaps);
-            try
-            {
-                TextureFont[] textureFonts = new TextureFont[FontDatas.Length];
-                for (int i = 0; i < textureFonts.Length; i++)
-                    textureFonts[i] = FontDatas[i].CreateFont(texture);
-
-                texture.SetData(Image);
-                return textureFonts;
-            }
-            catch
-            {
-                texture.Dispose();
-                throw;
-            }
         }
 
         public void Dispose()
@@ -138,7 +114,7 @@ namespace TrippyGL.ImageSharp
             if (streamWriter == null)
                 throw new ArgumentNullException(nameof(streamWriter));
 
-            ValidateFields();
+            ThrowIfAnyNull();
 
             WritePreamble(streamWriter.BaseStream);
 

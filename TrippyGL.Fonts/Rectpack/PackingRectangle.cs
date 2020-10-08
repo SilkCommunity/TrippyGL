@@ -3,7 +3,7 @@ using System.Drawing;
 
 #pragma warning disable CA1036 // Override methods on comparable types
 
-namespace TrippyGL.Utils.Rectpack
+namespace TrippyGL.Fonts.Rectpack
 {
     /// <summary>
     /// A rectangle that can be used for a rectangle packing operation.

@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj" />
+    <ProjectReference Include="..\TrippyGL.Fonts\TrippyGL.Fonts.csproj" />
   </ItemGroup>
 
 </Project>

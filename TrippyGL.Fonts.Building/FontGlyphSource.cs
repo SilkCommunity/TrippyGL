@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace TrippyGL.FontBuilding
+namespace TrippyGL.Fonts.Extensions
 {
     public class FontGlyphSource : IGlyphSource
     {
@@ -20,11 +20,13 @@ namespace TrippyGL.FontBuilding
         private readonly IPathCollection[] glyphPaths;
         private readonly Color?[][] pathColors;
 
-        private readonly ShapeGraphicsOptions shapeGraphicsOptions;
+        public ShapeGraphicsOptions ShapeGraphicsOptions;
 
         private readonly System.Drawing.Point[] glyphSizes;
 
         private readonly Vector2[] renderOffsets;
+
+        public bool IncludeKerningIfPresent = true;
 
         public char FirstChar { get; }
 
@@ -59,7 +61,7 @@ namespace TrippyGL.FontBuilding
 
             glyphPaths = CreatePaths(out pathColors, out glyphSizes, out renderOffsets);
 
-            shapeGraphicsOptions = new ShapeGraphicsOptions
+            ShapeGraphicsOptions = new ShapeGraphicsOptions
             {
                 ShapeOptions = { IntersectionRule = IntersectionRule.Nonzero },
             };
@@ -148,6 +150,8 @@ namespace TrippyGL.FontBuilding
         public bool TryGetKerning(out Vector2[,] kerningOffsets)
         {
             kerningOffsets = null;
+            if (!IncludeKerningIfPresent)
+                return false;
 
             for (int a = FirstChar; a <= LastChar; a++)
             {
@@ -197,7 +201,7 @@ namespace TrippyGL.FontBuilding
             {
                 path = pathEnumerator.Current;
                 color = (pathColors != null && i < pathColors.Length && pathColors[i].HasValue) ? pathColors[i].Value : Color.White;
-                image.Mutate(x => x.Fill(shapeGraphicsOptions, color, path));
+                image.Mutate(x => x.Fill(ShapeGraphicsOptions, color, path));
             }
         }
     }

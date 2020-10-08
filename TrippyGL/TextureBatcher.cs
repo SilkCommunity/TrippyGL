@@ -405,6 +405,11 @@ namespace TrippyGL
 
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color)
         {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            ValidateBeginCalled();
+
             if (text.IsEmpty)
                 return;
 
@@ -446,6 +451,12 @@ namespace TrippyGL
             }
         }
 
+        /// <summary>
+        /// Checks whether the <see cref="TextureBatcher"/> should be flushed before adding more batch
+        /// items, based on the current <see cref="BeginMode"/>, and flushes if so.
+        /// </summary>
+        /// <param name="nextTexture">The next texture to be added be batched.</param>
+        /// <remarks>This should be called at the start of any Draw() method.</remarks>
         private void FlushIfNeeded(Texture2D nextTexture)
         {
             // If BeginMode is OnTheFly, before doing anything we check whether we should flush.

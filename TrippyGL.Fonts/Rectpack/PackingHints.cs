@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TrippyGL.Utils.Rectpack
+namespace TrippyGL.Fonts.Rectpack
 {
     /// <summary>
     /// Specifies hints that help optimize the rectangle packing algorithm. 

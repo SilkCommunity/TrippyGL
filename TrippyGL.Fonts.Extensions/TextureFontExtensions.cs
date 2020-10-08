@@ -3,7 +3,7 @@
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
-namespace TrippyGL.ImageSharp
+namespace TrippyGL.Fonts.Extensions
 {
     public static class TextureFontExtensions
     {
