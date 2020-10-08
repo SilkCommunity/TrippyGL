@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
-    /// Extension methods for <see cref="Texture1D"/>.
+    /// Provides extension methods for <see cref="Texture1D"/>.
     /// </summary>
     public static class Texture1DExtensions
     {

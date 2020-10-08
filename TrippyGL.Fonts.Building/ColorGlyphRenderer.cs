@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace TrippyGL.Fonts.Extensions
 {
     /// <summary>
-    /// Rendering surface that Fonts can use to generate Shapes.
+    /// A rendering surface that fonts can use to generate shapes.
     /// </summary>
     internal class ColorGlyphRenderer : IColorGlyphRenderer
     {
@@ -21,21 +21,17 @@ namespace TrippyGL.Fonts.Extensions
         private Color? currentColor = null;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ColorGlyphRenderer"/> class.
+        /// Creates a new <see cref="ColorGlyphRenderer"/> instance.
         /// </summary>
         public ColorGlyphRenderer()
         {
             builder = new PathBuilder();
         }
 
-        /// <summary>
-        /// Get the colors for each path, where null means use user provided brush.
-        /// </summary>
+        /// <summary>Get the colors for each path, where null means default color.</summary>
         public Color?[] PathColors => colors.ToArray();
 
-        /// <summary>
-        /// Gets the paths that have been rendered by this.
-        /// </summary>
+        /// <summary>Gets the paths that have been rendered by this <see cref="ColorGlyphRenderer"/>.</summary>
         public IPathCollection Paths => new PathCollection(paths);
 
         void IGlyphRenderer.EndText() { }
@@ -44,11 +40,6 @@ namespace TrippyGL.Fonts.Extensions
 
         protected virtual void BeginText(FontRectangle rect) { }
 
-        /// <summary>
-        /// Begins the glyph.
-        /// </summary>
-        /// <param name="location">The offset that the glyph will be rendered at.</param>
-        /// <param name="size">The size.</param>
         bool IGlyphRenderer.BeginGlyph(FontRectangle rect, GlyphRendererParameters cachKey)
         {
             currentColor = null;
@@ -64,29 +55,17 @@ namespace TrippyGL.Fonts.Extensions
 
         protected virtual void BeginGlyph(FontRectangle rect) { }
 
-        /// <summary>
-        /// Begins the figure.
-        /// </summary>
         void IGlyphRenderer.BeginFigure()
         {
             builder.StartFigure();
         }
 
-        /// <summary>
-        /// Draws a cubic bezier from the current point  to the <paramref name="point"/>
-        /// </summary>
-        /// <param name="secondControlPoint">The second control point.</param>
-        /// <param name="thirdControlPoint">The third control point.</param>
-        /// <param name="point">The point.</param>
         void IGlyphRenderer.CubicBezierTo(Vector2 secondControlPoint, Vector2 thirdControlPoint, Vector2 point)
         {
             builder.AddBezier(currentPoint, secondControlPoint, thirdControlPoint, point);
             currentPoint = point;
         }
 
-        /// <summary>
-        /// Ends the glyph.
-        /// </summary>
         void IGlyphRenderer.EndGlyph()
         {
             paths.Add(builder.Build());
@@ -98,39 +77,23 @@ namespace TrippyGL.Fonts.Extensions
             currentColor = new Color(new Rgba32(color.Red, color.Green, color.Blue, color.Alpha));
         }
 
-        /// <summary>
-        /// Ends the figure.
-        /// </summary>
         void IGlyphRenderer.EndFigure()
         {
             builder.CloseFigure();
         }
 
-        /// <summary>
-        /// Draws a line from the current point  to the <paramref name="point"/>.
-        /// </summary>
-        /// <param name="point">The point.</param>
         void IGlyphRenderer.LineTo(Vector2 point)
         {
             builder.AddLine(currentPoint, point);
             currentPoint = point;
         }
 
-        /// <summary>
-        /// Moves to current point to the supplied vector.
-        /// </summary>
-        /// <param name="point">The point.</param>
         void IGlyphRenderer.MoveTo(Vector2 point)
         {
             builder.StartFigure();
             currentPoint = point;
         }
 
-        /// <summary>
-        /// Draws a quadratics bezier from the current point  to the <paramref name="point"/>
-        /// </summary>
-        /// <param name="secondControlPoint">The second control point.</param>
-        /// <param name="point">The point.</param>
         void IGlyphRenderer.QuadraticBezierTo(Vector2 secondControlPoint, Vector2 endPoint)
         {
             Vector2 startPointVector = currentPoint;
@@ -144,6 +107,10 @@ namespace TrippyGL.Fonts.Extensions
             currentPoint = endPoint;
         }
 
+        /// <summary>
+        /// Returns whether this <see cref="ColorGlyphRenderer"/> currently has any path colors. That is,
+        /// whether the colors list is empty or all it's contents are null.
+        /// </summary>
         public bool HasAnyPathColors()
         {
             for (int i = 0; i < colors.Count; i++)
@@ -152,6 +119,9 @@ namespace TrippyGL.Fonts.Extensions
             return false;
         }
 
+        /// <summary>
+        /// Clears any lists and sets the origin for future renders.
+        /// </summary>
         public void Reset(float x, float y)
         {
             builder.Reset();
@@ -162,6 +132,9 @@ namespace TrippyGL.Fonts.Extensions
             currentColor = null;
         }
 
+        /// <summary>
+        /// Clears any lists and sets the origin for future renders to (0, 0).
+        /// </summary>
         public void Reset()
         {
             Reset(0, 0);

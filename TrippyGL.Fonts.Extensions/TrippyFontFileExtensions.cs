@@ -3,8 +3,16 @@ using TrippyGL.ImageSharp;
 
 namespace TrippyGL.Fonts.Extensions
 {
-    public static class TextureFontFileExtensions
+    /// <summary>
+    /// Provides extension methods for <see cref="TrippyFontFile"/>.
+    /// </summary>
+    public static class TrippyFontFileExtensions
     {
+        /// <summary>
+        /// Creates an array of <see cref="TextureFont"/>-s from the <see cref="TrippyFontFile"/>.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="TextureFont"/>-s will use.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for the texture's font.</param>
         public static TextureFont[] CreateFonts(this TrippyFontFile font, GraphicsDevice graphicsDevice, bool generateMipmaps = false)
         {
             if (graphicsDevice == null)
@@ -32,6 +40,11 @@ namespace TrippyGL.Fonts.Extensions
             }
         }
 
+        /// <summary>
+        /// Creates a single <see cref="TextureFont"/> from the <see cref="TrippyFontFile"/>.
+        /// </summary>
+        /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="TextureFont"/> will use.</param>
+        /// <param name="generateMipmaps">Whether to generate mipmaps for the texture's font.</param>
         public static TextureFont CreateFont(this TrippyFontFile font, GraphicsDevice graphicsDevice, bool generateMipmaps = false)
         {
             return font.CreateFonts(graphicsDevice, generateMipmaps)[0];

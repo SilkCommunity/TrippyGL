@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// The code for the rectangle packing library was taken from the following repository:
+// https://github.com/ThomasMiz/RectpackSharp
+// "It's not stealing if you wrote that shit" - Thomas
+
 namespace TrippyGL.Fonts.Rectpack
 {
     /// <summary>

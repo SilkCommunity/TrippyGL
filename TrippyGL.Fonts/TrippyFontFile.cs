@@ -9,18 +9,31 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace TrippyGL.Fonts
 {
+    /// <summary>
+    /// Stores information for multiple fonts and provides methods for loading/saving from/to streams.
+    /// </summary>
     public class TrippyFontFile : IDisposable
     {
+        /// <summary>The information of all the fonts in this <see cref="TrippyFontFile"/>.</summary>
         public TextureFontData[] FontDatas;
 
+        /// <summary>The image in this <see cref="TrippyFontFile"/>.</summary>
         public Image<Rgba32> Image;
 
+        /// <summary>
+        /// Creates a <see cref="TrippyFontFile"/> instance.
+        /// </summary>
+        /// <param name="fontDatas">The information of the fonts.</param>
+        /// <param name="image">The image containing the font's characters.</param>
         public TrippyFontFile(TextureFontData[] fontDatas, Image<Rgba32> image)
         {
             FontDatas = fontDatas;
             Image = image;
         }
 
+        /// <summary>
+        /// Throws an exception if any of the fields in this <see cref="TrippyFontFile"/> is null.
+        /// </summary>
         public void ThrowIfAnyNull()
         {
             if (FontDatas == null || FontDatas.Length == 0)
@@ -31,14 +44,25 @@ namespace TrippyGL.Fonts
 
             if (Image == null)
                 throw new InvalidOperationException(nameof(Image) + " can't be null.");
+
+            for (int i = 0; i < FontDatas.Length; i++)
+                if (FontDatas[i] == null)
+                    throw new InvalidOperationException("The elements in the " + nameof(FontDatas) + "can't be null.");
         }
 
+        /// <summary>
+        /// Disposes the image used by this <see cref="TrippyFontFile"/>.
+        /// </summary>
         public void Dispose()
         {
             Image?.Dispose();
             Image = null;
         }
 
+        /// <summary>
+        /// Reads a sequence of bytes from the stream and returns whether it matches the
+        /// preamble that all <see cref="TrippyFontFile"/> streams start with.
+        /// </summary>
         internal static bool ReadPreamble(Stream stream)
         {
             return stream.ReadByte() == 175
@@ -48,6 +72,9 @@ namespace TrippyGL.Fonts
                 && stream.ReadByte() == 222;
         }
 
+        /// <summary>
+        /// Writes the sequence of bytes with which all <see cref="TrippyFontFile"/> streams start with.
+        /// </summary>
         internal static void WritePreamble(Stream stream)
         {
             stream.WriteByte(175);
@@ -57,12 +84,18 @@ namespace TrippyGL.Fonts
             stream.WriteByte(222);
         }
 
+        /// <summary>
+        /// Creates a <see cref="TrippyFontFile"/> by reading it's data from a file.
+        /// </summary>
         public static TrippyFontFile FromFile(string file)
         {
             using FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
             return FromStream(new BinaryReader(fileStream));
         }
 
+        /// <summary>
+        /// Creates a <see cref="TrippyFontFile"/> by reading it's data from a stream.
+        /// </summary>
         public static TrippyFontFile FromStream(Stream stream)
         {
             if (stream == null)
@@ -71,6 +104,9 @@ namespace TrippyGL.Fonts
             return FromStream(new BinaryReader(stream));
         }
 
+        /// <summary>
+        /// Creates a <see cref="TrippyFontFile"/> by reading it's data from a stream.
+        /// </summary>
         public static TrippyFontFile FromStream(BinaryReader streamReader)
         {
             if (streamReader == null)
@@ -98,17 +134,26 @@ namespace TrippyGL.Fonts
             return new TrippyFontFile(fontDatas, image);
         }
 
+        /// <summary>
+        /// Writes this <see cref="TrippyFontFile"/>'s data to a file.
+        /// </summary>
         public void WriteToFile(string file)
         {
             using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write);
             WriteToStream(new BinaryWriter(fileStream));
         }
 
+        /// <summary>
+        /// Writes this <see cref="TrippyFontFile"/>'s data to a stream.
+        /// </summary>
         public void WriteToStream(Stream stream)
         {
             WriteToStream(new BinaryWriter(stream));
         }
 
+        /// <summary>
+        /// Writes this <see cref="TrippyFontFile"/>'s data to a stream.
+        /// </summary>
         public void WriteToStream(BinaryWriter streamWriter)
         {
             if (streamWriter == null)

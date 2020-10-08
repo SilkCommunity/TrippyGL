@@ -7,31 +7,53 @@ using System.Numerics;
 
 namespace TrippyGL.Fonts
 {
+    /// <summary>
+    /// Contains information for a single font inside a <see cref="TrippyFontFile"/>.
+    /// </summary>
     public sealed class TextureFontData
     {
+        /// <summary>The maximum amount of characters a font name can have.</summary>
         public const ushort MaxFontNameLength = 256;
 
+        /// <summary>The size of the font, typically measured in pixels.</summary>
         public float Size;
 
+        /// <summary>The lowest character available in this <see cref="TextureFontData"/>.</summary>
         public char FirstChar;
+
+        /// <summary>The highest character available in this <see cref="TextureFontData"/>.</summary>
         public char LastChar;
+
+        /// <summary>The amount of characters in this <see cref="TextureFontData"/>.</summary>
         public int CharCount => LastChar - FirstChar + 1;
 
+        /// <summary>The distance between the baseline and the highest glyph's highest point. Typically positive.</summary>
         public float Ascender;
-        public float Descender;
-        public float LineGap;
-        public float LineAdvance => Ascender - Descender + LineGap;
 
+        /// <summary>The distance between the baseline and the lowest glyph's lowest point. Typically negative.</summary>
+        public float Descender;
+
+        /// <summary>The distance between the lowest point of a line and the highest point of the next line.</summary>
+        public float LineGap;
+
+        /// <summary>This <see cref="TextureFontData"/>'s name.</summary>
         public string Name;
 
+        /// <summary>The advance values for the characters in this font.</summary>
         public float[] Advances;
 
+        /// <summary>The kerning offsets for each character. This are in order [from, to].</summary>
         public Vector2[,] KerningOffsets;
 
+        /// <summary>Offsets that should be directly applied to the characters when drawing them.</summary>
         public Vector2[] RenderOffsets;
 
+        /// <summary>The areas in the font's image/texture where each character is located.</summary>
         public System.Drawing.Rectangle[] SourceRectangles;
 
+        /// <summary>
+        /// Writes the data of this <see cref="TextureFontData"/> into a stream.
+        /// </summary>
         public void WriteToStream(BinaryWriter streamWriter)
         {
             if (streamWriter == null)
@@ -136,6 +158,9 @@ namespace TrippyGL.Fonts
             }
         }
 
+        /// <summary>
+        /// Creates a <see cref="TextureFontData"/> by reading it's data from a stream.
+        /// </summary>
         public static TextureFontData FromStream(BinaryReader streamReader)
         {
             if (streamReader == null)
@@ -245,6 +270,10 @@ namespace TrippyGL.Fonts
             };
         }
 
+        /// <summary>
+        /// Used to identify a specific byte when saving/loading <see cref="TextureFontData"/> to/from
+        /// a stream that defines whether the font is monospaced, spaced, or spaced with kerning.
+        /// </summary>
         internal enum FontTypeByte : byte
         {
             Monospace = 0,

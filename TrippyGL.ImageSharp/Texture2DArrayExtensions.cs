@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
-    /// Extension methods for <see cref="Texture2DArray"/>
+    /// Provides extension methods for <see cref="Texture2DArray"/>
     /// </summary>
     public static class Texture2DArrayExtensions
     {

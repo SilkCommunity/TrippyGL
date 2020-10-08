@@ -15,6 +15,11 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="MonospaceTextureFont"/>.
         /// </summary>
+        /// <remarks>
+        /// Any array passed to this method will NOT be copied. The provided instance will be used instead.
+        /// Holding on to a reference to these arrays and modifying them afterwards can have unexpected
+        /// behavior.
+        /// </remarks>
         public MonospaceTextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
             Rectangle[] sources, float advance, float ascender, float descender, float lineGap, string name)
             : base(texture, size, firstChar, lastChar, renderOffsets, sources, ascender, descender, lineGap, name)

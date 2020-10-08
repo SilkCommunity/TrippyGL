@@ -1,7 +1,13 @@
 ﻿namespace TrippyGL.Fonts.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="TextureFontData"/>.
+    /// </summary>
     public static class TextureFontDataExtensions
     {
+        /// <summary>
+        /// Creates a <see cref="TextureFont"/> from the <see cref="TextureFontData"/> and a texture.
+        /// </summary>
         public static TextureFont CreateFont(this TextureFontData fontData, Texture2D texture)
         {
             bool isMonospace = true;

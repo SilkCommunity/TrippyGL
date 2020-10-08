@@ -33,10 +33,7 @@ namespace TrippyGL
 
         /// <summary>The amount of characters this <see cref="TextureFont"/> contains.</summary>
         /// <remarks>This is equal to LastChar - FirstChar + 1.</remarks>
-        public readonly int CharCount;
-
-        /// <summary>The baseline-to-baseline distance to advance when drawing a new line with this <see cref="TextureFont"/>.</summary>
-        public readonly float LineAdvance;
+        public int CharCount => LastChar - FirstChar + 1;
 
         /// <summary>The distance between the baseline and the highest glyph's highest point. Typically positive.</summary>
         public readonly float Ascender;
@@ -44,8 +41,12 @@ namespace TrippyGL
         /// <summary>The distance between the baseline and the lowest glyph's lowest point. Typically negative.</summary>
         public readonly float Descender;
 
-        /// <summary>The distance to leave in between two lines of text when drawing with this <see cref="TextureFont"/>.</summary>
+        /// <summary>The distance between the lowest point of a line and the highest point of the next line.</summary>
         public readonly float LineGap;
+
+        /// <summary>The baseline-to-baseline distance to advance when drawing a new line with this <see cref="TextureFont"/>.</summary>
+        /// <remarks>This is calculated as ascender - descender + lineGap.</remarks>
+        public readonly float LineAdvance;
 
         /// <summary>Offsets that should be directly applied to the characters when drawing them.</summary>
         protected readonly Vector2[] renderOffsets;
@@ -59,22 +60,26 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="TextureFont"/>.
         /// </summary>
+        /// <remarks>
+        /// Any array passed to this method will NOT be copied. The provided instance will be used instead.
+        /// Holding on to a reference to these arrays and modifying them afterwards can have unexpected
+        /// behavior.
+        /// </remarks>
         public TextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
             Rectangle[] sources, float ascender, float descender, float lineGap, string name)
         {
             if (lastChar < firstChar)
                 throw new ArgumentException(nameof(firstChar) + " must be lower or equal than " + nameof(lastChar) + ".");
-
-            CharCount = lastChar - firstChar + 1;
+            int charCount = lastChar - firstChar + 1;
 
             Texture = texture ?? throw new ArgumentNullException(nameof(texture));
 
             this.renderOffsets = renderOffsets ?? throw new ArgumentNullException(nameof(renderOffsets));
-            if (renderOffsets.Length != CharCount)
+            if (renderOffsets.Length != charCount)
                 throw new ArgumentException("The length of the " + nameof(renderOffsets) + " array must match the amount of characters.", nameof(renderOffsets));
 
             this.sources = sources ?? throw new ArgumentNullException(nameof(sources));
-            if (sources.Length != CharCount)
+            if (sources.Length != charCount)
                 throw new ArgumentException("The length of the " + nameof(sources) + " array must match the amount of characters.", nameof(sources));
 
             FirstChar = firstChar;
@@ -161,6 +166,13 @@ namespace TrippyGL
             return height;
         }
 
+        /// <summary>
+        /// Disposes the <see cref="GraphicsResource"/>-s used by this <see cref="TextureFont"/>.
+        /// </summary>
+        /// <remarks>
+        /// If you have multiple <see cref="TextureFont"/> sharing a single texture, disposing any
+        /// of these will dispose the texture, thus disposing all of them.
+        /// </remarks>
         public void Dispose()
         {
             Texture.Dispose();
