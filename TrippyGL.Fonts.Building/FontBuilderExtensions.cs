@@ -3,7 +3,7 @@ using System.IO;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 
-namespace TrippyGL.Fonts.Extensions
+namespace TrippyGL.Fonts.Building
 {
     /// <summary>
     /// Provides extension methods that allow building a <see cref="TrippyFontFile"/> instance
@@ -26,6 +26,7 @@ namespace TrippyGL.Fonts.Extensions
         /// <summary>
         /// Creates a <see cref="TrippyFontFile"/> holding information for multiple fonts with the same size.
         /// </summary>
+        /// <remarks>All the fonts have the same character range.</remarks>
         public static TrippyFontFile CreateFontFile(ReadOnlySpan<IFontInstance> fonts, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
         {
             IGlyphSource[] glyphSources = new IGlyphSource[fonts.Length];
@@ -64,7 +65,19 @@ namespace TrippyGL.Fonts.Extensions
         /// </summary>
         public static TrippyFontFile CreateFontFile(Stream fontStream, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
         {
-            return CreateFontFile(FontInstance.LoadFont(fontStream), size, firstChar, lastChar, backgroundColor);
+            return FontBuilder.CreateFontFile(new FontGlyphSource(FontInstance.LoadFont(fontStream), size, firstChar, lastChar), backgroundColor);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="TrippyFontFile"/> holding information for multiple fonts with the same size.
+        /// </summary>
+        /// <remarks>All the fonts have the same character range.</remarks>
+        public static TrippyFontFile CreateFontFile(ReadOnlySpan<string> fontFiles, float size, char firstChar = ' ', char lastChar = '~', Color? backgroundColor = null)
+        {
+            IGlyphSource[] glyphSources = new IGlyphSource[fontFiles.Length];
+            for (int i = 0; i < glyphSources.Length; i++)
+                glyphSources[i] = new FontGlyphSource(FontInstance.LoadFont(fontFiles[i]), size, firstChar, lastChar);
+            return FontBuilder.CreateFontFile(glyphSources, backgroundColor);
         }
     }
 }

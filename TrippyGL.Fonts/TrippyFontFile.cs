@@ -179,5 +179,11 @@ namespace TrippyGL.Fonts
 
             Image.SaveAsPng(streamWriter.BaseStream);
         }
+
+        public override string ToString()
+        {
+            return FontDatas == null ? "Empty " + nameof(TrippyFontFile)
+                : string.Concat(nameof(TrippyFontFile) + " with ", FontDatas.Length.ToString(), " fonts");
+        }
     }
 }

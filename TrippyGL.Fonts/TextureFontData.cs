@@ -280,5 +280,10 @@ namespace TrippyGL.Fonts
             Spaced = 1,
             SpacedWithKerning = 2
         }
+
+        public override string ToString()
+        {
+            return string.Concat(Name ?? "Unnamed " + nameof(TextureFontData), " - ", CharCount.ToString(), " characters");
+        }
     }
 }

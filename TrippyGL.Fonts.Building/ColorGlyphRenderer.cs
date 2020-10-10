@@ -5,7 +5,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace TrippyGL.Fonts.Extensions
+namespace TrippyGL.Fonts.Building
 {
     /// <summary>
     /// A rendering surface that fonts can use to generate shapes.

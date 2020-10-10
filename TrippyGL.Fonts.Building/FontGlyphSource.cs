@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace TrippyGL.Fonts.Extensions
+namespace TrippyGL.Fonts.Building
 {
     /// <summary>
     /// An implementation of <see cref="IGlyphSource"/> that sources it's glyphs from
@@ -235,6 +235,12 @@ namespace TrippyGL.Fonts.Extensions
                 image.Mutate(x => x.Fill(ShapeGraphicsOptions, color, path));
                 i++;
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Concat(FontInstance?.Description?.FontNameInvariantCulture ?? "Unnamed " + nameof(FontGlyphSource),
+                " - ", CharCount.ToString(), " characters");
         }
     }
 }

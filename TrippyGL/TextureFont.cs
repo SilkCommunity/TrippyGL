@@ -177,5 +177,10 @@ namespace TrippyGL
         {
             Texture.Dispose();
         }
+
+        public override string ToString()
+        {
+            return Name ?? "Unnamed " + nameof(TextureFont);
+        }
     }
 }

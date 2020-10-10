@@ -10,6 +10,7 @@ using SixLabors.Fonts;
 using TrippyGL;
 using TrippyGL.Fonts;
 using TrippyGL.Fonts.Extensions;
+using TrippyGL.Fonts.Building;
 using TrippyGL.ImageSharp;
 
 namespace TrippyTesting
