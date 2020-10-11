@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Numerics;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
@@ -7,11 +8,11 @@ using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using SixLabors.Fonts;
+using SixLabors.ImageSharp;
 using TrippyGL;
 using TrippyGL.Fonts;
-using TrippyGL.Fonts.Extensions;
 using TrippyGL.Fonts.Building;
-using TrippyGL.ImageSharp;
+using TrippyGL.Fonts.Extensions;
 
 namespace TrippyTesting
 {
@@ -90,23 +91,25 @@ namespace TrippyTesting
             whitepx.SetData<Color4b>(new Color4b[] { Color4b.White });
 
             string someFileName = "font.tglf";
-            FontFamily family = SystemFonts.Find("Arial");
-            //Font fontFile = SystemFonts.CreateFont("Arial", 72f, FontStyle.Regular);
-            //TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(fontFile);
+            TrippyFontFile trippyFontFile;
+            if (!File.Exists(someFileName))
+            {
+                FontFamily family = SystemFonts.Find("Arial");
+                //Font fontFile = SystemFonts.CreateFont("Arial", 72f, FontStyle.Regular);
+                //TrippyFontFile trippyFontFile = FontBuilder.CreateFontFile(fontFile);
 
-            TrippyFontFile trippyFontFile = FontBuilderExtensions.CreateFontFile(
-                new Font[] { family.CreateFont(72f, FontStyle.Regular), family.CreateFont(64f, FontStyle.Italic),
+                trippyFontFile = FontBuilderExtensions.CreateFontFile(
+                    new Font[] { family.CreateFont(72f, FontStyle.Regular), family.CreateFont(64f, FontStyle.Italic),
                              family.CreateFont(56f, FontStyle.Bold), family.CreateFont(48f, FontStyle.BoldItalic)});
 
-            trippyFontFile.WriteToFile(someFileName);
+                trippyFontFile.WriteToFile(someFileName);
+                trippyFontFile.Image.SaveAsPng("pitaiken.png");
+            }
+            else
+                trippyFontFile = TrippyFontFile.FromFile(someFileName);
 
-            trippyFontFile = null;
-            GC.Collect(GC.MaxGeneration);
-
-            trippyFontFile = TrippyFontFile.FromFile(someFileName);
             fonts = trippyFontFile.CreateFonts(graphicsDevice);
             font = fonts[0];
-            font.Texture.SaveAsImage("pitaiken.png", SaveImageFormat.Png);
 
             stopwatch = Stopwatch.StartNew();
 

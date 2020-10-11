@@ -60,7 +60,7 @@ namespace TextureBatcherTest
                 textureBatcher.Draw(texture, trail[i], new Color4b(255, 255, 255, alpha));
             }
 
-            textureBatcher.Draw(texture, position, Color4b.White);
+            textureBatcher.Draw(texture, position);
 
             for (int i = trail.Length - 1; i != 0; i--)
                 trail[i] = trail[i - 1];

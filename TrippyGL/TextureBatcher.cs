@@ -42,6 +42,7 @@ namespace TrippyGL
 
         /// <summary>The <see cref="ShaderProgram"/> this <see cref="TextureBatcher"/> is currently using.</summary>
         public ShaderProgram ShaderProgram { get; private set; }
+
         /// <summary>
         /// The <see cref="ShaderUniform"/> this <see cref="TextureBatcher"/> uses for setting the texture
         /// on <see cref="ShaderProgram"/>.
@@ -105,13 +106,21 @@ namespace TrippyGL
                 throw new InvalidOperationException(nameof(ShaderProgram) + " cant be changed while the " + nameof(TextureBatcher) + " is active.");
 
             if (shaderProgram == null)
-                throw new ArgumentNullException(nameof(shaderProgram));
+            {
+                ShaderProgram = null;
+                TextureUniform = default;
+                return;
+            }
+
+            if (shaderProgram.GraphicsDevice != vertexBuffer.Buffer.GraphicsDevice)
+                throw new ArgumentException(nameof(ShaderProgram) + " must belong to the same " + nameof(GraphicsDevice)
+                    + " this " + nameof(TextureBatcher) + " was created with.", nameof(shaderProgram));
 
             // If textureUniform isn't empty, we check that it's valid.
             if (!textureUniform.IsEmpty)
             {
                 if (textureUniform.OwnerProgram != shaderProgram)
-                    throw new ArgumentException(nameof(textureUniform) + " must belong to the provided " + nameof(ShaderProgram), nameof(textureUniform));
+                    throw new ArgumentException(nameof(textureUniform) + " must belong to the provided " + nameof(ShaderProgram) + ".", nameof(textureUniform));
 
                 if (!TrippyUtils.IsUniformSampler2DType(textureUniform.UniformType))
                     throw new ArgumentException("The provided " + nameof(ShaderUniform) + " must be a Sampler2D type.", nameof(textureUniform));
@@ -152,6 +161,20 @@ namespace TrippyGL
             batchItemCount = 0;
             BeginMode = beginMode;
             IsActive = true;
+        }
+
+        /// <summary>
+        /// Ends drawing a batch of textures and flushes any textures that are waiting to be drawn.
+        /// </summary>
+        public void End()
+        {
+            if (!IsActive)
+                throw new InvalidOperationException("Begin() must be called before End().");
+
+            // We flush. We can ensure all the items have the same texture if BeginMode is Immediate or OnTheFly.
+            Flush(BeginMode == BatcherBeginMode.Immediate || BeginMode == BatcherBeginMode.OnTheFly);
+
+            IsActive = false;
         }
 
         /// <summary>
@@ -258,14 +281,8 @@ namespace TrippyGL
         public void DrawRaw(Texture2D texture, in VertexColorTexture VertexTL, in VertexColorTexture VertexTR,
             in VertexColorTexture VertexBR, in VertexColorTexture VertexBL)
         {
-            ValidateBeginCalled();
+            StartDraw(texture);
 
-            if (texture == null)
-                throw new ArgumentNullException(nameof(texture));
-
-            FlushIfNeeded(texture);
-
-            // We get the next batch item in the array and set it's values.
             TextureBatchItem item = GetNextBatchItem();
             item.VertexTL = VertexTL;
             item.VertexTR = VertexTR;
@@ -273,19 +290,7 @@ namespace TrippyGL
             item.VertexBL = VertexBL;
             item.Texture = texture;
 
-            // If BeginMode is Immediate, we need to flush now. Otherwise, we set the item's SortValue.
-            if (BeginMode == BatcherBeginMode.Immediate)
-                Flush(true);
-            else
-            {
-                item.SortValue = BeginMode switch
-                {
-                    BatcherBeginMode.SortByTexture => texture.Handle,
-                    BatcherBeginMode.SortFrontToBack => VertexTL.Position.Z,
-                    BatcherBeginMode.SortBackToFront => -VertexTL.Position.Z,
-                    _ => 0
-                };
-            }
+            EndDraw(item);
         }
 
         /// <summary>
@@ -322,34 +327,15 @@ namespace TrippyGL
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale,
             float rotation = 0, Vector2 origin = default, float depth = 0)
         {
-            ValidateBeginCalled();
+            StartDraw(texture);
 
-            if (texture == null)
-                throw new ArgumentNullException(nameof(texture));
-
-            FlushIfNeeded(texture);
-
-            // We get the next batch item in the array and set it's values.
             TextureBatchItem item = GetNextBatchItem();
-
             if (rotation == 0)
                 item.SetValue(texture, position, source, color, scale, origin, depth);
             else
                 item.SetValue(texture, position, source, color, scale, rotation, origin, depth);
 
-            // If BeginMode is Immediate, we need to flush now. Otherwise, we set the item's SortValue.
-            if (BeginMode == BatcherBeginMode.Immediate)
-                Flush(true);
-            else
-            {
-                item.SortValue = BeginMode switch
-                {
-                    BatcherBeginMode.SortByTexture => texture.Handle,
-                    BatcherBeginMode.SortFrontToBack => depth,
-                    BatcherBeginMode.SortBackToFront => -depth,
-                    _ => 0
-                };
-            }
+            EndDraw(item);
         }
 
         /// <summary>
@@ -376,9 +362,14 @@ namespace TrippyGL
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
         /// <param name="color">The color to draw the texture with.</param>
-        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color)
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, float depth = 0)
         {
-            Draw(texture, position, source, color, new Vector2(1, 1));
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, position, source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, depth);
+
+            EndDraw(item);
         }
 
         /// <summary>
@@ -387,9 +378,14 @@ namespace TrippyGL
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
-        public void Draw(Texture2D texture, Vector2 position, Rectangle? source)
+        public void Draw(Texture2D texture, Vector2 position, Rectangle? source = null, float depth = 0)
         {
-            Draw(texture, position, source, Color4b.White, new Vector2(1, 1));
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, position, source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), Color4b.White, depth);
+
+            EndDraw(item);
         }
 
         /// <summary>
@@ -398,22 +394,22 @@ namespace TrippyGL
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="color">The color to draw the texture with.</param>
-        public void Draw(Texture2D texture, Vector2 position, Color4b color)
+        public void Draw(Texture2D texture, Vector2 position, Color4b color, float depth = 0)
         {
-            Draw(texture, position, null, color, new Vector2(1, 1));
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, position, new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, depth);
+
+            EndDraw(item);
         }
 
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color)
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float depth = 0)
         {
             if (font == null)
                 throw new ArgumentNullException(nameof(font));
 
-            ValidateBeginCalled();
-
-            if (text.IsEmpty)
-                return;
-
-            FlushIfNeeded(font.Texture);
+            StartDraw(font.Texture);
 
             float y = position.Y + font.LineGap;
             float x = position.X;
@@ -444,29 +440,80 @@ namespace TrippyGL
                 if (source.Width != 0)
                 {
                     TextureBatchItem batchItem = GetNextBatchItem();
-                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c), source, color, new Vector2(1, 1), default, 0f);
+                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c), source, color, depth);
                 }
 
                 x += font.GetAdvance(c);
             }
+
+            FlushIfNeeded();
         }
 
         /// <summary>
-        /// Checks whether the <see cref="TextureBatcher"/> should be flushed before adding more batch
-        /// items, based on the current <see cref="BeginMode"/>, and flushes if so.
+        /// Performs any operations that need to be done before more batch items can be added.
+        /// This should be called at the start of any Draw() method.
         /// </summary>
-        /// <param name="nextTexture">The next texture to be added be batched.</param>
-        /// <remarks>This should be called at the start of any Draw() method.</remarks>
-        private void FlushIfNeeded(Texture2D nextTexture)
+        /// <param name="texture">The texture of the next batch item/s to be added.</param>
+        private void StartDraw(Texture2D texture)
         {
-            // If BeginMode is OnTheFly, before doing anything we check whether we should flush.
+            // We check that begin was called and if not, throw an exception.
+            ValidateBeginCalled();
+
+            // We ensure the texture isn't null
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
+            // If BeginMode is OnTheFly, before adding more batch items we check whether we should flush.
             if (BeginMode == BatcherBeginMode.OnTheFly && batchItemCount != 0)
             {
                 // We should flush if the texture that's being added isn't the same as the texture
                 // on the items already in batchItems.
-                if (batchItems[0].Texture != nextTexture)
+                if (batchItems[0].Texture != texture)
                     Flush(true);
             }
+        }
+
+        /// <summary>
+        /// Performs any operations that need to be done after a batch item was added.
+        /// This should be called at the end of any Draw() method that only adds a single item.
+        /// </summary>
+        /// <param name="item">The <see cref="TextureBatchItem"/> that was added.</param>
+        private void EndDraw(TextureBatchItem item)
+        {
+            if (!FlushIfNeeded())
+                SetItemSortKey(item);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="TextureBatchItem.SortValue"/> of the given item based on
+        /// the current <see cref="BeginMode"/>.
+        /// </summary>
+        private void SetItemSortKey(TextureBatchItem item)
+        {
+            item.SortValue = BeginMode switch
+            {
+                BatcherBeginMode.SortByTexture => item.Texture.Handle,
+                BatcherBeginMode.SortFrontToBack => item.VertexTL.Position.Z,
+                BatcherBeginMode.SortBackToFront => -item.VertexTL.Position.Z,
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Checks whether the <see cref="TextureBatcher"/> should be flushed after adding more batch
+        /// items based on the current <see cref="BeginMode"/> and if so, flushes.
+        /// </summary>
+        /// <returns>Whether the <see cref="TextureBatcher"/> was flushed.</returns>
+        /// <remarks>This should always be called after adding batch items of the same texture.</remarks>
+        private bool FlushIfNeeded()
+        {
+            if (BeginMode == BatcherBeginMode.Immediate)
+            {
+                Flush(true);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -567,19 +614,6 @@ namespace TrippyGL
             while (startIndex < batchItemCount && batchItems[startIndex].Texture == currentTexture)
                 startIndex++;
             return startIndex;
-        }
-
-        /// <summary>
-        /// Ends drawing a batch of textures and flushes any textures that are waiting to be drawn.
-        /// </summary>
-        public void End()
-        {
-            if (!IsActive)
-                throw new InvalidOperationException("Begin() must be called before End().");
-
-            Flush(BeginMode == BatcherBeginMode.Immediate || BeginMode == BatcherBeginMode.OnTheFly);
-
-            IsActive = false;
         }
 
         /// <summary>

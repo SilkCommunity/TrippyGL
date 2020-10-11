@@ -58,10 +58,7 @@ namespace TrippyGL
                     charsInLine++;
             }
 
-            if (charsInLine > maxCharsPerLine)
-                maxCharsPerLine = charsInLine;
-
-            return new Vector2(Advance * maxCharsPerLine, lineCount * LineAdvance);
+            return new Vector2(Advance * Math.Max(charsInLine, maxCharsPerLine), lineCount * LineAdvance);
         }
 
         public override Vector2 MeasureLine(ReadOnlySpan<char> text)

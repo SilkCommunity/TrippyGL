@@ -157,13 +157,13 @@ namespace TrippyGL
         /// </summary>
         public float MeasureHeight(ReadOnlySpan<char> text)
         {
-            float height = LineAdvance - LineGap;
+            int lineCount = 1;
 
             for (int i = 0; i < text.Length; i++)
                 if (text[i] == NewlineIndicator)
-                    height += LineAdvance;
+                    lineCount++;
 
-            return height;
+            return lineCount * LineAdvance;
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace TrippyGL
 
         public override string ToString()
         {
-            return Name ?? "Unnamed " + nameof(TextureFont);
+            return string.Concat(Name ?? "Unnamed " + nameof(TextureFont), " - ", Size.ToString());
         }
     }
 }

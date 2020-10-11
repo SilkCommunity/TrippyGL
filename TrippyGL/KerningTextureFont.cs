@@ -56,8 +56,8 @@ namespace TrippyGL
             if (text.IsEmpty)
                 return default;
 
-            Vector2 size = new Vector2(0, LineAdvance);
-
+            int lineCount = 1;
+            float maxLineWidth = 0;
             float lineWidth = 0;
             bool notFirstInLine = false;
 
@@ -66,10 +66,10 @@ namespace TrippyGL
                 char c = text[i];
                 if (c == NewlineIndicator)
                 {
-                    if (lineWidth > size.X)
-                        size.X = lineWidth;
+                    if (lineWidth > maxLineWidth)
+                        maxLineWidth = lineWidth;
                     lineWidth = 0;
-                    size.Y += LineAdvance;
+                    lineCount++;
                     notFirstInLine = false;
                 }
                 else
@@ -82,10 +82,7 @@ namespace TrippyGL
                 }
             }
 
-            if (lineWidth > size.X)
-                size.X = lineWidth;
-
-            return size;
+            return new Vector2(Math.Max(lineWidth, maxLineWidth), lineCount * LineAdvance);
         }
 
         public override Vector2 MeasureLine(ReadOnlySpan<char> text)
@@ -97,7 +94,7 @@ namespace TrippyGL
             for (int i = 1; i < text.Length && text[i] != NewlineIndicator; i++)
                 lineWidth += advances[text[i] - FirstChar] + kerningOffsets[text[i - 1] - FirstChar, text[i] - FirstChar].X;
 
-            return new Vector2(lineWidth, LineAdvance - LineGap);
+            return new Vector2(lineWidth, LineAdvance);
         }
 
         /// <summary>

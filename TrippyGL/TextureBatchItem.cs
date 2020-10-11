@@ -14,7 +14,8 @@ namespace TrippyGL
 
         /// <summary>
         /// A value used for sorting. It's value might come from different places depending
-        /// on the <see cref="TextureBatcher.BeginMode"/>.</summary>
+        /// on the <see cref="TextureBatcher.BeginMode"/>.
+        /// </summary>
         public float SortValue;
 
         /// <summary>The top-left vertex.</summary>
@@ -27,12 +28,12 @@ namespace TrippyGL
         public VertexColorTexture VertexBR;
 
         /// <summary>
-        /// Calculates and sets all the values on this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
         /// </summary>
         public void SetValue(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale, float rotation, Vector2 origin, float depth)
         {
             Texture = texture;
-            Rectangle sourceRect = source.HasValue ? source.GetValueOrDefault() : new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
+            Rectangle sourceRect = source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
             Vector2 size = new Vector2(sourceRect.Width, sourceRect.Height) * scale;
             Vector2 tl = -origin * size;
@@ -59,13 +60,13 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Calculates and sets all the values on this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>
         /// without calculating rotation.
         /// </summary>
         public void SetValue(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale, Vector2 origin, float depth)
         {
             Texture = texture;
-            Rectangle sourceRect = source.HasValue ? source.GetValueOrDefault() : new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
+            Rectangle sourceRect = source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
             Vector2 size = new Vector2(sourceRect.Width, sourceRect.Height) * scale;
             Vector2 tl = position - origin * size;
@@ -76,6 +77,30 @@ namespace TrippyGL
 
             VertexTL.TexCoords = new Vector2(sourceRect.X / (float)texture.Width, sourceRect.Y / (float)texture.Height);
             VertexBR.TexCoords = new Vector2(sourceRect.Right / (float)texture.Width, sourceRect.Bottom / (float)texture.Height);
+            VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
+            VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
+
+            VertexTL.Color = color;
+            VertexTR.Color = color;
+            VertexBL.Color = color;
+            VertexBR.Color = color;
+        }
+
+        /// <summary>
+        /// Calculates and sets all the values on this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>
+        /// without calculating rotation nor scale.
+        /// </summary>
+        public void SetValue(Texture2D texture, Vector2 position, Rectangle source, Color4b color, float depth)
+        {
+            Texture = texture;
+
+            VertexTL.Position = new Vector3(position, depth);
+            VertexTR.Position = new Vector3(position.X + source.Width, position.Y, depth);
+            VertexBL.Position = new Vector3(position.X, position.Y + source.Height, depth);
+            VertexBR.Position = new Vector3(position + new Vector2(source.Width, source.Height), depth);
+
+            VertexTL.TexCoords = new Vector2(source.X / (float)texture.Width, source.Y / (float)texture.Height);
+            VertexBR.TexCoords = new Vector2(source.Right / (float)texture.Width, source.Bottom / (float)texture.Height);
             VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
             VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
 
