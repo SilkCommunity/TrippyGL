@@ -33,6 +33,8 @@ namespace TrippyTesting
         Texture2D whitepx;
         TextureFont[] fonts;
         TextureFont font;
+        Vector2 scale = new Vector2(1, 1);
+        Vector2 origin = new Vector2(0, 0);
 
         public TextGame()
         {
@@ -128,6 +130,34 @@ namespace TrippyTesting
             {
                 Console.WriteLine("Error found: " + c);
             }
+
+            if (inputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft))
+            {
+                const float pepe = 0.5f;
+                if (inputContext.Keyboards[0].IsKeyPressed(Key.Up))
+                    origin.Y += (float)dtSeconds * pepe;
+                else if (inputContext.Keyboards[0].IsKeyPressed(Key.Down))
+                    origin.Y -= (float)dtSeconds * pepe;
+                if (inputContext.Keyboards[0].IsKeyPressed(Key.Left))
+                    origin.X += (float)dtSeconds * pepe;
+                else if (inputContext.Keyboards[0].IsKeyPressed(Key.Right))
+                    origin.X -= (float)dtSeconds * pepe;
+            }
+            else
+            {
+                const float pito = 0.75f;
+                if (inputContext.Keyboards[0].IsKeyPressed(Key.Up))
+                    scale.Y += (float)dtSeconds * pito;
+                else if (inputContext.Keyboards[0].IsKeyPressed(Key.Down))
+                    scale.Y -= (float)dtSeconds * pito;
+                if (inputContext.Keyboards[0].IsKeyPressed(Key.Left))
+                    scale.X += (float)dtSeconds * pito;
+                else if (inputContext.Keyboards[0].IsKeyPressed(Key.Right))
+                    scale.X -= (float)dtSeconds * pito;
+            }
+
+
+            Console.WriteLine("scale=" + scale.ToString() + " origin=" + origin.ToString());
         }
 
         public void OnWindowRender(double dtSeconds)
@@ -145,8 +175,9 @@ namespace TrippyTesting
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             batcher.Begin(BatcherBeginMode.OnTheFly);
-            Vector2 measured = font.Measure(str);
-            Vector2 position = new Vector2(50, 100);
+            Vector2 measured = font.Measure(str) * scale;
+            Vector2 position = new Vector2(inputContext.Mice[0].Position.X, inputContext.Mice[0].Position.Y);
+
 
             batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(measured.X, 1));
             batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(1, measured.Y));
@@ -154,7 +185,10 @@ namespace TrippyTesting
             batcher.Draw(whitepx, position + new Vector2(measured.X, 0), null, Color4b.Red, new Vector2(1, measured.Y));
 
 
-            batcher.DrawString(font, str, position, Color4b.White);
+            batcher.DrawString(font, str, position, Color4b.DimGray, scale, origin);
+            batcher.DrawString(font, str, position, Color4b.White, scale, (float)stopwatch.Elapsed.TotalSeconds, origin);
+
+            batcher.Draw(whitepx, position, null, Color4b.Lime, new Vector2(500, 1), (float)stopwatch.Elapsed.TotalSeconds);
             batcher.End();
 
             window.SwapBuffers();

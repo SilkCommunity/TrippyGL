@@ -43,13 +43,38 @@ namespace TrippyGL
 
             float sin = MathF.Sin(rotation);
             float cos = MathF.Cos(rotation);
-            VertexTL.Position = new Vector3(cos * tl.X + sin * tl.Y + position.X, -sin * tl.X + cos * tl.Y + position.Y, depth);
-            VertexTR.Position = new Vector3(cos * tr.X + sin * tr.Y + position.X, -sin * tr.X + cos * tr.Y + position.Y, depth);
-            VertexBL.Position = new Vector3(cos * bl.X + sin * bl.Y + position.X, -sin * bl.X + cos * bl.Y + position.Y, depth);
-            VertexBR.Position = new Vector3(cos * br.X + sin * br.Y + position.X, -sin * br.X + cos * br.Y + position.Y, depth);
+            VertexTL.Position = new Vector3(cos * tl.X - sin * tl.Y + position.X, sin * tl.X + cos * tl.Y + position.Y, depth);
+            VertexTR.Position = new Vector3(cos * tr.X - sin * tr.Y + position.X, sin * tr.X + cos * tr.Y + position.Y, depth);
+            VertexBL.Position = new Vector3(cos * bl.X - sin * bl.Y + position.X, sin * bl.X + cos * bl.Y + position.Y, depth);
+            VertexBR.Position = new Vector3(cos * br.X - sin * br.Y + position.X, sin * br.X + cos * br.Y + position.Y, depth);
 
             VertexTL.TexCoords = new Vector2(sourceRect.X / (float)texture.Width, sourceRect.Y / (float)texture.Height);
             VertexBR.TexCoords = new Vector2(sourceRect.Right / (float)texture.Width, sourceRect.Bottom / (float)texture.Height);
+            VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
+            VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
+
+            VertexTL.Color = color;
+            VertexTR.Color = color;
+            VertexBL.Color = color;
+            VertexBR.Color = color;
+        }
+
+        /// <summary>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// </summary>
+        public void SetValue(Texture2D texture, Vector2 position, Rectangle source, Color4b color, Vector2 scale, float sin, float cos, float depth)
+        {
+            Texture = texture;
+
+            Vector2 size = new Vector2(source.Width, source.Height) * scale;
+
+            VertexTL.Position = new Vector3(position.X, position.Y, depth);
+            VertexTR.Position = new Vector3(cos * size.X + position.X, sin * size.X + position.Y, depth);
+            VertexBL.Position = new Vector3(-sin * size.Y + position.X, cos * size.Y + position.Y, depth);
+            VertexBR.Position = new Vector3(cos * size.X - sin * size.Y + position.X, sin * size.X + cos * size.Y + position.Y, depth);
+
+            VertexTL.TexCoords = new Vector2(source.X / (float)texture.Width, source.Y / (float)texture.Height);
+            VertexBR.TexCoords = new Vector2(source.Right / (float)texture.Width, source.Bottom / (float)texture.Height);
             VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
             VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
 
@@ -77,6 +102,31 @@ namespace TrippyGL
 
             VertexTL.TexCoords = new Vector2(sourceRect.X / (float)texture.Width, sourceRect.Y / (float)texture.Height);
             VertexBR.TexCoords = new Vector2(sourceRect.Right / (float)texture.Width, sourceRect.Bottom / (float)texture.Height);
+            VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
+            VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
+
+            VertexTL.Color = color;
+            VertexTR.Color = color;
+            VertexBL.Color = color;
+            VertexBR.Color = color;
+        }
+
+        /// <summary>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>
+        /// without calculating rotation.
+        /// </summary>
+        public void SetValue(Texture2D texture, Vector2 position, Rectangle source, Color4b color, Vector2 scale, float depth)
+        {
+            Texture = texture;
+
+            Vector2 size = new Vector2(source.Width, source.Height) * scale;
+            VertexTL.Position = new Vector3(position, depth);
+            VertexTR.Position = new Vector3(position.X + size.X, position.Y, depth);
+            VertexBL.Position = new Vector3(position.X, position.Y + size.Y, depth);
+            VertexBR.Position = new Vector3(position + size, depth);
+
+            VertexTL.TexCoords = new Vector2(source.X / (float)texture.Width, source.Y / (float)texture.Height);
+            VertexBR.TexCoords = new Vector2(source.Right / (float)texture.Width, source.Bottom / (float)texture.Height);
             VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
             VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
 
