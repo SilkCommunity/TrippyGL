@@ -133,7 +133,7 @@ namespace TrippyTesting
 
             if (inputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft))
             {
-                const float pepe = 0.5f;
+                const float pepe = 50f;
                 if (inputContext.Keyboards[0].IsKeyPressed(Key.Up))
                     origin.Y += (float)dtSeconds * pepe;
                 else if (inputContext.Keyboards[0].IsKeyPressed(Key.Down))
@@ -179,10 +179,10 @@ namespace TrippyTesting
             Vector2 position = new Vector2(inputContext.Mice[0].Position.X, inputContext.Mice[0].Position.Y);
 
 
-            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(measured.X, 1));
-            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(1, measured.Y));
-            batcher.Draw(whitepx, position + new Vector2(0, measured.Y), null, Color4b.Red, new Vector2(measured.X, 1));
-            batcher.Draw(whitepx, position + new Vector2(measured.X, 0), null, Color4b.Red, new Vector2(1, measured.Y));
+            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(measured.X, 1), 0f);
+            batcher.Draw(whitepx, position, null, Color4b.Red, new Vector2(1, measured.Y), 0f);
+            batcher.Draw(whitepx, position + new Vector2(0, measured.Y), null, Color4b.Red, new Vector2(measured.X, 1), 0f);
+            batcher.Draw(whitepx, position + new Vector2(measured.X, 0), null, Color4b.Red, new Vector2(1, measured.Y), 0f);
 
 
             batcher.DrawString(font, str, position, Color4b.DimGray, scale, origin);

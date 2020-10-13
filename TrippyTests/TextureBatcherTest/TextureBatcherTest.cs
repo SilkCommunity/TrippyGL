@@ -121,13 +121,17 @@ namespace TextureBatcherTest
             for (int i = 0; i < balls.Length; i++)
                 balls[i].Draw(textureBatcher);
 
+            Vector2 rectOrigin = new Vector2(rectangleTexture.Width / 2f, rectangleTexture.Height / 2f);
             const float meh = 100;
-            const int times = 3;
+            const int times = 5;
             for (float x = -meh * times; x <= meh * times; x += meh)
                 for (float y = -meh * times; y <= meh * times; y += meh)
                 {
-                    byte alpha = (byte)Math.Max(0, 255 - Math.Abs(x) - Math.Abs(y));
-                    textureBatcher.Draw(rectangleTexture, new Vector2(mousePos.X + x, mousePos.Y + y), null, new Color4b(255, 255, 255, alpha), new Vector2(1, 1), time, new Vector2(0.5f, 0.5f), (-x - y) / 500f);
+                    byte alpha = (byte)Math.Max(0, 255 - (3f / times) * (Math.Abs(x) + Math.Abs(y)));
+                    float dep = (-x - y) / 500f;
+                    float sc = (Math.Abs(x) + Math.Abs(y)) / meh * 0.175f;
+                    sc = 1 - sc * sc;
+                    textureBatcher.Draw(rectangleTexture, new Vector2(mousePos.X + x, mousePos.Y + y), null, new Color4b(255, 255, 255, alpha), sc, time, rectOrigin, dep);
                 }
 
             textureBatcher.End();

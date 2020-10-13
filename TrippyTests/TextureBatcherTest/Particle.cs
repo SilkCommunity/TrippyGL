@@ -59,7 +59,7 @@ namespace TextureBatcherTest
 
         public void Draw(TextureBatcher textureBatcher)
         {
-            textureBatcher.Draw(texture, position, source, color, 5f, rotation, new Vector2(0.5f, 0.5f));
+            textureBatcher.Draw(texture, position, source, color, 5f, rotation, new Vector2(source.Width, source.Height) / 2f);
         }
 
         public bool IsOffscreen()

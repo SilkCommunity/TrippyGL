@@ -35,10 +35,9 @@ namespace TrippyGL
             Texture = texture;
             Rectangle sourceRect = source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
-            Vector2 size = new Vector2(sourceRect.Width, sourceRect.Height) * scale;
-            Vector2 tl = -origin * size;
-            Vector2 tr = new Vector2(tl.X + size.X, tl.Y);
-            Vector2 bl = new Vector2(tl.X, tl.Y + size.Y);
+            Vector2 tl = -origin * scale;
+            Vector2 tr = new Vector2(tl.X + sourceRect.Width * scale.X, tl.Y);
+            Vector2 bl = new Vector2(tl.X, tl.Y + sourceRect.Height * scale.Y);
             Vector2 br = new Vector2(tr.X, bl.Y);
 
             float sin = MathF.Sin(rotation);
@@ -93,12 +92,12 @@ namespace TrippyGL
             Texture = texture;
             Rectangle sourceRect = source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
-            Vector2 size = new Vector2(sourceRect.Width, sourceRect.Height) * scale;
-            Vector2 tl = position - origin * size;
+            Vector2 tl = position - origin * scale;
+            Vector2 br = tl + new Vector2(sourceRect.Width, sourceRect.Height) * scale;
             VertexTL.Position = new Vector3(tl, depth);
-            VertexTR.Position = new Vector3(tl.X + size.X, tl.Y, depth);
-            VertexBL.Position = new Vector3(tl.X, tl.Y + size.Y, depth);
-            VertexBR.Position = new Vector3(tl + size, depth);
+            VertexTR.Position = new Vector3(br.X, tl.Y, depth);
+            VertexBL.Position = new Vector3(tl.X, br.Y, depth);
+            VertexBR.Position = new Vector3(br, depth);
 
             VertexTL.TexCoords = new Vector2(sourceRect.X / (float)texture.Width, sourceRect.Y / (float)texture.Height);
             VertexBR.TexCoords = new Vector2(sourceRect.Right / (float)texture.Width, sourceRect.Bottom / (float)texture.Height);

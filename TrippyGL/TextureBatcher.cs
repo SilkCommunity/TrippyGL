@@ -78,7 +78,9 @@ namespace TrippyGL
         /// <param name="simpleProgram">The <see cref="SimpleShaderProgram"/> to use.</param>
         /// <remarks>
         /// The <see cref="SimpleShaderProgram"/> doesn't need to have texture sampling and vertex colors
-        /// enabled. Lightning however will not work, since the vertices lack normal data.
+        /// enabled. Lightning however will not work, since the vertices lack normal data.<para/>
+        /// The locations of the attributes on the program must still match 0 for position, 1 for
+        /// color and 2 for texture coordinates.
         /// </remarks>
         public void SetShaderProgram(SimpleShaderProgram simpleProgram)
         {
@@ -327,10 +329,10 @@ namespace TrippyGL
         /// <param name="color">The color to draw the texture with.</param>
         /// <param name="scale">The scale value that multiplies the size with the textures are drawn.</param>
         /// <param name="rotation">The rotation to draw the texture with, measured in radians.</param>
-        /// <param name="origin">The origin of rotation and scaling in normalized coordinates.</param>
+        /// <param name="origin">The origin of rotation and scaling.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale,
-            float rotation = 0, Vector2 origin = default, float depth = 0)
+            float rotation, Vector2 origin = default, float depth = 0)
         {
             StartDraw(texture);
 
@@ -352,10 +354,10 @@ namespace TrippyGL
         /// <param name="color">The color to draw the texture with.</param>
         /// <param name="scale">The scale value that multiplies the size with the textures are drawn.</param>
         /// <param name="rotation">The rotation to draw the texture with, measured in radians.</param>
-        /// <param name="origin">The origin of rotation and scaling in normalized coordinates.</param>
+        /// <param name="origin">The origin of rotation and scaling.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, float scale,
-            float rotation = 0, Vector2 origin = default, float depth = 0)
+            float rotation, Vector2 origin = default, float depth = 0)
         {
             Draw(texture, position, source, color, new Vector2(scale, scale), rotation, origin, depth);
         }
@@ -412,6 +414,131 @@ namespace TrippyGL
             EndDraw(item);
         }
 
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin = default, float depth = 0)
+        {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            if (text.IsEmpty)
+                return;
+
+            StartDraw(font.Texture);
+
+            float sin = MathF.Sin(rotation);
+            float cos = MathF.Cos(rotation);
+
+            Vector2 m = origin * scale;
+            position += new Vector2(-cos * m.X + sin * m.Y, -sin * m.X - cos * m.Y);
+
+
+            Vector2 lineAdvance = new Vector2(-sin, cos) * font.LineAdvance * scale;
+            Vector2 charAdvance = new Vector2(cos, sin) * scale.X;
+
+            Vector2 linePosition = position + new Vector2(-sin, cos) * font.LineGap * scale;
+            Vector2 penPosition = linePosition;
+
+            bool isFirstInLine = true;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == TextureFont.NewlineIndicator)
+                {
+                    linePosition += lineAdvance;
+                    penPosition = linePosition;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 kroff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    Vector2 koff = font.GetKerning(text[i - 1], c) * scale;
+                    penPosition += new Vector2(cos, sin) * koff.X;
+                    kroff = new Vector2(-sin, cos) * koff.Y;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    Vector2 renderOffset = font.GetRenderOffset(c) * scale;
+                    renderOffset = new Vector2(cos * renderOffset.X - sin * renderOffset.Y, sin * renderOffset.X + cos * renderOffset.Y);
+                    batchItem.SetValue(font.Texture, penPosition + kroff + renderOffset, source, color, scale, sin, cos, depth);
+                    SetItemSortKey(batchItem);
+                }
+
+                penPosition += font.GetAdvance(c) * charAdvance;
+            }
+
+            FlushIfNeeded();
+        }
+
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, float rotation, Vector2 origin = default, float depth = 0)
+        {
+            DrawString(font, text, position, color, new Vector2(scale, scale), rotation, origin, depth);
+        }
+
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin = default, float depth = 0)
+        {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            if (text.IsEmpty)
+                return;
+
+            StartDraw(font.Texture);
+
+            float lineAdvance = font.LineAdvance * scale.Y;
+
+            position -= origin * scale;
+
+            float y = position.Y + font.LineGap * scale.Y;
+            float x = position.X;
+
+            bool isFirstInLine = true;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == TextureFont.NewlineIndicator)
+                {
+                    x = position.X;
+                    y += lineAdvance;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 koff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    koff = font.GetKerning(text[i - 1], c) * scale;
+                    x += koff.X;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c) * scale, source, color, scale, depth);
+                    SetItemSortKey(batchItem);
+                }
+
+                x += font.GetAdvance(c) * scale.X;
+            }
+
+            FlushIfNeeded();
+        }
+
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, Vector2 origin = default, float depth = 0)
+        {
+            DrawString(font, text, position, color, scale, origin, depth);
+        }
+
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float depth = 0)
         {
             if (font == null)
@@ -430,7 +557,7 @@ namespace TrippyGL
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
-                if (c == '\n')
+                if (c == TextureFont.NewlineIndicator)
                 {
                     x = position.X;
                     y += font.LineAdvance;
@@ -464,139 +591,6 @@ namespace TrippyGL
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, float depth = 0)
         {
             DrawString(font, text, position, Color4b.White, depth);
-        }
-
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin = default, float depth = 0)
-        {
-            if (font == null)
-                throw new ArgumentNullException(nameof(font));
-
-            if (text.IsEmpty)
-                return;
-
-            StartDraw(font.Texture);
-
-            float lineAdvance = font.LineAdvance * scale.Y;
-
-            if (origin.X == 0)
-            {
-                if (origin.Y != 0)
-                    position.Y -= font.MeasureHeight(text) * origin.Y * scale.Y;
-            }
-            else
-            {
-                position -= font.Measure(text) * origin * scale;
-            }
-
-            float y = position.Y + font.LineGap * scale.Y;
-            float x = position.X;
-
-            bool isFirstInLine = true;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-                if (c == '\n')
-                {
-                    x = position.X;
-                    y += lineAdvance;
-                    isFirstInLine = true;
-                    continue;
-                }
-
-                Vector2 koff = default;
-                if (isFirstInLine)
-                    isFirstInLine = false;
-                else
-                {
-                    koff = font.GetKerning(text[i - 1], c) * scale;
-                    x += koff.X;
-                }
-
-                Rectangle source = font.GetSource(c);
-                if (source.Width != 0)
-                {
-                    TextureBatchItem batchItem = GetNextBatchItem();
-                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c) * scale, source, color, scale, depth);
-                    SetItemSortKey(batchItem);
-                }
-
-                x += font.GetAdvance(c) * scale.X;
-            }
-
-            FlushIfNeeded();
-        }
-
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin = default, float depth = 0)
-        {
-            if (font == null)
-                throw new ArgumentNullException(nameof(font));
-
-            if (text.IsEmpty)
-                return;
-
-            StartDraw(font.Texture);
-
-            float sin = MathF.Sin(rotation);
-            float cos = MathF.Cos(rotation);
-
-            if (origin.X == 0)
-            {
-                if (origin.Y != 0)
-                {
-                    float h = font.MeasureHeight(text) * origin.Y * scale.Y;
-                    position += new Vector2(sin, -cos) * h;
-                }
-            }
-            else
-            {
-                Vector2 m = font.Measure(text) * origin * scale;
-                position += new Vector2(-cos * m.X + sin * m.Y, -sin * m.X - cos * m.Y);
-            }
-
-            Vector2 lineAdvance = new Vector2(-sin, cos) * font.LineAdvance * scale;
-            Vector2 charAdvance = new Vector2(cos, sin) * scale.X;
-
-            Vector2 linePosition = position + new Vector2(-sin, cos) * font.LineGap * scale;
-            Vector2 penPosition = linePosition;
-
-            bool isFirstInLine = true;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-                if (c == '\n')
-                {
-                    linePosition += lineAdvance;
-                    penPosition = linePosition;
-                    isFirstInLine = true;
-                    continue;
-                }
-
-                Vector2 kroff = default;
-                if (isFirstInLine)
-                    isFirstInLine = false;
-                else
-                {
-                    Vector2 koff = font.GetKerning(text[i - 1], c) * scale;
-                    penPosition += new Vector2(cos, sin) * koff.X;
-                    kroff = new Vector2(-sin, cos) * koff.Y;
-                }
-
-                Rectangle source = font.GetSource(c);
-                if (source.Width != 0)
-                {
-                    TextureBatchItem batchItem = GetNextBatchItem();
-                    Vector2 renderOffset = font.GetRenderOffset(c) * scale;
-                    renderOffset = new Vector2(cos * renderOffset.X - sin * renderOffset.Y, sin * renderOffset.X + cos * renderOffset.Y);
-                    batchItem.SetValue(font.Texture, penPosition + kroff + renderOffset, source, color, scale, sin, cos, depth);
-                    SetItemSortKey(batchItem);
-                }
-
-                penPosition += font.GetAdvance(c) * charAdvance;
-            }
-
-            FlushIfNeeded();
         }
 
         /// <summary>
@@ -671,7 +665,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="sameTextureEnsured">
         /// Whether it is ensured that all the <see cref="TextureBatchItem"/> in <see cref="batchItems"/>
-        /// have the same textured.
+        /// have the same textures.
         /// </param>
         /// <remarks>
         /// This function assumes <see cref="Begin(BatcherBeginMode)"/> was succesfully called and
