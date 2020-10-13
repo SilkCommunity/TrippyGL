@@ -441,16 +441,16 @@ namespace TrippyGL
             float cos = MathF.Cos(rotation);
 
             Vector2 m = origin * scale;
-            position += new Vector2(-cos * m.X + sin * m.Y, -sin * m.X - cos * m.Y);
-
+            position -= new Vector2(cos * m.X - sin * m.Y, sin * m.X + cos * m.Y);
 
             Vector2 lineAdvance = new Vector2(-sin, cos) * font.LineAdvance * scale;
             Vector2 charAdvance = new Vector2(cos, sin) * scale.X;
 
-            Vector2 linePosition = position + new Vector2(-sin, cos) * font.LineGap * scale;
+            Vector2 linePosition = position + font.LineGap * scale.Y * new Vector2(-sin, cos);
             Vector2 penPosition = linePosition;
 
             bool isFirstInLine = true;
+            char previousChar = default;
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -468,7 +468,7 @@ namespace TrippyGL
                     isFirstInLine = false;
                 else
                 {
-                    Vector2 koff = font.GetKerning(text[i - 1], c) * scale;
+                    Vector2 koff = font.GetKerning(previousChar, c) * scale;
                     penPosition += new Vector2(cos, sin) * koff.X;
                     kroff = new Vector2(-sin, cos) * koff.Y;
                 }
@@ -484,6 +484,7 @@ namespace TrippyGL
                 }
 
                 penPosition += font.GetAdvance(c) * charAdvance;
+                previousChar = c;
             }
 
             FlushIfNeeded();
@@ -533,6 +534,7 @@ namespace TrippyGL
             float x = position.X;
 
             bool isFirstInLine = true;
+            char previousChar = default;
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -550,7 +552,7 @@ namespace TrippyGL
                     isFirstInLine = false;
                 else
                 {
-                    koff = font.GetKerning(text[i - 1], c) * scale;
+                    koff = font.GetKerning(previousChar, c) * scale;
                     x += koff.X;
                 }
 
@@ -563,6 +565,7 @@ namespace TrippyGL
                 }
 
                 x += font.GetAdvance(c) * scale.X;
+                previousChar = c;
             }
 
             FlushIfNeeded();
@@ -605,6 +608,7 @@ namespace TrippyGL
             float x = position.X;
 
             bool isFirstInLine = true;
+            char previousChar = default;
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -622,7 +626,7 @@ namespace TrippyGL
                     isFirstInLine = false;
                 else
                 {
-                    koff = font.GetKerning(text[i - 1], c);
+                    koff = font.GetKerning(previousChar, c);
                     x += koff.X;
                 }
 
@@ -635,6 +639,7 @@ namespace TrippyGL
                 }
 
                 x += font.GetAdvance(c);
+                previousChar = c;
             }
 
             FlushIfNeeded();
