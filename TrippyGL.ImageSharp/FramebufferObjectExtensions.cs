@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.Processing;
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
-    /// Extension methods for <see cref="FramebufferObject"/>.
+    /// Provides extension methods for <see cref="FramebufferObject"/>.
     /// </summary>
     public static class FramebufferObjectExtensions
     {

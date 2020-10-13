@@ -14,7 +14,7 @@ namespace TrippyTesting
 
         static void Main(string[] args)
         {
-            new Tests.TerrainMaker().Run();
+            new TextGame().Run();
         }
 
         public static void OnDebugMessage(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message)

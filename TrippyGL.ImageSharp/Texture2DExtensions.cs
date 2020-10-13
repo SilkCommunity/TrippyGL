@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Processing;
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
-    /// Extension methods for <see cref="Texture2D"/>.
+    /// Provides extension methods for <see cref="Texture2D"/>.
     /// </summary>
     public static class Texture2DExtensions
     {

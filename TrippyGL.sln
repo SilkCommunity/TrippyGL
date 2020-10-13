@@ -40,6 +40,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleShader3D", "TrippyTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextureBatcherTest", "TrippyTests\TextureBatcherTest\TextureBatcherTest.csproj", "{160E064F-D509-4158-84B4-907752E132C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL.Fonts", "TrippyGL.Fonts\TrippyGL.Fonts.csproj", "{8496BE27-3BD2-4E06-82EE-25C668090881}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL.Fonts.Building", "TrippyGL.Fonts.Building\TrippyGL.Fonts.Building.csproj", "{F61495EA-38C0-41D2-8691-3C38DB1D05B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrippyGL.Fonts.Extensions", "TrippyGL.Fonts.Extensions\TrippyGL.Fonts.Extensions.csproj", "{09AA8EFE-55BF-4C49-A4F0-BF81C3456703}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +112,18 @@ Global
 		{160E064F-D509-4158-84B4-907752E132C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{160E064F-D509-4158-84B4-907752E132C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{160E064F-D509-4158-84B4-907752E132C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8496BE27-3BD2-4E06-82EE-25C668090881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8496BE27-3BD2-4E06-82EE-25C668090881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8496BE27-3BD2-4E06-82EE-25C668090881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8496BE27-3BD2-4E06-82EE-25C668090881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F61495EA-38C0-41D2-8691-3C38DB1D05B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F61495EA-38C0-41D2-8691-3C38DB1D05B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F61495EA-38C0-41D2-8691-3C38DB1D05B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F61495EA-38C0-41D2-8691-3C38DB1D05B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09AA8EFE-55BF-4C49-A4F0-BF81C3456703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09AA8EFE-55BF-4C49-A4F0-BF81C3456703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09AA8EFE-55BF-4C49-A4F0-BF81C3456703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09AA8EFE-55BF-4C49-A4F0-BF81C3456703}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

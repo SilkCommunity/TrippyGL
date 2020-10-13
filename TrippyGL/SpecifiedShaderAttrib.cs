@@ -6,12 +6,12 @@ namespace TrippyGL
     /// <summary>
     /// Used by <see cref="ShaderProgramBuilder"/> for specifying vertex attributes.
     /// </summary>
-    public struct SpecifiedShaderAttrib : IEquatable<SpecifiedShaderAttrib>
+    public readonly struct SpecifiedShaderAttrib : IEquatable<SpecifiedShaderAttrib>
     {
         /// <summary>The shader attribute's type.</summary>
-        public AttributeType AttribType;
+        public readonly AttributeType AttribType;
         /// <summary>The name with which the shader attribute is declared in the shader.</summary>
-        public string Name;
+        public readonly string Name;
 
         /// <summary>
         /// Creates a <see cref="SpecifiedShaderAttrib"/> with the given values.

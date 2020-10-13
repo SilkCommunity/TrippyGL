@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
-    /// Extension methods for <see cref="TextureCubemap"/>.
+    /// Provides extension methods for <see cref="TextureCubemap"/>.
     /// </summary>
     public static class TextureCubemapExtensions
     {

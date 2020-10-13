@@ -73,7 +73,7 @@ namespace TextureBatcherTest
 
         protected override void OnUpdate(double dt)
         {
-            float dtSeconds = (float)dt;
+            float dtSeconds = Math.Min(0.2f, (float)dt);
 
             LinkedListNode<Particle> node = particles.First;
             while (node != null)
@@ -108,7 +108,7 @@ namespace TextureBatcherTest
             float time = (float)stopwatch.Elapsed.TotalSeconds;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
-            PointF mousePos = InputContext.Mice[0].Position;
+            Vector2 mousePos = new Vector2(InputContext.Mice[0].Position.X, InputContext.Mice[0].Position.Y);
 
             textureBatcher.Begin(BatcherBeginMode.OnTheFly);
 
@@ -121,13 +121,24 @@ namespace TextureBatcherTest
             for (int i = 0; i < balls.Length; i++)
                 balls[i].Draw(textureBatcher);
 
+            textureBatcher.End();
+
+
+            textureBatcher.Begin(BatcherBeginMode.SortBackToFront);
+
+            Vector2 rectOrigin = new Vector2(rectangleTexture.Width / 2f, rectangleTexture.Height / 2f);
             const float meh = 100;
-            const int times = 3;
+            const int times = 6;
             for (float x = -meh * times; x <= meh * times; x += meh)
                 for (float y = -meh * times; y <= meh * times; y += meh)
                 {
-                    byte alpha = (byte)Math.Max(0, 255 - Math.Abs(x) - Math.Abs(y));
-                    textureBatcher.Draw(rectangleTexture, new Vector2(mousePos.X + x, mousePos.Y + y), null, new Color4b(255, 255, 255, alpha), new Vector2(1, 1), time, new Vector2(0.5f, 0.5f), (-x - y) / 500f);
+                    float dist = Math.Abs(x) + Math.Abs(y);
+                    byte alpha = (byte)Math.Max(0, 255 - (3f / times) * dist);
+                    float dep = dist / 500f;
+                    float sc = dist / meh * 0.175f;
+                    sc = 1 - sc * sc;
+                    Vector2 pos = mousePos + new Vector2(MathF.Sign(x), MathF.Sign(y)) * Vector2.SquareRoot(new Vector2(MathF.Abs(x), MathF.Abs(y)) / meh) * meh;
+                    textureBatcher.Draw(rectangleTexture, pos, null, new Color4b(255, 255, 255, alpha), sc, time, rectOrigin, dep);
                 }
 
             textureBatcher.End();

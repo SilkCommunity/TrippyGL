@@ -6,7 +6,7 @@ namespace TrippyGL
     /// <summary>
     /// An abstract <see cref="Texture"/> type that supports multisampling.
     /// </summary>
-    public class TextureMultisamplable : Texture
+    public abstract class TextureMultisamplable : Texture
     {
         /// <summary>The amount of samples this <see cref="Texture"/> has.</summary>
         public uint Samples { get; private set; }

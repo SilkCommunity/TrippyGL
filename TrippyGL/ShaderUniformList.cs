@@ -34,7 +34,7 @@ namespace TrippyGL
         /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns an empty <see cref="ShaderUniform"/>.
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
-        public ShaderUniform this[string name] => GetShaderByName(name);
+        public ShaderUniform this[string name] => GetUniformByName(name);
 
         private ShaderUniformList(ShaderProgram program, int totalUniformCount, int totalUniformBlockCount)
         {
@@ -127,7 +127,7 @@ namespace TrippyGL
         /// Gets a <see cref="ShaderUniform"/> by name. If there's no such name, returns an empty <see cref="ShaderUniform"/>.
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
-        public ShaderUniform GetShaderByName(ReadOnlySpan<char> name)
+        public ShaderUniform GetUniformByName(ReadOnlySpan<char> name)
         {
             for (int i = 0; i < uniforms.Length; i++)
                 if (name.SequenceEqual(uniforms[i].Name))
