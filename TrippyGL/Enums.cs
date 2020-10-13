@@ -166,13 +166,15 @@ namespace TrippyGL
         SortByTexture = 1,
 
         /// <summary>
-        /// Textures are drawn when End() is called, but first sorted by depth in back-to-front order.<para/>
+        /// Textures are drawn when End() is called, but first sorted by depth in back-to-front order.
+        /// This means items with higher depth get drawn before items with lower depth.<para/>
         /// Textures with the same depth aren't guaranteed to retain the order in which they were Draw()-n.
         /// </summary>
         SortBackToFront = 3,
 
         /// <summary>
-        /// Textures are drawn when End() is called, but first sorted by depth in front-to-back order.<para/>
+        /// Textures are drawn when End() is called, but first sorted by depth in front-to-back order.
+        /// This means items with lower depth get drawn before items with higher depth.<para/>
         /// Textures with the same depth aren't guaranteed to retain the order in which they were Draw()-n.
         /// </summary>
         SortFrontToBack = 5,

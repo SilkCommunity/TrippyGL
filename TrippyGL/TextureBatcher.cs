@@ -37,7 +37,9 @@ namespace TrippyGL
         /// </summary>
         public bool IsActive { get; private set; }
 
-        /// <summary>The <see cref="BatcherBeginMode"/> specified in the last <see cref="Begin(BatcherBeginMode)"/>.</summary>
+        /// <summary>
+        /// The <see cref="BatcherBeginMode"/> specified in the last <see cref="Begin(BatcherBeginMode)"/>.
+        /// </summary>
         public BatcherBeginMode BeginMode { get; private set; }
 
         /// <summary>The <see cref="ShaderProgram"/> this <see cref="TextureBatcher"/> is currently using.</summary>
@@ -326,10 +328,10 @@ namespace TrippyGL
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
-        /// <param name="color">The color to draw the texture with.</param>
-        /// <param name="scale">The scale value that multiplies the size with the textures are drawn.</param>
+        /// <param name="color">The color with which to draw the texture.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn texture.</param>
         /// <param name="rotation">The rotation to draw the texture with, measured in radians.</param>
-        /// <param name="origin">The origin of rotation and scaling.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, Vector2 scale,
             float rotation, Vector2 origin = default, float depth = 0)
@@ -351,10 +353,10 @@ namespace TrippyGL
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
-        /// <param name="color">The color to draw the texture with.</param>
-        /// <param name="scale">The scale value that multiplies the size with the textures are drawn.</param>
+        /// <param name="color">The color with which to draw the texture.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn texture.</param>
         /// <param name="rotation">The rotation to draw the texture with, measured in radians.</param>
-        /// <param name="origin">The origin of rotation and scaling.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, float scale,
             float rotation, Vector2 origin = default, float depth = 0)
@@ -368,7 +370,7 @@ namespace TrippyGL
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
-        /// <param name="color">The color to draw the texture with.</param>
+        /// <param name="color">The color with which to draw the texture.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Rectangle? source, Color4b color, float depth = 0)
         {
@@ -402,7 +404,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
-        /// <param name="color">The color to draw the texture with.</param>
+        /// <param name="color">The color with which to draw the texture.</param>
         /// <param name="depth">The depth at which to draw the texture.</param>
         public void Draw(Texture2D texture, Vector2 position, Color4b color, float depth = 0)
         {
@@ -414,6 +416,17 @@ namespace TrippyGL
             EndDraw(item);
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin = default, float depth = 0)
         {
             if (font == null)
@@ -476,11 +489,32 @@ namespace TrippyGL
             FlushIfNeeded();
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, float rotation, Vector2 origin = default, float depth = 0)
         {
             DrawString(font, text, position, color, new Vector2(scale, scale), rotation, origin, depth);
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin = default, float depth = 0)
         {
             if (font == null)
@@ -534,11 +568,29 @@ namespace TrippyGL
             FlushIfNeeded();
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, Vector2 origin = default, float depth = 0)
         {
             DrawString(font, text, position, color, scale, origin, depth);
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float depth = 0)
         {
             if (font == null)
@@ -588,6 +640,13 @@ namespace TrippyGL
             FlushIfNeeded();
         }
 
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, float depth = 0)
         {
             DrawString(font, text, position, Color4b.White, depth);

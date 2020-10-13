@@ -166,5 +166,11 @@ namespace TrippyGL
         {
             return SortValue.CompareTo(other.SortValue);
         }
+
+        public override string ToString()
+        {
+            return Texture == null ? "Empty " + nameof(TextureBatchItem)
+                : string.Concat("Texture.Handle=", Texture.Handle.ToString(), ", " + nameof(SortValue) + "=", SortValue.ToString());
+        }
     }
 }
