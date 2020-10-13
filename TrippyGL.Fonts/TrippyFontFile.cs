@@ -12,7 +12,7 @@ namespace TrippyGL.Fonts
     /// <summary>
     /// Stores information for multiple fonts and provides methods for loading/saving from/to streams.
     /// </summary>
-    public class TrippyFontFile : IDisposable
+    public sealed class TrippyFontFile : IDisposable
     {
         /// <summary>The information of all the fonts in this <see cref="TrippyFontFile"/>.</summary>
         public TextureFontData[] FontDatas;

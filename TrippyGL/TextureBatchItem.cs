@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// Used internally by <see cref="TextureBatcher"/> to store the vertices for each Draw().
     /// </summary>
-    internal class TextureBatchItem : IComparable<TextureBatchItem>
+    internal sealed class TextureBatchItem : IComparable<TextureBatchItem>
     {
         /// <summary>The <see cref="Texture2D"/> to draw the vertices with.</summary>
         public Texture2D Texture;

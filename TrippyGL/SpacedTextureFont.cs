@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// A <see cref="TextureFont"/> where characters can have different advance values but no kerning.
     /// </summary>
-    public class SpacedTextureFont : TextureFont
+    public sealed class SpacedTextureFont : TextureFont
     {
         private readonly float[] advances;
 

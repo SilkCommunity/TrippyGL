@@ -10,10 +10,9 @@ namespace TrippyGL.Fonts.Building
     /// <summary>
     /// A rendering surface that fonts can use to generate shapes.
     /// </summary>
-    internal class ColorGlyphRenderer : IColorGlyphRenderer
+    internal sealed class ColorGlyphRenderer : IColorGlyphRenderer
     {
-        protected readonly PathBuilder builder = new PathBuilder();
-
+        private readonly PathBuilder builder = new PathBuilder();
         private readonly List<IPath> paths = new List<IPath>();
         private readonly List<Color?> colors = new List<Color?>();
 
@@ -36,24 +35,14 @@ namespace TrippyGL.Fonts.Building
 
         void IGlyphRenderer.EndText() { }
 
-        void IGlyphRenderer.BeginText(FontRectangle rect) => BeginText(rect);
-
-        protected virtual void BeginText(FontRectangle rect) { }
+        void IGlyphRenderer.BeginText(FontRectangle rect) { }
 
         bool IGlyphRenderer.BeginGlyph(FontRectangle rect, GlyphRendererParameters cachKey)
         {
             currentColor = null;
             builder.Clear();
-            return BeginGlyph(rect, cachKey);
-        }
-
-        protected virtual bool BeginGlyph(FontRectangle rect, GlyphRendererParameters cachKey)
-        {
-            BeginGlyph(rect);
             return true;
         }
-
-        protected virtual void BeginGlyph(FontRectangle rect) { }
 
         void IGlyphRenderer.BeginFigure()
         {

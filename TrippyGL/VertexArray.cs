@@ -19,6 +19,7 @@ namespace TrippyGL
         /// <summary>A list with the sources that will feed the vertex attribute's data on draw calls.</summary>
         public ReadOnlySpan<VertexAttribSource> AttribSources => new ReadOnlySpan<VertexAttribSource>(attribSources);
 
+        /// <summary>The buffer subset from which index data will be read, or null for no index buffer.</summary>
         public readonly IndexBufferSubset IndexBuffer;
 
         /// <summary>

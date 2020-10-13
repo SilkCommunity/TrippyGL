@@ -14,7 +14,7 @@ namespace TrippyGL.Fonts.Building
     /// An implementation of <see cref="IGlyphSource"/> that sources it's glyphs from
     /// a <see cref="SixLabors.Fonts"/> font.
     /// </summary>
-    public class FontGlyphSource : IGlyphSource
+    public sealed class FontGlyphSource : IGlyphSource
     {
         /// <summary>The DPI to use for drawing the glyphs.</summary>
         private const float DrawDpi = 96;

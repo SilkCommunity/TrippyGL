@@ -19,16 +19,7 @@ namespace TrippyGL
         /// Gets a <see cref="ShaderBlockUniform"/> by name. If there's no such name, returns null.
         /// </summary>
         /// <param name="name">The name (declared in the shaders) of the <see cref="ShaderBlockUniform"/> to get.</param>
-        public ShaderBlockUniform this[string name]
-        {
-            get
-            {
-                for (int i = 0; i < uniforms.Length; i++)
-                    if (uniforms[i].Name == name)
-                        return uniforms[i];
-                return null;
-            }
-        }
+        public ShaderBlockUniform this[string name] => GetUniformByName(name);
 
         /// <summary>The amount of <see cref="ShaderBlockUniform"/> in the <see cref="ShaderProgram"/>.</summary>
         public int Count => uniforms.Length;
@@ -54,7 +45,7 @@ namespace TrippyGL
                 for (uint i = 0; i < blockUniformCount; i++)
                 {
                     program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockNameLength, out int nameLength);
-                    program.GL.GetActiveUniformBlockName(program.Handle, i, (uint)nameLength, out uint actualNameLength, out string name);
+                    program.GL.GetActiveUniformBlockName(program.Handle, i, (uint)nameLength, out uint _, out string name);
                     program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockBinding, out int bindingIndex);
                     program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockActiveUniforms, out int activeUniformCount);
                     TotalUniformCount += activeUniformCount;
@@ -76,6 +67,18 @@ namespace TrippyGL
             if (uniforms != null)
                 for (int i = 0; i < uniforms.Length; i++)
                     uniforms[i].ApplyUniformValue();
+        }
+        /// <summary>
+        /// Gets a <see cref="ShaderBlockUniform"/> by name. If there's no such name, returns null.
+        /// </summary>
+        /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderBlockUniform"/> to get.</param>
+        public ShaderBlockUniform GetUniformByName(ReadOnlySpan<char> name)
+        {
+            for (int i = 0; i < uniforms.Length; i++)
+                if (name.SequenceEqual(uniforms[i].Name))
+                    return uniforms[i];
+
+            return null;
         }
 
         public override string ToString()

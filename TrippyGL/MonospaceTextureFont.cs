@@ -7,7 +7,7 @@ namespace TrippyGL
     /// <summary>
     /// A <see cref="TextureFont"/> where all the characters have the same advance value.
     /// </summary>
-    public class MonospaceTextureFont : TextureFont
+    public sealed class MonospaceTextureFont : TextureFont
     {
         /// <summary>The advance value for any character in this font.</summary>
         public readonly float Advance;
