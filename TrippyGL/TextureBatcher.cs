@@ -156,6 +156,9 @@ namespace TrippyGL
             if (vertexBuffer.IsDisposed)
                 throw new ObjectDisposedException(nameof(TextureBatcher));
 
+            if (!Enum.IsDefined(typeof(BatcherBeginMode), beginMode))
+                throw new ArgumentException("Invalid " + nameof(BatcherBeginMode) + " value.", nameof(beginMode));
+
             if (ShaderProgram == null)
                 throw new InvalidOperationException("A " + nameof(ShaderProgram) + " must be specified (via " + nameof(SetShaderProgram) + "()) before using Begin().");
 
@@ -443,7 +446,7 @@ namespace TrippyGL
             Vector2 m = origin * scale;
             position -= new Vector2(cos * m.X - sin * m.Y, sin * m.X + cos * m.Y);
 
-            Vector2 lineAdvance = new Vector2(-sin, cos) * font.LineAdvance * scale;
+            Vector2 lineAdvance = font.LineAdvance * scale.Y * new Vector2(-sin, cos);
             Vector2 charAdvance = new Vector2(cos, sin) * scale.X;
 
             Vector2 linePosition = position + font.LineGap * scale.Y * new Vector2(-sin, cos);
@@ -583,7 +586,7 @@ namespace TrippyGL
         /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, Vector2 origin = default, float depth = 0)
         {
-            DrawString(font, text, position, color, scale, origin, depth);
+            DrawString(font, text, position, color, new Vector2(scale, scale), origin, depth);
         }
 
         /// <summary>
