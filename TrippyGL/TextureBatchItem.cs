@@ -170,7 +170,9 @@ namespace TrippyGL
         public override string ToString()
         {
             return Texture == null ? "Empty " + nameof(TextureBatchItem)
-                : string.Concat("Texture.Handle=", Texture.Handle.ToString(), ", " + nameof(SortValue) + "=", SortValue.ToString());
+                : string.Concat("Texture.Handle=", Texture.Handle.ToString(),
+                ", VertexTL.Position=(", VertexTL.Position.X.ToString(), ",", VertexTL.Position.Y.ToString(), ",", VertexTL.Position.Z.ToString(), ")"
+                + ", " + nameof(SortValue) + "=", SortValue.ToString());
         }
     }
 }

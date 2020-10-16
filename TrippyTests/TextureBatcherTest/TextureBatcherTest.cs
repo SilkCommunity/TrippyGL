@@ -6,6 +6,7 @@ using System.Numerics;
 using Silk.NET.Input.Common;
 using Silk.NET.OpenGL;
 using TrippyGL;
+using TrippyGL.Fonts.Extensions;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
 
@@ -16,6 +17,8 @@ namespace TextureBatcherTest
         public static int MaxX, MaxY;
         public static Random random = new Random();
 
+        const string loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing\nelit, sed eiusmod tempor incidunt ut labore et dolore\nmagna aliqua. Ut enim ad minim veniam, quis\nnostrud exercitation ullamco laboris nisi ut aliquid\nex ea commodi consequat. Quis aute iure\nreprehenderit in voluptate velit esse cillum dolore eu\nfugiat nulla pariatur. Excepteur sint obcaecat\ncupiditat non proident, sunt in culpa qui officia\ndeserunt mollit anim id est laborum.";
+
         Stopwatch stopwatch;
 
         SimpleShaderProgram shaderProgram;
@@ -24,6 +27,9 @@ namespace TextureBatcherTest
         Texture2D rectangleTexture;
         Texture2D ballTexture;
         Texture2D diamondTexture;
+
+        TextureFont arialFont;
+        TextureFont comicSansFont;
 
         TextureBatcher textureBatcher;
 
@@ -40,6 +46,10 @@ namespace TextureBatcherTest
             rectangleTexture = Texture2DExtensions.FromFile(graphicsDevice, "rectangle.png");
             ballTexture = Texture2DExtensions.FromFile(graphicsDevice, "ball.png");
             diamondTexture = Texture2DExtensions.FromFile(graphicsDevice, "diamond.png");
+
+            TextureFont[] fonts = TextureFontExtensions.FromFile(graphicsDevice, "font.tglf");
+            comicSansFont = fonts[0];
+            arialFont = fonts[1];
 
             textureBatcher = new TextureBatcher(graphicsDevice);
             textureBatcher.SetShaderProgram(shaderProgram);
@@ -112,12 +122,20 @@ namespace TextureBatcherTest
 
             textureBatcher.Begin(BatcherBeginMode.OnTheFly);
 
+            float loreIpsumScale = 1 + 0.1f * MathF.Sin(time * 4.32f);
+            textureBatcher.DrawString(arialFont, loremIpsum, new Vector2(50, 25), Color4b.White, loreIpsumScale, Vector2.Zero);
+
+            string comicText = "You can draw text!!\nIt's very nice :)";
+            Vector2 comicTextSize = comicSansFont.Measure(comicText);
+            Color4b comicTextColor = Color4b.FromHSV(time % 1, 1f, 1f);
+            float comicTextScale = 1 + 0.1f * MathF.Sin(time);
+            float comicTextRot = 0.3f * MathF.Sin(time * 4.32f);
+            textureBatcher.DrawString(comicSansFont, comicText, new Vector2(500, 610), comicTextColor, comicTextScale, comicTextRot, comicTextSize / 2f);
+
             foreach (Particle particle in particles)
                 particle.Draw(textureBatcher);
-
             for (int i = 0; i < diamonds.Length; i++)
                 diamonds[i].Draw(textureBatcher);
-
             for (int i = 0; i < balls.Length; i++)
                 balls[i].Draw(textureBatcher);
 
@@ -125,7 +143,6 @@ namespace TextureBatcherTest
 
 
             textureBatcher.Begin(BatcherBeginMode.SortBackToFront);
-
             Vector2 rectOrigin = new Vector2(rectangleTexture.Width / 2f, rectangleTexture.Height / 2f);
             const float meh = 100;
             const int times = 6;
@@ -140,7 +157,6 @@ namespace TextureBatcherTest
                     Vector2 pos = mousePos + new Vector2(MathF.Sign(x), MathF.Sign(y)) * Vector2.SquareRoot(new Vector2(MathF.Abs(x), MathF.Abs(y)) / meh) * meh;
                     textureBatcher.Draw(rectangleTexture, pos, null, new Color4b(255, 255, 255, alpha), sc, time, rectOrigin, dep);
                 }
-
             textureBatcher.End();
 
             Window.SwapBuffers();
@@ -176,6 +192,7 @@ namespace TextureBatcherTest
             rectangleTexture.Dispose();
             ballTexture.Dispose();
             diamondTexture.Dispose();
+            arialFont.Dispose(); // both fonts share texture, disposing one disposes both.
             textureBatcher.Dispose();
         }
     }

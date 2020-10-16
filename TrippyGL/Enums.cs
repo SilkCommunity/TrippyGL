@@ -155,7 +155,7 @@ namespace TrippyGL
         OnTheFly = 2,
 
         /// <summary>
-        /// Each textures is drawn in it's own individual draw call, immediately, during Draw().
+        /// Each texture is drawn in it's own individual draw call, immediately, during Draw().
         /// </summary>
         Immediate = 4,
 

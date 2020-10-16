@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TrippyGL.Fonts.Extensions\TrippyGL.Fonts.Extensions.csproj" />
+    <ProjectReference Include="..\..\TrippyGL.Fonts\TrippyGL.Fonts.csproj" />
     <ProjectReference Include="..\..\TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj" />
     <ProjectReference Include="..\TrippyTestBase\TrippyTestBase.csproj" />
   </ItemGroup>
@@ -15,6 +17,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="diamond.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="font.tglf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="particles.png">

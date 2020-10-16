@@ -12,13 +12,17 @@ namespace TrippyGL
     public sealed class TextureBatcher : IDisposable
     {
         /// <summary>The initial capacity for the internal batch items array.</summary>
-        public const uint InitialBatchItemsCapacity = 128;
+        public const uint InitialBatchItemsCapacity = 256;
+
         /// <summary>The maximum capacity for the internal batch items array.</summary>
-        public const uint MaxBatchItemCapacity = 4096;
+        public const uint MaxBatchItemCapacity = int.MaxValue;
+
         /// <summary>The initial capacity for the <see cref="VertexBuffer{T}"/> used for drawing the item's vertices.</summary>
         private const uint InitialBufferCapacity = InitialBatchItemsCapacity * 3;
+
         /// <summary>The maximum capacity for the <see cref="VertexBuffer{T}"/> used for drawing the item's vertices.</summary>
-        private const uint MaxBufferCapacity = MaxBatchItemCapacity * 6;
+        private const uint MaxBufferCapacity = 32768;
+
 
         /// <summary>Used to store vertices before sending them to <see cref="vertexBuffer"/>.</summary>
         private VertexColorTexture[] triangles;
@@ -69,6 +73,8 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException(nameof(initialBatchCapacity), nameof(initialBatchCapacity) + " must be greater than 0.");
 
             batchItems = new TextureBatchItem[initialBatchCapacity];
+            for (int i = 0; i < batchItems.Length; i++)
+                batchItems[i] = new TextureBatchItem();
             batchItemCount = 0;
             IsActive = false;
             vertexBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, InitialBufferCapacity, BufferUsageARB.StreamDraw);
@@ -206,7 +212,13 @@ namespace TrippyGL
                 return requiredCapacity <= currentCapacity;
 
             if (currentCapacity < requiredCapacity)
+            {
+                // We resize the batchItems array and fill the new elements with new TextureBatchItem
+                // instances, so we never have a null inside the batchItems array.
                 Array.Resize(ref batchItems, Math.Min(TrippyMath.GetNextCapacity(currentCapacity, requiredCapacity), (int)MaxBatchItemCapacity));
+                for (int i = currentCapacity; i < batchItems.Length; i++)
+                    batchItems[i] = new TextureBatchItem();
+            }
 
             return requiredCapacity <= batchItems.Length;
         }
@@ -256,19 +268,8 @@ namespace TrippyGL
                     throw new InvalidOperationException("Too many " + nameof(TextureBatcher) + " items. Try drawing less per Begin()-End() cycle or use OnTheFly or Immediate begin modes.");
             }
 
-            TextureBatchItem item;
-            if (batchItems[batchItemCount] == null)
-            {
-                // If there isn't a TextureBatchItem in the current position in the array,
-                // then we create one and store it in that position in the array.
-                item = new TextureBatchItem();
-                batchItems[batchItemCount] = item;
-            }
-            else // If there is one, then we simply take the already-existing TextureBatchItem.
-                item = batchItems[batchItemCount];
-
-            batchItemCount++;
-            return item;
+            // We are ensured the elements in batchItems are never null, so let's just return the next one.
+            return batchItems[batchItemCount++];
         }
 
         /// <summary>
@@ -430,7 +431,7 @@ namespace TrippyGL
         /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
         /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the string of text.</param>
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin = default, float depth = 0)
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin, float depth = 0)
         {
             if (font == null)
                 throw new ArgumentNullException(nameof(font));
@@ -504,7 +505,7 @@ namespace TrippyGL
         /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
         /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the string of text.</param>
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, float rotation, Vector2 origin = default, float depth = 0)
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, float rotation, Vector2 origin, float depth = 0)
         {
             DrawString(font, text, position, color, new Vector2(scale, scale), rotation, origin, depth);
         }
@@ -519,7 +520,7 @@ namespace TrippyGL
         /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
         /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the string of text.</param>
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin = default, float depth = 0)
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin, float depth = 0)
         {
             if (font == null)
                 throw new ArgumentNullException(nameof(font));
@@ -584,7 +585,7 @@ namespace TrippyGL
         /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
         /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
         /// <param name="depth">The depth at which to draw the string of text.</param>
-        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, Vector2 origin = default, float depth = 0)
+        public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, Color4b color, float scale, Vector2 origin, float depth = 0)
         {
             DrawString(font, text, position, color, new Vector2(scale, scale), origin, depth);
         }
