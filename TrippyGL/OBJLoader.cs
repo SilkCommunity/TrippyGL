@@ -47,6 +47,7 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
         /// <param name="file">The path to the OBJ file on disk.</param>
+        /// <param name="options">Specifies options that modify how an OBJ file is parsed.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
         public static T[] FromFile<T>(string file, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
@@ -63,6 +64,7 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
         /// <param name="stream">The <see cref="Stream"/> from which the OBJ file will be read from.</param>
+        /// <param name="options">Specifies options that modify how an OBJ file is parsed.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
         public static T[] FromStream<T>(Stream stream, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
@@ -78,6 +80,7 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to load. This defines which vertex data will and will not be loaded.</typeparam>
         /// <param name="streamReader">The <see cref="StreamReader"/> from which the OBJ file will be read from.</param>
+        /// <param name="options">Specifies options that modify how an OBJ file is parsed.</param>
         /// <returns>An array with the parsed vertex data as a triangle list.</returns>
         /// <exception cref="ObjLoaderException"/>
         public static T[] FromStream<T>(StreamReader streamReader, ObjLoadOptions options = ObjLoadOptions.None) where T : unmanaged
@@ -96,7 +99,7 @@ namespace TrippyGL
 
             // Let's ensure the vertex type is valid.
             if (!loadNormals && !loadColors && !loadTexCoords && !(tmp is VertexPosition || tmp is Vector3))
-                throw new ObjLoaderException("Vertex format not supported. Use a library-provided format instead.");
+                throw new ObjLoaderException("Vertex format not supported. Use a library-provided vertex type instead.");
 
             bool largePolygons = !options.HasFlag(ObjLoadOptions.TrianglesOnly);
 
@@ -717,7 +720,7 @@ namespace TrippyGL
     }
 
     /// <summary>
-    /// Provides options for loading OBJ files.
+    /// Specifies options for loading OBJ files.
     /// </summary>
     [Flags]
     public enum ObjLoadOptions

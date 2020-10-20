@@ -72,7 +72,7 @@ namespace TrippyTestBase
         /// <summary>The <see cref="GraphicsDevice"/> whose drawing commands go to the application's window.</summary>
         public GraphicsDevice graphicsDevice;
 
-        public TestBase(string title = null, int preferredDepthBufferBits = 0)
+        public TestBase(string title = null, int preferredDepthBufferBits = 0, bool isSingleThreaded = true)
         {
             title ??= System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Name ?? "Title";
             Console.WriteLine("Starting up: \"" + title + "\"...");
@@ -85,7 +85,7 @@ namespace TrippyTestBase
                 VSync = VSyncMode.On,
                 UpdatesPerSecond = 60,
                 FramesPerSecond = 60,
-                UseSingleThreadedWindow = true,
+                UseSingleThreadedWindow = isSingleThreaded,
                 RunningSlowTolerance = 30,
                 Size = windowSize,
                 VideoMode = new VideoMode(windowSize),

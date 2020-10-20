@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
@@ -9,6 +10,99 @@ namespace TrippyGL.Utils
     /// </summary>
     public static class TrippyMath
     {
+        /// <summary>The value of PI divided by 2.</summary>
+        public const float PiOver2 = 1.5707963267948966192313216916398f;
+
+        /// <summary>The value of PI divided by 4.</summary>
+        public const float PiOver4 = 0.78539816339744830961566084581988f;
+
+        /// <summary>The value of PI multiplied by 3 and divided by 2.</summary>
+        public const float ThreePiOver2 = 4.7123889803846898576939650749193f;
+
+        /// <summary>The value of PI multiplied by 2.</summary>
+        public const float TwoPI = 6.283185307179586476925286766559f;
+
+        /// <summary>
+        /// Interpolates linearly between two values.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        public static float Lerp(float min, float max, float amount)
+        {
+            return min + (max - min) * amount;
+        }
+
+        /// <summary>
+        /// Interpolates linearly between two values.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        /// <remarks>
+        /// In comparison to <see cref="Lerp(float, float, float)"/>, this function is more
+        /// precise when working with big values.
+        /// </remarks>
+        public static float LerpPrecise(float min, float max, float amount)
+        {
+            return (1 - amount) * min + max * amount;
+        }
+
+        /// <summary>
+        /// Interpolates between two values using a cubic equation.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        public static float SmoothStep(float min, float max, float amount)
+        {
+            // Lerp using the polynomial: 3xx - 2xxx
+            return Lerp(min, max, (3 - 2 * amount) * amount * amount);
+        }
+
+        /// <summary>
+        /// Interpolates between two values using a cubic equation.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        /// <remarks>
+        /// In comparison to <see cref="SmoothStep(float, float, float)"/>, this function is more
+        /// precise when working with big values.
+        /// </remarks>
+        public static float SmoothStepPrecise(float min, float max, float amount)
+        {
+            return LerpPrecise(min, max, (3 - 2 * amount) * amount * amount);
+        }
+
+        /// <summary>
+        /// Interpolates between two values using a 5th-degree equation.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        public static float SmootherStep(float min, float max, float amount)
+        {
+            // Lerp using the polynomial: 6(x^5) - 15(x^4) + 10(x^3)
+            return Lerp(min, max, (6 * amount * amount - 15 * amount + 10) * amount * amount * amount);
+        }
+
+        /// <summary>
+        /// Interpolates between two values using a 5th-degree equation.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        /// <remarks>
+        /// In comparison to <see cref="SmootherStep(float, float, float)"/>, this function is more
+        /// precise when working with big values.
+        /// </remarks>
+        public static float SmootherStepPrecise(float min, float max, float amount)
+        {
+            // Lerp using the polynomial: 6(x^5) - 15(x^4) + 10(x^3)
+            return LerpPrecise(min, max, (6 * amount * amount - 15 * amount + 10) * amount * amount * amount);
+        }
+
         /// <summary>
         /// Calculates the size to use for an array that needs resizing, where the new size
         /// will be a power of two times the previous capacity.

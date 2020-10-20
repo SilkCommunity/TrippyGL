@@ -118,7 +118,9 @@ namespace TrippyGL
         /// </summary>
         public static DepthState ReadOnlyInverted => new DepthState(true, DepthFunction.Greater, 0, 0, 1, false);
 
-        /// <summary>Gets a <see cref="DepthState"/> where no depth testing is done and all fragments are written.</summary>
+        /// <summary>
+        /// Gets a <see cref="DepthState"/> where no depth testing is done and all fragments are written.
+        /// </summary>
         public static DepthState None => new DepthState(false);
 
         #endregion

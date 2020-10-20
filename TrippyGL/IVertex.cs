@@ -10,7 +10,7 @@ namespace TrippyGL
     /// </summary>
     public interface IVertex
     {
-        /// <summary>The amount of attributes this vertex type has.</summary>
+        /// <summary>The amount of attribute descriptions this vertex type has.</summary>
         int AttribDescriptionCount { get; }
 
         /// <summary>

@@ -39,6 +39,17 @@ namespace TrippyGL
         /// <summary>Whether to exclude the World matrix from the vertex shader.</summary>
         public bool ExcludeWorldMatrix;
 
+        /// <summary>Whether to discard fragments considered transparent according to <see cref="TransparentFragmentThreshold"/>.</summary>
+        /// <remarks>Discarding the fragment occurs before lighting calculations.</remarks>
+        public bool DiscardTransparentFragments;
+
+        /// <summary>The minimum amount of alpha required for the fragment to not be discarded.</summary>
+        /// <remarks>
+        /// This property is ignored unless <see cref="DiscardTransparentFragments"/> is set to true.
+        /// If a fragment has exactly this alpha value, it will NOT be discarded.
+        /// </remarks>
+        public float TransparentFragmentThreshold;
+
         /// <summary>
         /// Gets whether the current configuration of this <see cref="SimpleShaderProgramBuilder"/>
         /// will make a created <see cref="SimpleShaderProgram"/> include lighting calculations.
@@ -136,6 +147,9 @@ namespace TrippyGL
 
             if (PositionAttributeIndex < 0)
                 throw new InvalidOperationException("A vertex attribute index for Position must always be specified.");
+
+            if (DiscardTransparentFragments && !float.IsFinite(TransparentFragmentThreshold))
+                throw new InvalidOperationException(nameof(TransparentFragmentThreshold) + " must be a finite value.");
 
             if (LightningEnabled)
             {
@@ -278,6 +292,17 @@ namespace TrippyGL
                 }
 
                 builder.Append("\nvoid main() {\n");
+                builder.Append("vec4 finalColor = Color;\n");
+                if (VertexColorsEnabled) builder.Append("finalColor *= fColor;\n");
+                if (TextureEnabled) builder.Append("finalColor *= texture(samp, fTexCoords);\n");
+
+                if (DiscardTransparentFragments)
+                {
+                    builder.Append("if (finalColor.A < ");
+                    builder.Append(TransparentFragmentThreshold);
+                    builder.Append(")\ndiscard;\n");
+                }
+
                 if (useLightning)
                 {
                     builder.Append("vec3 unitNormal = normalize(fNormal);\n");
@@ -309,13 +334,9 @@ namespace TrippyGL
                         builder.Append(itostring);
                         builder.Append(");\n");
                     }
+
+                    builder.Append("finalColor.xyz *= light;\n");
                 }
-
-                builder.Append("vec4 finalColor = Color;\n");
-                if (VertexColorsEnabled) builder.Append("finalColor *= fColor;\n");
-                if (TextureEnabled) builder.Append("finalColor *= texture(samp, fTexCoords);\n");
-
-                if (useLightning) builder.Append("finalColor.xyz *= light;\n");
 
                 builder.Append("FragColor = finalColor;\n}");
 
