@@ -7,6 +7,7 @@ using Silk.NET.OpenGL;
 using System.Threading;
 using TrippyGL;
 using System.Numerics;
+using System.Linq;
 
 namespace TerrainMaker
 {
@@ -24,8 +25,12 @@ namespace TerrainMaker
         private int chunkRenderRadius;
         private TerrainChunk[,] chunks;
 
-        private List<Point> generatingList = new List<Point>();
-        private ConcurrentQueue<TerrainChunkData> loadingQueue = new ConcurrentQueue<TerrainChunkData>();
+        private readonly object toGenerateListLock = new object();
+        private readonly List<Point> toGenerateList = new List<Point>();
+        private readonly object toLoadListLock = new object();
+        private readonly List<TerrainChunkData> toLoadList = new List<TerrainChunkData>();
+        private readonly object currentlyLoadingListLock = new object();
+        private readonly List<Point> currentlyLoadingList = new List<Point>();
 
         Thread generatorThread;
 
@@ -47,15 +52,13 @@ namespace TerrainMaker
 
         public void ProcessChunks(GraphicsDevice graphicsDevice)
         {
-            while (loadingQueue.TryDequeue(out TerrainChunkData chunkData))
+            if (TryDelistChunkToLoad(out TerrainChunkData chunkData))
             {
                 Point arrCoords = GridToChunksArrayCoordinates(chunkData.GridX, chunkData.GridY);
 
                 if (arrCoords.X < 0 || arrCoords.Y < 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("[LOADER] Tried to load chunk outside array! p=(" + chunkData.GridX + ", " + chunkData.GridY + ")");
-                    Console.ResetColor();
+                    Console.WriteLine("[LOADER] Discarded data of chunk outside of array p=(" + chunkData.GridX + ", " + chunkData.GridY + ")");
                 }
                 else if (chunks[arrCoords.X, arrCoords.Y] != null)
                 {
@@ -66,10 +69,47 @@ namespace TerrainMaker
                 else
                 {
                     chunks[arrCoords.X, arrCoords.Y] = new TerrainChunk(graphicsDevice, chunkData);
-                    Console.WriteLine("[LOADER] Delisted loaded chunk OK p=(" + chunkData.GridX + ", " + chunkData.GridY + ")");
+                    //Console.WriteLine("[LOADER] Delisted loaded chunk OK p=(" + chunkData.GridX + ", " + chunkData.GridY + ")");
                 }
 
                 TerrainGenerator.ReturnArrays(chunkData);
+            }
+        }
+
+        private bool TryDelistChunkToLoad(out TerrainChunkData chunkData)
+        {
+            lock (toLoadListLock)
+            {
+                if (toLoadList.Count == 0)
+                {
+                    chunkData = default;
+                    return false;
+                }
+
+                int centerChunkX = chunksGridStartX + chunkRenderRadius;
+                int centerChunkY = chunksGridStartY + chunkRenderRadius;
+
+                int dx = toLoadList[0].GridX - centerChunkX;
+                int dy = toLoadList[0].GridY - centerChunkY;
+                int currentBestDist = dx * dx + dy * dy;
+                int currentBestIndx = 0;
+
+                for (int i = 1; i < toLoadList.Count; i++)
+                {
+                    dx = toLoadList[i].GridX - centerChunkX;
+                    dy = toLoadList[i].GridY - centerChunkY;
+                    int currentDist = dx * dx + dy * dy;
+
+                    if (currentDist < currentBestDist)
+                    {
+                        currentBestDist = currentDist;
+                        currentBestIndx = i;
+                    }
+                }
+
+                chunkData = toLoadList[currentBestIndx];
+                toLoadList.RemoveAt(currentBestIndx);
+                return true;
             }
         }
 
@@ -162,7 +202,7 @@ namespace TerrainMaker
             if (diffX == 0 && diffY == 0)
                 return;
 
-            Console.WriteLine("[MANAGER] Moved chunk! diff=(" + diffX + ", " + diffY + ")");
+            //Console.WriteLine("[MANAGER] Moved chunk! diff=(" + diffX + ", " + diffY + ")");
 
             if (diffX <= -chunks.GetLength(0) || diffX >= chunks.GetLength(0)
                 || diffY <= -chunks.GetLength(1) || diffY >= chunks.GetLength(1))
@@ -238,31 +278,42 @@ namespace TerrainMaker
                 chunksOffsetY = (chunksOffsetY + diffY + chunks.GetLength(1)) % chunks.GetLength(1);
             }
 
+            int centerGridX = chunksGridStartX + chunkRenderRadius;
+            int centerGridY = chunksGridStartY + chunkRenderRadius;
+            //Console.WriteLine("[MANAGER] Center chunk is now (" + centerGridX + ", " + centerGridY + ")");
             StartLoadingUnloadedChunks();
         }
 
         private void StartLoadingUnloadedChunks()
         {
-            lock (generatingList)
+            lock (toGenerateListLock)
             {
-                generatingList.Clear();
+                lock (toLoadListLock)
+                {
+                    lock (currentlyLoadingListLock)
+                    {
+                        toGenerateList.Clear();
 
-                int centerChunkX = chunksGridStartX + chunkRenderRadius;
-                int centerChunkY = chunksGridStartY + chunkRenderRadius;
-                int radiusSquared = chunkRenderRadius * chunkRenderRadius;
+                        int centerChunkX = chunksGridStartX + chunkRenderRadius;
+                        int centerChunkY = chunksGridStartY + chunkRenderRadius;
+                        int radiusSquared = chunkRenderRadius * chunkRenderRadius;
 
-                for (int x = 0; x < chunks.GetLength(0); x++)
-                    for (int y = 0; y < chunks.GetLength(1); y++)
-                        if (chunks[x, y] == null)
-                        {
-                            Point p = ChunksArrayToGridCoordinates(x, y);
-                            if ((p.X - centerChunkX) * (p.X - centerChunkX) + (p.Y - centerChunkY) * (p.Y - centerChunkY) < radiusSquared)
-                                generatingList.Add(p);
-                        }
+                        for (int x = 0; x < chunks.GetLength(0); x++)
+                            for (int y = 0; y < chunks.GetLength(1); y++)
+                                if (chunks[x, y] == null)
+                                {
+                                    Point p = ChunksArrayToGridCoordinates(x, y);
+                                    int dist = (p.X - centerChunkX) * (p.X - centerChunkX) + (p.Y - centerChunkY) * (p.Y - centerChunkY);
+                                    if (dist < radiusSquared && !toLoadList.Any(x => x.GridX == p.X && x.GridY == p.Y)
+                                        && !currentlyLoadingList.Contains(p))
+                                        toGenerateList.Add(p);
+                                }
 
-                generatingList.Sort((x, y) => (Math.Abs(y.X - centerChunkX) + Math.Abs(y.Y - centerChunkY)).CompareTo(Math.Abs(x.X - centerChunkX) + Math.Abs(x.Y - centerChunkY)));
-                for (int i = 0; i < generatingList.Count; i++)
-                    Console.WriteLine("[GENERATOR] Enlisted generating chunk p=(" + generatingList[i].X + ", " + generatingList[i].Y + ")");
+                        toGenerateList.Sort((x, y) => (Math.Abs(y.X - centerChunkX) + Math.Abs(y.Y - centerChunkY)).CompareTo(Math.Abs(x.X - centerChunkX) + Math.Abs(x.Y - centerChunkY)));
+                        //for (int i = 0; i < generatingList.Count; i++)
+                        //    Console.WriteLine("[GENERATOR] Enlisted generating chunk p=(" + generatingList[i].X + ", " + generatingList[i].Y + ")");
+                    }
+                }
             }
 
             if (generatorThread == null || !generatorThread.IsAlive)
@@ -277,16 +328,23 @@ namespace TerrainMaker
             Console.WriteLine("[GENERATOR] Generator thread started :)");
 
             Point chunkCoords;
-            while (generatingList.Count != 0)
+            while (toGenerateList.Count != 0)
             {
-                lock (generatingList)
+                lock (toGenerateListLock)
                 {
-                    chunkCoords = generatingList[generatingList.Count - 1];
-                    generatingList.RemoveAt(generatingList.Count - 1);
+                    chunkCoords = toGenerateList[toGenerateList.Count - 1];
+                    toGenerateList.RemoveAt(toGenerateList.Count - 1);
                 }
 
+                lock (currentlyLoadingListLock)
+                    currentlyLoadingList.Add(chunkCoords);
+
                 TerrainChunkData chunkData = TerrainGenerator.Generate(chunkCoords.X, chunkCoords.Y);
-                loadingQueue.Enqueue(chunkData);
+
+                lock (toLoadListLock)
+                    toLoadList.Add(chunkData);
+                lock (currentlyLoadingListLock)
+                    currentlyLoadingList.Remove(chunkCoords);
             }
 
             Console.WriteLine("[GENERATOR] Generator thread stopped :)");

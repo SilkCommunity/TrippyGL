@@ -6,13 +6,13 @@ namespace TerrainMaker
 {
     static class NoiseGenerator
     {
-        public static float Random(Vector2 position, in GeneratorSeed seed)
+        public static float Random(in Vector2 position, in GeneratorSeed seed)
         {
             float r = MathF.Sin(Vector2.Dot(position, seed.DotSeed)) * seed.RandMultiplier;
             return r - MathF.Floor(r);
         }
 
-        public static float Noise(Vector2 position, in GeneratorSeed seed)
+        public static float Noise(in Vector2 position, in GeneratorSeed seed)
         {
             Vector2 floor = new Vector2(MathF.Floor(position.X), MathF.Floor(position.Y));
             Vector2 fract = position - floor;
@@ -24,7 +24,7 @@ namespace TerrainMaker
             );
         }
 
-        public static float Perlin(Vector2 position, in GeneratorSeed seed1, in GeneratorSeed seed2)
+        public static float Perlin(in Vector2 position, in GeneratorSeed seed1, in GeneratorSeed seed2)
         {
             Vector2 floor = new Vector2(MathF.Floor(position.X), MathF.Floor(position.Y));
             Vector2 fract = position - floor;
@@ -44,10 +44,10 @@ namespace TerrainMaker
             float dtl = Vector2.Dot(tlvec, tldiff);
             float dtr = Vector2.Dot(trvec, trdiff);
 
-            return TrippyMath.SmootherStep(TrippyMath.SmootherStep(dbl, dbr, fract.X), TrippyMath.SmootherStep(dtl, dtr, fract.X), fract.Y);
+            return TrippyMath.SmootherStep(TrippyMath.SmootherStep(dbl, dbr, fract.X), TrippyMath.SmootherStep(dtl, dtr, fract.X), fract.Y) * 0.5f + 0.5f;
         }
 
-        public static float FractalNoise(Vector2 position, in GeneratorSeed seed)
+        public static float FractalNoise(in Vector2 position, in GeneratorSeed seed)
         {
             float amp = 0.5f;
             float freq = 1;
@@ -61,26 +61,30 @@ namespace TerrainMaker
             return v;
         }
 
-        public static float GenHeight(Vector2 position)
+        public static void GenPoint(in Vector2 position, out float humidity, out float vegetation)
         {
-            float h = 0.1f;
-            h += 2.1f * Perlin(position / 16f, GeneratorSeed.HeightmapSeed, GeneratorSeed.HumiditymapSeed);
-            h += 0.3f * FractalNoise(position / 4f, GeneratorSeed.HeightmapSeed);
-            //h = MathF.Sign(h) * MathF.Pow(Math.Abs(h), 1.3f);
-            return h * 6;
+            humidity = FractalNoise(position, GeneratorSeed.HumiditySeed);
+
+            vegetation = Noise(position / 16f, GeneratorSeed.VegetationSeed);
         }
 
-        public static float GenHumidity(Vector2 position)
+        public static float GenHeight(in Vector2 position)
         {
-            //return Perlin(position, GeneratorSeed.HeightmapSeed, GeneratorSeed.HumiditymapSeed);
-            return FractalNoise(position, GeneratorSeed.HumiditymapSeed);
+            GenPoint(position, out float humidity, out float vegetation);
+
+            float height = 0.6f;
+            height += 25.2f * Perlin(position / 16f, GeneratorSeed.HeightSeed, GeneratorSeed.HumiditySeed) - 12.6f;
+            height += 1.8f * FractalNoise(position / 4f, GeneratorSeed.HeightSeed);
+            //height = MathF.Sign(height) * MathF.Pow(Math.Abs(height), 1.2f);
+            return height;
         }
     }
 
     readonly struct GeneratorSeed
     {
-        public static readonly GeneratorSeed HeightmapSeed = new GeneratorSeed(new Vector2(52.9258f, 76.3911f), 49164.7641f);
-        public static readonly GeneratorSeed HumiditymapSeed = new GeneratorSeed(new Vector2(66.7943f, 33.1674f), 69761.6413f);
+        public static readonly GeneratorSeed HeightSeed = new GeneratorSeed(new Vector2(52.9258f, 76.3911f), 49164.7641f);
+        public static readonly GeneratorSeed HumiditySeed = new GeneratorSeed(new Vector2(66.7943f, 33.1674f), 69761.6413f);
+        public static readonly GeneratorSeed VegetationSeed = new GeneratorSeed(new Vector2(37.8254f, 53.2556f), 51.1952f);
 
         public readonly Vector2 DotSeed;
         public readonly float RandMultiplier;

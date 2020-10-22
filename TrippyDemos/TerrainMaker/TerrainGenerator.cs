@@ -8,67 +8,72 @@ namespace TerrainMaker
     static class TerrainGenerator
     {
         /// <summary>The length of the side of a chunk (they are squares).</summary>
-        public const int ChunkSize = 16;
+        public const int ChunkSize = 32;
 
         /// <summary>The amount of vertices per unit of position.</summary>
-        public const int VertexDensity = 8;
+        public const int VertexDensity = 1;
 
         private const int VerticesPerChunk = (ChunkSize * VertexDensity) * (ChunkSize * VertexDensity);
 
-        private static WeakReference<List<TerrainVertex[]>> arraysList;
+        private static readonly object arraysListLock = new object();
+        private static WeakReference<List<VertexNormalColor[]>> arraysList;
 
-        private static PrimitiveBatcher<TerrainVertex> terrTriangles = new PrimitiveBatcher<TerrainVertex>(VerticesPerChunk, 0);
-        private static PrimitiveBatcher<TerrainVertex> waterTriangles = new PrimitiveBatcher<TerrainVertex>(VerticesPerChunk, 0);
-        private static PrimitiveBatcher<TerrainVertex> underwaterTriangles = new PrimitiveBatcher<TerrainVertex>(VerticesPerChunk, 0);
-        private static float[,] heights = new float[ChunkSize * VertexDensity + 2, ChunkSize * VertexDensity + 2];
-        private static float[,] humidities = new float[ChunkSize * VertexDensity + 2, ChunkSize * VertexDensity + 2];
+        private static PrimitiveBatcher<Vector3> terrTriangles = new PrimitiveBatcher<Vector3>(VerticesPerChunk, 0);
+        private static PrimitiveBatcher<Vector3> waterTriangles = new PrimitiveBatcher<Vector3>(VerticesPerChunk, 0);
+        private static PrimitiveBatcher<Vector3> underwaterTriangles = new PrimitiveBatcher<Vector3>(VerticesPerChunk, 0);
 
-        private static TerrainVertex[] GetArray(int requiredLength)
+        private static VertexNormalColor[] GetArray(int requiredLength)
         {
-            if (arraysList == null || !arraysList.TryGetTarget(out List<TerrainVertex[]> list) || list.Count == 0)
-                return new TerrainVertex[Math.Max(requiredLength, VerticesPerChunk)];
+            lock (arraysListLock)
+            {
+                if (arraysList == null || !arraysList.TryGetTarget(out List<VertexNormalColor[]> list) || list.Count == 0)
+                    return new VertexNormalColor[Math.Max(requiredLength, VerticesPerChunk)];
 
-            int indx = -1;
-            for (int i = list.Count - 1; i >= 0; i--)
-                if (list[i].Length >= requiredLength && (indx == -1 || list[i].Length < list[indx].Length))
-                    indx = i;
+                int indx = -1;
+                for (int i = list.Count - 1; i >= 0; i--)
+                    if (list[i].Length >= requiredLength && (indx == -1 || list[i].Length < list[indx].Length))
+                        indx = i;
 
-            if (indx == -1)
-                return new TerrainVertex[Math.Max(requiredLength, VerticesPerChunk)];
+                if (indx == -1)
+                    return new VertexNormalColor[Math.Max(requiredLength, VerticesPerChunk)];
 
-            TerrainVertex[] arr = list[indx];
-            list.RemoveAt(indx);
-            return arr;
+                VertexNormalColor[] arr = list[indx];
+                list.RemoveAt(indx);
+                return arr;
+            }
         }
 
         public static void ReturnArrays(in TerrainChunkData chunkData)
         {
-            chunkData.RetrieveBackingArrays(out TerrainVertex[] arr1, out TerrainVertex[] arr2, out TerrainVertex[] arr3);
+            chunkData.RetrieveBackingArrays(out VertexNormalColor[] arr1, out VertexNormalColor[] arr2, out VertexNormalColor[] arr3);
 
-            List<TerrainVertex[]> list;
-            if (arraysList == null)
+            lock (arraysListLock)
             {
-                list = new List<TerrainVertex[]>();
-                arraysList = new WeakReference<List<TerrainVertex[]>>(list);
-            }
-            else if (!arraysList.TryGetTarget(out list))
-            {
-                list = new List<TerrainVertex[]>();
-                arraysList.SetTarget(list);
-            }
+                List<VertexNormalColor[]> list;
+                if (arraysList == null)
+                {
+                    list = new List<VertexNormalColor[]>();
+                    arraysList = new WeakReference<List<VertexNormalColor[]>>(list);
+                }
+                else if (!arraysList.TryGetTarget(out list))
+                {
+                    list = new List<VertexNormalColor[]>();
+                    arraysList.SetTarget(list);
+                }
 
-            if (arr1 != null) list.Add(arr1);
-            if (arr2 != null) list.Add(arr2);
-            if (arr3 != null) list.Add(arr3);
+                if (arr1 != null) list.Add(arr1);
+                if (arr2 != null) list.Add(arr2);
+                if (arr3 != null) list.Add(arr3);
+            }
         }
 
-        private static void SeparateAbove(in TerrainVertex a, in TerrainVertex b, in TerrainVertex c,
-            out TerrainVertex above1, out TerrainVertex above2, out TerrainVertex below)
+        private static void SeparateAbove(in Vector3 a, in Vector3 b, in Vector3 c,
+            out Vector3 above1, out Vector3 above2, out Vector3 below)
         {
-            if (a.Position.Y > 0)
+            if (a.Y > 0)
             {
                 above1 = a;
-                if (b.Position.Y > 0)
+                if (b.Y > 0)
                 {
                     above2 = b;
                     below = c;
@@ -87,13 +92,13 @@ namespace TerrainMaker
             }
         }
 
-        private static void SeparateBelow(in TerrainVertex a, in TerrainVertex b, in TerrainVertex c,
-            out TerrainVertex below1, out TerrainVertex below2, out TerrainVertex above)
+        private static void SeparateBelow(in Vector3 a, in Vector3 b, in Vector3 c,
+            out Vector3 below1, out Vector3 below2, out Vector3 above)
         {
-            if (a.Position.Y < 0)
+            if (a.Y < 0)
             {
                 below1 = a;
-                if (b.Position.Y < 0)
+                if (b.Y < 0)
                 {
                     below2 = b;
                     above = c;
@@ -112,11 +117,11 @@ namespace TerrainMaker
             }
         }
 
-        private static void SliceTriangle(in TerrainVertex a, in TerrainVertex b, in TerrainVertex c)
+        private static void SliceTriangle(in Vector3 a, in Vector3 b, in Vector3 c)
         {
-            bool aygo = a.Position.Y > 0;
-            bool bygo = b.Position.Y > 0;
-            bool cygo = c.Position.Y > 0;
+            bool aygo = a.Y > 0;
+            bool bygo = b.Y > 0;
+            bool cygo = c.Y > 0;
 
             if (aygo && bygo && cygo)
             {
@@ -127,13 +132,7 @@ namespace TerrainMaker
             if (!aygo && !bygo && !cygo)
             {
                 underwaterTriangles.AddTriangle(a, b, c);
-                TerrainVertex av = a;
-                av.Position.Y = 0;
-                TerrainVertex bv = b;
-                bv.Position.Y = 0;
-                TerrainVertex cv = c;
-                cv.Position.Y = 0;
-                waterTriangles.AddTriangle(av, bv, cv);
+                waterTriangles.AddTriangle(new Vector3(a.X, 0, a.Z), new Vector3(b.X, 0, b.Z), new Vector3(c.X, 0, c.Z));
                 return;
             }
 
@@ -141,48 +140,43 @@ namespace TerrainMaker
 
             if (aboveWaterCount == 2)
             {
-                SeparateAbove(a, b, c, out TerrainVertex above1, out TerrainVertex above2, out TerrainVertex below);
-                // 0 = (1-t)*AY + t*BY
-                // 0 = AY - t*AY + t*BY
-                // -AY = t*(BY-AY)
-                // t = -AY/(BY-AY)
-                // t = AY / (AY - BY)
-                float t = above1.Position.Y / (above1.Position.Y - below.Position.Y);
-                TerrainVertex inter1 = TerrainVertex.Lerp(above1, below, t);
-                inter1.Position.Y = 0;
+                SeparateAbove(a, b, c, out Vector3 above1, out Vector3 above2, out Vector3 below);
+                float t = above1.Y / (above1.Y - below.Y);
+                Vector3 inter1 = Vector3.Lerp(above1, below, t);
+                inter1.Y = 0;
 
-                t = above2.Position.Y / (above2.Position.Y - below.Position.Y);
-                TerrainVertex inter2 = TerrainVertex.Lerp(above2, below, t);
-                inter2.Position.Y = 0;
+                t = above2.Y / (above2.Y - below.Y);
+                Vector3 inter2 = Vector3.Lerp(above2, below, t);
+                inter2.Y = 0;
 
                 terrTriangles.AddTriangle(above1, inter1, above2);
                 terrTriangles.AddTriangle(inter1, inter2, above2);
                 underwaterTriangles.AddTriangle(inter1, below, inter2);
 
-                below.Position.Y = 0;
-                inter1.Position.Y = 0;
-                inter2.Position.Y = 0;
+                below.Y = 0;
+                inter1.Y = 0;
+                inter2.Y = 0;
                 waterTriangles.AddTriangle(inter1, below, inter2);
             }
             else // if(aboveWaterCount == 1)
             {
-                SeparateBelow(a, b, c, out TerrainVertex below1, out TerrainVertex below2, out TerrainVertex above);
-                float t = below1.Position.Y / (below1.Position.Y - above.Position.Y);
-                TerrainVertex inter1 = TerrainVertex.Lerp(below1, above, t);
-                inter1.Position.Y = 0;
+                SeparateBelow(a, b, c, out Vector3 below1, out Vector3 below2, out Vector3 above);
+                float t = below1.Y / (below1.Y - above.Y);
+                Vector3 inter1 = Vector3.Lerp(below1, above, t);
+                inter1.Y = 0;
 
-                t = below2.Position.Y / (below2.Position.Y - above.Position.Y);
-                TerrainVertex inter2 = TerrainVertex.Lerp(below2, above, t);
-                inter2.Position.Y = 0;
+                t = below2.Y / (below2.Y - above.Y);
+                Vector3 inter2 = Vector3.Lerp(below2, above, t);
+                inter2.Y = 0;
 
                 terrTriangles.AddTriangle(above, inter1, inter2);
                 underwaterTriangles.AddTriangle(inter1, below1, inter2);
                 underwaterTriangles.AddTriangle(inter2, below1, below2);
 
-                below1.Position.Y = 0;
-                below2.Position.Y = 0;
-                inter1.Position.Y = 0;
-                inter2.Position.Y = 0;
+                below1.Y = 0;
+                below2.Y = 0;
+                inter1.Y = 0;
+                inter2.Y = 0;
                 waterTriangles.AddTriangle(inter1, below1, inter2);
                 waterTriangles.AddTriangle(inter2, below1, below2);
             }
@@ -194,50 +188,67 @@ namespace TerrainMaker
             waterTriangles.ClearTriangles();
             underwaterTriangles.ClearTriangles();
 
-            int firstX = gridX * ChunkSize;
-            int firstY = gridY * ChunkSize;
+            Vector2 firstCoord = new Vector2(gridX, gridY) * ChunkSize;
 
-            for (int hx = 0; hx < heights.GetLength(0); hx++)
-                for (int hy = 0; hy < heights.GetLength(1); hy++)
-                {
-                    Vector2 position = new Vector2(hx - 1, hy - 1) / VertexDensity + new Vector2(firstX, firstY);
-                    heights[hx, hy] = NoiseGenerator.GenHeight(position);
-                    humidities[hx, hy] = NoiseGenerator.GenHumidity(position);
-                }
-
-
-            const float delta = 1f / VertexDensity;
+            float h11, h21, h22, h12;
             for (int cx = 0; cx < ChunkSize * VertexDensity; cx++)
+            {
+                h11 = NoiseGenerator.GenHeight(new Vector2(cx, 0) / VertexDensity + firstCoord);
+                h21 = NoiseGenerator.GenHeight(new Vector2(cx + 1, 0) / VertexDensity + firstCoord);
+
                 for (int cy = 0; cy < ChunkSize * VertexDensity; cy++)
                 {
-                    Vector3 pos00 = new Vector3(firstX + cx * delta, heights[cx + 1, cy + 1], firstY + cy * delta);
-                    Vector3 pos10 = new Vector3(firstX + cx * delta + delta, heights[cx + 2, cy + 1], firstY + cy * delta);
-                    Vector3 pos11 = new Vector3(firstX + cx * delta + delta, heights[cx + 2, cy + 2], firstY + cy * delta + delta);
-                    Vector3 pos01 = new Vector3(firstX + cx * delta, heights[cx + 1, cy + 2], firstY + cy * delta + delta);
+                    h12 = NoiseGenerator.GenHeight(new Vector2(cx, cy + 1) / VertexDensity + firstCoord);
+                    h22 = NoiseGenerator.GenHeight(new Vector2(cx + 1, cy + 1) / VertexDensity + firstCoord);
 
-                    TerrainVertex v00 = new TerrainVertex(pos00, Vector3.Zero, humidities[cx + 1, cy + 1], 0);
-                    TerrainVertex v10 = new TerrainVertex(pos10, Vector3.Zero, humidities[cx + 2, cy + 1], 0);
-                    TerrainVertex v11 = new TerrainVertex(pos11, Vector3.Zero, humidities[cx + 2, cy + 2], 0);
-                    TerrainVertex v01 = new TerrainVertex(pos01, Vector3.Zero, humidities[cx + 1, cy + 2], 0);
+                    Vector3 pos00 = new Vector3(firstCoord.X + cx / VertexDensity, h11, firstCoord.Y + cy / VertexDensity);
+                    Vector3 pos10 = new Vector3(firstCoord.X + (cx + 1) / VertexDensity, h21, firstCoord.Y + cy / VertexDensity);
+                    Vector3 pos11 = new Vector3(firstCoord.X + (cx + 1) / VertexDensity, h22, firstCoord.Y + (cy + 1) / VertexDensity);
+                    Vector3 pos01 = new Vector3(firstCoord.X + cx / VertexDensity, h12, firstCoord.Y + (cy + 1) / VertexDensity);
 
-                    SliceTriangle(v00, v10, v11);
-                    SliceTriangle(v00, v11, v01);
+                    SliceTriangle(pos00, pos10, pos11);
+                    SliceTriangle(pos00, pos11, pos01);
+
+                    h11 = h12;
+                    h21 = h22;
                 }
+            }
 
-            TerrainVertex[] terr = terrTriangles.TriangleVertexCount == 0 ? null : GetArray(terrTriangles.TriangleVertexCount);
-            if (terr != null)
-                terrTriangles.TriangleVertices.CopyTo(terr);
+            VertexNormalColor[] terr = terrTriangles.TriangleVertexCount == 0 ? null : GetArray(terrTriangles.TriangleVertexCount);
+            if (terr != null) FormTriangles(terrTriangles.TriangleVertices, terr);
 
-            TerrainVertex[] water = waterTriangles.TriangleVertexCount == 0 ? null : GetArray(waterTriangles.TriangleVertexCount);
-            if (water != null)
-                waterTriangles.TriangleVertices.CopyTo(water);
+            VertexNormalColor[] water = waterTriangles.TriangleVertexCount == 0 ? null : GetArray(waterTriangles.TriangleVertexCount);
+            if (water != null) FormTriangles(waterTriangles.TriangleVertices, water);
 
-            TerrainVertex[] under = underwaterTriangles.TriangleVertexCount == 0 ? null : GetArray(underwaterTriangles.TriangleVertexCount);
-            if (under != null)
-                underwaterTriangles.TriangleVertices.CopyTo(under);
+            VertexNormalColor[] under = underwaterTriangles.TriangleVertexCount == 0 ? null : GetArray(underwaterTriangles.TriangleVertexCount);
+            if (under != null) FormTriangles(underwaterTriangles.TriangleVertices, under);
 
-            return new TerrainChunkData(gridX, gridY, terr, terrTriangles.TriangleVertexCount, water, waterTriangles.TriangleVertexCount,
-                under, underwaterTriangles.TriangleVertexCount);
+            return new TerrainChunkData(gridX, gridY, terr, terrTriangles.TriangleVertexCount, water,
+                waterTriangles.TriangleVertexCount, under, underwaterTriangles.TriangleVertexCount);
+        }
+
+        private static void FormTriangles(ReadOnlySpan<Vector3> source, Span<VertexNormalColor> dest)
+        {
+            for (int i = 2; i < source.Length; i += 3)
+            {
+                Vector3 center = (source[i - 2] + source[i - 1] + source[i]) / 3f;
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(source[i - 1] - source[i - 2], source[i] - source[i - 2]));
+
+                NoiseGenerator.GenPoint(new Vector2(center.X, center.Z), out float humidity, out float vegetation);
+
+                //Color4b color = FormColor(center.Y, humidity, vegetation);
+                float tmp = NoiseGenerator.Perlin(new Vector2(center.X, center.Z) / 16f, GeneratorSeed.HeightSeed, GeneratorSeed.VegetationSeed);
+                Color4b color = new Color4b(tmp, tmp, tmp);
+
+                dest[i - 2] = new VertexNormalColor(source[i - 2], normal, color);
+                dest[i - 1] = new VertexNormalColor(source[i - 1], normal, color);
+                dest[i] = new VertexNormalColor(source[i], normal, color);
+            }
+        }
+
+        private static Color4b FormColor(float altitude, float humidity, float vegetation)
+        {
+            return new Color4b(humidity, humidity, vegetation);
         }
     }
 }

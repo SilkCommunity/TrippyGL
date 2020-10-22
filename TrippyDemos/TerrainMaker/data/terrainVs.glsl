@@ -5,21 +5,16 @@ uniform mat4 Projection;
 
 in vec3 vPosition;
 in vec3 vNormal;
-in float vHumidity;
-in float vVegetation;
+in vec4 vColor;
 
 out vec3 fPosition;
 out vec3 fNormal;
-out float fAltitude;
-out float fHumidity;
-out float fVegetation;
+out vec4 fColor;
 
 void main() {
     fPosition = vPosition;
     fNormal = vNormal;
-    fAltitude = vPosition.y;
-    fHumidity = vHumidity;
-    fVegetation = vVegetation;
+    fColor = vColor;
 
     gl_Position = Projection * View * vec4(vPosition, 1.0);
 }

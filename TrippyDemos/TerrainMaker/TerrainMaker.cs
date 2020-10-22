@@ -24,7 +24,7 @@ namespace TerrainMaker
         private SimpleShaderProgram linesProgram;
         private VertexBuffer<VertexColor> linesBuffer;
 
-        ChunkManager chunkManager;
+        private ChunkManager chunkManager;
 
         public TerrainMaker() : base(null, 24, true) { }
 
@@ -33,10 +33,10 @@ namespace TerrainMaker
             inputManager = new InputManager3D(InputContext);
             inputManager.CameraPosition = new Vector3(TerrainGenerator.ChunkSize / 2f, 10f, TerrainGenerator.ChunkSize / 2f);
 
-            terrainProgram = ShaderProgram.FromFiles<TerrainVertex>(graphicsDevice, "data/terrainVs.glsl", "data/terrainFs.glsl", "vPosition", "vNormal", "vHumidity", "vVegetation");
+            terrainProgram = ShaderProgram.FromFiles<VertexNormalColor>(graphicsDevice, "data/terrainVs.glsl", "data/terrainFs.glsl", "vPosition", "vNormal", "vColor");
             terrainViewUniform = terrainProgram.Uniforms["View"];
 
-            waterProgram = SimpleShaderProgram.Create<TerrainVertex>(graphicsDevice, 0, 0, true);
+            waterProgram = SimpleShaderProgram.Create<VertexNormalColor>(graphicsDevice, 0, 0, true);
 
             Span<VertexColor> lines = stackalloc VertexColor[]
             {
@@ -51,18 +51,18 @@ namespace TerrainMaker
             linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, lines, BufferUsageARB.StaticDraw);
             linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
-            chunkManager = new ChunkManager(8, (int)inputManager.CameraPosition.X / TerrainGenerator.ChunkSize, (int)inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize);
+            chunkManager = new ChunkManager(6, (int)inputManager.CameraPosition.X / TerrainGenerator.ChunkSize, (int)inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize);
 
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthState = DepthState.Default;
-            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
+            graphicsDevice.ClearColor = Vector4.UnitW;
         }
 
         protected override void OnUpdate(double dt)
         {
             base.OnUpdate(dt);
-
-            inputManager.CameraMoveSpeed = inputManager.CurrentKeyboard.IsKeyPressed(Key.ControlLeft) ? 15 : 1;
+            
+            inputManager.CameraMoveSpeed = inputManager.CurrentKeyboard.IsKeyPressed(Key.ControlLeft) ? 1750 : 150;
             inputManager.Update((float)dt);
             Window.Title = inputManager.CameraPosition.ToString();
 
@@ -91,18 +91,6 @@ namespace TerrainMaker
             linesProgram.World = Matrix4x4.CreateScale(0.25f) * Matrix4x4.CreateTranslation(inputManager.CameraPosition + inputManager.CalculateForwardVector());
             graphicsDevice.VertexArray = linesBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, linesBuffer.StorageLength);
-
-            // TODO: delete chunk.RenderTerrain(), RenderWater(), RenderUnderwater()
-            /*chunk.RenderTerrain();
-            otherChunk.RenderTerrain();
-            chunk.RenderUnderwater();
-            otherChunk.RenderUnderwater();
-
-            graphicsDevice.ShaderProgram = waterProgram;
-            waterProgram.Color = new Vector4(0, 0, 0.7f, 0.5f);
-            waterProgram.View = view;
-            chunk.RenderWater();
-            otherChunk.RenderWater();*/
 
             Window.SwapBuffers();
         }

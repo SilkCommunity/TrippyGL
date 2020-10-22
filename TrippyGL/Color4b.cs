@@ -62,12 +62,24 @@ namespace TrippyGL
         /// Constructs a <see cref="Color4b"/> from the specified float values,
         /// represented on a normalized range (from 0.0 to 1.0).
         /// </summary>
-        public Color4b(float r, float g, float b, float a = 1)
+        public Color4b(float r, float g, float b, float a)
         {
             R = (byte)(r * 255 + 0.5f);
             G = (byte)(g * 255 + 0.5f);
             B = (byte)(b * 255 + 0.5f);
             A = (byte)(a * 255 + 0.5f);
+        }
+
+        /// <summary>
+        /// Constructs a <see cref="Color4b"/> with full alpha from the specified float values,
+        /// represented on a normalized range (from 0.0 to 1.0).
+        /// </summary>
+        public Color4b(float r, float g, float b)
+        {
+            R = (byte)(r * 255 + 0.5f);
+            G = (byte)(g * 255 + 0.5f);
+            B = (byte)(b * 255 + 0.5f);
+            A = 255;
         }
 
         /// <summary>
