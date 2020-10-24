@@ -32,7 +32,7 @@ namespace TerrainMaker
         private readonly object currentlyLoadingListLock = new object();
         private readonly List<Point> currentlyLoadingList = new List<Point>();
 
-        Thread generatorThread;
+        Thread[] generatorThreads;
 
         public ChunkManager(int chunkRenderRadius, int gridX, int gridY)
         {
@@ -47,12 +47,14 @@ namespace TerrainMaker
             chunksOffsetX = 0;
             chunksOffsetY = 0;
 
+            generatorThreads = new Thread[4];
+
             StartLoadingUnloadedChunks();
         }
 
         public void ProcessChunks(GraphicsDevice graphicsDevice)
         {
-            if (TryDelistChunkToLoad(out TerrainChunkData chunkData))
+            while (TryDelistChunkToLoad(out TerrainChunkData chunkData))
             {
                 Point arrCoords = GridToChunksArrayCoordinates(chunkData.GridX, chunkData.GridY);
 
@@ -121,17 +123,6 @@ namespace TerrainMaker
                     {
                         graphicsDevice.VertexArray = chunks[x, y].TerrainBuffer;
                         graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, chunks[x, y].TerrainBuffer.StorageLength);
-                    }
-        }
-
-        public void RenderAllWaters(GraphicsDevice graphicsDevice)
-        {
-            for (int x = 0; x < chunks.GetLength(0); x++)
-                for (int y = 0; y < chunks.GetLength(1); y++)
-                    if (chunks[x, y] != null && !chunks[x, y].WaterBuffer.IsEmpty)
-                    {
-                        graphicsDevice.VertexArray = chunks[x, y].WaterBuffer;
-                        graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, chunks[x, y].WaterBuffer.StorageLength);
                     }
         }
 
@@ -288,16 +279,16 @@ namespace TerrainMaker
         {
             lock (toGenerateListLock)
             {
+                toGenerateList.Clear();
+
+                int centerChunkX = chunksGridStartX + chunkRenderRadius;
+                int centerChunkY = chunksGridStartY + chunkRenderRadius;
+                int radiusSquared = chunkRenderRadius * chunkRenderRadius;
+
                 lock (toLoadListLock)
                 {
                     lock (currentlyLoadingListLock)
                     {
-                        toGenerateList.Clear();
-
-                        int centerChunkX = chunksGridStartX + chunkRenderRadius;
-                        int centerChunkY = chunksGridStartY + chunkRenderRadius;
-                        int radiusSquared = chunkRenderRadius * chunkRenderRadius;
-
                         for (int x = 0; x < chunks.GetLength(0); x++)
                             for (int y = 0; y < chunks.GetLength(1); y++)
                                 if (chunks[x, y] == null)
@@ -309,18 +300,22 @@ namespace TerrainMaker
                                         toGenerateList.Add(p);
                                 }
 
-                        toGenerateList.Sort((x, y) => (Math.Abs(y.X - centerChunkX) + Math.Abs(y.Y - centerChunkY)).CompareTo(Math.Abs(x.X - centerChunkX) + Math.Abs(x.Y - centerChunkY)));
-                        //for (int i = 0; i < generatingList.Count; i++)
-                        //    Console.WriteLine("[GENERATOR] Enlisted generating chunk p=(" + generatingList[i].X + ", " + generatingList[i].Y + ")");
                     }
                 }
+
+                toGenerateList.Sort((x, y) => (Math.Abs(y.X - centerChunkX) + Math.Abs(y.Y - centerChunkY)).CompareTo(Math.Abs(x.X - centerChunkX) + Math.Abs(x.Y - centerChunkY)));
             }
 
-            if (generatorThread == null || !generatorThread.IsAlive)
-            {
-                generatorThread = new Thread(GeneratorThreadFunction);
-                generatorThread.Start();
-            }
+            if (toGenerateList.Count == 0)
+                return;
+
+            int threadsToLaunch = Math.Max(1, Math.Min(generatorThreads.Length, toGenerateList.Count / 3));
+            for (int i = 0; i < threadsToLaunch; i++)
+                if (generatorThreads[i] == null || !generatorThreads[i].IsAlive)
+                {
+                    generatorThreads[i] = new Thread(GeneratorThreadFunction);
+                    generatorThreads[i].Start();
+                }
         }
 
         private void GeneratorThreadFunction()
@@ -328,10 +323,13 @@ namespace TerrainMaker
             Console.WriteLine("[GENERATOR] Generator thread started :)");
 
             Point chunkCoords;
-            while (toGenerateList.Count != 0)
+
+            while (true)
             {
                 lock (toGenerateListLock)
                 {
+                    if (toGenerateList.Count == 0)
+                        break;
                     chunkCoords = toGenerateList[toGenerateList.Count - 1];
                     toGenerateList.RemoveAt(toGenerateList.Count - 1);
                 }
@@ -350,7 +348,13 @@ namespace TerrainMaker
             Console.WriteLine("[GENERATOR] Generator thread stopped :)");
         }
 
-        public void Dispose()
+        public void ReloadAllChunks()
+        {
+            DisposeAllChunks();
+            StartLoadingUnloadedChunks();
+        }
+
+        public void DisposeAllChunks()
         {
             for (int x = 0; x < chunks.GetLength(0); x++)
                 for (int y = 0; y < chunks.GetLength(1); y++)
@@ -359,6 +363,11 @@ namespace TerrainMaker
                         chunks[x, y].Dispose();
                         chunks[x, y] = null;
                     }
+        }
+
+        public void Dispose()
+        {
+            DisposeAllChunks();
             chunks = null;
         }
     }

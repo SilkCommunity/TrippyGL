@@ -67,7 +67,7 @@ namespace TrippyGL
             for (int i = 0; i < attribs.Length; i++)
                 if (!attribs[i].IsPadding)
                 {
-                    specifiedAttribs[index] = new SpecifiedShaderAttrib(attribNames[index], attribs[i].AttribType);
+                    specifiedAttribs[index] = new SpecifiedShaderAttrib(index < attribNames.Length ? attribNames[index] : null, attribs[i].AttribType);
                     index++;
                 }
         }

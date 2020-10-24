@@ -36,6 +36,7 @@ namespace TrippyGL
         // instantiate and then discard a new list each time they're called.
         // Holding a reference to huge lists that might no longer be needed isn't a good idea, so
         // instead we'll hold WeakReference-s to them, allowing them to be garbage collected.
+        private static readonly object listsLock = new object();
         private static WeakReference<List<int>> indicesReference;
         private static WeakReference<List<Vector3>> positionsReference;
         private static WeakReference<List<Vector3>> normalsReference;
@@ -578,11 +579,11 @@ namespace TrippyGL
         private static void GetLists(bool loadNormals, bool loadColors, bool loadTexCoords, out List<Vector3> positions,
             out List<Vector3> normals, out List<Color4b> colors, out List<Vector2> texCoords, out List<int> indices)
         {
-            if (indicesReference == null)
-                indicesReference = new WeakReference<List<int>>(null);
-
-            lock (indicesReference)
+            lock (listsLock)
             {
+                if (indicesReference == null)
+                    indicesReference = new WeakReference<List<int>>(null);
+
                 if (indicesReference.TryGetTarget(out indices))
                 {
                     indicesReference.SetTarget(null);
@@ -646,7 +647,7 @@ namespace TrippyGL
         private static void ReturnLists(List<Vector3> positions, List<Vector3> normals, List<Color4b> colors,
             List<Vector2> texCoords, List<int> indices)
         {
-            lock (indicesReference)
+            lock (listsLock)
             {
                 if (!indicesReference.TryGetTarget(out List<int> oldIndices) || oldIndices.Count < indices.Count)
                     indicesReference.SetTarget(indices);
