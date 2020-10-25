@@ -320,7 +320,7 @@ namespace TerrainMaker
 
         private void GeneratorThreadFunction()
         {
-            Console.WriteLine("[GENERATOR] Generator thread started :)");
+            //Console.WriteLine("[GENERATOR] Generator thread started :)");
 
             Point chunkCoords;
 
@@ -345,7 +345,7 @@ namespace TerrainMaker
                     currentlyLoadingList.Remove(chunkCoords);
             }
 
-            Console.WriteLine("[GENERATOR] Generator thread stopped :)");
+            //Console.WriteLine("[GENERATOR] Generator thread stopped :)");
         }
 
         public void ReloadAllChunks()
