@@ -27,7 +27,7 @@ const float waveStrenght = 0.012;
 const float shineDamper = 20.0;
 const float reflectivity = 0.7;
 
-float depthToDistance(float depth) {
+float depthToDistance(in float depth) {
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - (2.0 * depth - 1.0) * (farPlane - nearPlane));
 }
 

@@ -86,7 +86,7 @@ namespace TrippyGL
         /// Constructs a <see cref="Color4b"/> from the specified float values in
         /// a <see cref="Vector4"/> represented on a normalized range (from 0.0 to 1.0).
         /// </summary>
-        public Color4b(Vector4 rgba)
+        public Color4b(in Vector4 rgba)
         {
             R = (byte)(rgba.X * 255 + 0.5f);
             G = (byte)(rgba.Y * 255 + 0.5f);
@@ -99,7 +99,7 @@ namespace TrippyGL
         /// a <see cref="Vector3"/> represented in a normalized range (from 0.0 to 1.0)
         /// and full alpha.
         /// </summary>
-        public Color4b(Vector3 rgb)
+        public Color4b(in Vector3 rgb)
         {
             R = (byte)(rgb.X * 255 + 0.5f);
             G = (byte)(rgb.Y * 255 + 0.5f);
@@ -137,6 +137,15 @@ namespace TrippyGL
         public Vector4 ToVector4()
         {
             return new Vector4(R / 255f, G / 255f, B / 255f, A / 255f);
+        }
+
+        /// <summary>
+        /// Converts this <see cref="Color4b"/> into a <see cref="Vector3"/> by normalizing
+        /// the (R, G, B) components into a range [0-1].
+        /// </summary>
+        public Vector3 ToVector3()
+        {
+            return new Vector3(R / 255f, G / 255f, B / 255f);
         }
 
         public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);

@@ -330,6 +330,7 @@ namespace TerrainMaker
                 sand = MathF.Tanh(10 * sand - 5) * 0.5f + 0.5f;
                 color = Vector3.Lerp(OceanRock, WetterSand, sand);
                 color *= 1 + (humidity - 0.5f) * 0.7f;
+                color *= 1 - Math.Clamp((altitude + 10) / -30f, 0, 0.8f);
             }
             else if (altitude < 9)
             { // sand (above-water)

@@ -29,7 +29,13 @@ namespace TerrainMaker
         SimpleShaderProgram linesProgram;
         VertexBuffer<VertexColor> linesBuffer;
 
+        Framebuffer2D mainFramebuffer;
+
+        SimpleShaderProgram textureProgram;
         TextureBatcher textureBatcher;
+
+        ShaderProgram underwaterShader;
+        ShaderUniform underwaterViewDistanceUniform, underwaterShaderTextureUniform, underwaterShaderDepthUniform;
 
         ChunkManager chunkManager;
 
@@ -54,7 +60,7 @@ namespace TerrainMaker
             waterNormalsMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             waterNormalsMap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
-            waterReflectFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, DepthStencilFormat.Depth24, 0, TextureImageFormat.Color4b, true);
+            waterReflectFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, DepthStencilFormat.Depth24);
             waterRefractFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, DepthStencilFormat.Depth24, 0, TextureImageFormat.Color4b, true);
             waterReflectFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             waterRefractFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
@@ -87,8 +93,17 @@ namespace TerrainMaker
             linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, lines, BufferUsageARB.StaticDraw);
             linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
+            mainFramebuffer = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, DepthStencilFormat.Depth24, 0, TextureImageFormat.Color4b, true);
+
+            textureProgram = SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice, 0, 0, true);
+
+            underwaterShader = ShaderProgram.FromFiles<VertexColorTexture>(graphicsDevice, "data/postprocessVs.glsl", "data/underwaterFs.glsl", "vPosition", "vColor", "vTexCoords");
+            underwaterShaderTextureUniform = underwaterShader.Uniforms["textureSamp"];
+            underwaterShaderDepthUniform = underwaterShader.Uniforms["depthSamp"];
+            underwaterViewDistanceUniform = underwaterShader.Uniforms["maxDistance"];
+            underwaterShader.Uniforms["waterColor"].SetValueVec3(Color4b.DeepSkyBlue.ToVector3());
+
             textureBatcher = new TextureBatcher(graphicsDevice);
-            textureBatcher.SetShaderProgram(SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice));
 
             chunkManager = new ChunkManager(12, (int)inputManager.CameraPosition.X / TerrainGenerator.ChunkSize, (int)inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize);
 
@@ -103,12 +118,20 @@ namespace TerrainMaker
 
             inputManager.CameraMoveSpeed = inputManager.CurrentKeyboard.IsKeyPressed(Key.ControlLeft) ? 175 : 30;
             inputManager.Update((float)dt);
-            //float th = NoiseGenerator.GenHeight(new Vector2(inputManager.CameraPosition.X, inputManager.CameraPosition.Z));
-            //inputManager.CameraPosition.Y = Math.Max(inputManager.CameraPosition.Y, th + 4);
+            float th = NoiseGenerator.GenHeight(new Vector2(inputManager.CameraPosition.X, inputManager.CameraPosition.Z));
+            inputManager.CameraPosition.Y = Math.Max(inputManager.CameraPosition.Y, th + 4);
             //Window.Title = inputManager.CameraPosition.ToString();
 
             chunkManager.SetCenterChunk((int)MathF.Floor(inputManager.CameraPosition.X / TerrainGenerator.ChunkSize), (int)MathF.Floor(inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize));
             chunkManager.ProcessChunks(graphicsDevice);
+        }
+
+        protected override void OnKeyDown(IKeyboard sender, Key key, int n)
+        {
+            if (key == Key.P)
+                chunkManager.ChunkRenderRadius++;
+            else if (key == Key.O && chunkManager.ChunkRenderRadius > 1)
+                chunkManager.ChunkRenderRadius--;
         }
 
         private void RenderWaterFbos(in Matrix4x4 view)
@@ -146,7 +169,7 @@ namespace TerrainMaker
 
             RenderWaterFbos(view);
 
-            graphicsDevice.DrawFramebuffer = null;
+            graphicsDevice.DrawFramebuffer = mainFramebuffer;
             graphicsDevice.ClearColor = Color4b.SkyBlue;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -164,17 +187,27 @@ namespace TerrainMaker
             waterViewUniform.SetValueMat4(view);
             chunkManager.RenderAllUnderwaters(graphicsDevice);
 
+            graphicsDevice.DepthTestingEnabled = false;
             graphicsDevice.ShaderProgram = linesProgram;
             linesProgram.View = view;
             linesProgram.World = Matrix4x4.CreateScale(0.05f) * Matrix4x4.CreateTranslation(inputManager.CameraPosition + inputManager.CalculateForwardVector());
             graphicsDevice.VertexArray = linesBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, linesBuffer.StorageLength);
 
-            /*graphicsDevice.DepthTestingEnabled = false;
-            textureBatcher.Begin();
-            textureBatcher.Draw(waterReflectFbo, new Vector2(50, 50), null, Color4b.White, 0.25f, 0f);
-            textureBatcher.Draw(waterRefractFbo, new Vector2(Window.Size.Width - 50 - 0.25f * waterReflectFbo.Width, 50), null, Color4b.White, 0.25f, 0f);
-            textureBatcher.End();*/
+            graphicsDevice.Framebuffer = null;
+            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            if (inputManager.CameraPosition.Y >= 0)
+                textureBatcher.SetShaderProgram(textureProgram);
+            else
+            {
+                textureBatcher.SetShaderProgram(underwaterShader, underwaterShaderTextureUniform);
+                mainFramebuffer.Framebuffer.TryGetTextureAttachment(FramebufferAttachmentPoint.Depth, out FramebufferTextureAttachment dpt);
+                underwaterShaderDepthUniform.SetValueTexture(dpt.Texture);
+                underwaterViewDistanceUniform.SetValueFloat(Math.Max(128 + 3*inputManager.CameraPosition.Y, 20));
+            }
+            textureBatcher.Begin(BatcherBeginMode.OnTheFly);
+            textureBatcher.Draw(mainFramebuffer, new Vector2(0, mainFramebuffer.Height), null, Color4b.White, new Vector2(1, -1), 0f);
+            textureBatcher.End();
 
             Window.SwapBuffers();
         }
@@ -186,18 +219,29 @@ namespace TerrainMaker
 
             graphicsDevice.Viewport = new Viewport(0, 0, (uint)size.Width, (uint)size.Height);
 
-            float nearPlane = 0.01f, farPlane = 512f;
+            float nearPlane = 0.01f;
+            float farPlane = chunkManager.ChunkRenderRadius * (TerrainGenerator.ChunkSize + 1);
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, (float)size.Width / size.Height, nearPlane, farPlane);
             terrainProgram.Uniforms["Projection"].SetValueMat4(proj);
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);
-            waterProgram.Uniforms["nearPlane"].SetValueFloat(nearPlane);
-            waterProgram.Uniforms["farPlane"].SetValueFloat(farPlane);
             linesProgram.Projection = proj;
+            SetNearFarPlanes(nearPlane, farPlane);
+
+            proj = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, 0, 1);
+            textureProgram.Projection = proj;
+            underwaterShader.Uniforms["Projection"].SetValueMat4(proj);
 
             waterRefractFbo.Resize((uint)size.Width, (uint)size.Height);
             waterReflectFbo.Resize((uint)size.Width, (uint)size.Height);
+            mainFramebuffer.Resize((uint)size.Width, (uint)size.Height);
+        }
 
-            ((SimpleShaderProgram)textureBatcher.ShaderProgram).Projection = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, 0, 1);
+        private void SetNearFarPlanes(float nearPlane, float farPlane)
+        {
+            waterProgram.Uniforms["nearPlane"].SetValueFloat(nearPlane);
+            waterProgram.Uniforms["farPlane"].SetValueFloat(farPlane);
+            underwaterShader.Uniforms["nearPlane"].SetValueFloat(nearPlane);
+            underwaterShader.Uniforms["farPlane"].SetValueFloat(farPlane);
         }
 
         protected override void OnUnload()

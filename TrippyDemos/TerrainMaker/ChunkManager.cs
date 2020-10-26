@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Drawing;
 using Silk.NET.OpenGL;
 using System.Threading;
 using TrippyGL;
-using System.Numerics;
 using System.Linq;
 
 namespace TerrainMaker
@@ -32,12 +29,18 @@ namespace TerrainMaker
         private readonly object currentlyLoadingListLock = new object();
         private readonly List<Point> currentlyLoadingList = new List<Point>();
 
-        Thread[] generatorThreads;
+        private Thread[] generatorThreads;
+
+        public int ChunkRenderRadius
+        {
+            get => chunkRenderRadius;
+            set => SetRenderRadius(value);
+        }
 
         public ChunkManager(int chunkRenderRadius, int gridX, int gridY)
         {
             if (chunkRenderRadius <= 0)
-                throw new ArgumentException(nameof(chunkRenderRadius));
+                throw new ArgumentOutOfRangeException(nameof(chunkRenderRadius));
 
             this.chunkRenderRadius = chunkRenderRadius;
             int chunksArraySize = chunkRenderRadius + chunkRenderRadius + 1;
@@ -283,7 +286,7 @@ namespace TerrainMaker
 
                 int centerChunkX = chunksGridStartX + chunkRenderRadius;
                 int centerChunkY = chunksGridStartY + chunkRenderRadius;
-                int radiusSquared = chunkRenderRadius * chunkRenderRadius;
+                int radiusSquared = chunkRenderRadius * chunkRenderRadius + 1;
 
                 lock (toLoadListLock)
                 {
@@ -295,7 +298,7 @@ namespace TerrainMaker
                                 {
                                     Point p = ChunksArrayToGridCoordinates(x, y);
                                     int dist = (p.X - centerChunkX) * (p.X - centerChunkX) + (p.Y - centerChunkY) * (p.Y - centerChunkY);
-                                    if (dist < radiusSquared && !toLoadList.Any(x => x.GridX == p.X && x.GridY == p.Y)
+                                    if (dist <= radiusSquared && !toLoadList.Any(x => x.GridX == p.X && x.GridY == p.Y)
                                         && !currentlyLoadingList.Contains(p))
                                         toGenerateList.Add(p);
                                 }
@@ -346,6 +349,28 @@ namespace TerrainMaker
             }
 
             //Console.WriteLine("[GENERATOR] Generator thread stopped :)");
+        }
+
+        public void SetRenderRadius(int radius)
+        {
+            if (radius == chunkRenderRadius)
+                return;
+
+            if (radius <= 0)
+                throw new ArgumentException("bruh", nameof(radius));
+
+            DisposeAllChunks();
+
+            chunks = new TerrainChunk[radius + radius + 1, radius + radius + 1];
+
+            chunksGridStartX = chunksGridStartX + chunkRenderRadius - radius;
+            chunksGridStartY = chunksGridStartY + chunkRenderRadius - radius;
+
+            chunksOffsetX = 0;
+            chunksOffsetY = 0;
+            chunkRenderRadius = radius;
+
+            ReloadAllChunks();
         }
 
         public void ReloadAllChunks()
