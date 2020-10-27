@@ -102,6 +102,24 @@ namespace TrippyGL
             Framebuffer.UpdateFramebufferData();
         }
 
+        /// <summary>
+        /// Tries to get the <see cref="Texture2D"/> attached to this <see cref="Framebuffer2D"/> as depth buffer.
+        /// </summary>
+        /// <param name="depthTexture">The <see cref="Texture2D"/> this <see cref="Framebuffer2D"/> uses as depth buffer, if there is one.</param>
+        /// <returns>Whether this <see cref="Framebuffer2D"/> has a <see cref="Texture2D"/> as depth buffer.</returns>
+        public bool TryGetDepthTexture(out Texture2D depthTexture)
+        {
+            if (Framebuffer.TryGetTextureAttachment(FramebufferAttachmentPoint.Depth, out FramebufferTextureAttachment depthAttachment)
+                && depthAttachment.Texture is Texture2D dptTex)
+            {
+                depthTexture = dptTex;
+                return true;
+            }
+
+            depthTexture = null;
+            return false;
+        }
+
         public void Dispose()
         {
             Framebuffer.DisposeAttachments();

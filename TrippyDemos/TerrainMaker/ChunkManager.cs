@@ -5,11 +5,14 @@ using Silk.NET.OpenGL;
 using System.Threading;
 using TrippyGL;
 using System.Linq;
+using System.Numerics;
 
 namespace TerrainMaker
 {
     class ChunkManager : IDisposable
     {
+        public const int ExtraLoadedRadius = 1;
+
         /// <summary>The X coordinate of the lowest loaded chunk in <see cref="chunks"/>.</summary>
         private int chunksGridStartX;
         /// <summary>The Y coordinate of the lowest loaded chunk in <see cref="chunks"/>.</summary>
@@ -31,9 +34,12 @@ namespace TerrainMaker
 
         private Thread[] generatorThreads;
 
+        public Vector3 CameraPosition;
+        public Vector3 CameraDirection;
+
         public int ChunkRenderRadius
         {
-            get => chunkRenderRadius;
+            get => chunkRenderRadius - ExtraLoadedRadius;
             set => SetRenderRadius(value);
         }
 
@@ -41,6 +47,7 @@ namespace TerrainMaker
         {
             if (chunkRenderRadius <= 0)
                 throw new ArgumentOutOfRangeException(nameof(chunkRenderRadius));
+            chunkRenderRadius += ExtraLoadedRadius;
 
             this.chunkRenderRadius = chunkRenderRadius;
             int chunksArraySize = chunkRenderRadius + chunkRenderRadius + 1;
@@ -122,7 +129,7 @@ namespace TerrainMaker
         {
             for (int x = 0; x < chunks.GetLength(0); x++)
                 for (int y = 0; y < chunks.GetLength(1); y++)
-                    if (chunks[x, y] != null && !chunks[x, y].TerrainBuffer.IsEmpty)
+                    if (chunks[x, y] != null && !chunks[x, y].TerrainBuffer.IsEmpty && ShouldRenderChunk(chunks[x, y]))
                     {
                         graphicsDevice.VertexArray = chunks[x, y].TerrainBuffer;
                         graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, chunks[x, y].TerrainBuffer.StorageLength);
@@ -133,11 +140,29 @@ namespace TerrainMaker
         {
             for (int x = 0; x < chunks.GetLength(0); x++)
                 for (int y = 0; y < chunks.GetLength(1); y++)
-                    if (chunks[x, y] != null && !chunks[x, y].UnderwaterBuffer.IsEmpty)
+                    if (chunks[x, y] != null && !chunks[x, y].UnderwaterBuffer.IsEmpty && ShouldRenderChunk(chunks[x, y]))
                     {
                         graphicsDevice.VertexArray = chunks[x, y].UnderwaterBuffer;
                         graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, chunks[x, y].UnderwaterBuffer.StorageLength);
                     }
+        }
+
+        private bool ShouldRenderChunk(TerrainChunk chunk)
+        {
+            Vector3 chunkCenter = new Vector3(
+                chunk.GridX * TerrainGenerator.ChunkSize + TerrainGenerator.ChunkSize / 2f,
+                0,
+                chunk.GridY * TerrainGenerator.ChunkSize + TerrainGenerator.ChunkSize / 2f
+            );
+            Vector3 camToChunkVector = chunkCenter - CameraPosition;
+
+            if (Math.Abs(camToChunkVector.X) <= TerrainGenerator.ChunkSize * 2
+                && Math.Abs(camToChunkVector.Z) <= TerrainGenerator.ChunkSize * 2)
+                return true;
+
+            camToChunkVector = Vector3.Normalize(camToChunkVector);
+            float dot = Vector3.Dot(CameraDirection, camToChunkVector);
+            return dot > 0;
         }
 
         private Point GridToChunksArrayCoordinates(int gridX, int gridY)
@@ -353,11 +378,12 @@ namespace TerrainMaker
 
         public void SetRenderRadius(int radius)
         {
-            if (radius == chunkRenderRadius)
-                return;
-
             if (radius <= 0)
                 throw new ArgumentException("bruh", nameof(radius));
+            radius += ExtraLoadedRadius;
+
+            if (radius == chunkRenderRadius)
+                return;
 
             DisposeAllChunks();
 

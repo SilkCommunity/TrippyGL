@@ -115,7 +115,13 @@ namespace TrippyGL
                 for (int c = 0; c < textures.Length; c++)
                 {
                     Texture t = textures[c];
-                    if (t != null && !textureList.Contains(t))
+                    if (t == null)
+                        throw new InvalidOperationException("Tried to draw with no texture set on uniform named: " + uniforms[i].Name);
+
+                    if (t.IsDisposed)
+                        throw new InvalidOperationException("Tried to draw with a disposed texture set on uniform named: " + uniforms[i].Name);
+
+                    if (!textureList.Contains(t))
                         textureList.Add(t);
                 }
             }
