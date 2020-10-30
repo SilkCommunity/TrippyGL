@@ -6,7 +6,7 @@ using TrippyGL.Utils;
 namespace TrippyGL
 {
     /// <summary>
-    /// A helper type that provides an easy to use 2D <see cref="FramebufferObject"/>.
+    /// A helper type that provides an easy way to use a 2D <see cref="FramebufferObject"/>.
     /// </summary>
     public readonly struct Framebuffer2D : IDisposable, IEquatable<Framebuffer2D>
     {

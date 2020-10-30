@@ -581,10 +581,7 @@ namespace TrippyGL
         {
             lock (listsLock)
             {
-                if (indicesReference == null)
-                    indicesReference = new WeakReference<List<int>>(null);
-
-                if (indicesReference.TryGetTarget(out indices))
+                if (indicesReference != null && indicesReference.TryGetTarget(out indices))
                 {
                     indicesReference.SetTarget(null);
                     indices.Clear();
@@ -649,6 +646,9 @@ namespace TrippyGL
         {
             lock (listsLock)
             {
+                if (indicesReference == null)
+                    indicesReference = new WeakReference<List<int>>(null);
+
                 if (!indicesReference.TryGetTarget(out List<int> oldIndices) || oldIndices.Count < indices.Count)
                     indicesReference.SetTarget(indices);
 

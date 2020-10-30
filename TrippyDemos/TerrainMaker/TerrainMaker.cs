@@ -12,9 +12,11 @@ namespace TerrainMaker
 {
     class TerrainMaker : TestBase
     {
-        private const DepthStencilFormat PreferredDepthFormat = DepthStencilFormat.Depth24;
+        private const DepthStencilFormat PreferredDepthFormat = DepthStencilFormat.Depth32f;
         public static Stopwatch stopwatch = new Stopwatch();
         public static Random random = new Random();
+
+        const float MinCameraSpeed = 10, MaxCameraSpeed = 2500;
 
         InputManager3D inputManager;
 
@@ -49,9 +51,12 @@ namespace TerrainMaker
             stopwatch.Restart();
             inputManager = new InputManager3D(InputContext);
 
+            chunkManager = new ChunkManager(GeneratorSeed.Default, 20, 0, 0);
+
             Vector3 startCoords = new Vector3(TerrainGenerator.ChunkSize / 2f, 0f, TerrainGenerator.ChunkSize / 2f);
-            startCoords.Y = Math.Max(NoiseGenerator.GenHeight(new Vector2(startCoords.X, startCoords.Z)), 0) + 32f;
+            startCoords.Y = Math.Max(NoiseGenerator.GenHeight(chunkManager.GeneratorSeed, new Vector2(startCoords.X, startCoords.Z)), 0) + 32f;
             inputManager.CameraPosition = startCoords;
+            inputManager.CameraMoveSpeed = 100;
 
             terrainProgram = ShaderProgram.FromFiles<VertexNormalColor>(graphicsDevice, "data/terrainVs.glsl", "data/terrainFs.glsl", "vPosition", "vNormal", "vColor");
             terrainViewUniform = terrainProgram.Uniforms["View"];
@@ -110,8 +115,6 @@ namespace TerrainMaker
 
             textureBatcher = new TextureBatcher(graphicsDevice);
 
-            chunkManager = new ChunkManager(12, (int)inputManager.CameraPosition.X / TerrainGenerator.ChunkSize, (int)inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize);
-
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthState = new DepthState(true, DepthFunction.Lequal);
             graphicsDevice.ClearColor = Vector4.UnitW;
@@ -120,12 +123,22 @@ namespace TerrainMaker
         protected override void OnUpdate(double dt)
         {
             base.OnUpdate(dt);
+            float dtfloat = (float)dt;
 
-            inputManager.CameraMoveSpeed = inputManager.CurrentKeyboard.IsKeyPressed(Key.ControlLeft) ? 175 : 30;
-            inputManager.Update((float)dt);
-            float th = NoiseGenerator.GenHeight(new Vector2(inputManager.CameraPosition.X, inputManager.CameraPosition.Z));
+            if (inputManager.CurrentGamepad != null)
+            {
+                const float changespd = 200;
+                if (inputManager.CurrentGamepad.DPadUp().Pressed)
+                    inputManager.CameraMoveSpeed = Math.Clamp(inputManager.CameraMoveSpeed + changespd * dtfloat, MinCameraSpeed, MaxCameraSpeed);
+                if (inputManager.CurrentGamepad.DPadDown().Pressed)
+                    inputManager.CameraMoveSpeed = Math.Clamp(inputManager.CameraMoveSpeed - changespd * dtfloat, MinCameraSpeed, MaxCameraSpeed);
+            }
+
+            inputManager.Update(dtfloat);
+
+            float th = NoiseGenerator.GenHeight(chunkManager.GeneratorSeed, new Vector2(inputManager.CameraPosition.X, inputManager.CameraPosition.Z));
             inputManager.CameraPosition.Y = Math.Max(inputManager.CameraPosition.Y, th + 4);
-            //Window.Title = inputManager.CameraPosition.ToString();
+            Window.Title = inputManager.CameraPosition.ToString();
             if (!inputManager.CurrentKeyboard.IsKeyPressed(Key.G))
                 chunkManager.SetCenterChunk((int)MathF.Floor(inputManager.CameraPosition.X / TerrainGenerator.ChunkSize), (int)MathF.Floor(inputManager.CameraPosition.Z / TerrainGenerator.ChunkSize));
             chunkManager.ProcessChunks(graphicsDevice);
@@ -145,6 +158,16 @@ namespace TerrainMaker
                 Console.WriteLine("ChunkRenderRadius set to " + chunkManager.ChunkRenderRadius);
                 SetNearFarPlanes();
             }
+            else if (key == Key.R)
+            {
+                chunkManager.GeneratorSeed = new GeneratorSeed(random);
+            }
+        }
+
+        protected override void OnMouseScroll(IMouse sender, ScrollWheel scroll)
+        {
+            float delta = scroll.Y * 12.5f;
+            inputManager.CameraMoveSpeed = Math.Clamp(inputManager.CameraMoveSpeed + delta, MinCameraSpeed, MaxCameraSpeed);
         }
 
         private void RenderWaterFbos(in Matrix4x4 view)

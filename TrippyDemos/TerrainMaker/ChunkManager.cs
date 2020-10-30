@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Silk.NET.OpenGL;
-using System.Threading;
-using TrippyGL;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
+using Silk.NET.OpenGL;
+using TrippyGL;
 
 namespace TerrainMaker
 {
     class ChunkManager : IDisposable
     {
-        public const int ExtraLoadedRadius = 1;
+        public const int ExtraLoadedRadius = 3;
 
         /// <summary>The X coordinate of the lowest loaded chunk in <see cref="chunks"/>.</summary>
         private int chunksGridStartX;
@@ -43,12 +43,35 @@ namespace TerrainMaker
             set => SetRenderRadius(value);
         }
 
-        public ChunkManager(int chunkRenderRadius, int gridX, int gridY)
+        private GeneratorSeed generatorSeed;
+        public GeneratorSeed GeneratorSeed
+        {
+            get => generatorSeed;
+            set
+            {
+                if (generatorSeed == value)
+                    return;
+
+                lock (toGenerateListLock) toGenerateList.Clear();
+                while (generatorThreads.Any(x => x.IsAlive))
+                    Thread.Sleep(8);
+
+                lock (toLoadListLock) toLoadList.Clear();
+                lock (currentlyLoadingListLock) currentlyLoadingList.Clear();
+
+                generatorSeed = value;
+                DisposeAllChunks();
+                StartLoadingUnloadedChunks();
+            }
+        }
+
+        public ChunkManager(GeneratorSeed seed, int chunkRenderRadius, int gridX, int gridY)
         {
             if (chunkRenderRadius <= 0)
                 throw new ArgumentOutOfRangeException(nameof(chunkRenderRadius));
             chunkRenderRadius += ExtraLoadedRadius;
 
+            this.generatorSeed = seed;
             this.chunkRenderRadius = chunkRenderRadius;
             int chunksArraySize = chunkRenderRadius + chunkRenderRadius + 1;
             chunks = new TerrainChunk[chunksArraySize, chunksArraySize];
@@ -149,6 +172,12 @@ namespace TerrainMaker
 
         private bool ShouldRenderChunk(TerrainChunk chunk)
         {
+            int dx = chunk.GridX - (chunksGridStartX + chunkRenderRadius);
+            int dy = chunk.GridY - (chunksGridStartY + chunkRenderRadius);
+            int dr = chunkRenderRadius - ExtraLoadedRadius + 1;
+            if (dx * dx + dy * dy > dr * dr)
+                return false;
+
             Vector3 chunkCenter = new Vector3(
                 chunk.GridX * TerrainGenerator.ChunkSize + TerrainGenerator.ChunkSize / 2f,
                 0,
@@ -348,8 +377,6 @@ namespace TerrainMaker
 
         private void GeneratorThreadFunction()
         {
-            //Console.WriteLine("[GENERATOR] Generator thread started :)");
-
             Point chunkCoords;
 
             while (true)
@@ -365,15 +392,13 @@ namespace TerrainMaker
                 lock (currentlyLoadingListLock)
                     currentlyLoadingList.Add(chunkCoords);
 
-                TerrainChunkData chunkData = TerrainGenerator.Generate(chunkCoords.X, chunkCoords.Y);
+                TerrainChunkData chunkData = TerrainGenerator.Generate(generatorSeed, chunkCoords.X, chunkCoords.Y);
 
                 lock (toLoadListLock)
                     toLoadList.Add(chunkData);
                 lock (currentlyLoadingListLock)
                     currentlyLoadingList.Remove(chunkCoords);
             }
-
-            //Console.WriteLine("[GENERATOR] Generator thread stopped :)");
         }
 
         public void SetRenderRadius(int radius)

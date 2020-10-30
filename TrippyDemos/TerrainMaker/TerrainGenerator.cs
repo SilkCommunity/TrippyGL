@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
-using SixLabors.ImageSharp.ColorSpaces;
-using SixLabors.ImageSharp.ColorSpaces.Conversion;
 using TrippyGL;
 using TrippyGL.Utils;
 
@@ -12,7 +9,7 @@ namespace TerrainMaker
     static class TerrainGenerator
     {
         /// <summary>The length of the side of a chunk (they are squares).</summary>
-        public const int ChunkSize = 32;
+        public const int ChunkSize = 40;
 
         /// <summary>The amount of vertices per unit of position.</summary>
         public const int VertexDensity = 1;
@@ -249,7 +246,7 @@ namespace TerrainMaker
             }
         }
 
-        public static TerrainChunkData Generate(int gridX, int gridY)
+        public static TerrainChunkData Generate(GeneratorSeed seed, int gridX, int gridY)
         {
             GetBatchers(out PrimitiveBatcher<Vector3> terrTri, out PrimitiveBatcher<Vector3> waterTri, out PrimitiveBatcher<Vector3> underTri);
 
@@ -264,13 +261,13 @@ namespace TerrainMaker
                 float h11, h21, h22, h12;
                 for (int cx = 0; cx < ChunkSize * VertexDensity; cx++)
                 {
-                    h11 = NoiseGenerator.GenHeight(new Vector2(cx, 0) / VertexDensity + firstCoord);
-                    h21 = NoiseGenerator.GenHeight(new Vector2(cx + 1, 0) / VertexDensity + firstCoord);
+                    h11 = NoiseGenerator.GenHeight(seed, new Vector2(cx, 0) / VertexDensity + firstCoord);
+                    h21 = NoiseGenerator.GenHeight(seed, new Vector2(cx + 1, 0) / VertexDensity + firstCoord);
 
                     for (int cy = 0; cy < ChunkSize * VertexDensity; cy++)
                     {
-                        h12 = NoiseGenerator.GenHeight(new Vector2(cx, cy + 1) / VertexDensity + firstCoord);
-                        h22 = NoiseGenerator.GenHeight(new Vector2(cx + 1, cy + 1) / VertexDensity + firstCoord);
+                        h12 = NoiseGenerator.GenHeight(seed, new Vector2(cx, cy + 1) / VertexDensity + firstCoord);
+                        h22 = NoiseGenerator.GenHeight(seed, new Vector2(cx + 1, cy + 1) / VertexDensity + firstCoord);
 
                         Vector3 pos00 = new Vector3(firstCoord.X + cx / VertexDensity, h11, firstCoord.Y + cy / VertexDensity);
                         Vector3 pos10 = new Vector3(firstCoord.X + (cx + 1) / VertexDensity, h21, firstCoord.Y + cy / VertexDensity);
@@ -286,10 +283,10 @@ namespace TerrainMaker
                 }
 
                 VertexNormalColor[] terr = terrTri.TriangleVertexCount == 0 ? null : GetArray(terrTri.TriangleVertexCount);
-                if (terr != null) FormTriangles(terrTri.TriangleVertices, terr);
+                if (terr != null) FormTriangles(seed, terrTri.TriangleVertices, terr);
 
                 VertexNormalColor[] under = underTri.TriangleVertexCount == 0 ? null : GetArray(underTri.TriangleVertexCount);
-                if (under != null) FormTriangles(underTri.TriangleVertices, under);
+                if (under != null) FormTriangles(seed, underTri.TriangleVertices, under);
 
                 return new TerrainChunkData(gridX, gridY, terr, terrTri.TriangleVertexCount, under, underTri.TriangleVertexCount);
             }
@@ -299,14 +296,14 @@ namespace TerrainMaker
             }
         }
 
-        private static void FormTriangles(ReadOnlySpan<Vector3> source, Span<VertexNormalColor> dest)
+        private static void FormTriangles(GeneratorSeed seed, ReadOnlySpan<Vector3> source, Span<VertexNormalColor> dest)
         {
             for (int i = 2; i < source.Length; i += 3)
             {
                 Vector3 center = (source[i - 2] + source[i - 1] + source[i]) / 3f;
                 Vector3 normal = Vector3.Normalize(Vector3.Cross(source[i - 1] - source[i - 2], source[i] - source[i - 2]));
 
-                NoiseGenerator.GenPoint(new Vector2(center.X, center.Z), out float humidity, out float vegetation);
+                NoiseGenerator.GenPoint(seed, new Vector2(center.X, center.Z), out float humidity, out float vegetation);
 
                 Color4b color = FormColor(center.Y, normal, humidity, vegetation);
                 //float tmp = NoiseGenerator.Perlin(new Vector2(center.X, center.Z) / 16f, GeneratorSeed.HeightSeed, GeneratorSeed.VegetationSeed);

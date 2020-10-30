@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TerrainMaker
+﻿namespace TerrainMaker
 {
     class Program
     {
