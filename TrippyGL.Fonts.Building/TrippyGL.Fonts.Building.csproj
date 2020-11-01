@@ -12,6 +12,7 @@
     <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
 
 This package provides integration with the SixLabors.Fonts library for the TrippyGL.Fonts package, allowing the creation of TrippyGL fonts from common font file formats, such as as TrueType.</Description>
+    <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
