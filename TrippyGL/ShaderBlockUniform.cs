@@ -33,7 +33,6 @@ namespace TrippyGL
         /// <summary>
         /// Sets the buffer containing the values for this uniform.
         /// </summary>
-        /// <typeparam name="T">A struct with the same format as the uniform.</typeparam>
         /// <param name="buffer">The buffer from which the values will be read.</param>
         /// <param name="elementIndex">The index of the element in the buffer subset whose value should be used.</param>
         public void SetValue(UniformBufferSubset buffer, uint elementIndex = 0)

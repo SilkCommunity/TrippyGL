@@ -34,13 +34,10 @@ namespace TrippyGL
         /// <summary>
         /// Creates a <see cref="GraphicsDevice"/> to manage the given graphics context.
         /// </summary>
-        /// <param name="context">The OpenGL Context for this <see cref="GraphicsDevice"/>.</param>
-        /// <param name="resourceCount">An estimate of how many <see cref="GraphicsResource"/>-s you intend to use.</param>
-        public GraphicsDevice(GL gl, int resourceCount = 128)
+        /// <param name="gl">The <see cref="Silk.NET.OpenGL.GL"/> object this <see cref="GraphicsDevice"/> will use for GL calls.</param>
+        public GraphicsDevice(GL gl)
         {
             GL = gl ?? throw new ArgumentNullException(nameof(gl));
-            if (resourceCount <= 0)
-                throw new ArgumentOutOfRangeException(nameof(resourceCount));
 
             GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
             GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
@@ -50,7 +47,7 @@ namespace TrippyGL
 
             InitIsAvailableVariables();
 
-            graphicsResources = new List<GraphicsResource>(resourceCount);
+            graphicsResources = new List<GraphicsResource>();
 
             InitGLGetVariables();
             InitBufferObjectStates();

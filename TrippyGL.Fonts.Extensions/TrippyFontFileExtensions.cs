@@ -11,6 +11,7 @@ namespace TrippyGL.Fonts.Extensions
         /// <summary>
         /// Creates an array of <see cref="TextureFont"/>-s from the <see cref="TrippyFontFile"/>.
         /// </summary>
+        /// <param name="font">The <see cref="TrippyFontFile"/> to create fonts from.</param>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="TextureFont"/>-s will use.</param>
         /// <param name="generateMipmaps">Whether to generate mipmaps for the texture's font.</param>
         public static TextureFont[] CreateFonts(this TrippyFontFile font, GraphicsDevice graphicsDevice, bool generateMipmaps = false)
@@ -43,6 +44,7 @@ namespace TrippyGL.Fonts.Extensions
         /// <summary>
         /// Creates a single <see cref="TextureFont"/> from the <see cref="TrippyFontFile"/>.
         /// </summary>
+        /// <param name="font">The <see cref="TrippyFontFile"/> to create fonts from.</param>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> the <see cref="TextureFont"/> will use.</param>
         /// <param name="generateMipmaps">Whether to generate mipmaps for the texture's font.</param>
         public static TextureFont CreateFont(this TrippyFontFile font, GraphicsDevice graphicsDevice, bool generateMipmaps = false)

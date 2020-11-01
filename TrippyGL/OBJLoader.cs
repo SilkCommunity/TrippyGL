@@ -558,7 +558,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Expands the size of a char <see cref="Span{char}"/> by allocating a larger char[]
+        /// Expands the size of a char <see cref="Span{T}"/> by allocating a larger char[]
         /// and copying all the data over to the new buffer.
         /// </summary>
         /// <param name="charBuffer">The buffer to expand.</param>

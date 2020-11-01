@@ -41,11 +41,11 @@ namespace TrippyGL
         /// </summary>
         private BufferObject[] bufferBindings;
 
-        /// <summary>The <see cref="BufferTarget"/>-s for the handles found on the <see cref="bufferBindings"/> array.</summary>
+        /// <summary>The <see cref="BufferTargetARB"/>-s for the handles found on the <see cref="bufferBindings"/> array.</summary>
         private BufferTargetARB[] bufferBindingTargets;
 
         /// <summary>
-        /// For the <see cref="BufferTarget"/>-s that have range bindings, this is an
+        /// For the <see cref="BufferTargetARB"/>-s that have range bindings, this is an
         /// array of arrays that contain the bound buffer and the bound range of each binding index.
         /// </summary>
         private BufferRangeBinding[][] bufferRangeBindings;
@@ -150,7 +150,7 @@ namespace TrippyGL
         /// <summary>
         /// Binds a buffer subset to it's <see cref="BufferTargetARB"/>.
         /// </summary>
-        /// <param name="bufferSubset">The buffer subset to bind. This value is assumed not to be null.</param>
+        /// <param name="bufferSubset">The buffer subset to bind.</param>
         public void BindBuffer(BufferObjectSubset bufferSubset)
         {
             if (bufferSubset == null)
@@ -171,10 +171,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a range of a buffer subset to a binding index on it's <see cref="BufferTarget"/>
-        /// The buffer subset's <see cref="BufferTarget"/> must be one with multiple binding indexes.
+        /// Binds a range of a buffer subset to a binding index on it's <see cref="BufferTargetARB"/>
+        /// The buffer subset's <see cref="BufferTargetARB"/> must be one with multiple binding indexes.
         /// </summary>
-        /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
+        /// <param name="bufferSubset">The buffer subset to bind.</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
         /// <param name="offset">The offset in bytes into the buffer's storage where the bind begins.</param>
         /// <param name="size">The amount of bytes that can be read from the storage, starting from offset.</param>
@@ -189,8 +189,8 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Binds a range of a buffer to a binding index on it's <see cref="BufferTarget"/> without first checking whether it's already bound.
-        /// The buffer object's <see cref="BufferTarget"/> must be one with multiple binding indexes.
+        /// Binds a range of a buffer to a binding index on it's <see cref="BufferTargetARB"/> without first checking whether it's already bound.
+        /// The buffer object's <see cref="BufferTargetARB"/> must be one with multiple binding indexes.
         /// </summary>
         /// <param name="buffer">The buffer to bind. This value is assumed not to be null.</param>
         /// <param name="bindingIndex">The binding index in the buffer target where the buffer will be bound.</param>
@@ -225,9 +225,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Returns whether the given buffer subset is the currently bound one for it's <see cref="BufferTarget"/>.
+        /// Returns whether the given buffer subset is the currently bound one for it's <see cref="BufferTargetARB"/>.
         /// </summary>
-        /// <param name="buffer">The buffer subset to check. This value is assumed not to be null.</param>
+        /// <param name="buffer">The buffer subset to check.</param>
         public bool IsBufferCurrentlyBound(BufferObjectSubset buffer)
         {
             if (buffer == null)
@@ -237,10 +237,10 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets the index on the <see cref="bufferBindings"/> array for the specified <see cref="BufferTarget"/>.
-        /// If there's no such index, it returns -1, though this won't happen as long as you only use proper <see cref="BufferTarget"/> enum values.
+        /// Gets the index on the <see cref="bufferBindings"/> array for the specified <see cref="BufferTargetARB"/>.
+        /// If there's no such index, it returns -1, though this won't happen as long as you only use proper <see cref="BufferTargetARB"/> enum values.
         /// </summary>
-        /// <param name="bufferTarget">The <see cref="BufferTarget"/> to get the binds list index for.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> to get the binds list index for.</param>
         internal int GetBindingTargetIndex(BufferTargetARB bufferTarget)
         {
             for (int i = 0; i < BufferTargetCount; i++)
@@ -269,8 +269,8 @@ namespace TrippyGL
 
         /// <summary>
         /// This struct is used to manage buffer object binding in cases where a buffer can be bound to multiple indices in the same target.
-        /// Each <see cref="BufferRangeBinding"/> represents one of these binding points in a <see cref="BufferTarget"/>.
-        /// Of course, this must be in a <see cref="BufferTarget"/> to which multiple buffers can be bound.
+        /// Each <see cref="BufferRangeBinding"/> represents one of these binding points in a <see cref="BufferTargetARB"/>.
+        /// Of course, this must be in a <see cref="BufferTargetARB"/> to which multiple buffers can be bound.
         /// </summary>
         internal struct BufferRangeBinding
         {
@@ -298,7 +298,6 @@ namespace TrippyGL
             /// <summary>
             /// Sets the values of this <see cref="BufferRangeBinding"/> to the entire given subset.
             /// </summary>
-            /// <param name="buffer".></param>
             public void SetRange(BufferObjectSubset buffer)
             {
                 Buffer = buffer.Buffer;

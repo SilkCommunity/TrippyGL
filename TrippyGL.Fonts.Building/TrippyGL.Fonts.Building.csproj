@@ -2,6 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <RepositoryUrl>https://github.com/ThomasMiz/TrippyGL</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ThomasMiz/TrippyGL</PackageProjectUrl>
+    <PackageIcon>TrippyGL_logo.png</PackageIcon>
+    <Version>1.0.0-rc1</Version>
+    <Authors>ThomasMiz</Authors>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
+
+This package provides integration with the SixLabors.Fonts library for the TrippyGL.Fonts package, allowing the creation of TrippyGL fonts from common font file formats, such as as TrueType.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\Thomas Mizrahi\Documents\Visual Studio 2019\GitHub\ThomasMiz\TrippyGL\TrippyGL.Fonts.Building\TrippyGL.Fonts.Building.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +25,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TrippyGL.Fonts\TrippyGL.Fonts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\TrippyGL_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

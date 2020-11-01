@@ -1,0 +1,481 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TrippyGL.Fonts</name>
+    </assembly>
+    <members>
+        <member name="T:TrippyGL.Fonts.FontBuilder">
+            <summary>
+            Contains static methods that allow building a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> instance from one
+            or multiple <see cref="T:TrippyGL.Fonts.IGlyphSource"/>-s.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.FontBuilder.CreateFontFile(System.ReadOnlySpan{TrippyGL.Fonts.IGlyphSource},System.Nullable{SixLabors.ImageSharp.Color})">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> holding information for multiple fonts.
+            </summary>
+            <param name="glyphSources">The <see cref="T:TrippyGL.Fonts.IGlyphSource"/>-s for getting the information of each font.</param>
+            <param name="backgroundColor">The background color of the generated image. Null for transparent.</param>
+        </member>
+        <member name="M:TrippyGL.Fonts.FontBuilder.CreateFontFile(TrippyGL.Fonts.IGlyphSource,System.Nullable{SixLabors.ImageSharp.Color})">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> holding information for a single font.
+            </summary>
+            <param name="glyphSources">The <see cref="T:TrippyGL.Fonts.IGlyphSource"/> for getting the information of the font.</param>
+            <param name="backgroundColor">The background color of the generated image. Null for transparent.</param>
+        </member>
+        <member name="T:TrippyGL.Fonts.IGlyphSource">
+            <summary>
+            Defines methods and properties used by <see cref="T:TrippyGL.Fonts.FontBuilder"/> for building
+            <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> instances.
+            </summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.FirstChar">
+            <summary>The first character in the range the font will contain.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.LastChar">
+            <summary>The last (inclusive) character in the range the font will contain.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.Size">
+            <summary>The size of the font, typically measured in pixels.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.Name">
+            <summary>The name of the font. Can be null, but no longer than <see cref="F:TrippyGL.Fonts.TextureFontData.MaxFontNameLength"/>.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.Ascender">
+            <summary>The distance between the baseline and the highest glyph's highest point. Typically positive.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.Descender">
+            <summary>The distance between the baseline and the lowest glyph's lowest point. Typically negative.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.IGlyphSource.LineGap">
+            <summary>The distance between the lowest point of a line and the highest point of the next line.</summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.IGlyphSource.GetAdvances(System.Single[]@)">
+            <summary>
+            Gets the advances for all glyphs. 
+            </summary>
+            <returns>
+            Whether the font is spaced. If this returned false, then the font is monospace and advances
+            will be an array of length one, whose only element is the advance for all characters.
+            </returns>
+            <remarks>
+            The implementation shouldn't hold a reference to the returned array. Users of this interface
+            are allowed to use the same array instance without having to copy the data to a new location.
+            </remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.IGlyphSource.TryGetKerning(System.Numerics.Vector2[0:,0:]@)">
+            <summary>
+            Tries to get kerning for all glyphs.
+            </summary>
+            <returns>
+            Whether the font has kerning. If false, no kerning is used and kerningOffsets should be ignored.
+            </returns>
+            <remarks>
+            The implementation shouldn't hold a reference to the returned array. Users of this interface
+            are allowed to use the same array instance without having to copy the data to a new location.
+            </remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.IGlyphSource.GetRenderOffsets">
+            <summary>
+            Gets the render offsets for all glyphs.
+            </summary>
+            <remarks>
+            The implementation shouldn't hold a reference to the returned array. Users of this interface
+            are allowed to use the same array instance without having to copy the data to a new location.
+            </remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.IGlyphSource.GetGlyphSize(System.Int32)">
+            <summary>
+            Gets the size in pixels of the area needed for drawing a specific character.
+            </summary>
+            <remarks>
+            A size of zero means a glyph does not need drawing (for example, a space character).
+            </remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.IGlyphSource.DrawGlyphToImage(System.Int32,System.Drawing.Point,SixLabors.ImageSharp.Image{SixLabors.ImageSharp.PixelFormats.Rgba32})">
+            <summary>
+            Draws a character into the given image, at the specified location.
+            </summary>
+            <remarks>
+            This operation shouldn't touch anything outside the area defined by the given location
+            and the size provided for the same character in <see cref="M:TrippyGL.Fonts.IGlyphSource.GetGlyphSize(System.Int32)"/>.
+            </remarks>
+        </member>
+        <member name="T:TrippyGL.Fonts.Rectpack.PackingHints">
+            <summary>
+            Specifies hints that help optimize the rectangle packing algorithm. 
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByArea">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by area.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByPerimeter">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by perimeter.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByBiggerSide">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by bigger side.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByWidth">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by width.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByHeight">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by height.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.TryByPathologicalMultiplier">
+            <summary>Tells the rectangle packer to try inserting the rectangles ordered by a pathological multiplier.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.FindBest">
+            <summary>Specifies to try all the possible hints, as to find the best packing configuration.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.UnusualSizes">
+            <summary>Specifies hints to optimize for rectangles who have one side much bigger than the other.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHints.MostlySquared">
+            <summary>Specifies hints to optimize for rectangles whose sides are relatively similar.</summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.Rectpack.PackingHintExtensions">
+            <summary>
+            Provides internal values and functions used by the rectangle packing algorithm.
+            </summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.Rectpack.PackingHintExtensions.GetSortKeyDelegate">
+            <summary>
+            Represents a method for calculating a sort key from a <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.
+            </summary>
+            <param name="rectangle">The <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> whose sort key to calculate.</param>
+            <returns>The value that should be assigned to <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.SortKey"/>.</returns>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingHintExtensions.MaxHintCount">
+            <summary>The maximum amount of hints that can be specified by a <see cref="T:TrippyGL.Fonts.Rectpack.PackingHints"/>.</summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingHintExtensions.GetFlagsFrom(TrippyGL.Fonts.Rectpack.PackingHints,System.Span{TrippyGL.Fonts.Rectpack.PackingHints}@)">
+            <summary>
+            Separates a <see cref="T:TrippyGL.Fonts.Rectpack.PackingHints"/> into the multiple options it contains,
+            saving each of those separately onto a <see cref="T:System.Span`1"/>.
+            </summary>
+            <param name="packingHint">The <see cref="T:TrippyGL.Fonts.Rectpack.PackingHints"/> to separate.</param>
+            <param name="span">The span in which to write the resulting hints. This span's excess will be sliced.</param>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingHintExtensions.SortByPackingHint(TrippyGL.Fonts.Rectpack.PackingRectangle[],TrippyGL.Fonts.Rectpack.PackingHints)">
+            <summary>
+            Sorts the given <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> array using the specified <see cref="T:TrippyGL.Fonts.Rectpack.PackingHints"/>.
+            </summary>
+            <param name="rectangles">The rectangles to sort.</param>
+            <param name="packingHint">The hint to sort by. Must be a single bit value.</param>
+            <remarks>
+            The <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.SortKey"/> values will be modified.
+            </remarks>
+        </member>
+        <member name="T:TrippyGL.Fonts.Rectpack.PackingRectangle">
+            <summary>
+            A rectangle that can be used for a rectangle packing operation.
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Id">
+            <summary>
+            A value that can be used to identify this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>. This value is
+            never touched by the rectangle packing algorithm.
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.SortKey">
+            <summary>A value used internally by the packing algorithm for sorting rectangles.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.X">
+            <summary>The X coordinate of the left edge of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Y">
+            <summary>The Y coordinate of the top edge of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Width">
+            <summary>The width of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Height">
+            <summary>The height of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.Right">
+            <summary>
+            Gets or sets the X coordinate of the right edge of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.
+            </summary>
+            <remarks>Setting this will only modify the <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Width"/>.</remarks>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.Bottom">
+            <summary>
+            Gets or sets the Y coordinate of the bottom edge of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.
+            </summary>
+            <remarks>Setting this will only modify the <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Height"/>.</remarks>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.Area">
+            <summary>Calculates this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>'s area.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.Perimeter">
+            <summary>Calculates this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>'s perimeter.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.BiggerSide">
+            <summary>Gets this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>'s bigger side.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.Rectpack.PackingRectangle.PathologicalMultiplier">
+            <summary>Calculates this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>'s pathological multiplier.</summary>
+            <remarks>This is calculated as: <code>max(width, height) / min(width, height) * width * height</code></remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.#ctor(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.Int32)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> with the specified values.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.#ctor(System.Drawing.Rectangle,System.Int32)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> from a <see cref="T:System.Drawing.Rectangle"/>.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.Contains(TrippyGL.Fonts.Rectpack.PackingRectangle@)">
+            <summary>
+            Returns whether the given <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> is contained
+            entirely within this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.Intersects(TrippyGL.Fonts.Rectpack.PackingRectangle@)">
+            <summary>
+            Returns whether the given <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> intersects with
+            this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.Intersection(TrippyGL.Fonts.Rectpack.PackingRectangle@)">
+            <summary>
+            Calculates the intersection of this <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/> with another.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.PackingRectangle.CompareTo(TrippyGL.Fonts.Rectpack.PackingRectangle)">
+            <summary>
+            Compares this <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.SortKey"/> with another <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>'s.
+            </summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.Rectpack.RectanglePacker">
+            <summary>
+            A static class providing functionality for packing rectangles into a bin as small as possible.
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.Rectpack.RectanglePacker.oldListReference">
+            <summary>A weak reference to the last list used, so it can be reused in subsequent packs.</summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.Pack(TrippyGL.Fonts.Rectpack.PackingRectangle[],TrippyGL.Fonts.Rectpack.PackingRectangle@,TrippyGL.Fonts.Rectpack.PackingHints,System.Single,System.UInt32)">
+            <summary>
+            Finds a way to pack all the given rectangles into a single bin. Performance can be traded for
+            space efficiency by using the optional parameters.
+            </summary>
+            <param name="rectangles">The rectangles to pack. The result is saved onto this array.</param>
+            <param name="bounds">The bounds of the resulting bin. This will always be at X=Y=0.</param>
+            <param name="packingHint">Specifies hints for optimizing performance.</param>
+            <param name="acceptableDensity">Searching stops once a bin is found with this density (usedArea/totalArea) or better.</param>
+            <param name="stepSize">The amount by which to increment/decrement size when trying to pack another bin.</param>
+            <remarks>
+            The <see cref="F:TrippyGL.Fonts.Rectpack.PackingRectangle.Id"/> values are never touched. Use this to identify your rectangles.
+            </remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.TryFindBestBin(System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle},TrippyGL.Fonts.Rectpack.PackingRectangle[]@,TrippyGL.Fonts.Rectpack.PackingRectangle[]@,System.UInt32,System.UInt32,System.UInt32,TrippyGL.Fonts.Rectpack.PackingRectangle@)">
+            <summary>
+            Tries to find a solution with the smallest bin size possible, packing
+            the rectangles in the order in which the were provided.
+            </summary>
+            <param name="emptySpaces">The list of empty spaces for reusing.</param>
+            <param name="rectangles">The rectangles to pack. Might get swapped with "tmpArray".</param>
+            <param name="tmpArray">A temporary array the function needs. Might get swapped with "rectangles".</param>
+            <param name="binSize">The maximum bin size to try.</param>
+            <param name="stepSize">The amount by which to increment/decrement size when trying to pack another bin.</param>
+            <param name="acceptableArea">Stops searching once a bin with this area or less is found.</param>
+            <param name="bounds">The bounds of the resulting bin (0, 0, width, height).</param>
+            <returns>Whether a solution was found.</returns>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.TryPackAsOrdered(System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle},System.Span{TrippyGL.Fonts.Rectpack.PackingRectangle},System.Span{TrippyGL.Fonts.Rectpack.PackingRectangle},System.UInt32,System.UInt32,System.UInt32@,System.UInt32@)">
+            <summary>
+            Tries to pack the rectangles in the given order into a bin of the specified size.
+            </summary>
+            <param name="emptySpaces">The list of empty spaces for reusing.</param>
+            <param name="unpacked">The unpacked rectangles.</param>
+            <param name="packed">Where the resulting rectangles will be written.</param>
+            <param name="binWidth">The width of the bin.</param>
+            <param name="binHeight">The height of the bin.</param>
+            <param name="boundsWidth">The width of the resulting bin.</param>
+            <param name="boundsHeight">The height of the resulting bin.</param>
+            <returns>Whether the operation succeeded.</returns>
+            <remarks>The unpacked and packed spans can be the same.</remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.TryFindBestSpace(TrippyGL.Fonts.Rectpack.PackingRectangle@,System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle},System.Int32@)">
+            <summary>
+            Tries to find the best empty space that can fit the given rectangle.
+            </summary>
+            <param name="rectangle">The rectangle to find a space for.</param>
+            <param name="emptySpaces">The list with the empty spaces.</param>
+            <param name="index">The index of the space found.</param>
+            <returns>Whether a suitable space was found.</returns>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.GetList(System.Int32)">
+            <summary>
+            Gets a list of rectangles that can be used for empty spaces.
+            </summary>
+            <param name="preferredCapacity">If a list has to be created, this is used as initial capacity.</param>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.ReturnList(System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle})">
+            <summary>
+            Returns a list so it can be used in future pack operations. The list should
+            no longer be used after returned.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.AddSorted(System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle},TrippyGL.Fonts.Rectpack.PackingRectangle)">
+            <summary>
+            Adds a rectangle to the list in sorted order.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.EnsureSorted(System.Collections.Generic.List{TrippyGL.Fonts.Rectpack.PackingRectangle},System.Int32)">
+            <summary>
+            Updates an item's SortKey and ensures it is in the correct sorted position.
+            If it's not, it is moved to the correct position.
+            </summary>
+            <remarks>If an item needs to be moved, it will only be moved forward. Never backwards.</remarks>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.CalculateTotalArea(System.ReadOnlySpan{TrippyGL.Fonts.Rectpack.PackingRectangle})">
+            <summary>
+            Calculates the sum of the areas of all the given <see cref="T:TrippyGL.Fonts.Rectpack.PackingRectangle"/>-s.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.FindBounds(System.ReadOnlySpan{TrippyGL.Fonts.Rectpack.PackingRectangle})">
+            <summary>
+            Calculates the smallest possible rectangle that contains all the given rectangles.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.Rectpack.RectanglePacker.AnyIntersects(System.ReadOnlySpan{TrippyGL.Fonts.Rectpack.PackingRectangle})">
+            <summary>
+            Returns true if any two different rectangles in the given span intersect.
+            </summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.TextureFontData">
+            <summary>
+            Contains information for a single font inside a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>.
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.MaxFontNameLength">
+            <summary>The maximum amount of characters a font name can have.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.Size">
+            <summary>The size of the font, typically measured in pixels.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.FirstChar">
+            <summary>The lowest character available in this <see cref="T:TrippyGL.Fonts.TextureFontData"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.LastChar">
+            <summary>The highest character available in this <see cref="T:TrippyGL.Fonts.TextureFontData"/>.</summary>
+        </member>
+        <member name="P:TrippyGL.Fonts.TextureFontData.CharCount">
+            <summary>The amount of characters in this <see cref="T:TrippyGL.Fonts.TextureFontData"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.Ascender">
+            <summary>The distance between the baseline and the highest glyph's highest point. Typically positive.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.Descender">
+            <summary>The distance between the baseline and the lowest glyph's lowest point. Typically negative.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.LineGap">
+            <summary>The distance between the lowest point of a line and the highest point of the next line.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.Name">
+            <summary>This <see cref="T:TrippyGL.Fonts.TextureFontData"/>'s name.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.Advances">
+            <summary>The advance values for the characters in this font.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.KerningOffsets">
+            <summary>The kerning offsets for each character. This are in order [from, to].</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.RenderOffsets">
+            <summary>Offsets that should be directly applied to the characters when drawing them.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TextureFontData.SourceRectangles">
+            <summary>The areas in the font's image/texture where each character is located.</summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TextureFontData.WriteToStream(System.IO.BinaryWriter)">
+            <summary>
+            Writes the data of this <see cref="T:TrippyGL.Fonts.TextureFontData"/> into a stream.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TextureFontData.FromStream(System.IO.BinaryReader)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TextureFontData"/> by reading it's data from a stream.
+            </summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.TextureFontData.FontTypeByte">
+            <summary>
+            Used to identify a specific byte when saving/loading <see cref="T:TrippyGL.Fonts.TextureFontData"/> to/from
+            a stream that defines whether the font is monospaced, spaced, or spaced with kerning.
+            </summary>
+        </member>
+        <member name="T:TrippyGL.Fonts.TrippyFontFile">
+            <summary>
+            Stores information for multiple fonts and provides methods for loading/saving from/to streams.
+            </summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TrippyFontFile.FontDatas">
+            <summary>The information of all the fonts in this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>.</summary>
+        </member>
+        <member name="F:TrippyGL.Fonts.TrippyFontFile.Image">
+            <summary>The image in this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>.</summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.#ctor(TrippyGL.Fonts.TextureFontData[],SixLabors.ImageSharp.Image{SixLabors.ImageSharp.PixelFormats.Rgba32})">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> instance.
+            </summary>
+            <param name="fontDatas">The information of the fonts.</param>
+            <param name="image">The image containing the font's characters.</param>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.ThrowIfAnyNull">
+            <summary>
+            Throws an exception if any of the fields in this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> is null.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.Dispose">
+            <summary>
+            Disposes the image used by this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.ReadPreamble(System.IO.Stream)">
+            <summary>
+            Reads a sequence of bytes from the stream and returns whether it matches the
+            preamble that all <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> streams start with.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.WritePreamble(System.IO.Stream)">
+            <summary>
+            Writes the sequence of bytes with which all <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> streams start with.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.FromFile(System.String)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> by reading it's data from a file.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.FromStream(System.IO.Stream)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> by reading it's data from a stream.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.FromStream(System.IO.BinaryReader)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.Fonts.TrippyFontFile"/> by reading it's data from a stream.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.WriteToFile(System.String)">
+            <summary>
+            Writes this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>'s data to a file.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.WriteToStream(System.IO.Stream)">
+            <summary>
+            Writes this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>'s data to a stream.
+            </summary>
+        </member>
+        <member name="M:TrippyGL.Fonts.TrippyFontFile.WriteToStream(System.IO.BinaryWriter)">
+            <summary>
+            Writes this <see cref="T:TrippyGL.Fonts.TrippyFontFile"/>'s data to a stream.
+            </summary>
+        </member>
+    </members>
+</doc>

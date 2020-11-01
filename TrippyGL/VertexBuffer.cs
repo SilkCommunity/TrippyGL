@@ -189,7 +189,7 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size and <see cref="BufferUsageHint"/>.<para/>
+        /// Recreate this <see cref="VertexBuffer{T}"/>'s storage with a new size and <see cref="BufferUsageARB"/>.<para/>
         /// The contents of the <see cref="VertexBuffer{T}"/>'s storage are undefined after this operation.
         /// </summary>
         /// <param name="storageLength">The desired new length for the storage measured in elements.</param>

@@ -249,7 +249,7 @@ namespace TrippyGL
         /// Gets the size in bytes for one element of the specified type.
         /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception.
         /// </summary>
-        /// <param name="type">The type of element.</param>
+        /// <param name="elementType">The type of element to get size in bytes for.</param>
         public static uint GetSizeInBytesOfElementType(DrawElementsType elementType)
         {
             return elementType switch

@@ -37,7 +37,7 @@ namespace TrippyGL.Fonts
         public void ThrowIfAnyNull()
         {
             if (FontDatas == null || FontDatas.Length == 0)
-                throw new InvalidOperationException(nameof(FontDatas) + " can't be null.");
+                throw new InvalidOperationException(nameof(FontDatas) + " can't be null nor empty.");
 
             if (FontDatas.Length > ushort.MaxValue)
                 throw new InvalidOperationException("Too many items in " + nameof(FontDatas));
@@ -121,6 +121,9 @@ namespace TrippyGL.Fonts
             streamReader.ReadInt32();
 
             ushort fontCount = streamReader.ReadUInt16();
+
+            if (fontCount == 0)
+                throw new FontLoadingException("Font count can't be 0.");
 
             TextureFontData[] fontDatas = new TextureFontData[fontCount];
             for (int i = 0; i < fontDatas.Length; i++)

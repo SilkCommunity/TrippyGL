@@ -2,6 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <Version>1.0.0-rc1</Version>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>ThomasMiz</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ThomasMiz/TrippyGL</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ThomasMiz/TrippyGL</RepositoryUrl>
+    <PackageIcon>TrippyGL_logo.png</PackageIcon>
+    <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
+
+This package provides integration with the ImageSharp library, allowing loading and saving textures from files or images.</Description>
+    <PackageTags>OpenGL;graphics;gamedev;desktopgl;images;ImageSharp;textures;</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\Thomas Mizrahi\Documents\Visual Studio 2019\GitHub\ThomasMiz\TrippyGL\TrippyGL.ImageSharp\TrippyGL.ImageSharp.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +29,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TrippyGL\TrippyGL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\TrippyGL_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

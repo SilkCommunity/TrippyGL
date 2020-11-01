@@ -244,7 +244,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Manages the calls for a single vertex attribute.
-        /// This is a helper struct used in <see cref="VertexArray.UpdateVertexAttributes(bool, int)"/>
+        /// This is a helper struct used in <see cref="UpdateVertexAttributes(bool, uint)"/>
         /// </summary>
         private struct AttribCallDesc : IComparable<AttribCallDesc>
         {

@@ -88,7 +88,7 @@ namespace TrippyGL
         /// <summary>
         /// Calculates the required storage length in bytes required for a UniformBufferSubset with the specified storage length.
         /// </summary>
-        /// <typeparam name="U">The struct type to use for the uniform block. This must match the uniform block's format.</typeparam>
+        /// <typeparam name="T">The struct type to use for the uniform block. This must match the uniform block's format.</typeparam>
         /// <param name="graphicsDevice">The GraphicsDevice the BufferObject will use.</param>
         /// <param name="storageLength">The amount of structs the <see cref="UniformBufferSubset{T}"/> will store.</param>
         public static uint CalculateRequiredSizeInBytes<T>(GraphicsDevice graphicsDevice, uint storageLength) where T : unmanaged
