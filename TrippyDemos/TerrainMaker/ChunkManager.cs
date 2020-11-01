@@ -32,7 +32,7 @@ namespace TerrainMaker
         private readonly object currentlyLoadingListLock = new object();
         private readonly List<Point> currentlyLoadingList = new List<Point>();
 
-        private Thread[] generatorThreads;
+        private readonly Thread[] generatorThreads;
 
         public Vector3 CameraPosition;
         public Vector3 CameraDirection;
@@ -71,7 +71,7 @@ namespace TerrainMaker
                 throw new ArgumentOutOfRangeException(nameof(chunkRenderRadius));
             chunkRenderRadius += ExtraLoadedRadius;
 
-            this.generatorSeed = seed;
+            generatorSeed = seed;
             this.chunkRenderRadius = chunkRenderRadius;
             int chunksArraySize = chunkRenderRadius + chunkRenderRadius + 1;
             chunks = new TerrainChunk[chunksArraySize, chunksArraySize];
@@ -80,7 +80,7 @@ namespace TerrainMaker
             chunksOffsetX = 0;
             chunksOffsetY = 0;
 
-            generatorThreads = new Thread[4];
+            generatorThreads = new Thread[Math.Min(4, Math.Max(1, Environment.ProcessorCount - 1))];
 
             StartLoadingUnloadedChunks();
         }
@@ -443,6 +443,7 @@ namespace TerrainMaker
 
         public void Dispose()
         {
+            lock (toGenerateListLock) toGenerateList.Clear();
             DisposeAllChunks();
             chunks = null;
         }

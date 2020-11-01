@@ -21,7 +21,7 @@ void main() {
     vec3 norm = normalize(fPosition);
     float rotX = asin(norm.y);
     float rotY = acos(clamp(norm.x / cos(rotX), -1, 1));
-    rotY *= step(0, norm.z)*2.0 - 1.0;
+    rotY *= sign(norm.z);
 
     float rx = rotX + sin(rotY*3.0 + time*4.4 - 0.7) * 0.2;
     float ry = rotY + sin(rotX*2.0 - time*2.3 + 1.5) * 0.2;

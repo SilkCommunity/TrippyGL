@@ -300,7 +300,9 @@ namespace TerrainMaker
 
         protected override void OnUnload()
         {
-            terrainProgram.Dispose();
+            chunkManager.Dispose();
+            // All remaining GraphicsResource-s get automatically disposed.
+            // the GraphicsDevice gets disposed by the base class.
         }
     }
 }

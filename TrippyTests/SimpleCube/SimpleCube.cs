@@ -18,7 +18,7 @@ namespace SimpleCube
 
         protected override void OnLoad()
         {
-            Span<VertexColor> cubemapBufferData = stackalloc VertexColor[] {
+            Span<VertexColor> cubeBufferData = stackalloc VertexColor[] {
                 new VertexColor(new Vector3(-0.5f, -0.5f, -0.5f), Color4b.LightBlue),//4
                 new VertexColor(new Vector3(-0.5f, -0.5f, 0.5f), Color4b.Lime),//3
                 new VertexColor(new Vector3(-0.5f, 0.5f, -0.5f), Color4b.White),//7
@@ -35,7 +35,7 @@ namespace SimpleCube
                 new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red),//1
             };
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubemapBufferData, BufferUsageARB.StaticCopy);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubeBufferData, BufferUsageARB.StaticCopy);
 
             shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 

@@ -24,14 +24,14 @@ namespace SimpleTriangle
 
             vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
             shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
+
+            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
+            graphicsDevice.BlendingEnabled = false;
+            graphicsDevice.DepthTestingEnabled = false;
         }
 
         protected override void OnRender(double dt)
         {
-            graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.BlendingEnabled = false;
-            graphicsDevice.DepthTestingEnabled = false;
-
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
 
             graphicsDevice.VertexArray = vertexBuffer;
