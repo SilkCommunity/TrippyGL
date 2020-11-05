@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyGL", "TrippyGL\TrippyGL.csproj", "{6B15A097-205A-494C-98E0-4DC76B5F06EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyTesting", "TrippyTesting\TrippyTesting.csproj", "{71153C4F-A39D-4343-94C8-133919651BD2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyGL.ImageSharp", "TrippyGL.ImageSharp\TrippyGL.ImageSharp.csproj", "{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrippyTests", "TrippyTests", "{F9AEFFD4-B720-4439-882A-E1C3845585AB}"
@@ -48,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrippyGL.Fonts.Extensions",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrippyDemos", "TrippyDemos", "{9FF5945E-F4F9-4092-9672-5CE9A085E4B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrainMaker", "TrippyDemos\TerrainMaker\TerrainMaker.csproj", "{ECD94CA6-3F8A-4B39-B3AD-6486B892E123}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerrainMaker", "TrippyDemos\TerrainMaker\TerrainMaker.csproj", "{ECD94CA6-3F8A-4B39-B3AD-6486B892E123}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,10 +58,6 @@ Global
 		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B15A097-205A-494C-98E0-4DC76B5F06EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71153C4F-A39D-4343-94C8-133919651BD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71153C4F-A39D-4343-94C8-133919651BD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71153C4F-A39D-4343-94C8-133919651BD2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48A784FE-E1B9-4CAF-8F89-03DCAACAD5D3}.Release|Any CPU.ActiveCfg = Release|Any CPU

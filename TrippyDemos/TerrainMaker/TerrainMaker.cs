@@ -138,7 +138,7 @@ namespace TerrainMaker
 
             textureBatcher = new TextureBatcher(graphicsDevice);
 
-            SetSun(new Vector3(-1, 1, 0.5f), Color4b.LightGoldenrodYellow.ToVector3());
+            SetSun(new Vector3(-1, 0.6f, 0.5f), Color4b.LightGoldenrodYellow.ToVector3());
 
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthState = new DepthState(true, DepthFunction.Lequal);
@@ -293,11 +293,14 @@ namespace TerrainMaker
 
             graphicsDevice.DepthTestingEnabled = false;
 
-            graphicsDevice.ShaderProgram = linesProgram;
-            linesProgram.View = view;
-            linesProgram.World = Matrix4x4.CreateScale(0.05f) * Matrix4x4.CreateTranslation(inputManager.CameraPosition + cameraForward);
-            graphicsDevice.VertexArray = linesBuffer;
-            graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, linesBuffer.StorageLength);
+            if (!inputManager.CurrentKeyboard.IsKeyPressed(Key.C))
+            {
+                graphicsDevice.ShaderProgram = linesProgram;
+                linesProgram.View = view;
+                linesProgram.World = Matrix4x4.CreateScale(0.05f) * Matrix4x4.CreateTranslation(inputManager.CameraPosition + cameraForward);
+                graphicsDevice.VertexArray = linesBuffer;
+                graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, linesBuffer.StorageLength);
+            }
 
             graphicsDevice.Framebuffer = null;
             graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);

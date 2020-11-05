@@ -53,8 +53,13 @@ namespace TerrainMaker
                     return;
 
                 lock (toGenerateListLock) toGenerateList.Clear();
-                while (generatorThreads.Any(x => x.IsAlive))
-                    Thread.Sleep(8);
+
+                bool keepWaiting;
+                do
+                {
+                    lock (currentlyLoadingListLock)
+                        keepWaiting = currentlyLoadingList.Count != 0;
+                } while (keepWaiting);
 
                 lock (toLoadListLock) toLoadList.Clear();
                 lock (currentlyLoadingListLock) currentlyLoadingList.Clear();
@@ -81,6 +86,11 @@ namespace TerrainMaker
             chunksOffsetY = 0;
 
             generatorThreads = new Thread[Math.Min(4, Math.Max(1, Environment.ProcessorCount - 1))];
+            for (int i = 0; i < generatorThreads.Length; i++)
+            {
+                generatorThreads[i] = new Thread(GeneratorThreadFunction);
+                generatorThreads[i].Start();
+            }
 
             StartLoadingUnloadedChunks();
         }
@@ -362,37 +372,38 @@ namespace TerrainMaker
 
                 toGenerateList.Sort((x, y) => (Math.Abs(y.X - centerChunkX) + Math.Abs(y.Y - centerChunkY)).CompareTo(Math.Abs(x.X - centerChunkX) + Math.Abs(x.Y - centerChunkY)));
             }
-
-            if (toGenerateList.Count == 0)
-                return;
-
-            int threadsToLaunch = Math.Max(1, Math.Min(generatorThreads.Length, toGenerateList.Count / 3));
-            for (int i = 0; i < threadsToLaunch; i++)
-                if (generatorThreads[i] == null || !generatorThreads[i].IsAlive)
-                {
-                    generatorThreads[i] = new Thread(GeneratorThreadFunction);
-                    generatorThreads[i].Start();
-                }
         }
 
         private void GeneratorThreadFunction()
         {
-            Point chunkCoords;
+            Point chunkCoords = default;
+            bool shouldWait = false;
 
-            while (true)
+            while (chunks != null) // When the ChunkManager is disposed, chunks is set to null.
             {
                 lock (toGenerateListLock)
                 {
                     if (toGenerateList.Count == 0)
-                        break;
-                    chunkCoords = toGenerateList[toGenerateList.Count - 1];
-                    toGenerateList.RemoveAt(toGenerateList.Count - 1);
+                    {
+                        shouldWait = true;
+                    }
+                    else
+                    {
+                        chunkCoords = toGenerateList[toGenerateList.Count - 1];
+                        toGenerateList.RemoveAt(toGenerateList.Count - 1);
+                        lock (currentlyLoadingListLock)
+                            currentlyLoadingList.Add(chunkCoords);
+                    }
                 }
 
-                lock (currentlyLoadingListLock)
-                    currentlyLoadingList.Add(chunkCoords);
+                if (shouldWait)
+                {
+                    Thread.Sleep(100);
+                    shouldWait = false;
+                    continue;
+                }
 
-                TerrainChunkData chunkData = TerrainGenerator.Generate(generatorSeed, chunkCoords.X, chunkCoords.Y);
+                TerrainChunkData chunkData = TerrainGenerator.Generate(GeneratorSeed, chunkCoords.X, chunkCoords.Y);
 
                 lock (toLoadListLock)
                     toLoadList.Add(chunkData);
