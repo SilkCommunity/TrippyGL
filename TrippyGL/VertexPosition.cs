@@ -26,6 +26,17 @@ namespace TrippyGL
             Position = position;
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexPosition"/> with the specified position.
+        /// </summary>
+        /// <param name="x">The X component of the position.</param>
+        /// <param name="y">The Y component of the position.</param>
+        /// <param name="z">The Z component of the position.</param>
+        public VertexPosition(float x, float y, float z)
+        {
+            Position = new Vector3(x, y, z);
+        }
+
         public static bool operator ==(VertexPosition left, VertexPosition right) => left.Equals(right);
         public static bool operator !=(VertexPosition left, VertexPosition right) => !left.Equals(right);
 

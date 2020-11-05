@@ -28,8 +28,8 @@ in float aboveWater;
 
 out vec4 FragColor;
 
-const float waveStrenght = 0.012;
-const float shineDamper = 20.0;
+const float waveStrenght = 0.02;
+const float shineDamper = 64.0;
 const float reflectivity = 0.7;
 
 float depthToDistance(in float depth) {
@@ -49,7 +49,6 @@ vec3 calcSpecularReflection(in vec2 distortedTexCoords, in vec3 toCamVec) {
 void main() {
 	float depthyness = clamp((waterDepth-1.0) / 12.0, 0, 1);
 	vec2 fragCoords = (clipSpace.xy / clipSpace.w) * 0.5 + 0.5;
-	float camWaterDepth = depthToDistance(texture(depthSamp, fragCoords).x) - depthToDistance(gl_FragCoord.z);
 
 	vec2 distortedTexCoords = texture(distortMap, vec2(distortCoords.x + distortOffset.x, distortCoords.y)).xy * 0.1;
 	distortedTexCoords = distortCoords + vec2(distortedTexCoords.x, distortedTexCoords.y + distortOffset.y);
@@ -57,6 +56,7 @@ void main() {
 
 	vec4 reflectColor = texture(reflectSamp, vec2(fragCoords.x, 1.0 - fragCoords.y) + distort);
 	vec4 refractColor = texture(refractSamp, fragCoords + distort);
+	float camWaterDepth = depthToDistance(texture(depthSamp, fragCoords + distort).x) - depthToDistance(gl_FragCoord.z);
 	
 	vec3 toCamVec = normalize(toCameraVector);
 

@@ -9,18 +9,18 @@ namespace TerrainMaker
         public readonly int GridX;
         public readonly int GridY;
 
-        public VertexBuffer<VertexNormalColor> TerrainBuffer { get; private set; }
-        public VertexBuffer<VertexNormalColor> UnderwaterBuffer { get; private set; }
+        public VertexBuffer<TerrainVertex> TerrainBuffer { get; private set; }
+        public VertexBuffer<TerrainVertex> UnderwaterBuffer { get; private set; }
 
         public TerrainChunk(GraphicsDevice graphicsDevice, in TerrainChunkData chunkData)
         {
             GridX = chunkData.GridX;
             GridY = chunkData.GridY;
             if (chunkData.TerrainVertexCount > 0)
-                TerrainBuffer = new VertexBuffer<VertexNormalColor>(graphicsDevice, chunkData.TerrainMesh, BufferUsageARB.StaticDraw);
+                TerrainBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.TerrainMesh, BufferUsageARB.StaticDraw);
 
             if (chunkData.UnderwaterVertexCount > 0)
-                UnderwaterBuffer = new VertexBuffer<VertexNormalColor>(graphicsDevice, chunkData.UnderwaterMesh, BufferUsageARB.StaticDraw);
+                UnderwaterBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.UnderwaterMesh, BufferUsageARB.StaticDraw);
         }
 
         public void Dispose()

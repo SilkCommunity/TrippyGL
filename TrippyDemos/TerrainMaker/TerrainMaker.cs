@@ -20,8 +20,12 @@ namespace TerrainMaker
 
         InputManager3D inputManager;
 
+        VertexBuffer<VertexPosition> skyBuffer;
+        ShaderProgram skyProgram;
+        ShaderUniform skyViewUniform, skySunDirectionUniform, skySunColorUniform;
+
         ShaderProgram waterProgram;
-        ShaderUniform waterViewUniform, waterSunlightColor, waterSunlightDir, waterCameraPos, waterDistortOffset;
+        ShaderUniform waterViewUniform, waterSunlightColorUniform, waterSunlightDirUniform, waterCameraPosUniform, waterDistortOffsetUniform;
 
         ShaderProgram terrainProgram;
         ShaderUniform terrainViewUniform, terrainCameraPosUniform;
@@ -51,14 +55,30 @@ namespace TerrainMaker
             stopwatch.Restart();
             inputManager = new InputManager3D(InputContext);
 
-            chunkManager = new ChunkManager(GeneratorSeed.Default, 20, 0, 0);
+            chunkManager = new ChunkManager(GeneratorSeed.Default, 12, 0, 0);
 
             Vector3 startCoords = new Vector3(TerrainGenerator.ChunkSize / 2f, 0f, TerrainGenerator.ChunkSize / 2f);
             startCoords.Y = Math.Max(NoiseGenerator.GenHeight(chunkManager.GeneratorSeed, new Vector2(startCoords.X, startCoords.Z)), 0) + 32f;
             inputManager.CameraPosition = startCoords;
             inputManager.CameraMoveSpeed = 100;
 
-            terrainProgram = ShaderProgram.FromFiles<VertexNormalColor>(graphicsDevice, "data/terrainVs.glsl", "data/terrainFs.glsl", "vPosition", "vNormal", "vColor");
+            Span<VertexPosition> skyVertices = stackalloc VertexPosition[]
+            {
+                new Vector3(0, -1, 1),
+                new Vector3(1, -1, -1),
+                new Vector3(-1, -1, -1),
+                new Vector3(0, 1, 0),
+                new Vector3(0, -1, 1),
+                new Vector3(1, -1, -1),
+            };
+
+            skyBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, skyVertices, BufferUsageARB.StaticDraw);
+            skyProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "data/skyVs.glsl", "data/skyFs.glsl", "vPosition");
+            skySunDirectionUniform = skyProgram.Uniforms["sunDirection"];
+            skySunColorUniform = skyProgram.Uniforms["sunColor"];
+            skyViewUniform = skyProgram.Uniforms["View"];
+
+            terrainProgram = ShaderProgram.FromFiles<TerrainVertex>(graphicsDevice, "data/terrainVs.glsl", "data/terrainFs.glsl", "vPosition", "vNormal", "vColor", "vLightingConfig");
             terrainViewUniform = terrainProgram.Uniforms["View"];
             terrainCameraPosUniform = terrainProgram.Uniforms["cameraPos"];
 
@@ -80,13 +100,12 @@ namespace TerrainMaker
             waterProgram.Uniforms["reflectSamp"].SetValueTexture(waterReflectFbo);
             waterProgram.Uniforms["refractSamp"].SetValueTexture(waterRefractFbo);
             waterRefractFbo.Framebuffer.TryGetTextureAttachment(FramebufferAttachmentPoint.Depth, out FramebufferTextureAttachment rtdpt);
+            ((Texture2D)rtdpt.Texture).SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             waterProgram.Uniforms["depthSamp"].SetValueTexture(rtdpt.Texture);
-            waterCameraPos = waterProgram.Uniforms["cameraPos"];
-            waterDistortOffset = waterProgram.Uniforms["distortOffset"];
-            waterSunlightColor = waterProgram.Uniforms["sunlightColor"];
-            waterSunlightColor.SetValueVec3(1, 0.9f, 0.9f);
-            waterSunlightDir = waterProgram.Uniforms["sunlightDir"];
-            waterSunlightDir.SetValueVec3(Vector3.UnitX);
+            waterCameraPosUniform = waterProgram.Uniforms["cameraPos"];
+            waterDistortOffsetUniform = waterProgram.Uniforms["distortOffset"];
+            waterSunlightColorUniform = waterProgram.Uniforms["sunlightColor"];
+            waterSunlightDirUniform = waterProgram.Uniforms["sunlightDir"];
             waterViewUniform = waterProgram.Uniforms["View"];
 
             Span<VertexColor> lines = stackalloc VertexColor[]
@@ -104,6 +123,10 @@ namespace TerrainMaker
 
             mainFramebuffer = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
             mainFramebuffer.TryGetDepthTexture(out mainFramebufferDepthTexture);
+            mainFramebuffer.Texture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            mainFramebuffer.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
+            mainFramebufferDepthTexture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
+            mainFramebufferDepthTexture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
 
             textureProgram = SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice, 0, 0, true);
 
@@ -114,6 +137,8 @@ namespace TerrainMaker
             underwaterColorUniform = underwaterShader.Uniforms["waterColor"];
 
             textureBatcher = new TextureBatcher(graphicsDevice);
+
+            SetSun(new Vector3(-1, 1, 0.5f), Color4b.LightGoldenrodYellow.ToVector3());
 
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.DepthState = new DepthState(true, DepthFunction.Lequal);
@@ -170,18 +195,43 @@ namespace TerrainMaker
             inputManager.CameraMoveSpeed = Math.Clamp(inputManager.CameraMoveSpeed + delta, MinCameraSpeed, MaxCameraSpeed);
         }
 
-        private void RenderWaterFbos(in Matrix4x4 view)
+        private void SetSun(Vector3 sunDirection, Vector3 sunColor)
+        {
+            sunDirection = Vector3.Normalize(sunDirection);
+
+            terrainProgram.Uniforms["sunDirection"].SetValueVec3(sunDirection);
+            skySunDirectionUniform.SetValueVec3(sunDirection);
+            skySunColorUniform.SetValueVec3(sunColor);
+            waterSunlightDirUniform.SetValueVec3(-sunDirection);
+            waterSunlightColorUniform.SetValueVec3(sunColor);
+        }
+
+        private void DrawSky(in Matrix4x4 viewNoTranslation)
+        {
+            graphicsDevice.FaceCullingEnabled = false;
+            graphicsDevice.DepthTestingEnabled = false;
+            graphicsDevice.BlendingEnabled = false;
+            graphicsDevice.ShaderProgram = skyProgram;
+            skyViewUniform.SetValueMat4(viewNoTranslation);
+            graphicsDevice.VertexArray = skyBuffer;
+            graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, skyBuffer.StorageLength);
+            graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
+        }
+
+        private void RenderWaterFbos(in Matrix4x4 view, in Matrix4x4 viewNoTranslation)
         {
             Matrix4x4 invertedView = Matrix4x4.CreateTranslation(-inputManager.CameraPosition.X, inputManager.CameraPosition.Y, -inputManager.CameraPosition.Z);
             invertedView *= Matrix4x4.CreateRotationY(inputManager.CameraRotationY + MathF.PI / 2f);
             invertedView *= Matrix4x4.CreateRotationX(inputManager.CameraRotationX);
 
+            Matrix4x4 invertedViewNoTranslation = invertedView;
+            invertedViewNoTranslation.Translation = Vector3.Zero;
+
+            graphicsDevice.DrawFramebuffer = waterRefractFbo;
+            DrawSky(viewNoTranslation);
             graphicsDevice.FaceCullingEnabled = true;
             graphicsDevice.DepthTestingEnabled = true;
             graphicsDevice.ShaderProgram = terrainProgram;
-
-            graphicsDevice.DrawFramebuffer = waterRefractFbo;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             terrainViewUniform.SetValueMat4(view);
             terrainCameraPosUniform.SetValueVec3(inputManager.CameraPosition);
             if (inputManager.CameraPosition.Y >= 0)
@@ -190,7 +240,10 @@ namespace TerrainMaker
                 chunkManager.RenderAllTerrains(graphicsDevice);
 
             graphicsDevice.DrawFramebuffer = waterReflectFbo;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            DrawSky(invertedViewNoTranslation);
+            graphicsDevice.ShaderProgram = terrainProgram;
+            graphicsDevice.FaceCullingEnabled = true;
+            graphicsDevice.DepthTestingEnabled = true;
             terrainViewUniform.SetValueMat4(invertedView);
             terrainCameraPosUniform.SetValueVec3(inputManager.CameraPosition * new Vector3(1, -1, 1));
             if (inputManager.CameraPosition.Y >= 0)
@@ -204,6 +257,8 @@ namespace TerrainMaker
             float time = (float)stopwatch.Elapsed.TotalSeconds;
 
             Matrix4x4 view = inputManager.CalculateViewMatrix();
+            Matrix4x4 viewNoTranslation = view;
+            viewNoTranslation.Translation = Vector3.Zero;
             Vector3 cameraForward = inputManager.CalculateForwardVector();
             if (!inputManager.CurrentKeyboard.IsKeyPressed(Key.H))
             {
@@ -211,13 +266,15 @@ namespace TerrainMaker
                 chunkManager.CameraPosition = inputManager.CameraPosition;
             }
 
-            RenderWaterFbos(view);
+            RenderWaterFbos(view, viewNoTranslation);
 
             graphicsDevice.DrawFramebuffer = mainFramebuffer;
-            graphicsDevice.ClearColor = Color4b.SkyBlue;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            DrawSky(viewNoTranslation);
 
+            graphicsDevice.BlendingEnabled = true;
+            graphicsDevice.DepthTestingEnabled = true;
             graphicsDevice.FaceCullingEnabled = true;
+
             graphicsDevice.ShaderProgram = terrainProgram;
             terrainViewUniform.SetValueMat4(view);
             terrainCameraPosUniform.SetValueVec3(inputManager.CameraPosition);
@@ -229,12 +286,13 @@ namespace TerrainMaker
             graphicsDevice.FaceCullingEnabled = false;
 
             graphicsDevice.ShaderProgram = waterProgram;
-            waterCameraPos.SetValueVec3(inputManager.CameraPosition);
-            waterDistortOffset.SetValueVec2(time * 0.2178f % 1, time * 0.2853f % 1);
+            waterCameraPosUniform.SetValueVec3(inputManager.CameraPosition);
+            waterDistortOffsetUniform.SetValueVec2(time * 0.2178f % 1, time * 0.2853f % 1);
             waterViewUniform.SetValueMat4(view);
             chunkManager.RenderAllUnderwaters(graphicsDevice);
 
             graphicsDevice.DepthTestingEnabled = false;
+
             graphicsDevice.ShaderProgram = linesProgram;
             linesProgram.View = view;
             linesProgram.World = Matrix4x4.CreateScale(0.05f) * Matrix4x4.CreateTranslation(inputManager.CameraPosition + cameraForward);
@@ -283,6 +341,7 @@ namespace TerrainMaker
             Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, (float)Window.Size.Width / Window.Size.Height, nearPlane, farPlane);
             terrainProgram.Uniforms["Projection"].SetValueMat4(proj);
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);
+            skyProgram.Uniforms["Projection"].SetValueMat4(proj);
             linesProgram.Projection = proj;
 
             waterProgram.Uniforms["nearPlane"].SetValueFloat(nearPlane);

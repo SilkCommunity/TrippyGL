@@ -8,17 +8,17 @@ namespace TerrainMaker
         public readonly int GridX;
         public readonly int GridY;
 
-        private readonly VertexNormalColor[] terrainMesh;
-        private readonly VertexNormalColor[] underwaterMesh;
+        private readonly TerrainVertex[] terrainMesh;
+        private readonly TerrainVertex[] underwaterMesh;
 
         public readonly int TerrainVertexCount;
         public readonly int UnderwaterVertexCount;
 
-        public ReadOnlySpan<VertexNormalColor> TerrainMesh => new ReadOnlySpan<VertexNormalColor>(terrainMesh, 0, TerrainVertexCount);
-        public ReadOnlySpan<VertexNormalColor> UnderwaterMesh => new ReadOnlySpan<VertexNormalColor>(underwaterMesh, 0, UnderwaterVertexCount);
+        public ReadOnlySpan<TerrainVertex> TerrainMesh => new ReadOnlySpan<TerrainVertex>(terrainMesh, 0, TerrainVertexCount);
+        public ReadOnlySpan<TerrainVertex> UnderwaterMesh => new ReadOnlySpan<TerrainVertex>(underwaterMesh, 0, UnderwaterVertexCount);
 
-        public TerrainChunkData(int gridX, int gridY, VertexNormalColor[] terrainMesh, int terrainVertexCount,
-            VertexNormalColor[] underwaterMesh, int underwaterVertexCount)
+        public TerrainChunkData(int gridX, int gridY, TerrainVertex[] terrainMesh, int terrainVertexCount,
+            TerrainVertex[] underwaterMesh, int underwaterVertexCount)
         {
             GridX = gridX;
             GridY = gridY;
@@ -28,7 +28,7 @@ namespace TerrainMaker
             UnderwaterVertexCount = underwaterVertexCount;
         }
 
-        public void RetrieveBackingArrays(out VertexNormalColor[] arr1, out VertexNormalColor[] arr2)
+        public void RetrieveBackingArrays(out TerrainVertex[] arr1, out TerrainVertex[] arr2)
         {
             arr1 = terrainMesh;
             arr2 = underwaterMesh;

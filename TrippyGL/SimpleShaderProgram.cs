@@ -348,8 +348,8 @@ namespace TrippyGL
         /// to supply these. The first FloatVec4 attribute will be taken as color and the first FloatVec2
         /// attribute will be taken as texture coordinates.
         /// </remarks>
-        public static SimpleShaderProgram Create<T>(GraphicsDevice graphicsDevice, int positionalLights = 0,
-            int directionalLights = 0, bool excludeWorldMatrix = false) where T : unmanaged, IVertex
+        public static SimpleShaderProgram Create<T>(GraphicsDevice graphicsDevice, int directionalLights = 0,
+            int positionalLights = 0, bool excludeWorldMatrix = false) where T : unmanaged, IVertex
         {
             SimpleShaderProgramBuilder builder = new SimpleShaderProgramBuilder()
             {

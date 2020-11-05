@@ -26,17 +26,17 @@ namespace TerrainMaker
         private static readonly Vector3 Snow = new Vector3(0.84f, 0.9f, 1.0f);
 
         private static readonly object arraysListLock = new object();
-        private static WeakReference<List<VertexNormalColor[]>> arraysList;
+        private static WeakReference<List<TerrainVertex[]>> arraysList;
 
         private static readonly object batchersLock = new object();
         private static WeakReference<Stack<PrimitiveBatcher<Vector3>>> batchers;
 
-        private static VertexNormalColor[] GetArray(int requiredLength)
+        private static TerrainVertex[] GetArray(int requiredLength)
         {
             lock (arraysListLock)
             {
-                if (arraysList == null || !arraysList.TryGetTarget(out List<VertexNormalColor[]> list) || list.Count == 0)
-                    return new VertexNormalColor[Math.Max(requiredLength, InitialArrayCapacity)];
+                if (arraysList == null || !arraysList.TryGetTarget(out List<TerrainVertex[]> list) || list.Count == 0)
+                    return new TerrainVertex[Math.Max(requiredLength, InitialArrayCapacity)];
 
                 int indx = -1;
                 for (int i = list.Count - 1; i >= 0; i--)
@@ -44,9 +44,9 @@ namespace TerrainMaker
                         indx = i;
 
                 if (indx == -1)
-                    return new VertexNormalColor[Math.Max(requiredLength, InitialArrayCapacity)];
+                    return new TerrainVertex[Math.Max(requiredLength, InitialArrayCapacity)];
 
-                VertexNormalColor[] arr = list[indx];
+                TerrainVertex[] arr = list[indx];
                 list.RemoveAt(indx);
                 return arr;
             }
@@ -54,22 +54,22 @@ namespace TerrainMaker
 
         public static void ReturnArrays(in TerrainChunkData chunkData)
         {
-            chunkData.RetrieveBackingArrays(out VertexNormalColor[] arr1, out VertexNormalColor[] arr2);
+            chunkData.RetrieveBackingArrays(out TerrainVertex[] arr1, out TerrainVertex[] arr2);
 
             if (arr1 == null && arr2 == null)
                 return;
 
             lock (arraysListLock)
             {
-                List<VertexNormalColor[]> list;
+                List<TerrainVertex[]> list;
                 if (arraysList == null)
                 {
-                    list = new List<VertexNormalColor[]>();
-                    arraysList = new WeakReference<List<VertexNormalColor[]>>(list);
+                    list = new List<TerrainVertex[]>();
+                    arraysList = new WeakReference<List<TerrainVertex[]>>(list);
                 }
                 else if (!arraysList.TryGetTarget(out list))
                 {
-                    list = new List<VertexNormalColor[]>();
+                    list = new List<TerrainVertex[]>();
                     arraysList.SetTarget(list);
                 }
 
@@ -282,10 +282,10 @@ namespace TerrainMaker
                     }
                 }
 
-                VertexNormalColor[] terr = terrTri.TriangleVertexCount == 0 ? null : GetArray(terrTri.TriangleVertexCount);
+                TerrainVertex[] terr = terrTri.TriangleVertexCount == 0 ? null : GetArray(terrTri.TriangleVertexCount);
                 if (terr != null) FormTriangles(seed, terrTri.TriangleVertices, terr);
 
-                VertexNormalColor[] under = underTri.TriangleVertexCount == 0 ? null : GetArray(underTri.TriangleVertexCount);
+                TerrainVertex[] under = underTri.TriangleVertexCount == 0 ? null : GetArray(underTri.TriangleVertexCount);
                 if (under != null) FormTriangles(seed, underTri.TriangleVertices, under);
 
                 return new TerrainChunkData(gridX, gridY, terr, terrTri.TriangleVertexCount, under, underTri.TriangleVertexCount);
@@ -296,7 +296,7 @@ namespace TerrainMaker
             }
         }
 
-        private static void FormTriangles(GeneratorSeed seed, ReadOnlySpan<Vector3> source, Span<VertexNormalColor> dest)
+        private static void FormTriangles(GeneratorSeed seed, ReadOnlySpan<Vector3> source, Span<TerrainVertex> dest)
         {
             for (int i = 2; i < source.Length; i += 3)
             {
@@ -305,21 +305,20 @@ namespace TerrainMaker
 
                 NoiseGenerator.GenPoint(seed, new Vector2(center.X, center.Z), out float humidity, out float vegetation);
 
-                Color4b color = FormColor(center.Y, normal, humidity, vegetation);
-                //float tmp = NoiseGenerator.Perlin(new Vector2(center.X, center.Z) / 16f, GeneratorSeed.HeightSeed, GeneratorSeed.VegetationSeed);
-                //Color4b color = new Color4b(tmp, tmp, tmp);
-                if (normal.Y < 0)
-                    color.R = 255;
+                Color4b color = FormColor(seed, center, normal, humidity, vegetation, out Vector2 lightingConfig);
 
-                dest[i - 2] = new VertexNormalColor(source[i - 2], normal, color);
-                dest[i - 1] = new VertexNormalColor(source[i - 1], normal, color);
-                dest[i] = new VertexNormalColor(source[i], normal, color);
+                dest[i - 2] = new TerrainVertex(source[i - 2], normal, color, lightingConfig);
+                dest[i - 1] = new TerrainVertex(source[i - 1], normal, color, lightingConfig);
+                dest[i] = new TerrainVertex(source[i], normal, color, lightingConfig);
             }
         }
 
-        private static Color4b FormColor(float altitude, in Vector3 normal, float humidity, float vegetation)
+        private static Color4b FormColor(GeneratorSeed seed, in Vector3 position, in Vector3 normal, float humidity,
+            float vegetation, out Vector2 lightingConfig)
         {
             Vector3 color;
+            float altitude = position.Y;
+
             if (altitude < 0)
             {
                 float sand = Math.Min(normal.Y, 1.2f) * (vegetation + 0.2f);
@@ -328,11 +327,13 @@ namespace TerrainMaker
                 color = Vector3.Lerp(OceanRock, WetterSand, sand);
                 color *= 1 + (humidity - 0.5f) * 0.7f;
                 color *= 1 - Math.Clamp((altitude + 10) / -30f, 0, 0.8f);
+                lightingConfig = new Vector2(NoiseGenerator.Random(new Vector2(position.X, position.Z), seed.ExtraSeed1) * 0.2f, 10);
             }
             else if (altitude < 9)
             { // sand (above-water)
                 float m = altitude / 9f;
                 color = Vector3.Lerp(WetSand, DrySand, m);
+                lightingConfig = new Vector2(NoiseGenerator.Random(new Vector2(position.X, position.Z), seed.ExtraSeed1) * 0.08f + 0.19f, 60);
             }
             else
             {
@@ -341,6 +342,7 @@ namespace TerrainMaker
                 { // grass
                     float m = (altitude - 9) / (grassTop - 9) + vegetation * 0.5f;
                     color = Vector3.Lerp(DryGrass, WetGrass, (int)MathF.Round(humidity * 6f + m) / 6f);
+                    lightingConfig = new Vector2((1 - humidity) * 0.15f, 15 + vegetation * 20);
                 }
                 else
                 {
@@ -349,11 +351,13 @@ namespace TerrainMaker
                     if (snow > 0.7f)
                     { // snow
                         color = Vector3.Min(Snow * (snow + 0.2f), Vector3.One);
+                        lightingConfig = new Vector2(1.1f, 10);
                     }
                     else
                     { // mountain rock
                         float h = Math.Clamp((int)MathF.Round((m * 0.3f + 0.6f + (vegetation + humidity - 1) * 0.5f) * 6) / 6f, 0, 1.2f);
                         color = Rock * h;
+                        lightingConfig = new Vector2((1 - h) * 0.5f, 15);
                     }
                 }
             }
