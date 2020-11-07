@@ -121,7 +121,7 @@ namespace GameOfLifeSim
             drawProgram.Dispose();
         }
 
-        protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
+        protected override void OnMouseMove(IMouse sender, PointF position)
         {
             if (Window.IsClosing)
                 return;

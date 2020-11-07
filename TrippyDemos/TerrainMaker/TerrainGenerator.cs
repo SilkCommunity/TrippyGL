@@ -350,8 +350,8 @@ namespace TerrainMaker
                     float snow = (humidity * 0.7f + 0.2f) * (1 - MathF.Exp((50 - altitude) * 0.1f)) * Math.Min(normal.Y + 0.7f, 1.4f);
                     if (snow > 0.7f)
                     { // snow
-                        color = Vector3.Min(Snow * (snow + 0.2f), Vector3.One);
-                        lightingConfig = new Vector2(1.1f, 10);
+                        color = Vector3.Min(Snow * (snow + 0.18f), Vector3.One);
+                        lightingConfig = new Vector2(0.3f, 1);
                     }
                     else
                     { // mountain rock

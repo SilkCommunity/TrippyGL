@@ -34,7 +34,7 @@ namespace TextureBatcherTest
             this.position = position;
             const float spd = 300;
             velocity = new Vector2(r.NextFloat(-spd, spd), r.NextFloat(-spd, spd));
-            color = Color4b.RandomFullAlpha(r);
+            color = r.NextColor4bFullAlpha();
             rotation = r.NextFloat(MathF.PI * 2);
             rotSpeed = r.NextFloat(-10, 10);
         }
@@ -46,7 +46,7 @@ namespace TextureBatcherTest
             position = new Vector2(r.NextFloat(TextureBatcherTest.MaxX), r.NextFloat(TextureBatcherTest.MaxY));
             const float spd = 300;
             velocity = new Vector2(r.NextFloat(-spd, spd), r.NextFloat(-spd, spd));
-            color = Color4b.RandomFullAlpha(r);
+            color = r.NextColor4bFullAlpha();
             rotation = r.NextFloat(MathF.PI * 2);
             rotSpeed = r.NextFloat(-10, 10);
         }

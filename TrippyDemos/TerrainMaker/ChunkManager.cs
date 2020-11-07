@@ -403,7 +403,7 @@ namespace TerrainMaker
                     continue;
                 }
 
-                TerrainChunkData chunkData = TerrainGenerator.Generate(GeneratorSeed, chunkCoords.X, chunkCoords.Y);
+                TerrainChunkData chunkData = TerrainGenerator.Generate(generatorSeed, chunkCoords.X, chunkCoords.Y);
 
                 lock (toLoadListLock)
                     toLoadList.Add(chunkData);

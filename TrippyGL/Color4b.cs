@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using TrippyGL.Utils;
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
@@ -40,10 +41,13 @@ namespace TrippyGL
             get => ((uint)A << 24) | ((uint)B << 16) | ((uint)G << 8) | R;
             set
             {
-                R = (byte)(value & 255);
-                G = (byte)((value >> 8) & 255);
-                B = (byte)((value >> 16) & 255);
-                A = (byte)((value >> 24) & 255);
+                unchecked
+                {
+                    R = (byte)(value & 255);
+                    G = (byte)((value >> 8) & 255);
+                    B = (byte)((value >> 16) & 255);
+                    A = (byte)((value >> 24) & 255);
+                }
             }
         }
 
@@ -64,10 +68,13 @@ namespace TrippyGL
         /// </summary>
         public Color4b(float r, float g, float b, float a)
         {
-            R = (byte)(r * 255 + 0.5f);
-            G = (byte)(g * 255 + 0.5f);
-            B = (byte)(b * 255 + 0.5f);
-            A = (byte)(a * 255 + 0.5f);
+            unchecked
+            {
+                R = (byte)Math.Clamp((int)(r * 255 + 0.5f), 0, 255);
+                G = (byte)Math.Clamp((int)(g * 255 + 0.5f), 0, 255);
+                B = (byte)Math.Clamp((int)(b * 255 + 0.5f), 0, 255);
+                A = (byte)Math.Clamp((int)(a * 255 + 0.5f), 0, 255);
+            }
         }
 
         /// <summary>
@@ -76,36 +83,27 @@ namespace TrippyGL
         /// </summary>
         public Color4b(float r, float g, float b)
         {
-            R = (byte)(r * 255 + 0.5f);
-            G = (byte)(g * 255 + 0.5f);
-            B = (byte)(b * 255 + 0.5f);
-            A = 255;
+            unchecked
+            {
+                R = (byte)Math.Clamp((int)(r * 255 + 0.5f), 0, 255);
+                G = (byte)Math.Clamp((int)(g * 255 + 0.5f), 0, 255);
+                B = (byte)Math.Clamp((int)(b * 255 + 0.5f), 0, 255);
+                A = 255;
+            }
         }
 
         /// <summary>
         /// Constructs a <see cref="Color4b"/> from the specified float values in
         /// a <see cref="Vector4"/> represented on a normalized range (from 0.0 to 1.0).
         /// </summary>
-        public Color4b(in Vector4 rgba)
-        {
-            R = (byte)(rgba.X * 255 + 0.5f);
-            G = (byte)(rgba.Y * 255 + 0.5f);
-            B = (byte)(rgba.Z * 255 + 0.5f);
-            A = (byte)(rgba.W * 255 + 0.5f);
-        }
+        public Color4b(in Vector4 rgba) : this(rgba.X, rgba.Y, rgba.Z, rgba.W) { }
 
         /// <summary>
         /// Constructs a <see cref="Color4b"/> from the specified float values in
         /// a <see cref="Vector3"/> represented in a normalized range (from 0.0 to 1.0)
         /// and full alpha.
         /// </summary>
-        public Color4b(in Vector3 rgb)
-        {
-            R = (byte)(rgb.X * 255 + 0.5f);
-            G = (byte)(rgb.Y * 255 + 0.5f);
-            B = (byte)(rgb.Z * 255 + 0.5f);
-            A = 255;
-        }
+        public Color4b(in Vector3 rgb) : this(rgb.X, rgb.Y, rgb.Z) { }
 
         /// <summary>
         /// Constructs a <see cref="Color4b"/> from a packed value.
@@ -126,8 +124,27 @@ namespace TrippyGL
         /// </remarks>
         public int ToArgb()
         {
-            uint value = ((uint)A << 24) | ((uint)R << 16) | ((uint)G << 8) | B;
-            return unchecked((int)value);
+            unchecked
+            {
+                uint value = ((uint)A << 24) | ((uint)R << 16) | ((uint)G << 8) | B;
+                return (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Constructs a <see cref="Color4b"/> from an integer in ARGB format.
+        /// </summary>
+        public static Color4b FromArgb(int argb)
+        {
+            unchecked
+            {
+                return new Color4b(
+                    (byte)((argb >> 16) & 255),
+                    (byte)((argb >> 8) & 255),
+                    (byte)(argb & 255),
+                    (byte)((argb >> 24) & 255)
+                );
+            }
         }
 
         /// <summary>
@@ -151,6 +168,12 @@ namespace TrippyGL
         public static bool operator ==(Color4b left, Color4b right) => left.Equals(right);
         public static bool operator !=(Color4b left, Color4b right) => !left.Equals(right);
 
+        public static Color4b operator +(Color4b left, Color4b right) => Add(left, right);
+        public static Color4b operator -(Color4b left, Color4b right) => Substract(left, right);
+
+        public static Color4b operator *(Color4b color, float scale) => MultiplyIncludeAlpha(color, scale);
+        public static Color4b operator *(float scale, Color4b color) => MultiplyIncludeAlpha(color, scale);
+
         public static implicit operator Vector4(Color4b color) => color.ToVector4();
         public static implicit operator Color4b(Vector4 vector) => new Color4b(vector);
 
@@ -162,7 +185,15 @@ namespace TrippyGL
         /// <seealso cref="MultiplyIncludeAlpha(Color4b, float)"/>
         public static Color4b Multiply(Color4b color, float scale)
         {
-            return new Color4b((byte)(color.R * scale + 0.5f), (byte)(color.G * scale + 0.5f), (byte)(color.B * scale + 0.5f), color.A);
+            unchecked
+            {
+                return new Color4b(
+                    (byte)Math.Clamp((int)(color.R * scale + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(color.G * scale + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(color.B * scale + 0.5f), 0, 255),
+                    color.A
+                );
+            }
         }
 
         /// <summary>
@@ -170,9 +201,18 @@ namespace TrippyGL
         /// </summary>
         /// <param name="color">The <see cref="Color4b"/> to multiply.</param>
         /// <param name="scale">The scale to multiply by.</param>
+        /// <seealso cref="Multiply(Color4b, float)"/>
         public static Color4b MultiplyIncludeAlpha(Color4b color, float scale)
         {
-            return new Color4b((byte)(color.R * scale + 0.5f), (byte)(color.G * scale + 0.5f), (byte)(color.B * scale + 0.5f), (byte)(color.A * scale + 0.5f));
+            unchecked
+            {
+                return new Color4b(
+                    (byte)Math.Clamp((int)(color.R * scale + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(color.G * scale + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(color.B * scale + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(color.A * scale + 0.5f), 0, 255)
+                );
+            }
         }
 
         public override bool Equals(object obj)
@@ -271,26 +311,65 @@ namespace TrippyGL
         public static Color4b FromHSV(in Vector3 values) => FromHSV(values.X, values.Y, values.Z);
 
         /// <summary>
-        /// Constructs a completely randomized <see cref="Color4b"/>.
+        /// Adds together the components of two <see cref="Color4b"/> structures into a new one.
         /// </summary>
-        /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
-        public static Color4b Random(Random random)
+        public static Color4b Add(Color4b x, Color4b y)
         {
-            // A single random value isn't enough, it's only 31 bits...
-            // So we use one for RGB and an extra one for alpha.
-            uint val = (uint)random.Next();
-            return new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255), (byte)(random.Next() & 255));
+            unchecked
+            {
+                return new Color4b(
+                    (byte)Math.Min(x.R + y.R, 255),
+                    (byte)Math.Min(x.G + y.G, 255),
+                    (byte)Math.Min(x.B + y.B, 255),
+                    (byte)Math.Min(x.A + y.A, 255)
+                );
+            }
         }
 
         /// <summary>
-        /// Constructs a randomized <see cref="Color4b"/> with an alpha value of 255.
+        /// Substracts the components of the second <see cref="Color4b"/> from the components of the first.
         /// </summary>
-        /// <param name="random">The <see cref="System.Random"/> to use for randomizing.</param>
-        public static Color4b RandomFullAlpha(Random random)
+        public static Color4b Substract(Color4b x, Color4b y)
         {
-            uint val = (uint)random.Next();
-            Color4b color = new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255));
-            return color;
+            unchecked
+            {
+                return new Color4b(
+                    (byte)Math.Max(x.R - y.R, 0),
+                    (byte)Math.Max(x.G - y.G, 0),
+                    (byte)Math.Max(x.B - y.B, 0),
+                    (byte)Math.Max(x.A - y.A, 0)
+                );
+            }
+        }
+
+        /// <summary>
+        /// Interpolates linearly between two <see cref="Color4b"/> values.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        public static Color4b Lerp(Color4b min, Color4b max, float amount)
+        {
+            unchecked
+            {
+                return new Color4b(
+                    (byte)Math.Clamp((int)(min.R + (max.R - min.R) * amount + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(min.G + (max.G - min.G) * amount + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(min.B + (max.B - min.B) * amount + 0.5f), 0, 255),
+                    (byte)Math.Clamp((int)(min.A + (max.A - min.A) * amount + 0.5f), 0, 255)
+                );
+            }
+        }
+
+        /// <summary>
+        /// Interpolates between two <see cref="Color4b"/> values using a cubic equation.
+        /// </summary>
+        /// <param name="min">The initial value in the interpolation.</param>
+        /// <param name="max">The final value in the interpolation.</param>
+        /// <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        public static Color4b SmoothStep(Color4b min, Color4b max, float amount)
+        {
+            return Lerp(min, max, (3 - 2 * amount) * amount * amount);
         }
 
         #region Colors

@@ -231,6 +231,7 @@ namespace TerrainMaker
             DrawSky(viewNoTranslation);
             graphicsDevice.FaceCullingEnabled = true;
             graphicsDevice.DepthTestingEnabled = true;
+            graphicsDevice.BlendingEnabled = true;
             graphicsDevice.ShaderProgram = terrainProgram;
             terrainViewUniform.SetValueMat4(view);
             terrainCameraPosUniform.SetValueVec3(inputManager.CameraPosition);
@@ -244,6 +245,7 @@ namespace TerrainMaker
             graphicsDevice.ShaderProgram = terrainProgram;
             graphicsDevice.FaceCullingEnabled = true;
             graphicsDevice.DepthTestingEnabled = true;
+            graphicsDevice.BlendingEnabled = true;
             terrainViewUniform.SetValueMat4(invertedView);
             terrainCameraPosUniform.SetValueVec3(inputManager.CameraPosition * new Vector3(1, -1, 1));
             if (inputManager.CameraPosition.Y >= 0)

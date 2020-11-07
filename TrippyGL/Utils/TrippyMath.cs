@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
@@ -159,6 +160,35 @@ namespace TrippyGL.Utils
         public static float NextFloat(this Random random, float min, float max)
         {
             return (float)random.NextDouble() * (max - min) + min;
+        }
+
+        /// <summary>
+        /// Constructs a completely randomized <see cref="Color4b"/>.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static Color4b NextColor4b(this Random random)
+        {
+            // A single random value isn't enough, it's only 31 bits...
+            // So we use one for RGB and an extra one for Alpha.
+            unchecked
+            {
+                uint val = (uint)random.Next();
+                return new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255), (byte)(random.Next() & 255));
+            }
+        }
+
+        /// <summary>
+        /// Constructs a randomized <see cref="Color4b"/> with an alpha value of 255.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static Color4b NextColor4bFullAlpha(this Random random)
+        {
+            unchecked
+            {
+                uint val = (uint)random.Next();
+                Color4b color = new Color4b((byte)(val & 255), (byte)((val >> 8) & 255), (byte)((val >> 16) & 255));
+                return color;
+            }
         }
     }
 }
