@@ -282,6 +282,11 @@
             Blue is stored in the 8 least significant bits, and Alpha in the 8 most significant bits.
             </remarks>
         </member>
+        <member name="M:TrippyGL.Color4b.FromArgb(System.Int32)">
+            <summary>
+            Constructs a <see cref="T:TrippyGL.Color4b"/> from an integer in ARGB format.
+            </summary>
+        </member>
         <member name="M:TrippyGL.Color4b.ToVector4">
             <summary>
             Converts this <see cref="T:TrippyGL.Color4b"/> into a <see cref="T:System.Numerics.Vector4"/> by normalizing
@@ -308,6 +313,7 @@
             </summary>
             <param name="color">The <see cref="T:TrippyGL.Color4b"/> to multiply.</param>
             <param name="scale">The scale to multiply by.</param>
+            <seealso cref="M:TrippyGL.Color4b.Multiply(TrippyGL.Color4b,System.Single)"/>
         </member>
         <member name="M:TrippyGL.Color4b.FromHSV(System.Single,System.Single,System.Single)">
             <summary>
@@ -319,17 +325,31 @@
             Creates a <see cref="T:TrippyGL.Color4b"/> with RGB values calculated from the given HSV values.
             </summary>
         </member>
-        <member name="M:TrippyGL.Color4b.Random(System.Random)">
+        <member name="M:TrippyGL.Color4b.Add(TrippyGL.Color4b,TrippyGL.Color4b)">
             <summary>
-            Constructs a completely randomized <see cref="T:TrippyGL.Color4b"/>.
+            Adds together the components of two <see cref="T:TrippyGL.Color4b"/> structures into a new one.
             </summary>
-            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
         </member>
-        <member name="M:TrippyGL.Color4b.RandomFullAlpha(System.Random)">
+        <member name="M:TrippyGL.Color4b.Substract(TrippyGL.Color4b,TrippyGL.Color4b)">
             <summary>
-            Constructs a randomized <see cref="T:TrippyGL.Color4b"/> with an alpha value of 255.
+            Substracts the components of the second <see cref="T:TrippyGL.Color4b"/> from the components of the first.
             </summary>
-            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
+        <member name="M:TrippyGL.Color4b.Lerp(TrippyGL.Color4b,TrippyGL.Color4b,System.Single)">
+            <summary>
+            Interpolates linearly between two <see cref="T:TrippyGL.Color4b"/> values.
+            </summary>
+            <param name="min">The initial value in the interpolation.</param>
+            <param name="max">The final value in the interpolation.</param>
+            <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
+        </member>
+        <member name="M:TrippyGL.Color4b.SmoothStep(TrippyGL.Color4b,TrippyGL.Color4b,System.Single)">
+            <summary>
+            Interpolates between two <see cref="T:TrippyGL.Color4b"/> values using a cubic equation.
+            </summary>
+            <param name="min">The initial value in the interpolation.</param>
+            <param name="max">The final value in the interpolation.</param>
+            <param name="amount">The amount of interpolation, measured between 0 and 1.</param>
         </member>
         <member name="P:TrippyGL.Color4b.Transparent">
             <summary>
@@ -4697,6 +4717,18 @@
             <param name="min">The inclusive minimum value of the random number to be generated.</param>
             <param name="max">The exclusive maximum value of the random number to be generated.</param>
         </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextColor4b(System.Random)">
+            <summary>
+            Constructs a completely randomized <see cref="T:TrippyGL.Color4b"/>.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextColor4bFullAlpha(System.Random)">
+            <summary>
+            Constructs a randomized <see cref="T:TrippyGL.Color4b"/> with an alpha value of 255.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
         <member name="T:TrippyGL.Utils.TrippyUtils">
             <summary>
             Contains various methods used throughout the library.
@@ -5387,6 +5419,14 @@
             Creates a <see cref="T:TrippyGL.VertexPosition"/> with the specified position.
             </summary>
             <param name="position">The vertex position.</param>
+        </member>
+        <member name="M:TrippyGL.VertexPosition.#ctor(System.Single,System.Single,System.Single)">
+            <summary>
+            Creates a <see cref="T:TrippyGL.VertexPosition"/> with the specified position.
+            </summary>
+            <param name="x">The X component of the position.</param>
+            <param name="y">The Y component of the position.</param>
+            <param name="z">The Z component of the position.</param>
         </member>
         <member name="T:TrippyGL.VertexTexture">
             <summary>

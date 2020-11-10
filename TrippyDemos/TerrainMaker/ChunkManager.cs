@@ -85,7 +85,7 @@ namespace TerrainMaker
             chunksOffsetX = 0;
             chunksOffsetY = 0;
 
-            generatorThreads = new Thread[Math.Min(4, Math.Max(1, Environment.ProcessorCount - 1))];
+            generatorThreads = new Thread[Math.Max(1, Environment.ProcessorCount - 1)];
             for (int i = 0; i < generatorThreads.Length; i++)
             {
                 generatorThreads[i] = new Thread(GeneratorThreadFunction);
@@ -336,8 +336,8 @@ namespace TerrainMaker
                 chunksOffsetY = (chunksOffsetY + diffY + chunks.GetLength(1)) % chunks.GetLength(1);
             }
 
-            int centerGridX = chunksGridStartX + chunkRenderRadius;
-            int centerGridY = chunksGridStartY + chunkRenderRadius;
+            //int centerGridX = chunksGridStartX + chunkRenderRadius;
+            //int centerGridY = chunksGridStartY + chunkRenderRadius;
             //Console.WriteLine("[MANAGER] Center chunk is now (" + centerGridX + ", " + centerGridY + ")");
             StartLoadingUnloadedChunks();
         }
