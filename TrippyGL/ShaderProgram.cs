@@ -52,10 +52,19 @@ namespace TrippyGL
         /// <param name="programHandle">The GL Program Object's handle.</param>
         /// <param name="activeAttribs">The active attributes, already queried from the program.</param>
         /// <remarks>The active attributes must have already been checked to be valid.</remarks>
-        internal ShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs)
+        internal ShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs,
+            bool hasVertexShader, bool hasGeometryShader, bool hasFragmentShader)
             : base(graphicsDevice)
         {
             Handle = programHandle;
+
+            HasVertexShader = hasVertexShader;
+            HasGeometryShader = hasGeometryShader;
+            HasFragmentShader = hasFragmentShader;
+
+            if (hasGeometryShader)
+                GeometryShader = new GeometryShaderData(graphicsDevice.GL, programHandle);
+
             this.activeAttribs = activeAttribs;
             BlockUniforms = new ShaderBlockUniformList(this);
             Uniforms = ShaderUniformList.CreateForProgram(this);

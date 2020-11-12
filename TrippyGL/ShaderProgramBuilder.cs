@@ -123,7 +123,8 @@ namespace TrippyGL
         /// <exception cref="InvalidOperationException"/>
         /// <exception cref="ShaderCompilationException"/>
         /// <exception cref="ProgramLinkException"/>
-        internal uint CreateInternal(GraphicsDevice graphicsDevice, out ActiveVertexAttrib[] activeAttribs, bool getLogs = false)
+        internal uint CreateInternal(GraphicsDevice graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
+            out bool hasVs, out bool hasGs, out bool hasFs, bool getLogs = false)
         {
             VertexShaderLog = null;
             FragmentShaderLog = null;
@@ -153,6 +154,7 @@ namespace TrippyGL
             {
                 // We create the vertex shader, compile the code and check it's status
                 vsHandle = graphicsDevice.GL.CreateShader(ShaderType.VertexShader);
+                hasVs = true;
 
                 graphicsDevice.GL.ShaderSource(vsHandle, VertexShaderCode);
                 graphicsDevice.GL.CompileShader(vsHandle);
@@ -168,6 +170,7 @@ namespace TrippyGL
                 {
                     // If we have code for it, we create the geometry shader, compile the code and check it's status
                     gsHandle = graphicsDevice.GL.CreateShader(ShaderType.GeometryShader);
+                    hasGs = true;
                     graphicsDevice.GL.ShaderSource(gsHandle, GeometryShaderCode);
                     graphicsDevice.GL.CompileShader(gsHandle);
                     graphicsDevice.GL.GetShader(gsHandle, ShaderParameterName.CompileStatus, out compileStatus);
@@ -178,11 +181,14 @@ namespace TrippyGL
                             throw new ShaderCompilationException(ShaderType.GeometryShader, GeometryShaderLog);
                     }
                 }
+                else
+                    hasGs = false;
 
                 if (HasFragmentShader)
                 {
                     // If we have code for it, we create the fragment shader, compile the code and check it's status
                     fsHandle = graphicsDevice.GL.CreateShader(ShaderType.FragmentShader);
+                    hasFs = true;
                     graphicsDevice.GL.ShaderSource(fsHandle, FragmentShaderCode);
                     graphicsDevice.GL.CompileShader(fsHandle);
                     graphicsDevice.GL.GetShader(fsHandle, ShaderParameterName.CompileStatus, out compileStatus);
@@ -193,6 +199,8 @@ namespace TrippyGL
                             throw new ShaderCompilationException(ShaderType.FragmentShader, FragmentShaderLog);
                     }
                 }
+                else
+                    hasFs = false;
 
                 // We create the gl program object
                 programHandle = graphicsDevice.GL.CreateProgram();
@@ -270,8 +278,9 @@ namespace TrippyGL
         /// <param name="getLogs">Whether to get compilation and linking logs from the shaders and program.</param>
         public ShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
         {
-            uint programHandle = CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs, getLogs);
-            return new ShaderProgram(graphicsDevice, programHandle, activeAttribs);
+            uint programHandle = CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
+                out bool hasVs, out bool hasGs, out bool hasFs, getLogs);
+            return new ShaderProgram(graphicsDevice, programHandle, activeAttribs, hasVs, hasGs, hasFs);
         }
 
         /// <summary>

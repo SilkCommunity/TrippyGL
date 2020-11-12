@@ -189,8 +189,9 @@ namespace TrippyGL
         /// <param name="directionalLightCount">The amount of directional lights on this <see cref="SimpleShaderProgram"/>.</param>
         /// <param name="positionalLightCount">The amount of positional lights on this <see cref="SimpleShaderProgram"/>.</param>
         internal SimpleShaderProgram(GraphicsDevice graphicsDevice, uint programHandle, ActiveVertexAttrib[] activeAttribs,
+            bool hasVertexShader, bool hasGeometryShader, bool hasFragmentShader,
             bool vertColorsEnabled, bool textureEnabled, int directionalLightCount, int positionalLightCount)
-            : base(graphicsDevice, programHandle, activeAttribs)
+            : base(graphicsDevice, programHandle, activeAttribs, hasVertexShader, hasGeometryShader, hasFragmentShader)
         {
             const string InvalidUniformMessage = "Uniform not found or is incorrect type: ";
 
