@@ -45,6 +45,8 @@ namespace SimpleShader3D
 
         Vector3 lampPosition;
 
+        public SimpleShader3D() : base(null, 24) { }
+
         protected override void OnLoad()
         {
             inputManager = new InputManager3D(InputContext)

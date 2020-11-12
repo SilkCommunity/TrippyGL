@@ -22,6 +22,8 @@ namespace InstancedCubes
 
         ShaderProgram shaderProgram;
 
+        public InstancedCubes() : base(null, 24) { }
+
         protected override void OnLoad()
         {
             // The vertices of a cube, with some nice colors

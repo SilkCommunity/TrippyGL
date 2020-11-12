@@ -104,13 +104,46 @@ namespace TrippyTestBase
         public void Run()
         {
             Console.WriteLine("Running project...");
-            Window.Load += Window_Load;
-            Window.Update += OnUpdate;
-            Window.Render += Window_Render;
-            Window.Resize += OnResized;
-            Window.Closing += Window_Closing;
 
-            Window.Run();
+            try
+            {
+                Window.Load += Window_Load;
+                Window.Update += OnUpdate;
+                Window.Render += Window_Render;
+                Window.Resize += OnResized;
+                Window.Closing += Window_Closing;
+
+                Window.Run();
+            }
+            catch (Exception e)
+            {
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("----------------------------------------------------");
+                Console.WriteLine("The application close due to an unhandled exception:");
+                Console.ResetColor();
+                Console.WriteLine(e.Message);
+                Console.WriteLine("-------- Stack Trace: --------");
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine("------------------------------");
+
+                if (e.InnerException == null)
+                    Console.WriteLine("The exception doesn't have an inner exception.");
+                else
+                {
+                    Console.WriteLine("Inner exception message:");
+                    Console.WriteLine(e.InnerException.Message);
+                }
+
+                if (!string.IsNullOrWhiteSpace(e.HelpLink))
+                {
+                    Console.WriteLine("The exception has an associated help link:");
+                    Console.WriteLine(e.HelpLink);
+                }
+
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+            }
         }
 
         private void Window_Load()

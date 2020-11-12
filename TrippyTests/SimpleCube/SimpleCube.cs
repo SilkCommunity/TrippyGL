@@ -16,6 +16,8 @@ namespace SimpleCube
         VertexBuffer<VertexColor> vertexBuffer;
         SimpleShaderProgram shaderProgram;
 
+        public SimpleCube() : base(null, 24) { }
+
         protected override void OnLoad()
         {
             Span<VertexColor> cubeBufferData = stackalloc VertexColor[] {
