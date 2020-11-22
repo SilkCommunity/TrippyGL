@@ -105,8 +105,10 @@ namespace TrippyTestBase
         {
             Console.WriteLine("Running project...");
 
+#if !DEBUG
             try
             {
+#endif
                 Window.Load += Window_Load;
                 Window.Update += OnUpdate;
                 Window.Render += Window_Render;
@@ -114,6 +116,7 @@ namespace TrippyTestBase
                 Window.Closing += Window_Closing;
 
                 Window.Run();
+#if !DEBUG
             }
             catch (Exception e)
             {
@@ -144,6 +147,7 @@ namespace TrippyTestBase
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
             }
+#endif
         }
 
         private void Window_Load()
@@ -162,7 +166,7 @@ namespace TrippyTestBase
             {
                 DebugMessagingEnabled = true
             };
-            graphicsDevice.DebugMessage += OnDebugMessage;
+            graphicsDevice.DebugMessageReceived += OnDebugMessage;
             graphicsDevice.ShaderCompiled += GraphicsDevice_ShaderCompiled;
 
             Console.WriteLine(string.Concat("GL Version: ", graphicsDevice.GLMajorVersion, ".", graphicsDevice.GLMinorVersion));

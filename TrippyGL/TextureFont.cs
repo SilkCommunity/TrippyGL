@@ -65,7 +65,7 @@ namespace TrippyGL
         /// Holding on to a reference to these arrays and modifying them afterwards can have unexpected
         /// behavior.
         /// </remarks>
-        public TextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
+        protected TextureFont(Texture2D texture, float size, char firstChar, char lastChar, Vector2[] renderOffsets,
             Rectangle[] sources, float ascender, float descender, float lineGap, string name)
         {
             if (lastChar < firstChar)
@@ -91,6 +91,16 @@ namespace TrippyGL
             Ascender = ascender;
             Descender = descender;
             LineGap = lineGap;
+        }
+
+        /// <summary>
+        /// Checks that the given character is available in this <see cref="TextureFont"/> and
+        /// throws an exception otherwise.
+        /// </summary>
+        protected void ValidateCharAvailable(char c)
+        {
+            if (!HasCharacter(c))
+                throw new InvalidOperationException("This " + nameof(TextureFont) + " can't resolve this character: '" + c + "' (codePoint " + (int)c + ").");
         }
 
         /// <summary>
@@ -127,6 +137,7 @@ namespace TrippyGL
         /// </summary>
         public Rectangle GetSource(char character)
         {
+            ValidateCharAvailable(character);
             return sources[character - FirstChar];
         }
 
@@ -135,6 +146,7 @@ namespace TrippyGL
         /// </summary>
         public Vector2 GetRenderOffset(char character)
         {
+            ValidateCharAvailable(character);
             return renderOffsets[character - FirstChar];
         }
 
@@ -181,6 +193,67 @@ namespace TrippyGL
         public override string ToString()
         {
             return string.Concat(Name ?? "Unnamed " + nameof(TextureFont), " - ", Size.ToString());
+        }
+
+        /// <summary>
+        /// Creates a copy of the given string, where all the characters that aren't
+        /// available in this <see cref="TextureFont"/> are replaced by a "default character".
+        /// </summary>
+        /// <param name="text">The string of text to sanitize.</param>
+        /// <param name="defaultChar">The char to replace unavailable chars with.</param>
+        /// <returns>A newly created string, or the same string instance if no chars need replacing.</returns>
+        public string SanitizeString(string text, char defaultChar = '?')
+        {
+            if (text == null)
+                return null;
+
+            // We go through the string until we find an unavailable char.
+            for (int i = 0; i < text.Length; i++)
+                if (!HasCharacter(text[i]))
+                    return string.Create(text.Length, i, (chars, indx) =>
+                    {
+                        for (int c = 0; c < indx; c++)
+                            chars[c] = text[c];
+
+                        chars[indx] = defaultChar;
+
+                        for (int i = indx + 1; i < chars.Length; i++)
+                            chars[i] = HasCharacter(text[i]) ? text[i] : defaultChar;
+                    });
+
+            // If no unavailable char was found, we return the same string instance.
+            return text;
+        }
+
+        /// <summary>
+        /// Replaces all the characters in the given string that aren't available in
+        /// this <see cref="TextureFont"/> with a "default character".
+        /// </summary>
+        /// <remarks>The replacing is done in-place.</remarks>
+        /// <param name="chars">The string of text to sanitize.</param>
+        /// <param name="defaultChar">The char to replace unavailable chars with.</param>
+        public void SanitizeString(Span<char> chars, char defaultChar = '?')
+        {
+            for (int i = 0; i < chars.Length; i++)
+                if (!HasCharacter(chars[i]))
+                    chars[i] = defaultChar;
+        }
+
+        /// <summary>
+        /// Replaces all the characters in the given string that aren't available in
+        /// this <see cref="TextureFont"/> with a "default character".
+        /// </summary>
+        /// <remarks>The replacing is done in-place.</remarks>
+        /// <param name="chars">The string of text to sanitize.</param>
+        /// <param name="defaultChar">The char to replace unavailable chars with.</param>
+        public void SanitizeString(System.Text.StringBuilder chars, char defaultChar = '?')
+        {
+            if (chars == null)
+                return;
+
+            for (int i = 0; i < chars.Length; i++)
+                if (!HasCharacter(chars[i]))
+                    chars[i] = defaultChar;
         }
     }
 }

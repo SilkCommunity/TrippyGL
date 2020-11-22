@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
-    public delegate void ShaderCompiledEventHandler(GraphicsDevice sender, in ShaderProgramBuilder programBuilder, bool success);
+    public delegate void ShaderCompiledHandler(GraphicsDevice sender, in ShaderProgramBuilder programBuilder, bool success);
 
     /// <summary>
     /// Represents the method that will handle an OpenGL debug message event.
@@ -100,7 +100,7 @@ namespace TrippyGL
         private bool debugMessagingEnabled;
 
         /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
-        public event GLDebugMessageReceivedHandler DebugMessage;
+        public event GLDebugMessageReceivedHandler DebugMessageReceived;
 
         /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
@@ -129,7 +129,7 @@ namespace TrippyGL
 
         private void OnDebugMessageRecieved(GLEnum src, GLEnum type, int id, GLEnum sev, int length, IntPtr msg, IntPtr param)
         {
-            DebugMessage?.Invoke((DebugSource)src, (DebugType)type, id, (DebugSeverity)sev, Marshal.PtrToStringAnsi(msg));
+            DebugMessageReceived?.Invoke((DebugSource)src, (DebugType)type, id, (DebugSeverity)sev, Marshal.PtrToStringAnsi(msg));
         }
 
         #endregion DebugMessaging
@@ -382,7 +382,7 @@ namespace TrippyGL
         /// then logs will be queried from OpenGL anyway, but only for the particular thing that failed.<para/>
         /// The "success" parameter will only be true if the whole operation, including program linking, succeeded.
         /// </remarks>
-        public event ShaderCompiledEventHandler ShaderCompiled;
+        public event ShaderCompiledHandler ShaderCompiled;
 
         /// <summary>
         /// Raises the <see cref="ShaderCompiled"/> event.

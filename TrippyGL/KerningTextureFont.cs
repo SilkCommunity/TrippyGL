@@ -43,11 +43,14 @@ namespace TrippyGL
 
         public override float GetAdvance(char character)
         {
+            ValidateCharAvailable(character);
             return advances[character - FirstChar];
         }
 
         public override Vector2 GetKerning(char fromChar, char toChar)
         {
+            ValidateCharAvailable(fromChar);
+            ValidateCharAvailable(toChar);
             return kerningOffsets[fromChar - FirstChar, toChar - FirstChar];
         }
 

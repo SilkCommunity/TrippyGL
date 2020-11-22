@@ -33,6 +33,7 @@ namespace TrippyGL
 
         public override float GetAdvance(char character)
         {
+            ValidateCharAvailable(character);
             return advances[character - FirstChar];
         }
 

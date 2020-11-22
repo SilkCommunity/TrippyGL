@@ -32,7 +32,7 @@ namespace TrippyGL
             return Advance;
         }
 
-        public override Vector2 GetKerning(char charFrom, char charTo)
+        public override Vector2 GetKerning(char fromChar, char toChar)
         {
             return default;
         }

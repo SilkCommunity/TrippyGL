@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
+using System.Text;
 using Silk.NET.OpenGL;
 using TrippyGL.Utils;
 
@@ -657,6 +658,256 @@ namespace TrippyGL
         /// <param name="position">The position at which to draw the text.</param>
         /// <param name="depth">The depth at which to draw the string of text.</param>
         public void DrawString(TextureFont font, ReadOnlySpan<char> text, Vector2 position, float depth = 0)
+        {
+            DrawString(font, text, position, Color4b.White, depth);
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, Color4b color, Vector2 scale, float rotation, Vector2 origin, float depth = 0)
+        {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+
+            if (text.Length == 0)
+                return;
+
+            StartDraw(font.Texture);
+
+            float sin = MathF.Sin(rotation);
+            float cos = MathF.Cos(rotation);
+
+            Vector2 m = origin * scale;
+            position -= new Vector2(cos * m.X - sin * m.Y, sin * m.X + cos * m.Y);
+
+            Vector2 lineAdvance = font.LineAdvance * scale.Y * new Vector2(-sin, cos);
+            Vector2 charAdvance = new Vector2(cos, sin) * scale.X;
+
+            Vector2 linePosition = position + font.LineGap * scale.Y * new Vector2(-sin, cos);
+            Vector2 penPosition = linePosition;
+
+            bool isFirstInLine = true;
+            char previousChar = default;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == TextureFont.NewlineIndicator)
+                {
+                    linePosition += lineAdvance;
+                    penPosition = linePosition;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 kroff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    Vector2 koff = font.GetKerning(previousChar, c) * scale;
+                    penPosition += new Vector2(cos, sin) * koff.X;
+                    kroff = new Vector2(-sin, cos) * koff.Y;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    Vector2 renderOffset = font.GetRenderOffset(c) * scale;
+                    renderOffset = new Vector2(cos * renderOffset.X - sin * renderOffset.Y, sin * renderOffset.X + cos * renderOffset.Y);
+                    batchItem.SetValue(font.Texture, penPosition + kroff + renderOffset, source, color, scale, sin, cos, depth);
+                    SetItemSortKey(batchItem);
+                }
+
+                penPosition += font.GetAdvance(c) * charAdvance;
+                previousChar = c;
+            }
+
+            FlushIfNeeded();
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, Color4b color, float scale, float rotation, Vector2 origin, float depth = 0)
+        {
+            DrawString(font, text, position, color, new Vector2(scale, scale), rotation, origin, depth);
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, Color4b color, Vector2 scale, Vector2 origin, float depth = 0)
+        {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+
+            if (text.Length == 0)
+                return;
+
+            StartDraw(font.Texture);
+
+            float lineAdvance = font.LineAdvance * scale.Y;
+
+            position -= origin * scale;
+
+            float y = position.Y + font.LineGap * scale.Y;
+            float x = position.X;
+
+            bool isFirstInLine = true;
+            char previousChar = default;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == TextureFont.NewlineIndicator)
+                {
+                    x = position.X;
+                    y += lineAdvance;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 koff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    koff = font.GetKerning(previousChar, c) * scale;
+                    x += koff.X;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c) * scale, source, color, scale, depth);
+                    SetItemSortKey(batchItem);
+                }
+
+                x += font.GetAdvance(c) * scale.X;
+                previousChar = c;
+            }
+
+            FlushIfNeeded();
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, Color4b color, float scale, Vector2 origin, float depth = 0)
+        {
+            DrawString(font, text, position, color, new Vector2(scale, scale), origin, depth);
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="color">The color with which to draw the text.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, Color4b color, float depth = 0)
+        {
+            if (font == null)
+                throw new ArgumentNullException(nameof(font));
+
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+
+            if (text.Length == 0)
+                return;
+
+            StartDraw(font.Texture);
+
+            float y = position.Y + font.LineGap;
+            float x = position.X;
+
+            bool isFirstInLine = true;
+            char previousChar = default;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (c == TextureFont.NewlineIndicator)
+                {
+                    x = position.X;
+                    y += font.LineAdvance;
+                    isFirstInLine = true;
+                    continue;
+                }
+
+                Vector2 koff = default;
+                if (isFirstInLine)
+                    isFirstInLine = false;
+                else
+                {
+                    koff = font.GetKerning(previousChar, c);
+                    x += koff.X;
+                }
+
+                Rectangle source = font.GetSource(c);
+                if (source.Width != 0)
+                {
+                    TextureBatchItem batchItem = GetNextBatchItem();
+                    batchItem.SetValue(font.Texture, new Vector2(x, y + koff.Y) + font.GetRenderOffset(c), source, color, depth);
+                    SetItemSortKey(batchItem);
+                }
+
+                x += font.GetAdvance(c);
+                previousChar = c;
+            }
+
+            FlushIfNeeded();
+        }
+
+        /// <summary>
+        /// Adds multiple textures forming a string of text to the current batch.
+        /// </summary>
+        /// <param name="font">The <see cref="TextureFont"/> to draw the text with.</param>
+        /// <param name="text">The string of text to draw.</param>
+        /// <param name="position">The position at which to draw the text.</param>
+        /// <param name="depth">The depth at which to draw the string of text.</param>
+        public void DrawString(TextureFont font, StringBuilder text, Vector2 position, float depth = 0)
         {
             DrawString(font, text, position, Color4b.White, depth);
         }

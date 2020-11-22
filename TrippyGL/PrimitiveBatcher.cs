@@ -106,7 +106,7 @@ namespace TrippyGL
         /// <param name="v1">The first vertex of the triangle.</param>
         /// <param name="v2">The second vertex of the triangle.</param>
         /// <param name="v3">The third vertex of the triangle.</param>
-        public void AddTriangle(T v1, T v2, T v3)
+        public void AddTriangle(in T v1, in T v2, in T v3)
         {
             EnsureTriangleSpace(TriangleVertexCount + 3);
 
@@ -164,7 +164,7 @@ namespace TrippyGL
         /// <param name="v2">The second vertex of the quad.</param>
         /// <param name="v3">The third vertex of the quad.</param>
         /// <param name="v4">The fourth vertex of the quad.</param>
-        public void AddQuad(T v1, T v2, T v3, T v4)
+        public void AddQuad(in T v1, in T v2, in T v3, in T v4)
         {
             EnsureTriangleSpace(TriangleVertexCount + 6);
 
@@ -210,7 +210,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="v1">The first vertex of the line.</param>
         /// <param name="v2">The second vertex of the line.</param>
-        public void AddLine(T v1, T v2)
+        public void AddLine(in T v1, in T v2)
         {
             EnsureLineSpace(LineVertexCount + 2);
             lines[LineVertexCount++] = v1;
