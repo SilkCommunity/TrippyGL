@@ -6,7 +6,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ThomasMiz/TrippyGL</PackageProjectUrl>
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
-    <Version>1.0.0-rc1</Version>
+    <Version>1.0.0-rc2</Version>
     <Authors>ThomasMiz</Authors>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.

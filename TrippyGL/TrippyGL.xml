@@ -4830,6 +4830,12 @@
             <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
             <param name="length">The desired length of the direction vector.</param>
         </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextFloat(System.Random)">
+            <summary>
+            Returns a random floating-point number in the range [0.0, 1.0).
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
         <member name="M:TrippyGL.Utils.TrippyMath.NextFloat(System.Random,System.Single)">
             <summary>
             Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
@@ -4844,6 +4850,27 @@
             <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
             <param name="min">The inclusive minimum value of the random number to be generated.</param>
             <param name="max">The exclusive maximum value of the random number to be generated.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextDouble(System.Random,System.Double)">
+            <summary>
+            Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+            <param name="max">The exclusive maximum value of the random number to be generated.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextDouble(System.Random,System.Double,System.Double)">
+            <summary>
+            Returns a random floating-point number in the range [min, max) (or (max, min] if min>max)
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+            <param name="min">The inclusive minimum value of the random number to be generated.</param>
+            <param name="max">The exclusive maximum value of the random number to be generated.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.NextBool(System.Random)">
+            <summary>
+            Returns a random boolean value.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
         </member>
         <member name="M:TrippyGL.Utils.TrippyMath.NextColor4b(System.Random)">
             <summary>
