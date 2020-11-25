@@ -142,9 +142,60 @@ namespace TrippyGL.Utils
         }
 
         /// <summary>
+        /// Returns a random direction, as a unit vector.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static Vector2 RandomDirection2(this Random random)
+        {
+            float angle = (float)(random.NextDouble() * 6.283185307179586476925286766559);
+            return new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+        }
+
+        /// <summary>
+        /// Returns a random direction, as a vector of a specified length.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        /// <param name="length">The desired length of the direction vector.</param>
+        public static Vector2 RandomDirection2(this Random random, float length)
+        {
+            return random.RandomDirection2() * length;
+        }
+
+        /// <summary>
+        /// Returns a random direction, as a unit vector.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static Vector3 RandomDirection3(this Random random)
+        {
+            float a = (float)(random.NextDouble() * 6.283185307179586476925286766559);
+            float b = (float)(random.NextDouble() * Math.PI);
+            float sinB = MathF.Sin(b);
+            return new Vector3(sinB * MathF.Cos(a), sinB * MathF.Sin(a), MathF.Cos(b));
+        }
+
+        /// <summary>
+        /// Returns a random direction, as a vector of a specified length.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        /// <param name="length">The desired length of the direction vector.</param>
+        public static Vector3 RandomDirection3(this Random random, float length)
+        {
+            return random.RandomDirection3() * length;
+        }
+
+        /// <summary>
+        /// Returns a random floating-point number in the range [0.0, 1.0).
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static float NextFloat(this Random random)
+        {
+            return (float)random.NextDouble();
+        }
+
+        /// <summary>
         /// Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
         /// </summary>
-        /// <param name="random">The <see cref="Random"/> object to use for generating random numbers.</param>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
         /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
         public static float NextFloat(this Random random, float max)
         {
@@ -154,12 +205,42 @@ namespace TrippyGL.Utils
         /// <summary>
         /// Returns a random floating-point number in the range [min, max) (or (max, min] if min>max)
         /// </summary>
-        /// <param name="random">The <see cref="Random"/> object to use for generating random numbers.</param>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
         /// <param name="min">The inclusive minimum value of the random number to be generated.</param>
         /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
         public static float NextFloat(this Random random, float min, float max)
         {
             return (float)random.NextDouble() * (max - min) + min;
+        }
+
+        /// <summary>
+        /// Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
+        public static double NextDouble(this Random random, double max)
+        {
+            return random.NextDouble() * max;
+        }
+
+        /// <summary>
+        /// Returns a random floating-point number in the range [min, max) (or (max, min] if min>max)
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        /// <param name="min">The inclusive minimum value of the random number to be generated.</param>
+        /// <param name="max">The exclusive maximum value of the random number to be generated.</param>
+        public static double NextDouble(this Random random, double min, double max)
+        {
+            return random.NextDouble() * (max - min) + min;
+        }
+
+        /// <summary>
+        /// Returns a random boolean value.
+        /// </summary>
+        /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
+        public static bool NextBool(this Random random)
+        {
+            return (random.Next() & 1) == 1;
         }
 
         /// <summary>

@@ -1896,7 +1896,7 @@
             You should only need to call this when interoperating with other libraries or using your own GL functions.
             </summary>
         </member>
-        <member name="E:TrippyGL.GraphicsDevice.DebugMessage">
+        <member name="E:TrippyGL.GraphicsDevice.DebugMessageReceived">
             <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
         </member>
         <member name="P:TrippyGL.GraphicsDevice.DebugMessagingEnabled">
@@ -2721,7 +2721,7 @@
             Creates a <see cref="T:TrippyGL.PrimitiveBatcher`1"/> with the default capacities for both arrays.
             </summary>
         </member>
-        <member name="M:TrippyGL.PrimitiveBatcher`1.AddTriangle(`0,`0,`0)">
+        <member name="M:TrippyGL.PrimitiveBatcher`1.AddTriangle(`0@,`0@,`0@)">
             <summary>
             Adds a single triangle.
             </summary>
@@ -2747,7 +2747,7 @@
             </summary>
             <param name="vertex">The triangle fan as vertices.</param>
         </member>
-        <member name="M:TrippyGL.PrimitiveBatcher`1.AddQuad(`0,`0,`0,`0)">
+        <member name="M:TrippyGL.PrimitiveBatcher`1.AddQuad(`0@,`0@,`0@,`0@)">
             <summary>
             Adds a single quad as two triangles.
             </summary>
@@ -2763,7 +2763,7 @@
             </summary>
             <param name="vertex">The vertices of the quads.</param>
         </member>
-        <member name="M:TrippyGL.PrimitiveBatcher`1.AddLine(`0,`0)">
+        <member name="M:TrippyGL.PrimitiveBatcher`1.AddLine(`0@,`0@)">
             <summary>
             Adds a single line.
             </summary>
@@ -2993,7 +2993,7 @@
             to know whether the textures need to be bound and set
             </summary>
         </member>
-        <member name="M:TrippyGL.ShaderProgram.#ctor(TrippyGL.GraphicsDevice,System.UInt32,TrippyGL.ActiveVertexAttrib[])">
+        <member name="M:TrippyGL.ShaderProgram.#ctor(TrippyGL.GraphicsDevice,System.UInt32,TrippyGL.ActiveVertexAttrib[],System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Creates a <see cref="T:TrippyGL.ShaderProgram"/> from an already compiled GL Program Object.
             </summary>
@@ -3112,7 +3112,7 @@
             <typeparam name="T">The type of vertex to use.</typeparam>
             <param name="attribNames">The names of the attributes orderd by attribute index.</param>
         </member>
-        <member name="M:TrippyGL.ShaderProgramBuilder.CreateInternal(TrippyGL.GraphicsDevice,TrippyGL.ActiveVertexAttrib[]@,System.Boolean)">
+        <member name="M:TrippyGL.ShaderProgramBuilder.CreateInternal(TrippyGL.GraphicsDevice,TrippyGL.ActiveVertexAttrib[]@,System.Boolean@,System.Boolean@,System.Boolean@,System.Boolean)">
             <summary>
             Compiles shaders using the code from the different XShaderCode fields and creates a
             GL Program Object by linking them together. Then, queries the active attributes and
@@ -3346,7 +3346,7 @@
             Gets this <see cref="T:TrippyGL.SimpleShaderProgram"/>'s list of positional lights.
             </summary>
         </member>
-        <member name="M:TrippyGL.SimpleShaderProgram.#ctor(TrippyGL.GraphicsDevice,System.UInt32,TrippyGL.ActiveVertexAttrib[],System.Boolean,System.Boolean,System.Int32,System.Int32)">
+        <member name="M:TrippyGL.SimpleShaderProgram.#ctor(TrippyGL.GraphicsDevice,System.UInt32,TrippyGL.ActiveVertexAttrib[],System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Creates a <see cref="T:TrippyGL.SimpleShaderProgram"/> from an already compiled GL Program Object.
             </summary>
@@ -4209,6 +4209,75 @@
             <param name="position">The position at which to draw the text.</param>
             <param name="depth">The depth at which to draw the string of text.</param>
         </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,TrippyGL.Color4b,System.Numerics.Vector2,System.Single,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="color">The color with which to draw the text.</param>
+            <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+            <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+            <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,TrippyGL.Color4b,System.Single,System.Single,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="color">The color with which to draw the text.</param>
+            <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+            <param name="rotation">The rotation with which to draw the text, measured in radians.</param>
+            <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,TrippyGL.Color4b,System.Numerics.Vector2,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="color">The color with which to draw the text.</param>
+            <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+            <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,TrippyGL.Color4b,System.Single,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="color">The color with which to draw the text.</param>
+            <param name="scale">The scale value that multiplies the size of the drawn text.</param>
+            <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,TrippyGL.Color4b,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="color">The color with which to draw the text.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
+        <member name="M:TrippyGL.TextureBatcher.DrawString(TrippyGL.TextureFont,System.Text.StringBuilder,System.Numerics.Vector2,System.Single)">
+            <summary>
+            Adds multiple textures forming a string of text to the current batch.
+            </summary>
+            <param name="font">The <see cref="T:TrippyGL.TextureFont"/> to draw the text with.</param>
+            <param name="text">The string of text to draw.</param>
+            <param name="position">The position at which to draw the text.</param>
+            <param name="depth">The depth at which to draw the string of text.</param>
+        </member>
         <member name="M:TrippyGL.TextureBatcher.StartDraw(TrippyGL.Texture2D)">
             <summary>
             Performs any operations that need to be done before more batch items can be added.
@@ -4452,6 +4521,12 @@
             behavior.
             </remarks>
         </member>
+        <member name="M:TrippyGL.TextureFont.ValidateCharAvailable(System.Char)">
+            <summary>
+            Checks that the given character is available in this <see cref="T:TrippyGL.TextureFont"/> and
+            throws an exception otherwise.
+            </summary>
+        </member>
         <member name="M:TrippyGL.TextureFont.HasCharacter(System.Char)">
             <summary>
             Returns whether this <see cref="T:TrippyGL.TextureFont"/> can draw a specified character.
@@ -4509,6 +4584,33 @@
             If you have multiple <see cref="T:TrippyGL.TextureFont"/> sharing a single texture, disposing any
             of these will dispose the texture, thus disposing all of them.
             </remarks>
+        </member>
+        <member name="M:TrippyGL.TextureFont.SanitizeString(System.String,System.Char)">
+            <summary>
+            Creates a copy of the given string, where all the characters that aren't
+            available in this <see cref="T:TrippyGL.TextureFont"/> are replaced by a "default character".
+            </summary>
+            <param name="text">The string of text to sanitize.</param>
+            <param name="defaultChar">The char to replace unavailable chars with.</param>
+            <returns>A newly created string, or the same string instance if no chars need replacing.</returns>
+        </member>
+        <member name="M:TrippyGL.TextureFont.SanitizeString(System.Span{System.Char},System.Char)">
+            <summary>
+            Replaces all the characters in the given string that aren't available in
+            this <see cref="T:TrippyGL.TextureFont"/> with a "default character".
+            </summary>
+            <remarks>The replacing is done in-place.</remarks>
+            <param name="chars">The string of text to sanitize.</param>
+            <param name="defaultChar">The char to replace unavailable chars with.</param>
+        </member>
+        <member name="M:TrippyGL.TextureFont.SanitizeString(System.Text.StringBuilder,System.Char)">
+            <summary>
+            Replaces all the characters in the given string that aren't available in
+            this <see cref="T:TrippyGL.TextureFont"/> with a "default character".
+            </summary>
+            <remarks>The replacing is done in-place.</remarks>
+            <param name="chars">The string of text to sanitize.</param>
+            <param name="defaultChar">The char to replace unavailable chars with.</param>
         </member>
         <member name="T:TrippyGL.TextureMultisamplable">
             <summary>
@@ -4702,18 +4804,44 @@
             Calculates an integer value, raised to an integer exponent. Only works with positive values.
             </summary>
         </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.RandomDirection2(System.Random)">
+            <summary>
+            Returns a random direction, as a unit vector.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.RandomDirection2(System.Random,System.Single)">
+            <summary>
+            Returns a random direction, as a vector of a specified length.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+            <param name="length">The desired length of the direction vector.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.RandomDirection3(System.Random)">
+            <summary>
+            Returns a random direction, as a unit vector.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+        </member>
+        <member name="M:TrippyGL.Utils.TrippyMath.RandomDirection3(System.Random,System.Single)">
+            <summary>
+            Returns a random direction, as a vector of a specified length.
+            </summary>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
+            <param name="length">The desired length of the direction vector.</param>
+        </member>
         <member name="M:TrippyGL.Utils.TrippyMath.NextFloat(System.Random,System.Single)">
             <summary>
             Returns a random floating-point number in the range [0.0, max) (or (max, 0.0] if negative).
             </summary>
-            <param name="random">The <see cref="T:System.Random"/> object to use for generating random numbers.</param>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
             <param name="max">The exclusive maximum value of the random number to be generated.</param>
         </member>
         <member name="M:TrippyGL.Utils.TrippyMath.NextFloat(System.Random,System.Single,System.Single)">
             <summary>
             Returns a random floating-point number in the range [min, max) (or (max, min] if min>max)
             </summary>
-            <param name="random">The <see cref="T:System.Random"/> object to use for generating random numbers.</param>
+            <param name="random">The <see cref="T:System.Random"/> to use for randomizing.</param>
             <param name="min">The inclusive minimum value of the random number to be generated.</param>
             <param name="max">The exclusive maximum value of the random number to be generated.</param>
         </member>
