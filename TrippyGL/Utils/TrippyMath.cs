@@ -240,7 +240,7 @@ namespace TrippyGL.Utils
         /// <param name="random">The <see cref="Random"/> to use for randomizing.</param>
         public static bool NextBool(this Random random)
         {
-            return (random.Next() & 1) == 1;
+            return (random.Next() & 1) == 0;
         }
 
         /// <summary>

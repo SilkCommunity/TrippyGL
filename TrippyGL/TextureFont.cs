@@ -201,15 +201,16 @@ namespace TrippyGL
         /// </summary>
         /// <param name="text">The string of text to sanitize.</param>
         /// <param name="defaultChar">The char to replace unavailable chars with.</param>
+        /// <param name="ignoreNewline">Whether to count the newline character as a valid character.</param>
         /// <returns>A newly created string, or the same string instance if no chars need replacing.</returns>
-        public string SanitizeString(string text, char defaultChar = '?')
+        public string SanitizeString(string text, char defaultChar = '?', bool ignoreNewline = true)
         {
             if (text == null)
                 return null;
 
             // We go through the string until we find an unavailable char.
             for (int i = 0; i < text.Length; i++)
-                if (!HasCharacter(text[i]))
+                if (!(HasCharacter(text[i]) || (ignoreNewline && text[i] == NewlineIndicator)))
                     return string.Create(text.Length, i, (chars, indx) =>
                     {
                         for (int c = 0; c < indx; c++)
@@ -218,7 +219,7 @@ namespace TrippyGL
                         chars[indx] = defaultChar;
 
                         for (int i = indx + 1; i < chars.Length; i++)
-                            chars[i] = HasCharacter(text[i]) ? text[i] : defaultChar;
+                            chars[i] = (HasCharacter(text[i]) || (ignoreNewline && text[i] == NewlineIndicator)) ? text[i] : defaultChar;
                     });
 
             // If no unavailable char was found, we return the same string instance.
@@ -230,13 +231,14 @@ namespace TrippyGL
         /// this <see cref="TextureFont"/> with a "default character".
         /// </summary>
         /// <remarks>The replacing is done in-place.</remarks>
-        /// <param name="chars">The string of text to sanitize.</param>
+        /// <param name="text">The string of text to sanitize.</param>
         /// <param name="defaultChar">The char to replace unavailable chars with.</param>
-        public void SanitizeString(Span<char> chars, char defaultChar = '?')
+        /// <param name="ignoreNewline">Whether to count the newline character as a valid character.</param>
+        public void SanitizeString(Span<char> text, char defaultChar = '?', bool ignoreNewline = true)
         {
-            for (int i = 0; i < chars.Length; i++)
-                if (!HasCharacter(chars[i]))
-                    chars[i] = defaultChar;
+            for (int i = 0; i < text.Length; i++)
+                if (!(HasCharacter(text[i]) || (ignoreNewline && text[i] == NewlineIndicator)))
+                    text[i] = defaultChar;
         }
 
         /// <summary>
@@ -244,16 +246,17 @@ namespace TrippyGL
         /// this <see cref="TextureFont"/> with a "default character".
         /// </summary>
         /// <remarks>The replacing is done in-place.</remarks>
-        /// <param name="chars">The string of text to sanitize.</param>
+        /// <param name="text">The string of text to sanitize.</param>
         /// <param name="defaultChar">The char to replace unavailable chars with.</param>
-        public void SanitizeString(System.Text.StringBuilder chars, char defaultChar = '?')
+        /// <param name="ignoreNewline">Whether to count the newline character as a valid character.</param>
+        public void SanitizeString(System.Text.StringBuilder text, char defaultChar = '?', bool ignoreNewline = true)
         {
-            if (chars == null)
+            if (text == null)
                 return;
 
-            for (int i = 0; i < chars.Length; i++)
-                if (!HasCharacter(chars[i]))
-                    chars[i] = defaultChar;
+            for (int i = 0; i < text.Length; i++)
+                if (!(HasCharacter(text[i]) || (ignoreNewline && text[i] == NewlineIndicator)))
+                    text[i] = defaultChar;
         }
     }
 }
