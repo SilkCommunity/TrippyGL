@@ -61,6 +61,17 @@ namespace TrippyGL
             Height = (uint)rectangle.Height;
         }
 
+        /// <summary>
+        /// Creates a <see cref="Viewport"/> with the specified position and size.
+        /// </summary>
+        public Viewport(Point position, Size size)
+        {
+            X = position.X;
+            Y = position.Y;
+            Width = (uint)size.Width;
+            Height = (uint)size.Height;
+        }
+
         public static bool operator ==(Viewport left, Viewport right) => left.Equals(right);
         public static bool operator !=(Viewport left, Viewport right) => !left.Equals(right);
 

@@ -24,6 +24,10 @@ namespace TrippyGL
         /// <summary>The maximum capacity for the <see cref="VertexBuffer{T}"/> used for drawing the item's vertices.</summary>
         private const uint MaxBufferCapacity = 32768;
 
+        /// <summary>
+        /// The <see cref="TrippyGL.GraphicsDevice"/> with which this <see cref="TextureBatcher"/> was created.
+        /// </summary>
+        public GraphicsDevice GraphicsDevice { get; }
 
         /// <summary>Used to store vertices before sending them to <see cref="vertexBuffer"/>.</summary>
         private VertexColorTexture[] triangles;
@@ -78,6 +82,8 @@ namespace TrippyGL
                 batchItems[i] = new TextureBatchItem();
             batchItemCount = 0;
             IsActive = false;
+
+            GraphicsDevice = graphicsDevice;
             vertexBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, InitialBufferCapacity, BufferUsageARB.StreamDraw);
         }
 
@@ -93,10 +99,7 @@ namespace TrippyGL
         /// </remarks>
         public void SetShaderProgram(SimpleShaderProgram simpleProgram)
         {
-            if (simpleProgram == null)
-                throw new ArgumentNullException(nameof(simpleProgram));
-
-            SetShaderProgram(simpleProgram, simpleProgram.TextureEnabled ? simpleProgram.sampUniform : default);
+            SetShaderProgram(simpleProgram, (simpleProgram != null && simpleProgram.TextureEnabled) ? simpleProgram.sampUniform : default);
         }
 
         /// <summary>
@@ -123,7 +126,7 @@ namespace TrippyGL
                 return;
             }
 
-            if (shaderProgram.GraphicsDevice != vertexBuffer.Buffer.GraphicsDevice)
+            if (shaderProgram.GraphicsDevice != GraphicsDevice)
                 throw new ArgumentException(nameof(ShaderProgram) + " must belong to the same " + nameof(GraphicsDevice)
                     + " this " + nameof(TextureBatcher) + " was created with.", nameof(shaderProgram));
 
@@ -1000,9 +1003,8 @@ namespace TrippyGL
                 Array.Sort(batchItems, 0, batchItemCount);
 
             // We set the vertex buffer and shader program onto the GraphicsDevice so we can use them.
-            GraphicsDevice graphicsDevice = ShaderProgram.GraphicsDevice;
-            graphicsDevice.VertexArray = vertexBuffer;
-            graphicsDevice.ShaderProgram = ShaderProgram;
+            GraphicsDevice.VertexArray = vertexBuffer;
+            GraphicsDevice.ShaderProgram = ShaderProgram;
 
             // We now need to draw all the textures, in the order in which they are in the array.
             // Since we can only draw with one texture per draw call, we'll have split the items
@@ -1058,7 +1060,7 @@ namespace TrippyGL
 
                     // We copy the vertices over to the vertexBuffer and draw them.
                     vertexBuffer.DataSubset.SetData(triangles.AsSpan(0, triangleIndex));
-                    graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, (uint)triangleIndex);
+                    GraphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, (uint)triangleIndex);
                 }
             }
 
