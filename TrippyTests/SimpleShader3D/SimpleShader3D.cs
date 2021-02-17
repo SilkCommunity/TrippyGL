@@ -158,7 +158,7 @@ namespace SimpleShader3D
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubeBuffer.StorageLength);
 
             graphicsDevice.DepthTestingEnabled = true;
-            graphicsDevice.Clear(ClearBuffer.Depth);
+            graphicsDevice.Clear(ClearBuffers.Depth);
 
             Matrix4x4 view = inputManager.CalculateViewMatrix();
             linesProgram.View = view;

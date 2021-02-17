@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the types of vertex attributes.
+    /// </summary>
     public enum AttributeType
     {
         Int = 5124,

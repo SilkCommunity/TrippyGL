@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the operations that can be performed after comparison during a stencil test.
+    /// </summary>
     public enum StencilOperation
     {
         Zero = 0,

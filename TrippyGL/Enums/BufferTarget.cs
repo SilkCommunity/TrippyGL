@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the buffer binding points at which a <see cref="BufferObject"/> can be bound.
+    /// </summary>
     public enum BufferTarget
     {
         ParameterBuffer = 33006,

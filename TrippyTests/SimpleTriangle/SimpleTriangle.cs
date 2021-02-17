@@ -31,7 +31,7 @@ namespace SimpleTriangle
 
         protected override void OnRender(double dt)
         {
-            graphicsDevice.Clear(ClearBuffer.Color);
+            graphicsDevice.Clear(ClearBuffers.Color);
 
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;

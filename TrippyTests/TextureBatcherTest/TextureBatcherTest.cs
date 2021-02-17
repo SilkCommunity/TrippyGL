@@ -115,7 +115,7 @@ namespace TextureBatcherTest
         protected override void OnRender(double dt)
         {
             float time = (float)stopwatch.Elapsed.TotalSeconds;
-            graphicsDevice.Clear(ClearBuffer.Color);
+            graphicsDevice.Clear(ClearBuffers.Color);
 
             Vector2 mousePos = new Vector2(InputContext.Mice[0].Position.X, InputContext.Mice[0].Position.Y);
 

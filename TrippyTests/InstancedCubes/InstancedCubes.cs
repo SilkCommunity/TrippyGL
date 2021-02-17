@@ -125,7 +125,7 @@ namespace InstancedCubes
         {
             graphicsDevice.ClearDepth = 1f;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBuffer.Color | ClearBuffer.Depth);
+            graphicsDevice.Clear(ClearBuffers.Color | ClearBuffers.Depth);
 
             shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateRotationY((float)stopwatch.Elapsed.TotalSeconds * 3.1415f));
 

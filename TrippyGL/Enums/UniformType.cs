@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the types of shader uniforms.
+    /// </summary>
     public enum UniformType
     {
         Int = 5124,

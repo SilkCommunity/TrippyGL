@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the minifying filters that can be used when sampling a texture.
+    /// </summary>
     public enum TextureMinFilter
     {
         Nearest = 9728,

@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the types of textures.
+    /// </summary>
     public enum TextureType
     {
         Texture1D = 3552,

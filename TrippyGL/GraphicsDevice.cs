@@ -261,7 +261,7 @@ namespace TrippyGL
         /// Clears the current framebuffer to the specified color.
         /// </summary>
         /// <param name="mask">The masks indicating the values to clear, combined using bitwise OR.</param>
-        public void Clear(ClearBuffer mask)
+        public void Clear(ClearBuffers mask)
         {
             GL.Clear((uint)mask);
         }
@@ -331,7 +331,7 @@ namespace TrippyGL
         /// <param name="dstHeight">The height of the draw rectangle.</param>
         /// <param name="mask">What data to copy from the framebuffers.</param>
         /// <param name="filter">Whether to use nearest or linear filtering.</param>
-        public void BlitFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBuffer mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY, int dstWidth, int dstHeight, ClearBuffers mask, BlitFramebufferFilter filter)
         {
             // Blit rules:
             // General rectangle correctness rules (src and dst rectangles must be inside the framebuffers' size rectangles)
@@ -349,7 +349,7 @@ namespace TrippyGL
                 throw new ArgumentException("Both the source and destination rectangles must be inside their respective framebuffer's size rectangles");
             }
 
-            if (((mask & ClearBuffer.Depth) | (mask & ClearBuffer.Stencil)) != 0 && filter != BlitFramebufferFilter.Nearest)
+            if (((mask & ClearBuffers.Depth) | (mask & ClearBuffers.Stencil)) != 0 && filter != BlitFramebufferFilter.Nearest)
                 throw new InvalidBlitException("When using depth or stencil, the filter must be Nearest");
 
             //TODO: If blitting with depth mask, ensure both have depth. If blitting with stencil mask, ensure both have stencil, etc.
@@ -365,7 +365,7 @@ namespace TrippyGL
         /// <param name="dstRect">The destination rectangle to write to.</param>
         /// <param name="mask">What data to copy from the framebuffers.</param>
         /// <param name="filter">Whether to use nearest or linear filtering.</param>
-        public void BlitFramebuffer(Viewport srcRect, Viewport dstRect, ClearBuffer mask, BlitFramebufferFilter filter)
+        public void BlitFramebuffer(Viewport srcRect, Viewport dstRect, ClearBuffers mask, BlitFramebufferFilter filter)
         {
             BlitFramebuffer(srcRect.X, srcRect.Y, (int)srcRect.Width, (int)srcRect.Height, dstRect.X, dstRect.Y, (int)dstRect.Width, (int)dstRect.Height, mask, filter);
         }

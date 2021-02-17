@@ -214,7 +214,7 @@ namespace TerrainMaker
             skyViewUniform.SetValueMat4(viewNoTranslation);
             graphicsDevice.VertexArray = skyBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, skyBuffer.StorageLength);
-            graphicsDevice.Clear(ClearBuffer.Depth);
+            graphicsDevice.Clear(ClearBuffers.Depth);
         }
 
         private void RenderWaterFbos(in Matrix4x4 view, in Matrix4x4 viewNoTranslation)
@@ -304,7 +304,7 @@ namespace TerrainMaker
             }
 
             graphicsDevice.Framebuffer = null;
-            graphicsDevice.Clear(ClearBuffer.Color);
+            graphicsDevice.Clear(ClearBuffers.Color);
             if (inputManager.CameraPosition.Y >= 0)
                 textureBatcher.SetShaderProgram(textureProgram);
             else

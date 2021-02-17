@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the modes in which texture coordinate wrapping can be handled.
+    /// </summary>
     public enum TextureWrapMode
     {
         Repeat = 10497,

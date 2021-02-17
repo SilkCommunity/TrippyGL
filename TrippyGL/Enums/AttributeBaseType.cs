@@ -1,5 +1,8 @@
 ﻿namespace TrippyGL
 {
+    /// <summary>
+    /// Specifies the base data types a vertex attribute can be composed of.
+    /// </summary>
     public enum AttributeBaseType
     {
         Byte = 5120,

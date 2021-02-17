@@ -54,7 +54,7 @@ namespace IndexedRendering
         protected override void OnRender(double dt)
         {
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBuffer.Color);
+            graphicsDevice.Clear(ClearBuffers.Color);
 
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;

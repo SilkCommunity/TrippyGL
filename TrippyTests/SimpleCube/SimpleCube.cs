@@ -52,7 +52,7 @@ namespace SimpleCube
         {
             graphicsDevice.ClearDepth = 1f;
             graphicsDevice.ClearColor = Vector4.Zero;
-            graphicsDevice.Clear(ClearBuffer.Color | ClearBuffer.Depth);
+            graphicsDevice.Clear(ClearBuffers.Color | ClearBuffers.Depth);
 
             shaderProgram.World = Matrix4x4.CreateRotationY(2 * (float)stopwatch.Elapsed.TotalSeconds);
             graphicsDevice.ShaderProgram = shaderProgram;

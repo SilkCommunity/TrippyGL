@@ -80,7 +80,7 @@ namespace GameOfLifeSim
 
             graphicsDevice.Framebuffer = null;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBuffer.Color);
+            graphicsDevice.Clear(ClearBuffers.Color);
             graphicsDevice.SetViewport(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height);
             graphicsDevice.ShaderProgram = drawProgram;
             drawProgram.Texture = fbo2;

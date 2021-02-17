@@ -26,3 +26,6 @@ dotnet_diagnostic.CA2208.severity = none
 
 # CA5394: Do not use insecure randomness
 dotnet_diagnostic.CA5394.severity = none
+
+# CA1028: Enum Storage should be Int32
+dotnet_diagnostic.CA1028.severity = none
