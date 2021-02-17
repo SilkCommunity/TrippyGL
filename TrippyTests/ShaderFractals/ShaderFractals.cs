@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using TrippyGL;
@@ -25,7 +26,7 @@ namespace ShaderFractals
         ShaderUniform transformUniform;
         ShaderUniform cUniform;
 
-        System.Drawing.PointF lastMousePos;
+        Vector2 lastMousePos;
         float mouseMoveScale;
 
         Vector2 offset;
@@ -66,11 +67,9 @@ namespace ShaderFractals
             graphicsDevice.ShaderProgram = shaderProgram;
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnMouseMove(IMouse sender, System.Drawing.PointF position)
+        protected override void OnMouseMove(IMouse sender, Vector2 position)
         {
             if (sender.IsButtonPressed(MouseButton.Left))
             {
@@ -118,21 +117,21 @@ namespace ShaderFractals
             }
         }
 
-        protected override void OnResized(System.Drawing.Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            if (size.Width < size.Height)
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
+            if (size.X < size.Y)
             {
-                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f * size.Width / size.Height, 2f, 0.01f, 10f));
-                mouseMoveScale = 2f / size.Height;
+                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f * size.X / size.Y, 2f, 0.01f, 10f));
+                mouseMoveScale = 2f / size.Y;
             }
             else
             {
-                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f, 2f * size.Height / size.Width, 0.01f, 10f));
-                mouseMoveScale = 2f / size.Width;
+                shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(2f, 2f * size.Y / size.X, 0.01f, 10f));
+                mouseMoveScale = 2f / size.X;
             }
         }
 
@@ -155,14 +154,14 @@ namespace ShaderFractals
             // TrippyGL.ImageSharp, but since we want to save the default framebuffer we
             // have to do this manually.
 
-            using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(Window.Size.Width, Window.Size.Height);
+            using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(Window.Size.X, Window.Size.Y);
 
             graphicsDevice.Framebuffer = null;
             if (!image.TryGetSinglePixelSpan(out Span<SixLabors.ImageSharp.PixelFormats.Rgba32> pixels))
                 throw new InvalidDataException();
 
             fixed (void* ptr = pixels)
-                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height, Silk.NET.OpenGL.PixelFormat.Rgba, Silk.NET.OpenGL.PixelType.UnsignedByte, ptr);
+                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.X, (uint)Window.Size.Y, Silk.NET.OpenGL.PixelFormat.Rgba, Silk.NET.OpenGL.PixelType.UnsignedByte, ptr);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             string file = GetFileName();

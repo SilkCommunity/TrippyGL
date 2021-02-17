@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -24,7 +25,7 @@ namespace GameOfLifeSim
 
         SimpleShaderProgram drawProgram;
 
-        PointF lastMousePos;
+        Vector2 lastMousePos;
         float mouseMoveScale;
 
         Vector2 offset;
@@ -81,7 +82,7 @@ namespace GameOfLifeSim
             graphicsDevice.Framebuffer = null;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
             graphicsDevice.Clear(ClearBuffers.Color);
-            graphicsDevice.SetViewport(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height);
+            graphicsDevice.SetViewport(0, 0, (uint)Window.Size.X, (uint)Window.Size.Y);
             graphicsDevice.ShaderProgram = drawProgram;
             drawProgram.Texture = fbo2;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
@@ -89,24 +90,22 @@ namespace GameOfLifeSim
             Framebuffer2D tmpFbo = fbo2;
             fbo2 = fbo1;
             fbo1 = tmpFbo;
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            if (size.Width < size.Height)
+            if (size.X < size.Y)
             {
-                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f * size.Width / size.Height, 2f, 0.01f, 10f);
-                mouseMoveScale = 2f / size.Height;
+                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f * size.X / size.Y, 2f, 0.01f, 10f);
+                mouseMoveScale = 2f / size.Y;
             }
             else
             {
-                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f, 2f * size.Height / size.Width, 0.01f, 10f);
-                mouseMoveScale = 2f / size.Width;
+                drawProgram.Projection = Matrix4x4.CreateOrthographic(2f, 2f * size.Y / size.X, 0.01f, 10f);
+                mouseMoveScale = 2f / size.X;
             }
 
         }
@@ -120,7 +119,7 @@ namespace GameOfLifeSim
             drawProgram.Dispose();
         }
 
-        protected override void OnMouseMove(IMouse sender, PointF position)
+        protected override void OnMouseMove(IMouse sender, Vector2 position)
         {
             if (Window.IsClosing)
                 return;

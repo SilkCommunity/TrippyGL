@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -36,16 +37,14 @@ namespace SimpleTriangle
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;
             graphicsDevice.DrawArrays(PrimitiveType.Triangles, 0, 3);
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(System.Drawing.Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
         }
 
         protected override void OnUnload()

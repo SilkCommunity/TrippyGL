@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -105,17 +106,15 @@ namespace TexturedTriangles
             shaderProgram.World = satelliteMatrix;
             shaderProgram.Texture = satellite;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, 4);
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(System.Drawing.Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Projection = Matrix4x4.CreateOrthographic(size.Width / (float)size.Height, 1f, 0.01f, 10f);
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
+            shaderProgram.Projection = Matrix4x4.CreateOrthographic(size.X / (float)size.Y, 1f, 0.01f, 10f);
         }
 
         protected override void OnUnload()

@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -47,8 +48,6 @@ namespace TerrainMaker
 
         ChunkManager chunkManager;
 
-        public TerrainMaker() : base(null, 0, true) { }
-
         protected override void OnLoad()
         {
             stopwatch.Restart();
@@ -88,8 +87,8 @@ namespace TerrainMaker
             waterNormalsMap.SetWrapModes(TextureWrapMode.Repeat, TextureWrapMode.Repeat);
             waterNormalsMap.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
-            waterReflectFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, PreferredDepthFormat);
-            waterRefractFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
+            waterReflectFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.X, (uint)Window.Size.Y, PreferredDepthFormat);
+            waterRefractFbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.X, (uint)Window.Size.Y, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
             waterReflectFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
             waterRefractFbo.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
 
@@ -120,7 +119,7 @@ namespace TerrainMaker
             linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, lines, BufferUsage.StaticDraw);
             linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
-            mainFramebuffer = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
+            mainFramebuffer = new Framebuffer2D(graphicsDevice, (uint)Window.Size.X, (uint)Window.Size.Y, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
             mainFramebuffer.TryGetDepthTexture(out mainFramebufferDepthTexture);
             mainFramebuffer.Texture.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
             mainFramebuffer.Texture.SetWrapModes(TextureWrapMode.ClampToEdge, TextureWrapMode.ClampToEdge);
@@ -317,32 +316,30 @@ namespace TerrainMaker
             textureBatcher.Begin(BatcherBeginMode.OnTheFly);
             textureBatcher.Draw(mainFramebuffer, new Vector2(0, mainFramebuffer.Height), null, Color4b.White, new Vector2(1, -1), 0f);
             textureBatcher.End();
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.Viewport = new Viewport(0, 0, (uint)size.Width, (uint)size.Height);
+            graphicsDevice.Viewport = new Viewport(0, 0, (uint)size.X, (uint)size.Y);
             SetNearFarPlanes();
 
-            Matrix4x4 proj = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, 0, 1);
+            Matrix4x4 proj = Matrix4x4.CreateOrthographicOffCenter(0, size.X, size.Y, 0, 0, 1);
             textureProgram.Projection = proj;
             underwaterShader.Uniforms["Projection"].SetValueMat4(proj);
 
-            waterRefractFbo.Resize((uint)size.Width, (uint)size.Height);
-            waterReflectFbo.Resize((uint)size.Width, (uint)size.Height);
-            mainFramebuffer.Resize((uint)size.Width, (uint)size.Height);
+            waterRefractFbo.Resize((uint)size.X, (uint)size.Y);
+            waterReflectFbo.Resize((uint)size.X, (uint)size.Y);
+            mainFramebuffer.Resize((uint)size.X, (uint)size.Y);
         }
 
         private void SetNearFarPlanes()
         {
             float nearPlane = 0.01f;
             float farPlane = chunkManager.ChunkRenderRadius * TerrainGenerator.ChunkSize;
-            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, (float)Window.Size.Width / Window.Size.Height, nearPlane, farPlane);
+            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, (float)Window.Size.X / Window.Size.Y, nearPlane, farPlane);
             terrainProgram.Uniforms["Projection"].SetValueMat4(proj);
             waterProgram.Uniforms["Projection"].SetValueMat4(proj);
             skyProgram.Uniforms["Projection"].SetValueMat4(proj);

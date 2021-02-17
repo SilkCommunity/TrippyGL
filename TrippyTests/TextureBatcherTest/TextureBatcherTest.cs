@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyGL.Fonts.Extensions;
 using TrippyGL.ImageSharp;
@@ -57,8 +58,8 @@ namespace TextureBatcherTest
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
             graphicsDevice.ClearColor = new Vector4(0.1f, 0.65f, 0.5f, 1f);
 
-            MaxX = Window.Size.Width;
-            MaxY = Window.Size.Height;
+            MaxX = Window.Size.X;
+            MaxY = Window.Size.Y;
 
             Particle.texture = particleTexture;
             Diamond.texture = diamondTexture;
@@ -97,9 +98,9 @@ namespace TextureBatcherTest
 
             if (InputContext.Mice[0].IsButtonPressed(MouseButton.Middle))
             {
-                PointF mousePos = InputContext.Mice[0].Position;
+                Vector2 mousePos = InputContext.Mice[0].Position;
                 for (int i = 0; i < 12; i++)
-                    particles.AddLast(new Particle(new Vector2(mousePos.X, mousePos.Y)));
+                    particles.AddLast(new Particle(mousePos));
             }
 
             for (int i = random.Next(1, 4); i != 0; i--)
@@ -157,8 +158,6 @@ namespace TextureBatcherTest
                     textureBatcher.Draw(rectangleTexture, pos, null, new Color4b(255, 255, 255, alpha), sc, time, rectOrigin, dep);
                 }
             textureBatcher.End();
-
-            Window.SwapBuffers();
         }
 
         protected override void OnKeyDown(IKeyboard sender, Key key, int n)
@@ -172,16 +171,16 @@ namespace TextureBatcherTest
             }
         }
 
-        protected override void OnResized(Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            MaxX = size.Width;
-            MaxY = size.Height;
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
+            MaxX = size.X;
+            MaxY = size.Y;
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
 
-            shaderProgram.Projection = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, 0, 1);
+            shaderProgram.Projection = Matrix4x4.CreateOrthographicOffCenter(0, size.X, size.Y, 0, 0, 1);
         }
 
         protected override void OnUnload()

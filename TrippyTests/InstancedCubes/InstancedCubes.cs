@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -132,17 +133,15 @@ namespace InstancedCubes
             graphicsDevice.ShaderProgram = shaderProgram;
             graphicsDevice.VertexArray = vertexArray;
             graphicsDevice.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, vertexData.StorageLength, offsetData.StorageLength);
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(System.Drawing.Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.Width / (float)size.Height, 0.01f, 100f));
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
+            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.X / (float)size.Y, 0.01f, 100f));
         }
 
         protected override void OnUnload()

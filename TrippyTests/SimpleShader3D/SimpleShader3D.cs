@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -197,17 +198,15 @@ namespace SimpleShader3D
             Vector3 translation = inputManager.CameraPosition + inputManager.CalculateForwardVector();
             linesProgram.World = Matrix4x4.CreateScale(0.1f) * Matrix4x4.CreateTranslation(translation);
             graphicsDevice.DrawArrays(PrimitiveType.Lines, 0, crossBuffer.StorageLength);
-
-            Window.SwapBuffers();
         }
 
-        protected override void OnResized(Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.Width / (float)size.Height, 0.1f, 50f);
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
+            Matrix4x4 proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 2f, size.X / (float)size.Y, 0.1f, 50f);
             linesProgram.Projection = proj;
             skyProgram.Uniforms["Projection"].SetValueMat4(proj);
             modelsProgram.Projection = proj;

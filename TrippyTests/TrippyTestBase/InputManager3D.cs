@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
 
 namespace TrippyTestBase
 {
@@ -32,7 +32,7 @@ namespace TrippyTestBase
         /// <summary>The maximum speed at which the camera can move.</summary>
         public float CameraMoveSpeed = 1;
 
-        private PointF lastMousePos;
+        private Vector2 lastMousePos;
 
         /// <summary>The camera's rotation alongside the Y axis.</summary>
         public float CameraRotationY;

@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
-using Silk.NET.Input.Common;
+using Silk.NET.Input;
+using Silk.NET.Maths;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -59,8 +60,6 @@ namespace IndexedRendering
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;
             graphicsDevice.DrawElements(PrimitiveType.Triangles, indicesStart[currentSelectedIndex], (uint)Indices.AllNumbersIndices[currentSelectedIndex].Length);
-
-            Window.SwapBuffers();
         }
 
         protected override void OnKeyDown(IKeyboard sender, Key key, int idk)
@@ -71,13 +70,13 @@ namespace IndexedRendering
                 currentSelectedIndex = key - Key.Keypad0;
         }
 
-        protected override void OnResized(System.Drawing.Size size)
+        protected override void OnResized(Vector2D<int> size)
         {
-            if (size.Width == 0 || size.Height == 0)
+            if (size.X == 0 || size.Y == 0)
                 return;
 
-            graphicsDevice.SetViewport(0, 0, (uint)size.Width, (uint)size.Height);
-            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(size.Width / (float)size.Height * 2f, 2f, 0.1f, 10f));
+            graphicsDevice.SetViewport(0, 0, (uint)size.X, (uint)size.Y);
+            shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.CreateOrthographic(size.X / (float)size.Y * 2f, 2f, 0.1f, 10f));
         }
 
         protected override void OnUnload()

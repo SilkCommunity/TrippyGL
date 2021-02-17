@@ -39,8 +39,8 @@ namespace TrippyGL
         {
             GL = gl ?? throw new ArgumentNullException(nameof(gl));
 
-            GLMajorVersion = GL.GetInteger(GetPName.MajorVersion);
-            GLMinorVersion = GL.GetInteger(GetPName.MinorVersion);
+            GLMajorVersion = GL.GetInteger(GLEnum.MajorVersion);
+            GLMinorVersion = GL.GetInteger(GLEnum.MinorVersion);
 
             if (!IsGLVersionAtLeast(3, 0))
                 throw new PlatformNotSupportedException("TrippyGL only supports OpenGL 3.0 and up.");
@@ -138,31 +138,31 @@ namespace TrippyGL
 
         private void InitGLGetVariables()
         {
-            UniformBufferOffsetAlignment = GL.GetInteger(GetPName.UniformBufferOffsetAlignment);
-            MaxUniformBufferBindings = GL.GetInteger(GetPName.MaxUniformBufferBindings);
-            MaxUniformBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
+            UniformBufferOffsetAlignment = GL.GetInteger(GLEnum.UniformBufferOffsetAlignment);
+            MaxUniformBufferBindings = GL.GetInteger(GLEnum.MaxUniformBufferBindings);
+            MaxUniformBlockSize = GL.GetInteger(GLEnum.MaxUniformBlockSize);
             MaxSamples = GL.GetInteger(GLEnum.MaxSamples);
-            MaxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
-            MaxTextureImageUnits = GL.GetInteger(GetPName.MaxTextureImageUnits);
-            MaxTextureBufferSize = GL.GetInteger(GetPName.MaxTextureBufferSize);
-            Max3DTextureSize = GL.GetInteger(GetPName.Max3DTextureSize);
-            MaxCubeMapTextureSize = GL.GetInteger(GetPName.MaxCubeMapTextureSize);
-            MaxRectangleTextureSize = GL.GetInteger(GetPName.MaxRectangleTextureSize);
-            MaxRenderbufferSize = GL.GetInteger(GetPName.MaxRenderbufferSize);
-            MaxVertexAttribs = GL.GetInteger(GetPName.MaxVertexAttribs);
-            MaxArrayTextureLayers = GL.GetInteger(GetPName.MaxArrayTextureLayers);
+            MaxTextureSize = GL.GetInteger(GLEnum.MaxTextureSize);
+            MaxTextureImageUnits = GL.GetInteger(GLEnum.MaxTextureImageUnits);
+            MaxTextureBufferSize = GL.GetInteger(GLEnum.MaxTextureBufferSize);
+            Max3DTextureSize = GL.GetInteger(GLEnum.Max3DTextureSize);
+            MaxCubeMapTextureSize = GL.GetInteger(GLEnum.MaxCubeMapTextureSize);
+            MaxRectangleTextureSize = GL.GetInteger(GLEnum.MaxRectangleTextureSize);
+            MaxRenderbufferSize = GL.GetInteger(GLEnum.MaxRenderbufferSize);
+            MaxVertexAttribs = GL.GetInteger(GLEnum.MaxVertexAttribs);
+            MaxArrayTextureLayers = GL.GetInteger(GLEnum.MaxArrayTextureLayers);
             MaxFramebufferColorAttachments = GL.GetInteger(GLEnum.MaxColorAttachments);
-            MaxDrawBuffers = GL.GetInteger(GetPName.MaxDrawBuffers);
-            MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
+            MaxDrawBuffers = GL.GetInteger(GLEnum.MaxDrawBuffers);
+            MaxClipDistances = GL.GetInteger(GLEnum.MaxClipDistances);
             MaxTransformFeedbackBuffers = GL.GetInteger(GLEnum.MaxTransformFeedbackBuffers);
             MaxTransformFeedbackInterleavedComponents = GL.GetInteger(GLEnum.MaxTransformFeedbackInterleavedComponents);
             MaxTransformFeedbackSeparateComponents = GL.GetInteger(GLEnum.MaxTransformFeedbackSeparateComponents);
             MaxTransformFeedbackSeparateAttribs = GL.GetInteger(GLEnum.MaxTransformFeedbackSeparateAttribs);
             MaxShaderStorageBufferBindings = GL.GetInteger(GLEnum.MaxShaderStorageBufferBindings);
             MaxAtomicCounterBufferBindings = GL.GetInteger(GLEnum.MaxAtomicCounterBufferBindings);
-            MaxFragmentUniformComponents = GL.GetInteger(GetPName.MaxFragmentUniformComponents);
-            MaxUniformLocations = GL.GetInteger(GetPName.MaxUniformLocations);
-            MaxVaryingComponents = GL.GetInteger(GetPName.MaxVaryingComponents);
+            MaxFragmentUniformComponents = GL.GetInteger(GLEnum.MaxFragmentUniformComponents);
+            MaxUniformLocations = GL.GetInteger(GLEnum.MaxUniformLocations);
+            MaxVaryingComponents = GL.GetInteger(GLEnum.MaxVaryingComponents);
         }
 
         public int GLMajorVersion { get; private set; }
@@ -219,13 +219,13 @@ namespace TrippyGL
 
         public int MaxAtomicCounterBufferBindings { get; private set; }
 
-        public string GLVersion => GL.GetString(StringName.Version);
+        public string GLVersion => GL.GetStringS(StringName.Version);
 
-        public string GLVendor => GL.GetString(StringName.Vendor);
+        public string GLVendor => GL.GetStringS(StringName.Vendor);
 
-        public string GLRenderer => GL.GetString(StringName.Renderer);
+        public string GLRenderer => GL.GetStringS(StringName.Renderer);
 
-        public string GLShadingLanguageVersion => GL.GetString(StringName.ShadingLanguageVersion);
+        public string GLShadingLanguageVersion => GL.GetStringS(StringName.ShadingLanguageVersion);
 
         #endregion GLGet
 
