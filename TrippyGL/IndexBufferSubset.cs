@@ -21,7 +21,7 @@ namespace TrippyGL
         public readonly uint ElementSize;
 
         /// <summary>The type of element this <see cref="IndexBufferSubset"/> stores.</summary>
-        public readonly DrawElementsType ElementType;
+        public readonly ElementType ElementType;
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the given <see cref="BufferObject"/>
@@ -31,8 +31,8 @@ namespace TrippyGL
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         /// <param name="elementType">The type of elements this index subset will use.</param>
-        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, DrawElementsType elementType)
-            : base(bufferObject, BufferTargetARB.ElementArrayBuffer)
+        public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ElementType elementType)
+            : base(bufferObject, BufferTarget.ElementArrayBuffer)
         {
             ElementType = elementType;
             ElementSize = GetSizeInBytesOfElementType(elementType);
@@ -45,7 +45,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="elementType">The type of elements this index subset will use.</param>
-        public IndexBufferSubset(BufferObject bufferObject, DrawElementsType elementType)
+        public IndexBufferSubset(BufferObject bufferObject, ElementType elementType)
             : this(bufferObject, 0, bufferObject.StorageLengthInBytes, elementType)
         {
 
@@ -53,7 +53,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
-        ///  storage length, <see cref="DrawElementsType.UnsignedInt"/> element type and optional initial data.
+        ///  storage length, <see cref="ElementType.UnsignedInt"/> element type and optional initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -61,7 +61,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<uint> data, uint dataWriteOffset = 0)
-            : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedInt)
+            : this(bufferObject, storageOffsetBytes, storageLength, ElementType.UnsignedInt)
         {
             if (!data.IsEmpty)
                 SetData(data, dataWriteOffset);
@@ -69,7 +69,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
-        /// storage length, <see cref="DrawElementsType.UnsignedShort"/> element type and initial data.
+        /// storage length, <see cref="ElementType.UnsignedShort"/> element type and initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -77,7 +77,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<ushort> data, uint dataWriteOffset = 0)
-            : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedShort)
+            : this(bufferObject, storageOffsetBytes, storageLength, ElementType.UnsignedShort)
         {
             if (!data.IsEmpty)
                 SetData(data, dataWriteOffset);
@@ -85,7 +85,7 @@ namespace TrippyGL
 
         /// <summary>
         /// Creates a new <see cref="IndexBufferSubset"/> with the specified offset into the buffer,
-        /// storage length, <see cref="DrawElementsType.UnsignedByte"/> element type and initial data.
+        /// storage length, <see cref="ElementType.UnsignedByte"/> element type and initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
@@ -93,7 +93,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public IndexBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<byte> data, uint dataWriteOffset = 0)
-            : this(bufferObject, storageOffsetBytes, storageLength, DrawElementsType.UnsignedByte)
+            : this(bufferObject, storageOffsetBytes, storageLength, ElementType.UnsignedByte)
         {
             if (!data.IsEmpty)
                 SetData(data, dataWriteOffset);
@@ -106,12 +106,12 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public unsafe void SetData(ReadOnlySpan<uint> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedInt);
+            ValidateCorrectElementType(ElementType.UnsignedInt);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
             fixed (uint* ptr = data)
-                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, ptr);
+                Buffer.GL.BufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, ptr);
         }
 
         /// <summary>
@@ -121,12 +121,12 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public unsafe void SetData(ReadOnlySpan<ushort> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedShort);
+            ValidateCorrectElementType(ElementType.UnsignedShort);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
             fixed (ushort* ptr = data)
-                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, ptr);
+                Buffer.GL.BufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, ptr);
         }
 
         /// <summary>
@@ -136,12 +136,12 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start writing to.</param>
         public unsafe void SetData(ReadOnlySpan<byte> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedByte);
+            ValidateCorrectElementType(ElementType.UnsignedByte);
             ValidateSetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
             fixed (byte* ptr = data)
-                Buffer.GL.BufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, ptr);
+                Buffer.GL.BufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, ptr);
         }
 
         /// <summary>
@@ -151,11 +151,11 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<uint> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedInt);
+            ValidateCorrectElementType(ElementType.UnsignedInt);
             ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, data);
+            Buffer.GL.GetBufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUint + StorageOffsetInBytes), (uint)data.Length * SizeOfUint, data);
         }
 
         /// <summary>
@@ -165,11 +165,11 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<ushort> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedShort);
+            ValidateCorrectElementType(ElementType.UnsignedShort);
             ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, data);
+            Buffer.GL.GetBufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfUshort + StorageOffsetInBytes), (uint)data.Length * SizeOfUshort, data);
         }
 
         /// <summary>
@@ -179,11 +179,11 @@ namespace TrippyGL
         /// <param name="storageOffset">The offset into the subset's storage to start reading from.</param>
         public void GetData(Span<byte> data, uint storageOffset = 0)
         {
-            ValidateCorrectElementType(DrawElementsType.UnsignedByte);
+            ValidateCorrectElementType(ElementType.UnsignedByte);
             ValidateGetParams(data.Length, storageOffset);
 
             Buffer.GraphicsDevice.BindBufferObject(Buffer);
-            Buffer.GL.GetBufferSubData(GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, data);
+            Buffer.GL.GetBufferSubData((GLEnum)GraphicsDevice.DefaultBufferTarget, (int)(storageOffset * SizeOfByte + StorageOffsetInBytes), (uint)data.Length * SizeOfByte, data);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace TrippyGL
         /// Checks that this index buffer's <see cref="ElementType"/> is the specified one and throws an exception if it's not.
         /// </summary>
         /// <param name="elementType">The element type to compare.</param>
-        private void ValidateCorrectElementType(DrawElementsType elementType)
+        private void ValidateCorrectElementType(ElementType elementType)
         {
             if (elementType != ElementType)
                 throw new InvalidOperationException("To perform this operation the " + nameof(IndexBufferSubset) + "'s " + nameof(ElementType) + " must be " + elementType.ToString());
@@ -240,7 +240,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="elementType">The desired element type for the index buffer.</param>
         /// <param name="storageLength">The desired length for the subset measured in elements.</param>
-        public static uint CalculateRequiredSizeInBytes(DrawElementsType elementType, uint storageLength)
+        public static uint CalculateRequiredSizeInBytes(ElementType elementType, uint storageLength)
         {
             return GetSizeInBytesOfElementType(elementType) * storageLength;
         }
@@ -250,14 +250,14 @@ namespace TrippyGL
         /// If the provided type isn't GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT or GL_UNSIGNED_INT, this method throws an exception.
         /// </summary>
         /// <param name="elementType">The type of element to get size in bytes for.</param>
-        public static uint GetSizeInBytesOfElementType(DrawElementsType elementType)
+        public static uint GetSizeInBytesOfElementType(ElementType elementType)
         {
             return elementType switch
             {
-                DrawElementsType.UnsignedByte => SizeOfByte,
-                DrawElementsType.UnsignedShort => SizeOfUshort,
-                DrawElementsType.UnsignedInt => SizeOfUint,
-                _ => throw new ArgumentException("Invalid " + nameof(DrawElementsType) + " value"),
+                ElementType.UnsignedByte => SizeOfByte,
+                ElementType.UnsignedShort => SizeOfUshort,
+                ElementType.UnsignedInt => SizeOfUint,
+                _ => throw new ArgumentException("Invalid " + nameof(ElementType) + " value"),
             };
         }
     }

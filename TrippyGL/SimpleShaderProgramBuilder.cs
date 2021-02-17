@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -9,6 +8,7 @@ namespace TrippyGL
     /// </summary>
     public struct SimpleShaderProgramBuilder : IEquatable<SimpleShaderProgramBuilder>
     {
+        private static readonly object stringBuilderReferenceLock = new object();
         private static WeakReference<StringBuilder> stringBuilderReference;
 
         /// <summary>The version-profile string for GLSL to use. If null, the current GL version will be used.</summary>
@@ -385,7 +385,7 @@ namespace TrippyGL
         {
             unchecked
             {
-                int hashCode = GLSLVersionString == null ? 0 : GLSLVersionString.GetHashCode(StringComparison.InvariantCulture);
+                int hashCode = GLSLVersionString == null ? 0 : GLSLVersionString.GetHashCode(StringComparison.Ordinal);
                 hashCode = (hashCode * 397) ^ PositionAttributeIndex;
                 hashCode = (hashCode * 397) ^ NormalAttributeIndex;
                 hashCode = (hashCode * 397) ^ ColorAttributeIndex;
@@ -420,25 +420,30 @@ namespace TrippyGL
 
         private static StringBuilder GetStringBuilder()
         {
-            if (stringBuilderReference != null && stringBuilderReference.TryGetTarget(out StringBuilder builder))
+            lock (stringBuilderReferenceLock)
             {
-                stringBuilderReference.SetTarget(null);
-                builder.Clear();
-                return builder;
+                if (stringBuilderReference != null && stringBuilderReference.TryGetTarget(out StringBuilder builder))
+                {
+                    stringBuilderReference.SetTarget(null);
+                    builder.Clear();
+                    return builder;
+                }
+
+                return new StringBuilder(1024);
             }
-
-            return new StringBuilder(1024);
-
         }
 
         private static void ReturnStringBuilder(StringBuilder stringBuilder)
         {
-            if (stringBuilderReference == null)
-                stringBuilderReference = new WeakReference<StringBuilder>(stringBuilder);
-            else
+            lock (stringBuilderReferenceLock)
             {
-                if (!stringBuilderReference.TryGetTarget(out StringBuilder oldBuilder) || oldBuilder == null || oldBuilder.Length < stringBuilder.Length)
-                    stringBuilderReference.SetTarget(stringBuilder);
+                if (stringBuilderReference == null)
+                    stringBuilderReference = new WeakReference<StringBuilder>(stringBuilder);
+                else
+                {
+                    if (!stringBuilderReference.TryGetTarget(out StringBuilder oldBuilder) || oldBuilder == null || oldBuilder.Length < stringBuilder.Length)
+                        stringBuilderReference.SetTarget(stringBuilder);
+                }
             }
         }
     }

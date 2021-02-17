@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyGL.Fonts.Extensions;
 using TrippyGL.ImageSharp;
@@ -77,7 +76,7 @@ namespace TextureBatcherTest
 
             stopwatch = Stopwatch.StartNew();
 
-            graphicsDevice.CullFaceMode = CullFaceMode.Back;
+            graphicsDevice.CullFaceMode = CullingMode.CullBack;
             graphicsDevice.FaceCullingEnabled = true;
         }
 
@@ -116,7 +115,7 @@ namespace TextureBatcherTest
         protected override void OnRender(double dt)
         {
             float time = (float)stopwatch.Elapsed.TotalSeconds;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
 
             Vector2 mousePos = new Vector2(InputContext.Mice[0].Position.X, InputContext.Mice[0].Position.Y);
 

@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -85,7 +84,7 @@ namespace InstancedCubes
             offsets = offsetsList;*/
 
             // We create a BufferObject with enough storage for all the vertex attribute data
-            buffer = new BufferObject(graphicsDevice, (uint)(vertex.Length * VertexColor.SizeInBytes + offsets.Length * 16), BufferUsageARB.StaticDraw);
+            buffer = new BufferObject(graphicsDevice, (uint)(vertex.Length * VertexColor.SizeInBytes + offsets.Length * 16), BufferUsage.StaticDraw);
 
             // The attributes of the vertices will be in two different buffer subsets (inside the same BufferObject).
             // The first subset contains the vertex data of the cube. This one cube will be rendered in multiple instances.
@@ -100,7 +99,7 @@ namespace InstancedCubes
             // whose pointer will only advance once per instance, rather than for each vertex.
             vertexArray = new VertexArray(graphicsDevice, new VertexAttribSource[] {
                 new VertexAttribSource(vertexData, AttributeType.FloatVec3),
-                new VertexAttribSource(vertexData, AttributeType.FloatVec4, true, VertexAttribPointerType.UnsignedByte),
+                new VertexAttribSource(vertexData, AttributeType.FloatVec4, true, AttributeBaseType.UnsignedByte),
                 new VertexAttribSource(offsetData, AttributeType.FloatVec4, 1)
             });
 
@@ -126,7 +125,7 @@ namespace InstancedCubes
         {
             graphicsDevice.ClearDepth = 1f;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color | ClearBuffer.Depth);
 
             shaderProgram.Uniforms["World"].SetValueMat4(Matrix4x4.CreateRotationY((float)stopwatch.Elapsed.TotalSeconds * 3.1415f));
 

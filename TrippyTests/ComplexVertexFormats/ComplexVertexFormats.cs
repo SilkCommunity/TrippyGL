@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -34,7 +33,7 @@ namespace ComplexVertexFormats
                 new ComplexVertex(new Vector3(0.6f, 0.6f, 0), new Color4b(255, 0, 0, 255)),
             };
 
-            vertexBuffer = new VertexBuffer<ComplexVertex>(graphicsDevice, vertices, BufferUsageARB.StaticDraw);
+            vertexBuffer = new VertexBuffer<ComplexVertex>(graphicsDevice, vertices, BufferUsage.StaticDraw);
             shaderProgram = ShaderProgram.FromFiles<ComplexVertex>(graphicsDevice, "vs1.glsl", "fs1.glsl", new string[] { "sixtyThree", "X", "nothing0", "colorR", "matrix1", "colorG", "sixtyFour", "Y", "colorB", "Z", "oneTwoThreeFour", "alwaysZero", "alsoZero" });
 
             shaderProgram.Uniforms["Projection"].SetValueMat4(Matrix4x4.Identity);
@@ -46,7 +45,7 @@ namespace ComplexVertexFormats
         protected override void OnRender(double dt)
         {
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
 
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;

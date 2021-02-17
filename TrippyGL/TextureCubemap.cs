@@ -15,16 +15,16 @@ namespace TrippyGL
         /// <param name="size">The size (width and height) of the cubemap's faces.</param>
         /// <param name="imageFormat">The image format for this <see cref="TextureCubemap"/>.</param>
         public TextureCubemap(GraphicsDevice graphicsDevice, uint size, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
-            : base(graphicsDevice, TextureTarget.TextureCubeMap, imageFormat)
+            : base(graphicsDevice, TextureType.TextureCubeMap, imageFormat)
         {
             ValidateTextureSize(size);
             Size = size;
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
 
             unsafe
             {
@@ -131,9 +131,9 @@ namespace TrippyGL
         public void SetWrapModes(TextureWrapMode sWrapMode, TextureWrapMode tWrapMode, TextureWrapMode rWrapMode)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapR, (int)rWrapMode);
         }
 
         private void ValidateTextureSize(uint size)

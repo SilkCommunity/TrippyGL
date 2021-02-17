@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -72,7 +71,7 @@ namespace TerrainMaker
                 new Vector3(1, -1, -1),
             };
 
-            skyBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, skyVertices, BufferUsageARB.StaticDraw);
+            skyBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, skyVertices, BufferUsage.StaticDraw);
             skyProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "data/skyVs.glsl", "data/skyFs.glsl", "vPosition");
             skySunDirectionUniform = skyProgram.Uniforms["sunDirection"];
             skySunColorUniform = skyProgram.Uniforms["sunColor"];
@@ -118,7 +117,7 @@ namespace TerrainMaker
                 new VertexColor(new Vector3(0, 0, 1), Color4b.Blue),
             };
 
-            linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, lines, BufferUsageARB.StaticDraw);
+            linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, lines, BufferUsage.StaticDraw);
             linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
             mainFramebuffer = new Framebuffer2D(graphicsDevice, (uint)Window.Size.Width, (uint)Window.Size.Height, PreferredDepthFormat, 0, TextureImageFormat.Color4b, true);
@@ -141,7 +140,7 @@ namespace TerrainMaker
             SetSun(new Vector3(-1, 0.6f, 0.5f), Color4b.LightGoldenrodYellow.ToVector3());
 
             graphicsDevice.BlendState = BlendState.NonPremultiplied;
-            graphicsDevice.DepthState = new DepthState(true, DepthFunction.Lequal);
+            graphicsDevice.DepthState = new DepthState(true, DepthFunction.LessOrEqual);
             graphicsDevice.ClearColor = Vector4.UnitW;
         }
 
@@ -215,7 +214,7 @@ namespace TerrainMaker
             skyViewUniform.SetValueMat4(viewNoTranslation);
             graphicsDevice.VertexArray = skyBuffer;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, skyBuffer.StorageLength);
-            graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Depth);
         }
 
         private void RenderWaterFbos(in Matrix4x4 view, in Matrix4x4 viewNoTranslation)
@@ -305,7 +304,7 @@ namespace TerrainMaker
             }
 
             graphicsDevice.Framebuffer = null;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
             if (inputManager.CameraPosition.Y >= 0)
                 textureBatcher.SetShaderProgram(textureProgram);
             else

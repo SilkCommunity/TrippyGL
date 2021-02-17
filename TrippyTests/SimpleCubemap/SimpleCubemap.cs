@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -57,7 +56,7 @@ namespace SimpleCubemap
                 new Vector3(0.5f, -0.5f, 0.5f),//1
             };
 
-            vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
+            vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsage.StaticDraw);
 
             graphicsDevice.DepthTestingEnabled = false;
             graphicsDevice.BlendingEnabled = false;

@@ -18,14 +18,14 @@ namespace TrippyGL
         public uint Depth { get; private set; }
 
         public Texture2DArray(GraphicsDevice graphicsDevice, uint width, uint height, uint depth, uint samples = 0, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
-            : base(graphicsDevice, samples == 0 ? TextureTarget.Texture2DArray : TextureTarget.Texture2DMultisampleArray, samples, imageFormat)
+            : base(graphicsDevice, samples == 0 ? TextureType.Texture2DArray : TextureType.Texture2DMultisampleArray, samples, imageFormat)
         {
             RecreateImage(width, height, depth); //this also binds the texture
 
             if (samples == 0)
             {
-                GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
-                GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+                GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMinFilter, (int)DefaultMinFilter);
+                GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
             }
         }
 
@@ -46,7 +46,7 @@ namespace TrippyGL
             ValidateRectOperation(rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+            GL.TexSubImage3D((TextureTarget)TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             fixed (void* ptr = data)
-                GL.TexSubImage3D(TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+                GL.TexSubImage3D((TextureTarget)TextureType, 0, rectX, rectY, rectZ, rectWidth, rectHeight, rectDepth, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace TrippyGL
         {
             ValidateNotMultisampledPixelAccess();
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+            GL.GetTexImage((TextureTarget)TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             fixed (void* ptr = data)
-                GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+                GL.GetTexImage((TextureTarget)TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -122,8 +122,8 @@ namespace TrippyGL
         {
             ValidateNotMultisampledWrapStates();
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapT, (int)tWrapMode);
         }
 
         /// <summary>
@@ -143,9 +143,9 @@ namespace TrippyGL
 
             GraphicsDevice.BindTextureSetActive(this);
             if (Samples == 0)
-                GL.TexImage3D(TextureType, 0, (int)PixelInternalFormat, width, height, depth, 0, PixelFormat, PixelType, (void*)0);
+                GL.TexImage3D((TextureTarget)TextureType, 0, (int)PixelInternalFormat, width, height, depth, 0, PixelFormat, PixelType, (void*)0);
             else
-                GL.TexImage3DMultisample(TextureType, Samples, PixelInternalFormat, width, height, depth, true);
+                GL.TexImage3DMultisample((TextureTarget)TextureType, Samples, PixelInternalFormat, width, height, depth, true);
         }
 
         private void ValidateTextureSize(uint width, uint height, uint depth)

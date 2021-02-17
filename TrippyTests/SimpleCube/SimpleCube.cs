@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -37,7 +36,7 @@ namespace SimpleCube
                 new VertexColor(new Vector3(0.5f, -0.5f, 0.5f), Color4b.Red),//1
             };
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubeBufferData, BufferUsageARB.StaticCopy);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, cubeBufferData, BufferUsage.StaticCopy);
 
             shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
@@ -53,7 +52,7 @@ namespace SimpleCube
         {
             graphicsDevice.ClearDepth = 1f;
             graphicsDevice.ClearColor = Vector4.Zero;
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color | ClearBuffer.Depth);
 
             shaderProgram.World = Matrix4x4.CreateRotationY(2 * (float)stopwatch.Elapsed.TotalSeconds);
             graphicsDevice.ShaderProgram = shaderProgram;

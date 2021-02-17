@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace IndexedRendering

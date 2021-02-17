@@ -9,11 +9,11 @@ namespace TrippyGL.Utils
     public static class TrippyUtils
     {
         /// <summary>
-        /// Returns whether the given <see cref="VertexAttribPointerType"/> is of integer format (such as byte, ushort, int, uint).
+        /// Returns whether the given <see cref="AttributeBaseType"/> is of integer format (such as byte, ushort, int, uint).
         /// </summary>
-        public static bool IsVertexAttribIntegerType(VertexAttribPointerType dataBaseType)
+        public static bool IsVertexAttribIntegerType(AttributeBaseType dataBaseType)
         {
-            return dataBaseType >= VertexAttribPointerType.Byte && dataBaseType <= VertexAttribPointerType.UnsignedInt;
+            return dataBaseType >= AttributeBaseType.Byte && dataBaseType <= AttributeBaseType.UnsignedInt;
             // accepted: Byte, UnsignedByte, Short, UnsignedShort, Int, UnsignedInt
         }
 
@@ -54,7 +54,7 @@ namespace TrippyGL.Utils
         /// <param name="indexUseCount">The amount of attribute indices it will need.</param>
         /// <param name="size">The amount of components each index will have.</param>
         /// <param name="type">The base type of each component.</param>
-        public static void GetVertexAttribTypeData(AttributeType attribType, out uint indexUseCount, out int size, out VertexAttribPointerType type)
+        public static void GetVertexAttribTypeData(AttributeType attribType, out uint indexUseCount, out int size, out AttributeBaseType type)
         {
             indexUseCount = GetVertexAttribTypeIndexCount(attribType);
             size = GetVertexAttribTypeSize(attribType);
@@ -62,28 +62,28 @@ namespace TrippyGL.Utils
         }
 
         /// <summary>
-        /// Gets the corresponding <see cref="VertexAttribPointerType"/> for the given <see cref="AttributeType"/>
+        /// Gets the corresponding <see cref="AttributeBaseType"/> for the given <see cref="AttributeType"/>
         /// (for example, vec4 would return float. dmat2 would return double, ivec2 returns int).
         /// </summary>
-        public static VertexAttribPointerType GetVertexAttribBaseType(AttributeType attribType)
+        public static AttributeBaseType GetVertexAttribBaseType(AttributeType attribType)
         {
             if (attribType == AttributeType.Float // is it a float?
                 || (attribType >= AttributeType.FloatVec2 && attribType <= AttributeType.FloatVec4) // or is it a float vector?
                 || (attribType >= AttributeType.FloatMat2 && attribType <= AttributeType.FloatMat4x3)) // or is it a float matrix?
-                return VertexAttribPointerType.Float;
+                return AttributeBaseType.Float;
 
             if (attribType == AttributeType.Int
                 || (attribType >= AttributeType.IntVec2 && attribType <= AttributeType.IntVec4))
-                return VertexAttribPointerType.Int;
+                return AttributeBaseType.Int;
 
             if (attribType == AttributeType.Double
                 || (attribType >= AttributeType.DoubleVec2 && attribType <= AttributeType.DoubleVec4)
                 || (attribType >= AttributeType.DoubleMat2 && attribType <= AttributeType.DoubleMat4x3))
-                return VertexAttribPointerType.Double;
+                return AttributeBaseType.Double;
 
             if (attribType == AttributeType.UnsignedInt
                 || attribType >= AttributeType.UnsignedIntVec2 || attribType <= AttributeType.UnsignedIntVec4)
-                return VertexAttribPointerType.UnsignedInt;
+                return AttributeBaseType.UnsignedInt;
 
             throw new ArgumentException("The provided value is not a valid enum value", nameof(attribType));
         }
@@ -181,32 +181,32 @@ namespace TrippyGL.Utils
         }
 
         /// <summary>
-        /// Gets the size in bytes of the given <see cref="VertexAttribPointerType"/>.
+        /// Gets the size in bytes of the given <see cref="AttributeBaseType"/>.
         /// </summary>
-        public static uint GetVertexAttribSizeInBytes(VertexAttribPointerType type)
+        public static uint GetVertexAttribSizeInBytes(AttributeBaseType type)
         {
             switch (type)
             {
-                case VertexAttribPointerType.Byte:
-                case VertexAttribPointerType.UnsignedByte:
+                case AttributeBaseType.Byte:
+                case AttributeBaseType.UnsignedByte:
                     return 1;
 
-                case VertexAttribPointerType.Short:
-                case VertexAttribPointerType.UnsignedShort:
-                case VertexAttribPointerType.HalfFloat:
+                case AttributeBaseType.Short:
+                case AttributeBaseType.UnsignedShort:
+                case AttributeBaseType.HalfFloat:
                     return 2;
 
-                case VertexAttribPointerType.Float:
-                case VertexAttribPointerType.Int:
-                case VertexAttribPointerType.UnsignedInt:
-                case VertexAttribPointerType.Fixed:
+                case AttributeBaseType.Float:
+                case AttributeBaseType.Int:
+                case AttributeBaseType.UnsignedInt:
+                case AttributeBaseType.Fixed:
                     return 4;
 
-                case VertexAttribPointerType.Double:
+                case AttributeBaseType.Double:
                     return 8;
 
                 default:
-                    throw new NotSupportedException(string.Concat("Cannot get size for " + nameof(VertexAttribPointerType) + ":", type.ToString()));
+                    throw new NotSupportedException(string.Concat("Cannot get size for " + nameof(AttributeBaseType) + ":", type.ToString()));
 
             }
         }
@@ -407,13 +407,13 @@ namespace TrippyGL.Utils
         }
 
         /// <summary>
-        /// Gets whether the specified <see cref="TextureTarget"/> type is mipmappable.
+        /// Gets whether the specified <see cref="TextureType"/> type is mipmappable.
         /// </summary>
-        public static bool IsTextureTypeMipmappable(TextureTarget textureType)
+        public static bool IsTextureTypeMipmappable(TextureType textureType)
         {
-            return textureType == TextureTarget.Texture1D || textureType == TextureTarget.Texture2D || textureType == TextureTarget.Texture3D
-                || textureType == TextureTarget.Texture1DArray || textureType == TextureTarget.Texture2DArray
-                || textureType == TextureTarget.TextureCubeMap || textureType == TextureTarget.TextureCubeMapArray;
+            return textureType == TextureType.Texture1D || textureType == TextureType.Texture2D || textureType == TextureType.Texture3D
+                || textureType == TextureType.Texture1DArray || textureType == TextureType.Texture2DArray
+                || textureType == TextureType.TextureCubeMap || textureType == TextureType.TextureCubeMapArray;
         }
 
         /// <summary>

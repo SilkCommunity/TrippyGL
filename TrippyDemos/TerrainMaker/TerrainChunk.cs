@@ -1,5 +1,4 @@
 ﻿using System;
-using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace TerrainMaker
@@ -17,10 +16,10 @@ namespace TerrainMaker
             GridX = chunkData.GridX;
             GridY = chunkData.GridY;
             if (chunkData.TerrainVertexCount > 0)
-                TerrainBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.TerrainMesh, BufferUsageARB.StaticDraw);
+                TerrainBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.TerrainMesh, BufferUsage.StaticDraw);
 
             if (chunkData.UnderwaterVertexCount > 0)
-                UnderwaterBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.UnderwaterMesh, BufferUsageARB.StaticDraw);
+                UnderwaterBuffer = new VertexBuffer<TerrainVertex>(graphicsDevice, chunkData.UnderwaterMesh, BufferUsage.StaticDraw);
         }
 
         public void Dispose()

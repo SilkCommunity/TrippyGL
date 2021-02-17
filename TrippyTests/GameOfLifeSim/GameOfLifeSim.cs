@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -44,7 +43,7 @@ namespace GameOfLifeSim
                 new VertexTexture(new Vector3(1, 1, 0), new Vector2(1, 0))
             };
 
-            vertexBuffer = new VertexBuffer<VertexTexture>(graphicsDevice, vertices, BufferUsageARB.StaticDraw);
+            vertexBuffer = new VertexBuffer<VertexTexture>(graphicsDevice, vertices, BufferUsage.StaticDraw);
 
             fbo1 = new Framebuffer2D(graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);//FramebufferObject.Create2D(ref tex1, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
             fbo2 = new Framebuffer2D(graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);//FramebufferObject.Create2D(ref tex2, graphicsDevice, SimulationWidth, SimulationHeight, DepthStencilFormat.None);
@@ -81,7 +80,7 @@ namespace GameOfLifeSim
 
             graphicsDevice.Framebuffer = null;
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
             graphicsDevice.SetViewport(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height);
             graphicsDevice.ShaderProgram = drawProgram;
             drawProgram.Texture = fbo2;

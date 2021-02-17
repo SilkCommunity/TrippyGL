@@ -165,7 +165,7 @@ namespace TrippyGL
 
                     if (blendState.EquationModeRGB != value.EquationModeRGB || blendState.EquationModeAlpha != value.EquationModeAlpha)
                     {
-                        GL.BlendEquationSeparate(value.EquationModeRGB, value.EquationModeAlpha);
+                        GL.BlendEquationSeparate((GLEnum)value.EquationModeRGB, (GLEnum)value.EquationModeAlpha);
                         blendState.EquationModeRGB = value.EquationModeRGB;
                         blendState.EquationModeAlpha = value.EquationModeAlpha;
                     }
@@ -173,7 +173,7 @@ namespace TrippyGL
                     if (blendState.SourceFactorRGB != value.SourceFactorRGB || blendState.SourceFactorAlpha != value.SourceFactorAlpha
                         || blendState.DestFactorRGB != value.DestFactorRGB || blendState.DestFactorAlpha != value.DestFactorAlpha)
                     {
-                        GL.BlendFuncSeparate(value.SourceFactorRGB, value.DestFactorRGB, value.SourceFactorAlpha, value.DestFactorAlpha);
+                        GL.BlendFuncSeparate((GLEnum)value.SourceFactorRGB, (GLEnum)value.DestFactorRGB, (GLEnum)value.SourceFactorAlpha, (GLEnum)value.DestFactorAlpha);
                         blendState.SourceFactorRGB = value.SourceFactorRGB;
                         blendState.SourceFactorAlpha = value.SourceFactorAlpha;
                         blendState.DestFactorRGB = value.DestFactorRGB;
@@ -213,8 +213,8 @@ namespace TrippyGL
             else
                 GL.Enable(EnableCap.Blend);
 
-            GL.BlendFuncSeparate(blendState.SourceFactorRGB, blendState.DestFactorRGB, blendState.SourceFactorAlpha, blendState.DestFactorAlpha);
-            GL.BlendEquationSeparate(blendState.EquationModeRGB, blendState.EquationModeAlpha);
+            GL.BlendFuncSeparate((GLEnum)blendState.SourceFactorRGB, (GLEnum)blendState.DestFactorRGB, (GLEnum)blendState.SourceFactorAlpha, (GLEnum)blendState.DestFactorAlpha);
+            GL.BlendEquationSeparate((GLEnum)blendState.EquationModeRGB, (GLEnum)blendState.EquationModeAlpha);
             GL.BlendColor(blendState.BlendColor.X, blendState.BlendColor.Y, blendState.BlendColor.Z, blendState.BlendColor.W);
         }
 
@@ -245,7 +245,7 @@ namespace TrippyGL
 
                     if (depthState.DepthComparison != value.DepthComparison)
                     {
-                        GL.DepthFunc(value.DepthComparison);
+                        GL.DepthFunc((GLEnum)value.DepthComparison);
                         depthState.DepthComparison = value.DepthComparison;
                     }
 
@@ -317,7 +317,7 @@ namespace TrippyGL
             else
                 GL.Disable(EnableCap.DepthTest);
 
-            GL.DepthFunc(depthState.DepthComparison);
+            GL.DepthFunc((GLEnum)depthState.DepthComparison);
             GL.ClearDepth(depthState.ClearDepth);
             GL.DepthRange(depthState.DepthRangeNear, depthState.DepthRangeFar);
             GL.DepthMask(depthState.DepthBufferWrittingEnabled);
@@ -368,7 +368,7 @@ namespace TrippyGL
 
                     if (stencilState.FrontFunction != value.FrontFunction || stencilState.FrontRefValue != value.FrontRefValue || stencilState.FrontTestMask != value.FrontTestMask)
                     {
-                        GL.StencilFuncSeparate(StencilFaceDirection.Front, value.FrontFunction, value.FrontRefValue, value.FrontTestMask);
+                        GL.StencilFuncSeparate(GLEnum.Front, (GLEnum)value.FrontFunction, value.FrontRefValue, value.FrontTestMask);
                         stencilState.FrontFunction = value.FrontFunction;
                         stencilState.FrontRefValue = value.FrontRefValue;
                         stencilState.FrontTestMask = value.FrontTestMask;
@@ -376,7 +376,7 @@ namespace TrippyGL
 
                     if (stencilState.BackFunction != value.BackFunction || stencilState.BackRefValue != value.BackRefValue || stencilState.BackTestMask != value.BackTestMask)
                     {
-                        GL.StencilFuncSeparate(StencilFaceDirection.Back, value.BackFunction, value.BackRefValue, value.BackTestMask);
+                        GL.StencilFuncSeparate(GLEnum.Back, (GLEnum)value.BackFunction, value.BackRefValue, value.BackTestMask);
                         stencilState.BackFunction = value.BackFunction;
                         stencilState.BackRefValue = value.BackRefValue;
                         stencilState.BackTestMask = value.BackTestMask;
@@ -384,7 +384,7 @@ namespace TrippyGL
 
                     if (stencilState.FrontStencilFailOperation != value.FrontStencilFailOperation || stencilState.FrontDepthFailOperation != value.FrontDepthFailOperation || stencilState.FrontPassOperation != value.FrontPassOperation)
                     {
-                        GL.StencilOpSeparate(StencilFaceDirection.Front, value.FrontStencilFailOperation, value.FrontDepthFailOperation, value.FrontPassOperation);
+                        GL.StencilOpSeparate(GLEnum.Front, (GLEnum)value.FrontStencilFailOperation, (GLEnum)value.FrontDepthFailOperation, (GLEnum)value.FrontPassOperation);
                         stencilState.FrontStencilFailOperation = value.FrontStencilFailOperation;
                         stencilState.FrontDepthFailOperation = value.FrontDepthFailOperation;
                         stencilState.FrontPassOperation = value.FrontPassOperation;
@@ -392,7 +392,7 @@ namespace TrippyGL
 
                     if (stencilState.BackStencilFailOperation != value.BackStencilFailOperation || stencilState.BackDepthFailOperation != value.BackDepthFailOperation || stencilState.BackPassOperation != value.BackPassOperation)
                     {
-                        GL.StencilOpSeparate(StencilFaceDirection.Back, value.BackStencilFailOperation, value.BackDepthFailOperation, value.BackPassOperation);
+                        GL.StencilOpSeparate(GLEnum.Back, (GLEnum)value.BackStencilFailOperation, (GLEnum)value.BackDepthFailOperation, (GLEnum)value.BackPassOperation);
                         stencilState.BackStencilFailOperation = value.BackStencilFailOperation;
                         stencilState.BackDepthFailOperation = value.BackDepthFailOperation;
                         stencilState.BackPassOperation = value.BackPassOperation;
@@ -448,12 +448,12 @@ namespace TrippyGL
                 GL.Disable(EnableCap.StencilTest);
 
             GL.ClearStencil(stencilState.ClearStencil);
-            GL.StencilMaskSeparate(StencilFaceDirection.Front, stencilState.FrontWriteMask);
-            GL.StencilMaskSeparate(StencilFaceDirection.Back, stencilState.BackWriteMask);
-            GL.StencilFuncSeparate(StencilFaceDirection.Front, stencilState.FrontFunction, stencilState.FrontRefValue, stencilState.FrontTestMask);
-            GL.StencilFuncSeparate(StencilFaceDirection.Back, stencilState.BackFunction, stencilState.BackRefValue, stencilState.BackTestMask);
-            GL.StencilOpSeparate(StencilFaceDirection.Front, stencilState.FrontStencilFailOperation, stencilState.FrontDepthFailOperation, stencilState.FrontPassOperation);
-            GL.StencilOpSeparate(StencilFaceDirection.Back, stencilState.BackStencilFailOperation, stencilState.BackDepthFailOperation, stencilState.BackPassOperation);
+            GL.StencilMaskSeparate(GLEnum.Front, stencilState.FrontWriteMask);
+            GL.StencilMaskSeparate(GLEnum.Back, stencilState.BackWriteMask);
+            GL.StencilFuncSeparate(GLEnum.Front, (GLEnum)stencilState.FrontFunction, stencilState.FrontRefValue, stencilState.FrontTestMask);
+            GL.StencilFuncSeparate(GLEnum.Back, (GLEnum)stencilState.BackFunction, stencilState.BackRefValue, stencilState.BackTestMask);
+            GL.StencilOpSeparate(GLEnum.Front, (GLEnum)stencilState.FrontStencilFailOperation, (GLEnum)stencilState.FrontDepthFailOperation, (GLEnum)stencilState.FrontPassOperation);
+            GL.StencilOpSeparate(GLEnum.Back, (GLEnum)stencilState.BackStencilFailOperation, (GLEnum)stencilState.BackDepthFailOperation, (GLEnum)stencilState.BackPassOperation);
         }
 
         #endregion
@@ -461,8 +461,8 @@ namespace TrippyGL
         #region FaceCulling
 
         private bool faceCullingEnabled;
-        private CullFaceMode cullFaceMode = CullFaceMode.Back;
-        private FrontFaceDirection polygonFrontFace = FrontFaceDirection.Ccw;
+        private CullingMode cullFaceMode = CullingMode.CullBack;
+        private PolygonFace polygonFrontFace = PolygonFace.CounterClockwise;
 
         /// <summary>Enables or disables culling polygon faces.</summary>
         public bool FaceCullingEnabled
@@ -479,28 +479,31 @@ namespace TrippyGL
         }
 
         /// <summary>Sets which polygon face to cull when face culling is enabled.</summary>
-        public CullFaceMode CullFaceMode
+        public CullingMode CullFaceMode
         {
             get => cullFaceMode;
             set
             {
                 if (cullFaceMode != value)
                 {
-                    GL.CullFace(cullFaceMode);
+                    GL.CullFace((GLEnum)cullFaceMode);
                     cullFaceMode = value;
                 }
             }
         }
 
-        /// <summary>Sets which face of a polygon is the front one (Whether front is when vertices are aligned clockwise or counter clockwise).</summary>
-        public FrontFaceDirection PolygonFrontFace
+        /// <summary>
+        /// Sets which face of a polygon is the front one (Whether front is when vertices
+        /// are aligned clockwise or counter clockwise).
+        /// </summary>
+        public PolygonFace PolygonFrontFace
         {
             get => polygonFrontFace;
             set
             {
                 if (polygonFrontFace != value)
                 {
-                    GL.FrontFace(value);
+                    GL.FrontFace((GLEnum)value);
                     polygonFrontFace = value;
                 }
             }
@@ -516,8 +519,8 @@ namespace TrippyGL
             else
                 GL.Disable(EnableCap.CullFace);
 
-            GL.CullFace(cullFaceMode);
-            GL.FrontFace(polygonFrontFace);
+            GL.CullFace((GLEnum)cullFaceMode);
+            GL.FrontFace((GLEnum)polygonFrontFace);
         }
 
         #endregion FaceCulling

@@ -1,5 +1,4 @@
 ﻿using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -45,18 +44,18 @@ namespace TrippyGL
         public uint BackTestMask;
 
         /// <summary>The operation to do when a stencil test fails from the front of a polygon.</summary>
-        public StencilOp FrontStencilFailOperation;
+        public StencilOperation FrontStencilFailOperation;
         /// <summary>The operation to do when a depth test fails from the front of a polygon.</summary>
-        public StencilOp FrontDepthFailOperation;
+        public StencilOperation FrontDepthFailOperation;
         /// <summary>The operation to do when both the depth and stencil tests pass from the front of a polygon.</summary>
-        public StencilOp FrontPassOperation;
+        public StencilOperation FrontPassOperation;
 
         /// <summary>The operation to do when a stencil test fails from the back of a polygon.</summary>
-        public StencilOp BackStencilFailOperation;
+        public StencilOperation BackStencilFailOperation;
         /// <summary>The operation to do when a depth test fails from the back of a polygon.</summary>
-        public StencilOp BackDepthFailOperation;
+        public StencilOperation BackDepthFailOperation;
         /// <summary>The operation to do when both the depth and stencil tests pass from the back of a polygon.</summary>
-        public StencilOp BackPassOperation;
+        public StencilOperation BackPassOperation;
 
         /// <summary>Sets the write mask for both front and back.</summary>
         public uint WriteMask
@@ -99,7 +98,7 @@ namespace TrippyGL
         }
 
         /// <summary>Sets the stencil fail operation for both front and back.</summary>
-        public StencilOp StencilFailOperation
+        public StencilOperation StencilFailOperation
         {
             set
             {
@@ -109,7 +108,7 @@ namespace TrippyGL
         }
 
         /// <summary>Sets the depth fail operation for both front and back.</summary>
-        public StencilOp DepthFailOperation
+        public StencilOperation DepthFailOperation
         {
             set
             {
@@ -119,7 +118,7 @@ namespace TrippyGL
         }
 
         /// <summary>Sets the depth and stencil pass operation for both front and back.</summary>
-        public StencilOp PassOperation
+        public StencilOperation PassOperation
         {
             set
             {
@@ -150,7 +149,7 @@ namespace TrippyGL
         /// <param name="dppass">The operation to do when both the depth and stencil tests pass.</param>
         public StencilState(bool testingEnabled, int clearStencil = 0, uint writeMask = FullMask,
             StencilFunction function = StencilFunction.Greater, int refValue = 0, uint testMask = FullMask,
-            StencilOp sfail = StencilOp.Keep, StencilOp dpfail = StencilOp.Keep, StencilOp dppass = StencilOp.Keep)
+            StencilOperation sfail = StencilOperation.Keep, StencilOperation dpfail = StencilOperation.Keep, StencilOperation dppass = StencilOperation.Keep)
         {
             StencilTestingEnabled = testingEnabled;
             ClearStencil = clearStencil;

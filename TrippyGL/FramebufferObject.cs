@@ -74,11 +74,11 @@ namespace TrippyGL
             GraphicsDevice.Framebuffer = this;
             if (texture is Texture1D)
             {
-                GL.FramebufferTexture1D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, texture.TextureType, texture.Handle, 0);
+                GL.FramebufferTexture1D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, (TextureTarget)texture.TextureType, texture.Handle, 0);
             }
             else if (texture is Texture2D)
             {
-                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, texture.TextureType, texture.Handle, 0);
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, (FramebufferAttachment)attachmentPoint, (TextureTarget)texture.TextureType, texture.Handle, 0);
             }
             else
                 throw new InvalidFramebufferAttachmentException("This texture type cannot be attached to a framebuffer");

@@ -2,7 +2,6 @@
 using System.Drawing;
 using Silk.NET.Input;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Common;
 using TrippyGL;
@@ -161,8 +160,8 @@ namespace TrippyTestBase
                 OnInputContextConnectionChanged(mouse, mouse.IsConnected);
             foreach (IGamepad gamepad in InputContext.Gamepads)
                 OnInputContextConnectionChanged(gamepad, gamepad.IsConnected);
-
-            graphicsDevice = new GraphicsDevice(GL.GetApi(Window))
+            
+            graphicsDevice = new GraphicsDevice(Silk.NET.OpenGL.GL.GetApi(Window))
             {
                 DebugMessagingEnabled = true
             };
@@ -265,8 +264,8 @@ namespace TrippyTestBase
 
         protected virtual void OnUpdate(double dt)
         {
-            GLEnum c;
-            while ((c = graphicsDevice.GL.GetError()) != GLEnum.NoError)
+            Silk.NET.OpenGL.GLEnum c;
+            while ((c = graphicsDevice.GL.GetError()) != Silk.NET.OpenGL.GLEnum.NoError)
             {
                 Console.WriteLine("GL Error found: " + c);
             }

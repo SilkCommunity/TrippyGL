@@ -21,7 +21,7 @@ namespace TrippyGL
         public uint StorageLength { get; private set; }
 
         internal UniformBufferSubset(uint elementSize, BufferObject bufferObject, uint storageOffsetBytes, uint storageLength)
-            : base(bufferObject, BufferTargetARB.UniformBuffer)
+            : base(bufferObject, BufferTarget.UniformBuffer)
         {
             ElementSize = elementSize;
             uint uniformOffsetAlignment = (uint)bufferObject.GraphicsDevice.UniformBufferOffsetAlignment;
@@ -30,7 +30,7 @@ namespace TrippyGL
         }
 
         internal UniformBufferSubset(uint elementSize, BufferObject bufferObject)
-            : base(bufferObject, BufferTargetARB.UniformBuffer)
+            : base(bufferObject, BufferTarget.UniformBuffer)
         {
             ElementSize = elementSize;
             uint uniformOffsetAlignment = (uint)bufferObject.GraphicsDevice.UniformBufferOffsetAlignment;
@@ -145,7 +145,7 @@ namespace TrippyGL
 
             Buffer.GraphicsDevice.BindBuffer(this);
             fixed (void* ptr = &value)
-                Buffer.GL.BufferSubData(BufferTarget, (int)(index * ElementStride + StorageOffsetInBytes), ElementSize, ptr);
+                Buffer.GL.BufferSubData((GLEnum)BufferTarget, (int)(index * ElementStride + StorageOffsetInBytes), ElementSize, ptr);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace TrippyGL
             Buffer.GraphicsDevice.BindBuffer(this);
             value = default;
             fixed (void* ptr = &value)
-                Buffer.GL.GetBufferSubData(BufferTarget, (int)(index * ElementStride + StorageOffsetInBytes), ElementSize, ptr);
+                Buffer.GL.GetBufferSubData((GLEnum)BufferTarget, (int)(index * ElementStride + StorageOffsetInBytes), ElementSize, ptr);
         }
 
         /// <summary>

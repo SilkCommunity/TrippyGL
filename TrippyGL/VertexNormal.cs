@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {

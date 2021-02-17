@@ -75,8 +75,8 @@ namespace TrippyGL
         public static bool operator ==(Viewport left, Viewport right) => left.Equals(right);
         public static bool operator !=(Viewport left, Viewport right) => !left.Equals(right);
 
-        public static explicit operator Rectangle(Viewport viewport) => new Rectangle(viewport.X, viewport.Y, (int)viewport.Width, (int)viewport.Height);
-        public static explicit operator Viewport(Rectangle rectangle) => new Viewport(rectangle);
+        public static implicit operator Rectangle(Viewport viewport) => new Rectangle(viewport.X, viewport.Y, (int)viewport.Width, (int)viewport.Height);
+        public static implicit operator Viewport(Rectangle rectangle) => new Viewport(rectangle);
 
         /// <summary>
         /// Returns whether another <see cref="Viewport"/> is enclosed fully inside this <see cref="Viewport"/>.

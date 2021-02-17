@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -64,7 +63,7 @@ namespace SimpleShader3D
                 new VertexColor(new Vector3(0, 0, 1), Color4b.Blue),
             };
 
-            crossBuffer = new VertexBuffer<VertexColor>(graphicsDevice, crossLines, BufferUsageARB.StaticDraw);
+            crossBuffer = new VertexBuffer<VertexColor>(graphicsDevice, crossLines, BufferUsage.StaticDraw);
 
             Span<VertexPosition> cube = stackalloc VertexPosition[]
             {
@@ -84,30 +83,30 @@ namespace SimpleShader3D
                 new Vector3(0.5f, -0.5f, 0.5f),
             };
 
-            cubeBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cube, BufferUsageARB.StaticDraw);
+            cubeBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, cube, BufferUsage.StaticDraw);
 
             skyProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "skyVs.glsl", "skyFs.glsl", "vPosition");
 
             VertexColor[] linesArray = CreateLines();
-            linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, linesArray, BufferUsageARB.StaticDraw);
+            linesBuffer = new VertexBuffer<VertexColor>(graphicsDevice, linesArray, BufferUsage.StaticDraw);
 
             linesProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
             VertexNormal[] dragonModel = OBJLoader.FromFile<VertexNormal>("dragon.obj");
-            dragonBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, dragonModel, BufferUsageARB.StaticDraw);
+            dragonBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, dragonModel, BufferUsage.StaticDraw);
 
             VertexNormal[] donutModel = OBJLoader.FromFile<VertexNormal>("donut.obj");
-            donutBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, donutModel, BufferUsageARB.StaticDraw);
+            donutBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, donutModel, BufferUsage.StaticDraw);
 
             VertexNormal[] sphereModel = OBJLoader.FromFile<VertexNormal>("sphere.obj");
-            sphereBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, sphereModel, BufferUsageARB.StaticDraw);
+            sphereBuffer = new VertexBuffer<VertexNormal>(graphicsDevice, sphereModel, BufferUsage.StaticDraw);
 
             modelsProgram = SimpleShaderProgram.Create<VertexNormal>(graphicsDevice, 1, 1);
 
             lampTexture = Texture2DExtensions.FromFile(graphicsDevice, "lamp_texture.png");
 
             VertexNormalTexture[] lampModel = OBJLoader.FromFile<VertexNormalTexture>("lamp.obj");
-            lampBuffer = new VertexBuffer<VertexNormalTexture>(graphicsDevice, lampModel, BufferUsageARB.StaticDraw);
+            lampBuffer = new VertexBuffer<VertexNormalTexture>(graphicsDevice, lampModel, BufferUsage.StaticDraw);
 
             lampProgram = SimpleShaderProgram.Create<VertexNormalTexture>(graphicsDevice);
 
@@ -159,7 +158,7 @@ namespace SimpleShader3D
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, cubeBuffer.StorageLength);
 
             graphicsDevice.DepthTestingEnabled = true;
-            graphicsDevice.Clear(ClearBufferMask.DepthBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Depth);
 
             Matrix4x4 view = inputManager.CalculateViewMatrix();
             linesProgram.View = view;

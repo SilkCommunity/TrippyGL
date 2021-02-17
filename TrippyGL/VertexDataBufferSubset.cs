@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -19,7 +18,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public VertexDataBufferSubset(BufferObject bufferObject, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
-            : base(bufferObject, BufferTargetARB.ArrayBuffer, storageOffsetBytes, storageLength, data, dataWriteOffset)
+            : base(bufferObject, BufferTarget.ArrayBuffer, storageOffsetBytes, storageLength, data, dataWriteOffset)
         {
 
         }
@@ -32,7 +31,7 @@ namespace TrippyGL
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
         public VertexDataBufferSubset(BufferObject bufferObject, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
-            : base(bufferObject, BufferTargetARB.ArrayBuffer, data, dataWriteOffset)
+            : base(bufferObject, BufferTarget.ArrayBuffer, data, dataWriteOffset)
         {
 
         }

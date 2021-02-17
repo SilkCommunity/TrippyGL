@@ -160,6 +160,29 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// </summary>
+        public void SetValue(Texture2D texture, RectangleF destination, Rectangle source, Color4b color, float depth)
+        {
+            Texture = texture;
+
+            VertexTL.Position = new Vector3(destination.X, destination.Y, depth);
+            VertexTR.Position = new Vector3(destination.Right, destination.Y, depth);
+            VertexBL.Position = new Vector3(destination.X, destination.Bottom, depth);
+            VertexBR.Position = new Vector3(destination.Right, destination.Bottom, depth);
+
+            VertexTL.TexCoords = new Vector2(source.X / (float)texture.Width, source.Y / (float)texture.Height);
+            VertexBR.TexCoords = new Vector2(source.Right / (float)texture.Width, source.Bottom / (float)texture.Height);
+            VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
+            VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
+
+            VertexTL.Color = color;
+            VertexTR.Color = color;
+            VertexBL.Color = color;
+            VertexBR.Color = color;
+        }
+
+        /// <summary>
         /// Compares this item's <see cref="SortValue"/> with another item's.
         /// </summary>
         public int CompareTo(TextureBatchItem other)

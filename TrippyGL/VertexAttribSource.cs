@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -29,7 +28,7 @@ namespace TrippyGL
             if (bufferSubset == null)
                 throw new ArgumentNullException(nameof(bufferSubset));
 
-            if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
+            if (bufferSubset.BufferTarget != BufferTarget.ArrayBuffer)
                 throw new ArgumentException("The specified " + nameof(BufferObjectSubset) + " must be usable as vertex attrib data. Try using a VertexDataBufferSubset", nameof(bufferSubset));
 
             BufferSubset = bufferSubset;
@@ -58,7 +57,7 @@ namespace TrippyGL
         /// <param name="normalized">Whether the data needs to be normalized (uint/ushort/byte -> float between 0 and 1, or int/short/sbyte -> float between -1 and 1).</param>
         /// <param name="dataBaseType">The base type of the data found on the buffer. If normalized is true, this must be an integer type.</param>
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
-        public VertexAttribSource(DataBufferSubset bufferSubset, AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
+        public VertexAttribSource(DataBufferSubset bufferSubset, AttributeType attribType, bool normalized, AttributeBaseType dataBaseType, uint attribDivisor = 0)
             : this(bufferSubset, new VertexAttribDescription(attribType, normalized, dataBaseType, attribDivisor))
         {
 
@@ -76,7 +75,7 @@ namespace TrippyGL
             if (bufferSubset == null)
                 throw new ArgumentNullException(nameof(bufferSubset));
 
-            if (bufferSubset.BufferTarget != BufferTargetARB.ArrayBuffer)
+            if (bufferSubset.BufferTarget != BufferTarget.ArrayBuffer)
                 throw new ArgumentException("The specified BufferObjectSubset must be usable as vertex attrib data. Try using a VertexDataBufferSubset", nameof(bufferSubset));
 
             BufferSubset = bufferSubset;
@@ -98,7 +97,7 @@ namespace TrippyGL
         /// <param name="bufferSubset">The buffer subset in which the padding will be applied.</param>
         /// <param name="baseType">The base type of the attribute.</param>
         /// <param name="size">The size of the attribute.</param>
-        public static VertexAttribSource CreatePadding(DataBufferSubset bufferSubset, VertexAttribPointerType baseType, uint size)
+        public static VertexAttribSource CreatePadding(DataBufferSubset bufferSubset, AttributeBaseType baseType, uint size)
         {
             return new VertexAttribSource(bufferSubset, VertexAttribDescription.CreatePadding(baseType, size));
         }

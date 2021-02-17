@@ -19,15 +19,15 @@ namespace TrippyGL
         /// <param name="generateMipmaps">Whether to generate mipmaps for this <see cref="Texture1D"/>.</param>
         /// <param name="imageFormat">The image format for this <see cref="Texture1D"/>.</param>
         public Texture1D(GraphicsDevice graphicsDevice, uint width, bool generateMipmaps = false, TextureImageFormat imageFormat = TextureImageFormat.Color4b)
-            : base(graphicsDevice, TextureTarget.Texture1D, imageFormat)
+            : base(graphicsDevice, TextureType.Texture1D, imageFormat)
         {
             RecreateImage(width);
 
             if (generateMipmaps)
                 GenerateMipmaps();
 
-            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMinFilter, IsMipmapped ? (int)DefaultMipmapMinFilter : (int)DefaultMinFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMagFilter, (int)DefaultMagFilter);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace TrippyGL
             ValidateRectOperation(xOffset, width);
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexSubImage1D(TextureType, 0, xOffset, width, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+            GL.TexSubImage1D((TextureTarget)TextureType, 0, xOffset, width, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace TrippyGL
         public unsafe void GetDataPtr(void* ptr, PixelFormat pixelFormat = 0)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GetTexImage(TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
+            GL.GetTexImage((TextureTarget)TextureType, 0, pixelFormat == 0 ? PixelFormat : pixelFormat, PixelType, ptr);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace TrippyGL
         public void SetWrapMode(TextureWrapMode sWrapMode)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureWrapS, (int)sWrapMode);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace TrippyGL
 
             Width = width;
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexImage1D(TextureType, 0, (int)PixelInternalFormat, width, 0, PixelFormat.Rgba, PixelType, (void*)0);
+            GL.TexImage1D((TextureTarget)TextureType, 0, (int)PixelInternalFormat, width, 0, PixelFormat.Rgba, PixelType, (void*)0);
         }
 
         private void ValidateTextureSize(uint width)

@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.OpenGL;
 using TrippyGL.Utils;
 
 namespace TrippyGL
@@ -13,7 +12,7 @@ namespace TrippyGL
         public readonly int Size;
 
         /// <summary>The base type of the attribute.</summary>
-        public readonly VertexAttribPointerType AttribBaseType;
+        public readonly AttributeBaseType AttribBaseType;
 
         /// <summary>The size in bytes of the attribute. A float is 4, a ivec2 is 8, a vec4 is 16, a double is 8, a mat3 is 36, etc.</summary>
         public readonly uint SizeInBytes;
@@ -58,7 +57,7 @@ namespace TrippyGL
         /// <param name="normalized">Whether the vertex data should be normalized before being loaded into the shader.</param>
         /// <param name="dataBaseType">The base type in which the data will be read from the buffer.</param>
         /// <param name="attribDivisor">The divisor that defines how reading this attribute advances on instanced rendering.</param>
-        public VertexAttribDescription(AttributeType attribType, bool normalized, VertexAttribPointerType dataBaseType, uint attribDivisor = 0)
+        public VertexAttribDescription(AttributeType attribType, bool normalized, AttributeBaseType dataBaseType, uint attribDivisor = 0)
         {
             ValidateAttribDivisor(attribDivisor);
 
@@ -123,7 +122,7 @@ namespace TrippyGL
         /// Padding indicators ignore padding based on type that occurs when using compensation
         /// for struct padding (which is the default behavior in <see cref="VertexArray"/>).
         /// </remarks>
-        public static VertexAttribDescription CreatePadding(VertexAttribPointerType baseType, uint size)
+        public static VertexAttribDescription CreatePadding(AttributeBaseType baseType, uint size)
         {
             return new VertexAttribDescription(TrippyUtils.GetVertexAttribSizeInBytes(baseType) * size);
         }
@@ -138,7 +137,7 @@ namespace TrippyGL
         /// </remarks>
         public static VertexAttribDescription CreatePadding(AttributeType attribType)
         {
-            TrippyUtils.GetVertexAttribTypeData(attribType, out uint indexUseCount, out int size, out VertexAttribPointerType baseType);
+            TrippyUtils.GetVertexAttribTypeData(attribType, out uint indexUseCount, out int size, out AttributeBaseType baseType);
             uint typeSize = TrippyUtils.GetVertexAttribSizeInBytes(baseType);
             return new VertexAttribDescription(typeSize * (uint)size * indexUseCount);
         }

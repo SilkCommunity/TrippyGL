@@ -806,7 +806,7 @@ namespace TrippyGL
                 hashCode = (hashCode * 397) ^ Size.GetHashCode();
                 hashCode = (hashCode * 397) ^ UniformType.GetHashCode();
                 hashCode = (hashCode * 397) ^ OwnerProgram.GetHashCode();
-                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.InvariantCulture);
+                hashCode = (hashCode * 397) ^ Name.GetHashCode(StringComparison.Ordinal);
                 return hashCode;
             }
         }

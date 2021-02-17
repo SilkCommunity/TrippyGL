@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -22,7 +21,7 @@ namespace SimpleTriangle
                 new VertexColor(new Vector3(0.5f, -0.5f, 0), new Color4b(0, 0, 255, 255)),
             };
 
-            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
+            vertexBuffer = new VertexBuffer<VertexColor>(graphicsDevice, vertexData, BufferUsage.StaticDraw);
             shaderProgram = SimpleShaderProgram.Create<VertexColor>(graphicsDevice);
 
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
@@ -32,7 +31,7 @@ namespace SimpleTriangle
 
         protected override void OnRender(double dt)
         {
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
 
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;

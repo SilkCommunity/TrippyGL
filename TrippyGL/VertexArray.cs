@@ -116,7 +116,7 @@ namespace TrippyGL
                 #region CalculateOffsetsWithPadding
                 uint offset = 0;
                 BufferObjectSubset prevSubset = null; // Setting this to null ensures the first for loop will enter the "different subset" if and initialize these variables
-                VertexAttribPointerType currentBaseType = 0;
+                AttributeBaseType currentBaseType = 0;
 
                 for (int i = 0; i < calls.Length; i++)
                 {
@@ -259,12 +259,12 @@ namespace TrippyGL
                 uint stride = source.BufferSubset.ElementSize;
                 for (uint i = 0; i < source.AttribDescription.AttribIndicesUseCount; i++)
                 {
-                    if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == VertexAttribPointerType.Double)
-                        gl.VertexAttribLPointer(index + i, source.AttribDescription.Size, VertexAttribPointerType.Double, stride, (void*)offs);
+                    if (!source.AttribDescription.Normalized && source.AttribDescription.AttribBaseType == AttributeBaseType.Double)
+                        gl.VertexAttribLPointer(index + i, source.AttribDescription.Size, GLEnum.Double, stride, (void*)offs);
                     else if (!source.AttribDescription.Normalized && TrippyUtils.IsVertexAttribIntegerType(source.AttribDescription.AttribType))
-                        gl.VertexAttribIPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, stride, (void*)offs);
+                        gl.VertexAttribIPointer(index + i, source.AttribDescription.Size, (GLEnum)source.AttribDescription.AttribBaseType, stride, (void*)offs);
                     else
-                        gl.VertexAttribPointer(index + i, source.AttribDescription.Size, source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, stride, (void*)offs);
+                        gl.VertexAttribPointer(index + i, source.AttribDescription.Size, (GLEnum)source.AttribDescription.AttribBaseType, source.AttribDescription.Normalized, stride, (void*)offs);
 
                     gl.EnableVertexAttribArray(index + i);
                     if (source.AttribDescription.AttribDivisor != 0)

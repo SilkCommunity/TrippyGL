@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace ComplexVertexFormats
@@ -72,24 +71,24 @@ namespace ComplexVertexFormats
         public void WriteAttribDescriptions(Span<VertexAttribDescription> descriptions)
         {
             descriptions[0] = new VertexAttribDescription(7); // padding0-2
-            descriptions[1] = new VertexAttribDescription(AttributeType.Float, false, VertexAttribPointerType.Byte); // sixtyThree
+            descriptions[1] = new VertexAttribDescription(AttributeType.Float, false, AttributeBaseType.Byte); // sixtyThree
             descriptions[2] = new VertexAttribDescription(AttributeType.Float); // X
-            descriptions[3] = VertexAttribDescription.CreatePadding(VertexAttribPointerType.Short, 1); // padding3
-            descriptions[4] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); // nothing0
-            descriptions[5] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); //colorR
+            descriptions[3] = VertexAttribDescription.CreatePadding(AttributeBaseType.Short, 1); // padding3
+            descriptions[4] = new VertexAttribDescription(AttributeType.Float, true, AttributeBaseType.UnsignedByte); // nothing0
+            descriptions[5] = new VertexAttribDescription(AttributeType.Float, true, AttributeBaseType.UnsignedByte); //colorR
             descriptions[6] = new VertexAttribDescription(AttributeType.FloatMat4); // mat1
-            descriptions[7] = new VertexAttribDescription(AttributeType.Float, false, VertexAttribPointerType.UnsignedShort); // colorG
-            descriptions[8] = new VertexAttribDescription(AttributeType.Float, false, VertexAttribPointerType.Short); // sixtyFour
+            descriptions[7] = new VertexAttribDescription(AttributeType.Float, false, AttributeBaseType.UnsignedShort); // colorG
+            descriptions[8] = new VertexAttribDescription(AttributeType.Float, false, AttributeBaseType.Short); // sixtyFour
             descriptions[9] = new VertexAttribDescription(AttributeType.Float); // Y
-            descriptions[10] = VertexAttribDescription.CreatePadding(VertexAttribPointerType.Short, 1); // padding4
-            descriptions[11] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); // colorB
+            descriptions[10] = VertexAttribDescription.CreatePadding(AttributeBaseType.Short, 1); // padding4
+            descriptions[11] = new VertexAttribDescription(AttributeType.Float, true, AttributeBaseType.UnsignedByte); // colorB
             descriptions[12] = new VertexAttribDescription(3 * 2 * 4 + 2); // padding 5-6
             descriptions[13] = new VertexAttribDescription(AttributeType.Float); // Z
             descriptions[14] = new VertexAttribDescription(AttributeType.FloatVec4); // oneTwoThreeFour
             descriptions[15] = new VertexAttribDescription(AttributeType.Int); // alwaysZero
-            descriptions[16] = VertexAttribDescription.CreatePadding(VertexAttribPointerType.UnsignedByte, 1); // padding7
-            descriptions[17] = VertexAttribDescription.CreatePadding(VertexAttribPointerType.Short, 1); // padding8
-            descriptions[18] = new VertexAttribDescription(AttributeType.Float, true, VertexAttribPointerType.UnsignedByte); // alsoZero
+            descriptions[16] = VertexAttribDescription.CreatePadding(AttributeBaseType.UnsignedByte, 1); // padding7
+            descriptions[17] = VertexAttribDescription.CreatePadding(AttributeBaseType.Short, 1); // padding8
+            descriptions[18] = new VertexAttribDescription(AttributeType.Float, true, AttributeBaseType.UnsignedByte); // alsoZero
             descriptions[19] = new VertexAttribDescription(65); // padding9-10
         }
     }

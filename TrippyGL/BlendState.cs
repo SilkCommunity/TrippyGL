@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -14,9 +13,9 @@ namespace TrippyGL
         public bool IsOpaque;
 
         /// <summary>The equation mode for the RGB color components.</summary>
-        public BlendEquationModeEXT EquationModeRGB;
+        public BlendingMode EquationModeRGB;
         /// <summary>The equation mode for the Alpha color component.</summary>
-        public BlendEquationModeEXT EquationModeAlpha;
+        public BlendingMode EquationModeAlpha;
 
         /// <summary>The source factor for the RGB color components.</summary>
         public BlendingFactor SourceFactorRGB;
@@ -32,7 +31,7 @@ namespace TrippyGL
         public Vector4 BlendColor;
 
         /// <summary>Sets the equation mode for RGB and Alpha.</summary>
-        public BlendEquationModeEXT EquationModeRGBA
+        public BlendingMode EquationModeRGBA
         {
             set
             {
@@ -76,8 +75,8 @@ namespace TrippyGL
         public BlendState(bool isOpaque)
         {
             IsOpaque = isOpaque;
-            EquationModeRGB = BlendEquationModeEXT.FuncAdd;
-            EquationModeAlpha = BlendEquationModeEXT.FuncAdd;
+            EquationModeRGB = BlendingMode.FuncAdd;
+            EquationModeAlpha = BlendingMode.FuncAdd;
             SourceFactorRGB = BlendingFactor.One;
             SourceFactorAlpha = BlendingFactor.One;
             DestFactorRGB = BlendingFactor.One;
@@ -92,7 +91,7 @@ namespace TrippyGL
         /// <param name="sourceFactorRgba">The source factor to use for the RGBA values.</param>
         /// <param name="destFactorRgba">The destination factor to use for the RGBA values.</param>
         /// <param name="blendColor">The equation-constant blending color.</param>
-        public BlendState(bool isOpaque, BlendEquationModeEXT equationModeRgba, BlendingFactor sourceFactorRgba,
+        public BlendState(bool isOpaque, BlendingMode equationModeRgba, BlendingFactor sourceFactorRgba,
             BlendingFactor destFactorRgba, Vector4 blendColor = default)
         {
             IsOpaque = isOpaque;
@@ -147,16 +146,16 @@ namespace TrippyGL
         public static BlendState Opaque => new BlendState(true);
 
         /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed with non-premultiplied alpha.</summary>
-        public static BlendState NonPremultiplied => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        public static BlendState NonPremultiplied => new BlendState(false, BlendingMode.FuncAdd, BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed using the source's alpha.</summary>
-        public static BlendState AlphaBlend => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
+        public static BlendState AlphaBlend => new BlendState(false, BlendingMode.FuncAdd, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
 
         /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed by adding them together.</summary>
-        public static BlendState Additive => new BlendState(false, BlendEquationModeEXT.FuncAdd, BlendingFactor.One, BlendingFactor.One);
+        public static BlendState Additive => new BlendState(false, BlendingMode.FuncAdd, BlendingFactor.One, BlendingFactor.One);
 
         /// <summary>Gets a <see cref="BlendState"/> where fragments are mixed by subscracting them together.</summary>
-        public static BlendState Substractive => new BlendState(false, BlendEquationModeEXT.FuncSubtract, BlendingFactor.One, BlendingFactor.One);
+        public static BlendState Substractive => new BlendState(false, BlendingMode.FuncSubtract, BlendingFactor.One, BlendingFactor.One);
 
         #endregion
     }

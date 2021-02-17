@@ -17,7 +17,7 @@ namespace TrippyGL
         public readonly uint Handle;
 
         /// <summary>The type of this <see cref="Texture"/>, such as 1D, 2D, Multisampled 2D, Array 2D, CubeMap, etc.</summary>
-        public readonly TextureTarget TextureType;
+        public readonly TextureType TextureType;
 
         /// <summary>The internal format of the pixels, such as RGBA, RGB, R32f, or even different depth/stencil formats.</summary>
         internal readonly InternalFormat PixelInternalFormat;
@@ -53,14 +53,14 @@ namespace TrippyGL
         internal int lastBindUnit;
 
         /// <summary>
-        /// Creates a <see cref="Texture"/> with specified <see cref="TextureTarget"/> and <see cref="TextureImageFormat"/>.
+        /// Creates a <see cref="Texture"/> with specified <see cref="TextureType"/> and <see cref="TextureImageFormat"/>.
         /// </summary>
         /// <param name="graphicsDevice">The <see cref="GraphicsDevice"/> this resource will use.</param>
         /// <param name="type">The type of texture (or texture target) the texture will be.</param>
         /// <param name="imageFormat">The type of image format this texture will store.</param>
-        internal Texture(GraphicsDevice graphicsDevice, TextureTarget type, TextureImageFormat imageFormat) : base(graphicsDevice)
+        internal Texture(GraphicsDevice graphicsDevice, TextureType type, TextureImageFormat imageFormat) : base(graphicsDevice)
         {
-            if (!Enum.IsDefined(typeof(TextureTarget), type))
+            if (!Enum.IsDefined(typeof(TextureType), type))
                 throw new FormatException("Invalid texture target");
 
             if (!Enum.IsDefined(typeof(TextureImageFormat), imageFormat))
@@ -83,8 +83,8 @@ namespace TrippyGL
         public void SetTextureFilters(TextureMinFilter minFilter, TextureMagFilter magFilter)
         {
             GraphicsDevice.BindTextureSetActive(this);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMinFilter, (int)minFilter);
-            GL.TexParameter(TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter((TextureTarget)TextureType, TextureParameterName.TextureMagFilter, (int)magFilter);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace TrippyGL
                 throw new InvalidOperationException(string.Concat("This texture type is not mipmappable! Type: ", TextureType.ToString()));
 
             GraphicsDevice.BindTextureSetActive(this);
-            GL.GenerateMipmap(TextureType);
+            GL.GenerateMipmap((TextureTarget)TextureType);
             IsMipmapped = true;
         }
 

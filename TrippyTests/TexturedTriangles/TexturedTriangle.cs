@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
@@ -34,7 +33,7 @@ namespace TexturedTriangles
                 new VertexColorTexture(new Vector3(0.5f, 0.5f, 0), Color4b.White, new Vector2(1, 0)),
             };
 
-            quadBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, quadsVertex, BufferUsageARB.StaticDraw);
+            quadBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, quadsVertex, BufferUsage.StaticDraw);
 
             Span<VertexColorTexture> trianglesVertex = stackalloc VertexColorTexture[]
             {
@@ -63,7 +62,7 @@ namespace TexturedTriangles
                 new VertexColorTexture(new Vector3(0.6f, 0.4f, 0), Color4b.Red, new Vector2(0.89f, 0.26f)),
             };
 
-            trianglesBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, trianglesVertex, BufferUsageARB.StaticDraw);
+            trianglesBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, trianglesVertex, BufferUsage.StaticDraw);
 
             shaderProgram = SimpleShaderProgram.Create<VertexColorTexture>(graphicsDevice);
 
@@ -84,7 +83,7 @@ namespace TexturedTriangles
         protected override void OnRender(double dt)
         {
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
 
             graphicsDevice.ShaderProgram = shaderProgram;
 

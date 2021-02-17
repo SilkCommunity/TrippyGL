@@ -15,14 +15,14 @@ namespace TrippyGL
         /// <summary>The size of each element in the subset's storage measured in bytes.</summary>
         public readonly uint ElementSize;
 
-        internal DataBufferSubset(uint elementSize, BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLength)
+        internal DataBufferSubset(uint elementSize, BufferObject bufferObject, BufferTarget bufferTarget, uint storageOffsetBytes, uint storageLength)
             : base(bufferObject, bufferTarget)
         {
             ElementSize = elementSize;
             ResizeSubset(storageOffsetBytes, storageLength);
         }
 
-        internal DataBufferSubset(uint elementSize, BufferObject bufferObject, BufferTargetARB bufferTarget)
+        internal DataBufferSubset(uint elementSize, BufferObject bufferObject, BufferTarget bufferTarget)
             : base(bufferObject, bufferTarget)
         {
             ElementSize = elementSize;
@@ -139,12 +139,12 @@ namespace TrippyGL
         /// and target, offset into the buffer in bytes, storage length in elements and optional initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLength">The length of this subset measured in elements.</param>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, uint storageOffsetBytes, uint storageLength, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
             : base((uint)Marshal.SizeOf<T>(), bufferObject, bufferTarget, storageOffsetBytes, storageLength)
         {
             if (!data.IsEmpty)
@@ -156,10 +156,10 @@ namespace TrippyGL
         /// and target, with the subset covering the entire buffer's storage and optional initial data.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="data">A <see cref="ReadOnlySpan{T}"/> containing the initial data to set to the subset, or empty.</param>
         /// <param name="dataWriteOffset">The offset into the subset's storage at which to start writting the initial data.</param>
-        internal DataBufferSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
+        internal DataBufferSubset(BufferObject bufferObject, BufferTarget bufferTarget, ReadOnlySpan<T> data = default, uint dataWriteOffset = 0)
             : base((uint)Marshal.SizeOf<T>(), bufferObject, bufferTarget)
         {
             if (!data.IsEmpty)
@@ -182,7 +182,7 @@ namespace TrippyGL
 
             Buffer.GraphicsDevice.BindBuffer(this);
             fixed (void* ptr = data)
-                Buffer.GL.BufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
+                Buffer.GL.BufferSubData((GLEnum)BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace TrippyGL
 
             Buffer.GraphicsDevice.BindBuffer(this);
             fixed (void* ptr = data)
-                Buffer.GL.GetBufferSubData(BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
+                Buffer.GL.GetBufferSubData((GLEnum)BufferTarget, (int)(storageOffset * ElementSize + StorageOffsetInBytes), (uint)data.Length * ElementSize, ptr);
         }
 
         public override string ToString()

@@ -1,5 +1,4 @@
 ﻿using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -11,7 +10,7 @@ namespace TrippyGL
         /// <summary>The amount of samples this <see cref="Texture"/> has.</summary>
         public uint Samples { get; private set; }
 
-        internal TextureMultisamplable(GraphicsDevice graphicsDevice, TextureTarget type, uint samples, TextureImageFormat imageFormat)
+        internal TextureMultisamplable(GraphicsDevice graphicsDevice, TextureType type, uint samples, TextureImageFormat imageFormat)
             : base(graphicsDevice, type, imageFormat)
         {
             ValidateSampleCount(samples);

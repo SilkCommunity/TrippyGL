@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
-using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace TerrainMaker

@@ -8,7 +8,7 @@ namespace TrippyTestBase
     /// <summary>
     /// Handles basic input managing for a 3D camera.
     /// </summary>
-    public sealed class InputManager3D
+    public sealed class InputManager3D : IDisposable
     {
         /// <summary>The <see cref="IInputContext"/> this <see cref="InputManager3D"/> uses.</summary>
         public readonly IInputContext InputContext;
@@ -182,6 +182,11 @@ namespace TrippyTestBase
             {
                 CurrentGamepad = InputContext.Gamepads.Count == 0 ? null : InputContext.Gamepads[0];
             }
+        }
+
+        public void Dispose()
+        {
+            InputContext.ConnectionChanged -= OnInputContextConnectionChanged;
         }
     }
 }

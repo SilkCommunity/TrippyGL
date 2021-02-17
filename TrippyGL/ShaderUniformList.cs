@@ -45,13 +45,13 @@ namespace TrippyGL
             uint arrIndex = 0;
             for (uint i = 0; i < totalUniformCount; i++)
             {
-                string name = Program.GL.GetActiveUniform(program.Handle, i, out int size, out UniformType type);
+                string name = Program.GL.GetActiveUniform(program.Handle, i, out int size, out Silk.NET.OpenGL.UniformType type);
                 int location = Program.GL.GetUniformLocation(program.Handle, name);
 
                 if (location < 0) //If the location is -1, then it's probably a uniform block so let's not add it to the uniform list
                     continue;
 
-                ShaderUniform uniform = new ShaderUniform(program, location, name, size, type);
+                ShaderUniform uniform = new ShaderUniform(program, location, name, size, (UniformType)type);
                 uniforms[arrIndex++] = uniform;
                 if (uniform.IsSamplerType)
                     samplerUniformsTextureCount += uniform.Size;

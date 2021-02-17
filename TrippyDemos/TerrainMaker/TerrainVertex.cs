@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Silk.NET.OpenGL;
 using TrippyGL;
 
 namespace TerrainMaker
@@ -28,7 +27,7 @@ namespace TerrainMaker
         {
             descriptions[0] = new VertexAttribDescription(AttributeType.FloatVec3);
             descriptions[1] = new VertexAttribDescription(AttributeType.FloatVec3);
-            descriptions[2] = new VertexAttribDescription(AttributeType.FloatVec4, true, VertexAttribPointerType.UnsignedByte);
+            descriptions[2] = new VertexAttribDescription(AttributeType.FloatVec4, true, AttributeBaseType.UnsignedByte);
             descriptions[3] = new VertexAttribDescription(AttributeType.FloatVec2);
         }
     }

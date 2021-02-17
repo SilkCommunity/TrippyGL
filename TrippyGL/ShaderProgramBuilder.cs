@@ -361,11 +361,11 @@ namespace TrippyGL
         {
             unchecked
             {
-                int hashCode = VertexShaderCode == null ? 0 : VertexShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                int hashCode = VertexShaderCode == null ? 0 : VertexShaderCode.GetHashCode(StringComparison.Ordinal);
                 if (GeometryShaderCode != null)
-                    hashCode = (hashCode * 397) ^ GeometryShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                    hashCode = (hashCode * 397) ^ GeometryShaderCode.GetHashCode(StringComparison.Ordinal);
                 if (FragmentShaderCode != null)
-                    hashCode = (hashCode * 397) ^ FragmentShaderCode.GetHashCode(StringComparison.InvariantCulture);
+                    hashCode = (hashCode * 397) ^ FragmentShaderCode.GetHashCode(StringComparison.Ordinal);
                 return hashCode;
             }
         }

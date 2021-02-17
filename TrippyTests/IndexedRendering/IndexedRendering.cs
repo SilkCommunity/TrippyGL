@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -28,7 +27,7 @@ namespace IndexedRendering
 
             // We create a VertexBuffer with just enough vertex storage for all the vertices
             // and enough index storage for all the indices, and give it vertexData as initial vertex data.
-            vertexBuffer = new VertexBuffer<SimpleVertex>(graphicsDevice, (uint)vertexData.Length, (uint)Indices.TotalIndicesLength, DrawElementsType.UnsignedByte, BufferUsageARB.StaticDraw, vertexData);
+            vertexBuffer = new VertexBuffer<SimpleVertex>(graphicsDevice, (uint)vertexData.Length, (uint)Indices.TotalIndicesLength, ElementType.UnsignedByte, BufferUsage.StaticDraw, vertexData);
 
             // We will store the location in the index subset where each number's indices start in this array
             indicesStart = new int[Indices.AllNumbersIndices.Length];
@@ -55,7 +54,7 @@ namespace IndexedRendering
         protected override void OnRender(double dt)
         {
             graphicsDevice.ClearColor = new Vector4(0, 0, 0, 1);
-            graphicsDevice.Clear(ClearBufferMask.ColorBufferBit);
+            graphicsDevice.Clear(ClearBuffer.Color);
 
             graphicsDevice.VertexArray = vertexBuffer;
             graphicsDevice.ShaderProgram = shaderProgram;

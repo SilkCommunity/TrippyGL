@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -31,7 +30,8 @@ namespace TrippyGL
         {
             // We use the glGetActiveAttrib that easily turns the required Name parameters into a string
             // Then we query the size and type and then the location separately
-            Name = graphicsDevice.GL.GetActiveAttrib(programHandle, attribIndex, out Size, out AttribType);
+            Name = graphicsDevice.GL.GetActiveAttrib(programHandle, attribIndex, out Size, out Silk.NET.OpenGL.AttributeType attribType);
+            AttribType = (AttributeType)attribType;
             Location = graphicsDevice.GL.GetAttribLocation(programHandle, Name);
         }
 

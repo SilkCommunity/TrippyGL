@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Numerics;
 using System.Text;
-using Silk.NET.OpenGL;
 using TrippyGL.Utils;
 
 namespace TrippyGL
@@ -84,7 +83,7 @@ namespace TrippyGL
             IsActive = false;
 
             GraphicsDevice = graphicsDevice;
-            vertexBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, InitialBufferCapacity, BufferUsageARB.StreamDraw);
+            vertexBuffer = new VertexBuffer<VertexColorTexture>(graphicsDevice, InitialBufferCapacity, BufferUsage.StreamDraw);
         }
 
         /// <summary>
@@ -422,6 +421,47 @@ namespace TrippyGL
             item.SetValue(texture, position, new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, depth);
 
             EndDraw(item);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="destination">The destination rectangle at which the texture should be drawn.</param>
+        /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
+        /// <param name="color">The color with which to draw the texture.</param>
+        /// <param name="depth">The depth at which to draw the texture.</param>
+        public void Draw(Texture2D texture, RectangleF destination, Rectangle? source, Color4b color, float depth = 0)
+        {
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, destination, source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, depth);
+
+            EndDraw(item);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="destination">The destination rectangle at which the texture should be drawn.</param>
+        /// <param name="color">The color with which to draw the texture.</param>
+        /// <param name="depth">The depth at which to draw the texture.</param>
+        public void Draw(Texture2D texture, RectangleF destination, Color4b color, float depth = 0)
+        {
+            Draw(texture, destination, null, color, depth);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="destination">The destination rectangle at which the texture should be drawn.</param>
+        /// <param name="depth">The depth at which to draw the texture.</param>
+        public void Draw(Texture2D texture, RectangleF destination, float depth = 0)
+        {
+            Draw(texture, destination, null, Color4b.White, depth);
         }
 
         /// <summary>

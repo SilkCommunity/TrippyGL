@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using Silk.NET.Input.Common;
-using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using TrippyGL;
@@ -43,7 +42,7 @@ namespace ShaderFractals
                 new Vector3(1, 1, 0),
             };
 
-            vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsageARB.StaticDraw);
+            vertexBuffer = new VertexBuffer<VertexPosition>(graphicsDevice, vertexData, BufferUsage.StaticDraw);
 
             shaderProgram = ShaderProgram.FromFiles<VertexPosition>(graphicsDevice, "vs.glsl", "fs.glsl", "vPosition");
 
@@ -163,7 +162,7 @@ namespace ShaderFractals
                 throw new InvalidDataException();
 
             fixed (void* ptr = pixels)
-                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.Width, (uint)Window.Size.Height, Silk.NET.OpenGL.PixelFormat.Rgba, Silk.NET.OpenGL.PixelType.UnsignedByte, ptr);
             image.Mutate(x => x.Flip(FlipMode.Vertical));
 
             string file = GetFileName();

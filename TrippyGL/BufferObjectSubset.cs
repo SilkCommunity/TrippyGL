@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.OpenGL;
 
 namespace TrippyGL
 {
@@ -14,8 +13,8 @@ namespace TrippyGL
         /// <summary>The handle of the <see cref="BufferObject"/> that owns this subset.</summary>
         public readonly uint BufferHandle;
 
-        /// <summary>The <see cref="BufferTargetARB"/> to which this subset always binds to.</summary>
-        public readonly BufferTargetARB BufferTarget;
+        /// <summary>The <see cref="BufferTarget"/> to which this subset always binds to.</summary>
+        public readonly BufferTarget BufferTarget;
 
         /// <summary>The offset into this <see cref="Buffer"/>'s storage at which this subset starts, measured in bytes.</summary>
         public uint StorageOffsetInBytes { get; private set; }
@@ -34,7 +33,7 @@ namespace TrippyGL
 
         /// <summary>
         /// The index in the <see cref="GraphicsDevice.bufferBindings"/> array where this
-        /// <see cref="BufferObjectSubset"/>'s <see cref="BufferTargetARB"/> last bound handle is stored.
+        /// <see cref="BufferObjectSubset"/>'s <see cref="BufferTarget"/> last bound handle is stored.
         /// </summary>
         internal readonly int bufferTargetBindingIndex;
 
@@ -43,14 +42,14 @@ namespace TrippyGL
         /// target, but storage offset and length are left uninitialized.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
-        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget)
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
+        internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget)
         {
             if (bufferObject == null)
                 throw new ArgumentNullException(nameof(bufferObject));
 
-            if (!Enum.IsDefined(typeof(BufferTargetARB), bufferTarget))
-                throw new ArgumentException(nameof(bufferTarget) + " must be a valid " + nameof(BufferTargetARB) + " value", nameof(bufferTarget));
+            if (!Enum.IsDefined(typeof(BufferTarget), bufferTarget))
+                throw new ArgumentException(nameof(bufferTarget) + " must be a valid " + nameof(BufferTarget) + " value", nameof(bufferTarget));
 
             bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);
             Buffer = bufferObject;
@@ -63,10 +62,10 @@ namespace TrippyGL
         /// target, offset into the buffer and storage length.
         /// </summary>
         /// <param name="bufferObject">The <see cref="BufferObject"/> this subset will belong to.</param>
-        /// <param name="bufferTarget">The <see cref="BufferTargetARB"/> this subset will always bind to.</param>
+        /// <param name="bufferTarget">The <see cref="BufferTarget"/> this subset will always bind to.</param>
         /// <param name="storageOffsetBytes">The offset into the <see cref="BufferObject"/>'s storage where this subset begins.</param>
         /// <param name="storageLengthBytes">The length of this subset measured in bytes.</param>
-        internal BufferObjectSubset(BufferObject bufferObject, BufferTargetARB bufferTarget, uint storageOffsetBytes, uint storageLengthBytes)
+        internal BufferObjectSubset(BufferObject bufferObject, BufferTarget bufferTarget, uint storageOffsetBytes, uint storageLengthBytes)
             : this(bufferObject, bufferTarget)
         {
             InitializeStorage(storageOffsetBytes, storageLengthBytes);
