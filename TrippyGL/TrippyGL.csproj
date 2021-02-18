@@ -7,22 +7,14 @@
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/ThomasMiz/TrippyGL</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.0-rc2</Version>
+    <Version>1.0.0</Version>
     <Authors>ThomasMiz</Authors>
     <Description>A highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;</PackageTags>
-    <PackageReleaseNotes>- Fixed some small issues with in-code documentation
-- Fixed ShaderProgram.HasXXXShader always being false
-- Moved Color4b.Random() functions over to TrippyGL.Utils.TrippyMath as extension methods
-- New constructor for VertexPosition that just takes in three floats
-- SimpleShaderProgram.Create() switched order of the positionalLights and directionalLights arguments for better cohesion
-- Color4b constructors that take in floats now clamp them into range
-- Color4b math functions and operators, for adding, substracting and interpolating
-- Renamed GraphicsDevice.DebugMessage to DebugMessageReceived
-- Added StringBuilder overloads to TextureBatcher.DrawString()
-- Added TextureFont.SanitizeString() functions
-- Added multiple TrippyMath functions
-- Updated to Silk.NET 1.8.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.0.0-rc2:
+- TrippyGL has been updated to Silk.NET 2.1
+- Most enums from Silk.NET.OpenGL have been replaced with custom ones
+- TextureFont.SanitizeString now has an ignoreNewline bool parameter</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
