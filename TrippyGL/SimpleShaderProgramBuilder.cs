@@ -54,7 +54,7 @@ namespace TrippyGL
         /// Gets whether the current configuration of this <see cref="SimpleShaderProgramBuilder"/>
         /// will make a created <see cref="SimpleShaderProgram"/> include lighting calculations.
         /// </summary>
-        public bool LightningEnabled => DirectionalLights > 0 || PositionalLights > 0;
+        public bool LightingEnabled => DirectionalLights > 0 || PositionalLights > 0;
 
         /// <summary>The vertex shader log of the last <see cref="SimpleShaderProgram"/> this builder created.</summary>
         public string VertexShaderLog;
@@ -151,10 +151,10 @@ namespace TrippyGL
             if (DiscardTransparentFragments && !float.IsFinite(TransparentFragmentThreshold))
                 throw new InvalidOperationException(nameof(TransparentFragmentThreshold) + " must be a finite value.");
 
-            if (LightningEnabled)
+            if (LightingEnabled)
             {
                 if (NormalAttributeIndex < 0)
-                    throw new InvalidOperationException("Using lightning requires a vertex Normal attribute.");
+                    throw new InvalidOperationException("Using lighting requires a vertex Normal attribute.");
                 if (NormalAttributeIndex == PositionAttributeIndex)
                     throw new InvalidOperationException(DifferentVertexAttribIndicesError);
             }
@@ -182,7 +182,7 @@ namespace TrippyGL
 
             try
             {
-                bool useLightning = LightningEnabled;
+                bool useLighting = LightingEnabled;
 
                 builder.Append("#version ");
                 builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
@@ -193,11 +193,11 @@ namespace TrippyGL
                 builder.Append("uniform mat4 View, Projection;\n");
 
                 builder.Append("\nin vec3 vPosition;\n");
-                if (useLightning) builder.Append("in vec3 vNormal;\n");
+                if (useLighting) builder.Append("in vec3 vNormal;\n");
                 if (VertexColorsEnabled) builder.Append("in vec4 vColor;\n");
                 if (TextureEnabled) builder.Append("in vec2 vTexCoords;\n");
                 builder.Append('\n');
-                if (useLightning) builder.Append("out vec3 fPosition;\nout vec3 fNormal;\n");
+                if (useLighting) builder.Append("out vec3 fPosition;\nout vec3 fNormal;\n");
                 if (VertexColorsEnabled) builder.Append("out vec4 fColor;\n");
                 if (TextureEnabled) builder.Append("out vec2 fTexCoords;\n");
 
@@ -207,7 +207,7 @@ namespace TrippyGL
                 else
                     builder.Append("vec4 worldPos = World * vec4(vPosition, 1.0);\n");
                 builder.Append("gl_Position = Projection * View * worldPos;\n\n");
-                if (useLightning)
+                if (useLighting)
                 {
                     builder.Append("fPosition = worldPos.xyz;\n");
                     if (ExcludeWorldMatrix)
@@ -235,7 +235,7 @@ namespace TrippyGL
 
                 if (TextureEnabled) builder.Append("uniform sampler2D samp;\n\n");
 
-                if (useLightning)
+                if (useLighting)
                 {
                     builder.Append("uniform vec3 cameraPos;\n");
                     builder.Append("uniform vec3 ambientLightColor;\n");
@@ -268,12 +268,12 @@ namespace TrippyGL
                     }
                 }
 
-                if (useLightning) builder.Append("\nin vec3 fPosition;\nin vec3 fNormal;\n");
+                if (useLighting) builder.Append("\nin vec3 fPosition;\nin vec3 fNormal;\n");
                 if (VertexColorsEnabled) builder.Append("in vec4 fColor;\n");
                 if (TextureEnabled) builder.Append("in vec2 fTexCoords;\n");
                 builder.Append("\nout vec4 FragColor;\n");
 
-                if (useLightning)
+                if (useLighting)
                 {
                     builder.Append("\nvec3 calcDirLight(in vec3 norm, in vec3 toCamVec, in vec3 lDir, in vec3 diffCol, in vec3 specCol) {\n");
                     builder.Append("float brightness = max(0.0, dot(norm, -lDir));\n");
@@ -303,7 +303,7 @@ namespace TrippyGL
                     builder.Append(")\ndiscard;\n");
                 }
 
-                if (useLightning)
+                if (useLighting)
                 {
                     builder.Append("vec3 unitNormal = normalize(fNormal);\n");
                     builder.Append("vec3 unitToCameraVec = normalize(cameraPos - fPosition);\n\n");
@@ -348,7 +348,7 @@ namespace TrippyGL
                     attribs[i] = new SpecifiedShaderAttrib(null, AttributeType.Float);
                 attribs[PositionAttributeIndex] = new SpecifiedShaderAttrib("vPosition", AttributeType.FloatVec3);
                 if (NormalAttributeIndex >= 0)
-                    attribs[NormalAttributeIndex] = new SpecifiedShaderAttrib(useLightning ? "vNormal" : null, AttributeType.FloatVec3);
+                    attribs[NormalAttributeIndex] = new SpecifiedShaderAttrib(useLighting ? "vNormal" : null, AttributeType.FloatVec3);
                 if (ColorAttributeIndex >= 0)
                     attribs[ColorAttributeIndex] = new SpecifiedShaderAttrib(VertexColorsEnabled ? "vColor" : null, AttributeType.FloatVec4);
                 if (TexCoordsAttributeIndex >= 0)

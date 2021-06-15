@@ -92,7 +92,7 @@ namespace TrippyGL
         /// <param name="simpleProgram">The <see cref="SimpleShaderProgram"/> to use.</param>
         /// <remarks>
         /// The <see cref="SimpleShaderProgram"/> doesn't need to have texture sampling and vertex colors
-        /// enabled. Lightning however will not work, since the vertices lack normal data.<para/>
+        /// enabled. Lighting however will not work, since the vertices lack normal data.<para/>
         /// The locations of the attributes on the program must still match 0 for position, 1 for
         /// color and 2 for texture coordinates.
         /// </remarks>

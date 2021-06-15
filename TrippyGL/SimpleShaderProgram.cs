@@ -16,7 +16,7 @@ namespace TrippyGL
         public readonly bool TextureEnabled;
 
         /// <summary>Whether this <see cref="SimpleShaderProgram"/> uses vertex normals.</summary>
-        public readonly bool LightningEnabled;
+        public readonly bool LightingEnabled;
 
         /// <summary>Whether this <see cref="SimpleShaderProgram"/> includes a World matrix in the vertex shader.</summary>
         public readonly bool HasWorldUniform;
@@ -128,7 +128,7 @@ namespace TrippyGL
         /// <summary>
         /// Gets or sets this <see cref="SimpleShaderProgram"/>'s material reflectivity parameter.
         /// </summary>
-        /// <remarks>This only works when lightning is enabled.</remarks>
+        /// <remarks>This only works when lighting is enabled.</remarks>
         public float Reflectivity
         {
             get => reflectivity;
@@ -142,7 +142,7 @@ namespace TrippyGL
         /// <summary>
         /// Gets or sets this <see cref="SimpleShaderProgram"/>'s specular light power parameter.
         /// </summary>
-        /// <remarks>This only works when lightning is enabled.</remarks>
+        /// <remarks>This only works when lighting is enabled.</remarks>
         public float SpecularPower
         {
             get => specularPower;
@@ -154,9 +154,9 @@ namespace TrippyGL
         }
 
         /// <summary>
-        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s ambient lightning color.
+        /// Gets or sets this <see cref="SimpleShaderProgram"/>'s ambient lighting color.
         /// </summary>
-        /// <remarks>This only works when lightning is enabled.</remarks>
+        /// <remarks>This only works when lighting is enabled.</remarks>
         public Vector3 AmbientLightColor
         {
             get => ambientLightColor;
@@ -197,7 +197,7 @@ namespace TrippyGL
             // We set these booleans based on what we've got.
             VertexColorsEnabled = vertColorsEnabled;
             TextureEnabled = textureEnabled;
-            LightningEnabled = directionalLightCount != 0 || positionalLightCount != 0;
+            LightingEnabled = directionalLightCount != 0 || positionalLightCount != 0;
 
             // These uniforms are always present- so let's get them and ensure they're valid.
             worldUniform = Uniforms["World"];
@@ -222,8 +222,8 @@ namespace TrippyGL
                     throw new InvalidOperationException(InvalidUniformMessage + "samp");
             }
 
-            // If lightning is enabled, we get the uniforms for managing the lights.
-            if (LightningEnabled)
+            // If lighting is enabled, we get the uniforms for managing the lights.
+            if (LightingEnabled)
             {
                 ambientLightColorUniform = Uniforms["ambientLightColor"];
                 if (ambientLightColorUniform.UniformType != UniformType.FloatVec3)
@@ -251,8 +251,8 @@ namespace TrippyGL
             Projection = Matrix4x4.Identity;
             Color = new Vector4(1, 1, 1, 1);
 
-            // If lightning is enabled, we set the default values for those parameters too.
-            if (LightningEnabled)
+            // If lighting is enabled, we set the default values for those parameters too.
+            if (LightingEnabled)
             {
                 AmbientLightColor = Vector3.Zero;
                 Reflectivity = 1;
@@ -321,7 +321,7 @@ namespace TrippyGL
         /// <param name="view">The view matrix.</param>
         /// <param name="cameraPos">The camera's position in world space.</param>
         /// <remarks>
-        /// The camera's position is needed for specular lightning calculations. If lightning is disabled,
+        /// The camera's position is needed for specular lighting calculations. If lighting is disabled,
         /// this parameter will be ignored.<para/>
         /// If the camera's position is known, setting the view matrix here is more performant than
         /// setting it in <see cref="View"/> because otherwise the camera's position needs to be
