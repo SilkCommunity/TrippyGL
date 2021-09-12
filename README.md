@@ -11,8 +11,6 @@ The TrippyGL.ImageSharp project provides integration with [ImageSharp](https://g
 
 For windowing and input, the [Silk.NET.Windowing](https://www.nuget.org/packages/Silk.NET.Windowing) and [Silk.NET.Input](https://www.nuget.org/packages/Silk.NET.Input) packages can be used.
 
-Currently in development, but nearing a first release!
-
 ## Need Help?
 Feel free to come ask questions over at the [TrippyGL Discord server](https://discord.gg/3j5Q4zN)!
 
