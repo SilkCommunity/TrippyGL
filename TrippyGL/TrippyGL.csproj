@@ -3,18 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/ThomasMiz/TrippyGL</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/SilkCommunity/TrippyGL</PackageProjectUrl>
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
-    <RepositoryUrl>https://github.com/ThomasMiz/TrippyGL</RepositoryUrl>
+    <RepositoryUrl>https://github.com/SilkCommunity/TrippyGL</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>ThomasMiz</Authors>
     <Description>A highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;</PackageTags>
-    <PackageReleaseNotes>Changelog from 1.0.0-rc2:
-- TrippyGL has been updated to Silk.NET 2.1
-- Most enums from Silk.NET.OpenGL have been replaced with custom ones
-- TextureFont.SanitizeString now has an ignoreNewline bool parameter</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.0.0:
+- Fixed multiple misspells of "Lighting" as "Lightning" (ka-chow!)
+- Added some more XML documentation</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
