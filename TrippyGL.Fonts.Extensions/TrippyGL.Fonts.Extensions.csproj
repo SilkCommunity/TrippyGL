@@ -7,12 +7,13 @@
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>ThomasMiz</Authors>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
 
 This package provides integration between TrippyGL.Fonts and the main TrippyGL package.</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

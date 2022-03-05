@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>ThomasMiz</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/SilkCommunity/TrippyGL</RepositoryUrl>
@@ -15,6 +15,7 @@ This package provides basic font creating/loading/saving functionality.</Descrip
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
     <PackageReleaseNotes>Changelog from 1.0.0:
 - Fixed possible issue when building many fonts on different threads at the same time</PackageReleaseNotes>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
