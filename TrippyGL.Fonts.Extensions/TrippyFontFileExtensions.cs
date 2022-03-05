@@ -49,6 +49,9 @@ namespace TrippyGL.Fonts.Extensions
         /// <param name="generateMipmaps">Whether to generate mipmaps for the texture's font.</param>
         public static TextureFont CreateFont(this TrippyFontFile font, GraphicsDevice graphicsDevice, bool generateMipmaps = false)
         {
+            if (font.FontDatas.Length > 1)
+                throw new FontLoadingException("Called " + nameof(CreateFont) + "() on a " + nameof(TrippyFontFile) + " with multiple fonts! Try " + nameof(CreateFonts) + "() instead.");
+
             return font.CreateFonts(graphicsDevice, generateMipmaps)[0];
         }
     }

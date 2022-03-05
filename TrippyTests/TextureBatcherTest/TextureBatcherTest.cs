@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Numerics;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using TrippyGL;
-using TrippyGL.Fonts.Extensions;
 using TrippyGL.ImageSharp;
 using TrippyTestBase;
 
@@ -47,9 +45,7 @@ namespace TextureBatcherTest
             ballTexture = Texture2DExtensions.FromFile(graphicsDevice, "ball.png");
             diamondTexture = Texture2DExtensions.FromFile(graphicsDevice, "diamond.png");
 
-            TextureFont[] fonts = TextureFontExtensions.FromFile(graphicsDevice, "font.tglf");
-            comicSansFont = fonts[0];
-            arialFont = fonts[1];
+            FontLoadHelper.LoadOrCreateFonts(graphicsDevice, out comicSansFont, out arialFont);
 
             textureBatcher = new TextureBatcher(graphicsDevice);
             textureBatcher.SetShaderProgram(shaderProgram);
