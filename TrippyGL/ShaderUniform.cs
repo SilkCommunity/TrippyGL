@@ -56,7 +56,7 @@ namespace TrippyGL
             // The name might come as array name for array uniforms.
             // We need to turn the name "arrayUniform[0]" into just "arrayUniform"
             int nameIndexOfThing = name.LastIndexOf('[');
-            Name = nameIndexOfThing > 0 ? name.Substring(0, name.Length - nameIndexOfThing + 1) : name;
+            Name = nameIndexOfThing > 0 ? name.Substring(0, name.Length - nameIndexOfThing) : name;
 
             IsSamplerType = TrippyUtils.IsUniformSamplerType(type);
 
