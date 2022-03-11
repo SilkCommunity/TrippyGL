@@ -11,7 +11,11 @@ namespace TrippyGL
         private static readonly object stringBuilderReferenceLock = new object();
         private static WeakReference<StringBuilder> stringBuilderReference;
 
-        /// <summary>The version-profile string for GLSL to use. If null, the current GL version will be used.</summary>
+        /// <summary>
+        /// The version-profile string for GLSL to use. If null, the current GL version will be used.
+        /// If set to an empty string, no version string will be used.
+        /// <para>Don't include the "#version" in your string, write only the number and profile: "330 core"</para>
+        /// </summary>
         public string GLSLVersionString;
 
         /// <summary>The index of the vertex attribute from which the <see cref="SimpleShaderProgram"/> will read vertex positions.</summary>
@@ -184,8 +188,7 @@ namespace TrippyGL
             {
                 bool useLighting = LightingEnabled;
 
-                builder.Append("#version ");
-                builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
+                AppendGLSLVersionString(graphicsDevice, builder);
                 builder.Append("\n\n");
 
                 if (!ExcludeWorldMatrix)
@@ -227,8 +230,7 @@ namespace TrippyGL
 
 
 
-                builder.Append("#version ");
-                builder.Append(GLSLVersionString ?? graphicsDevice.GLMajorVersion.ToString() + graphicsDevice.GLMinorVersion.ToString() + "0 core");
+                AppendGLSLVersionString(graphicsDevice, builder);
                 builder.Append("\n\n");
 
                 builder.Append("uniform vec4 Color;\n\n");
@@ -378,6 +380,35 @@ namespace TrippyGL
 
                 builder.Clear();
                 ReturnStringBuilder(builder);
+            }
+        }
+
+        private void AppendGLSLVersionString(GraphicsDevice graphicsDevice, StringBuilder stringBuilder)
+        {
+            if (GLSLVersionString != null)
+            {
+                if (!string.IsNullOrWhiteSpace(GLSLVersionString))
+                {
+                    stringBuilder.Append("#version ");
+                    stringBuilder.Append(GLSLVersionString);
+                }
+            }
+            else
+            {
+                stringBuilder.Append("#version ");
+
+                if (graphicsDevice.IsGLVersionAtLeast(3, 3))
+                {
+                    stringBuilder.Append((char)(graphicsDevice.GLMajorVersion + '0'));
+                    stringBuilder.Append((char)(graphicsDevice.GLMinorVersion + '0'));
+                }
+                else
+                {
+                    stringBuilder.Append('1');
+                    stringBuilder.Append((char)(graphicsDevice.GLMinorVersion + '3'));
+                }
+
+                stringBuilder.Append('0');
             }
         }
 
