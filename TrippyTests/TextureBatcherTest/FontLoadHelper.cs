@@ -25,7 +25,7 @@ namespace TextureBatcherTest
             {
                 Console.WriteLine(FontFileName + " file not found, creating the fonts...");
 
-                // Type of file that can store information about multiple TextureFonts (as long as they share a single Texture2D)
+                // Type of file that can store information about multiple TextureFonts (as long as they share a single Texture2D).
                 TrippyFontFile fontFile;
                 try
                 {
@@ -43,9 +43,13 @@ namespace TextureBatcherTest
                     throw new FileNotFoundException("System Fonts: \"Comic Sans MS\" and \"Arial Italic\"");
                 }
 
+                // Create and load up the fonts for rendering.
                 TextureFont[] fonts = fontFile.CreateFonts(graphicsDevice);
                 ComicSans48 = fonts[0];
                 ArialItalic36 = fonts[1];
+
+                // Users are not expected to write code like this, but rather create their TrippyFontFile and ship the
+                // resulting ".tglf" file as an asset. You can then easily load them up using TextureFontExtensions.FromFile()
 
                 try
                 {
