@@ -19,7 +19,7 @@ namespace TrippyGL
         private readonly ShaderUniform[] uniforms;
 
         /// <summary>The amount of <see cref="ShaderUniform"/>-s in the <see cref="ShaderProgram"/>.</summary>
-        public int Count => uniforms.Length;
+        public int Count => uniforms == null ? 0 : uniforms.Length;
 
         /// <summary>Gets the unsorted <see cref="ShaderUniform"/>-s from this list.</summary>
         public ReadOnlySpan<ShaderUniform> Uniforms => new ReadOnlySpan<ShaderUniform>(uniforms);
@@ -135,6 +135,9 @@ namespace TrippyGL
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderUniform"/> to get.</param>
         public ShaderUniform GetUniformByName(ReadOnlySpan<char> name)
         {
+            if (uniforms == null)
+                return default;
+
             for (int i = 0; i < uniforms.Length; i++)
                 if (name.SequenceEqual(uniforms[i].Name))
                     return uniforms[i];
@@ -152,8 +155,13 @@ namespace TrippyGL
             unchecked
             {
                 int hashCode = Program.GetHashCode();
-                for (int i = 0; i < uniforms.Length; i++)
-                    hashCode = (hashCode * 397) ^ uniforms[i].GetHashCode();
+
+                if (uniforms != null)
+                {
+                    for (int i = 0; i < uniforms.Length; i++)
+                        hashCode = (hashCode * 397) ^ uniforms[i].GetHashCode();
+                }
+
                 return hashCode;
             }
         }
