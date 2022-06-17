@@ -11,6 +11,9 @@ The TrippyGL.ImageSharp project provides integration with [ImageSharp](https://g
 
 For windowing and input, the [Silk.NET.Windowing](https://www.nuget.org/packages/Silk.NET.Windowing) and [Silk.NET.Input](https://www.nuget.org/packages/Silk.NET.Input) packages can be used.
 
+## Getting Started
+[The wiki](https://github.com/SilkCommunity/TrippyGL/wiki) contains explanatory articles and guides to help you get started! I recommend first reading [Getting Started: Opening a Window](https://github.com/SilkCommunity/TrippyGL/wiki/Getting-Started:-Opening-a-Window). After that, if you're after drawing textures check out [Getting Started: Drawing a Texture](https://github.com/SilkCommunity/TrippyGL/wiki/Getting-Started:-Drawing-a-Texture). Or if you're after drawing triangles, check out [Hello Triangle: The easy way](https://github.com/SilkCommunity/TrippyGL/wiki/Hello-Triangle:-The-easy-way).
+
 ## Need Help?
 Feel free to come ask questions over at the [TrippyGL Discord server](https://discord.gg/3j5Q4zN)!
 
