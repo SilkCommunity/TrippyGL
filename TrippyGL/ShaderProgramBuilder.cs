@@ -312,11 +312,7 @@ namespace TrippyGL
             if (attribListIndex == attribList.Length)
                 attributes = attribList;
             else
-            {
-                attributes = new ActiveVertexAttrib[attribListIndex];
-                Array.Copy(attribList, attributes, attribListIndex);
-                attributes = attribList;
-            }
+                attributes = attribList.AsSpan(0, attribListIndex).ToArray();
 
             // The attributes don't always appear ordered by location, so let's sort them now
             Array.Sort(attributes, (x, y) => x.Location.CompareTo(y.Location));
@@ -337,9 +333,6 @@ namespace TrippyGL
             // check one-by-one, index-by-index that the names on attributes[i] match providedAttribs[i]
 
             int nameIndex = 0;
-
-            if (specifiedAttribs.Length == 0)
-                return activeAttribs.Length == 0;
 
             for (int i = 0; i < activeAttribs.Length; i++)
             {

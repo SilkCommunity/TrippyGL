@@ -216,9 +216,6 @@ namespace TrippyGL
 
         private void EnsureAttribsValid(VertexAttribSource[] attribSources)
         {
-            if (attribSources.Length == 0)
-                throw new ArgumentException("You can't create a " + nameof(VertexArray) + " with no attributes", nameof(attribSources));
-
             uint attribIndexCount = 0;
             for (int i = 0; i < attribSources.Length; i++)
             {
