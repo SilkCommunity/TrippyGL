@@ -4,8 +4,7 @@ using System.IO;
 using System.Numerics;
 using Silk.NET.Input;
 using Silk.NET.Maths;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using TrippyGL.ImageSharp;
 using TrippyGL;
 using TrippyTestBase;
 
@@ -150,23 +149,12 @@ namespace ShaderFractals
 
         private unsafe void TakeScreenshot()
         {
-            // We could normally use the FramebufferObject.SaveAsImage() extension from
-            // TrippyGL.ImageSharp, but since we want to save the default framebuffer we
-            // have to do this manually.
-
-            using Image<SixLabors.ImageSharp.PixelFormats.Rgba32> image = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(Window.Size.X, Window.Size.Y);
+            using Framebuffer2D fbo = new Framebuffer2D(graphicsDevice, (uint)Window.Size.X, (uint)Window.Size.Y, DepthStencilFormat.None);
+            graphicsDevice.Framebuffer = fbo;
+            OnRender(0);
+            fbo.Framebuffer.SaveAsImage(GetFileName(), SaveImageFormat.Png, true);
 
             graphicsDevice.Framebuffer = null;
-            if (!image.TryGetSinglePixelSpan(out Span<SixLabors.ImageSharp.PixelFormats.Rgba32> pixels))
-                throw new InvalidDataException();
-
-            fixed (void* ptr = pixels)
-                graphicsDevice.GL.ReadPixels(0, 0, (uint)Window.Size.X, (uint)Window.Size.Y, Silk.NET.OpenGL.PixelFormat.Rgba, Silk.NET.OpenGL.PixelType.UnsignedByte, ptr);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-
-            string file = GetFileName();
-            using FileStream fileStream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.Read);
-            image.SaveAsPng(fileStream);
 
             static string GetFileName()
             {

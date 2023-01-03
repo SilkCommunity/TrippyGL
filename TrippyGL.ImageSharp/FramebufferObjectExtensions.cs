@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
@@ -28,10 +29,18 @@ namespace TrippyGL.ImageSharp
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-
-            framebuffer.ReadPixels(pixels, x, y, (uint)image.Width, (uint)image.Height);
+            if (image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixels))
+            {
+                framebuffer.ReadPixels(pixels.Span, x, y, (uint)image.Width, (uint)image.Height);
+            }
+            else
+            {
+                image.ProcessPixelRows(accessor =>
+                {
+                    for (int yi = 0; yi < accessor.Height; yi++)
+                        framebuffer.ReadPixels(accessor.GetRowSpan(yi), x, y + yi, (uint)image.Width, 1);
+                });
+            }
 
             if (flip)
                 image.Mutate(x => x.Flip(FlipMode.Vertical));
