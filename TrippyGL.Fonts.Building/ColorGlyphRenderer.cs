@@ -51,7 +51,7 @@ namespace TrippyGL.Fonts.Building
 
         void IGlyphRenderer.CubicBezierTo(Vector2 secondControlPoint, Vector2 thirdControlPoint, Vector2 point)
         {
-            builder.AddBezier(currentPoint, secondControlPoint, thirdControlPoint, point);
+            builder.AddCubicBezier(currentPoint, secondControlPoint, thirdControlPoint, point);
             currentPoint = point;
         }
 
@@ -92,7 +92,7 @@ namespace TrippyGL.Fonts.Building
             Vector2 c1 = ((controlPointVector - startPointVector) * 2 / 3) + startPointVector;
             Vector2 c2 = ((controlPointVector - endPointVector) * 2 / 3) + endPointVector;
 
-            builder.AddBezier(startPointVector, c1, c2, endPoint);
+            builder.AddCubicBezier(startPointVector, c1, c2, endPoint);
             currentPoint = endPoint;
         }
 
