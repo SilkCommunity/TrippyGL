@@ -300,7 +300,7 @@ namespace TrippyGL
 
                 if (DiscardTransparentFragments)
                 {
-                    builder.Append("if (finalColor.A < ");
+                    builder.Append("if (finalColor.a < ");
                     builder.Append(TransparentFragmentThreshold);
                     builder.Append(")\ndiscard;\n");
                 }
