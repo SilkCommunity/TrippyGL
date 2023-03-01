@@ -72,7 +72,7 @@ namespace TrippyGL.Fonts.Building
             if (lastChar < firstChar)
                 throw new ArgumentException(nameof(LastChar) + " can't be lower than " + nameof(firstChar));
 
-            Font = font ?? throw new ArgumentNullException(nameof(Font));
+            Font = font ?? throw new ArgumentNullException(nameof(font));
 
             FirstChar = firstChar;
             LastChar = lastChar;
@@ -99,7 +99,6 @@ namespace TrippyGL.Fonts.Building
         private IPathCollection[] CreatePaths(out Color?[][] colors, out System.Drawing.Point[] sizes, out Vector2[] offsets)
         {
             FontMetrics fontMetrics = Font.FontMetrics;
-            //float glyphRenderY = Size / CalcDpi * fontMetrics.Ascender / fontMetrics.UnitsPerEm; // TODO: Decide if this needs to be handled differently now or what
             ColorGlyphRenderer glyphRenderer = new ColorGlyphRenderer();
             TextRenderer textRenderer = new TextRenderer(glyphRenderer);
             TextOptions textOpts = new TextOptions(Font) { Dpi = DrawDpi };
@@ -121,7 +120,6 @@ namespace TrippyGL.Fonts.Building
 
                 singleCharSpan[0] = c;
                 textRenderer.RenderText(singleCharSpan, textOpts);
-                //glyphMetrics.RenderTo(glyphRenderer, Size, new Vector2(0, glyphRenderY), new Vector2(DrawDpi, DrawDpi), 0); // TODO: Save todo as above
                 IPathCollection p = glyphRenderer.Paths;
                 RectangleF bounds = p.Bounds;
 
@@ -135,9 +133,7 @@ namespace TrippyGL.Fonts.Building
 
                 if (glyphRenderer.HasAnyPathColors())
                 {
-                    if (colors == null)
-                        colors = new Color?[CharCount][];
-
+                    colors ??= new Color?[CharCount][];
                     colors[i] = glyphRenderer.PathColors;
                 }
             }
@@ -149,6 +145,11 @@ namespace TrippyGL.Fonts.Building
         {
             FontMetrics fontMetrics = Font.FontMetrics;
 
+            // If all glyphs have the same advance value, the "advances" array will remain null, and "adv" will
+            // contain that advance value.
+            // If at least two glyphs have differente advance values, that value of "adv" will be ignored, and
+            // "advances" will store every glyph's advance separately.
+            // If no glyph is found with a valid advance value, both will remain null.
             advances = null;
             float? adv = null;
 
@@ -168,6 +169,9 @@ namespace TrippyGL.Fonts.Building
                     }
                     else if (iAdv != adv)
                     {
+                        // We need to create the "advances" array and move every glyph's advance value to there.
+                        // All the glyphs up to this point had the same advance value "adv", so we fill the "advances"
+                        // array with that value up to the index of the current glyph.
                         advances = new float[CharCount];
                         for (int c = 0; c < i - FirstChar; c++)
                             advances[c] = adv.Value;
@@ -178,7 +182,7 @@ namespace TrippyGL.Fonts.Building
                     advances[i - FirstChar] = iAdv;
             }
 
-            if (adv == null || advances == null)
+            if (advances == null)
             {
                 advances = new float[1] { adv.GetValueOrDefault() };
                 return false;
@@ -204,11 +208,10 @@ namespace TrippyGL.Fonts.Building
                 for (int b = FirstChar; b <= LastChar; b++)
                 {
                     //Vector2 offset = FontMetrics.GetOffset(FontMetrics.GetGlyph(b), aMetrics);
-                    Vector2 offset = Vector2.Zero; // TODO: Find out how the fuck to get kerning THEY BETTER NOT HAVE REMOVED THIS AAAAAHHH
+                    Vector2 offset = Vector2.Zero; // TODO: Add kerning once that functionality is added back to SixLabors.Fonts
                     if (offset.X != 0 || offset.Y != 0)
                     {
-                        if (kerningOffsets == null)
-                            kerningOffsets = new Vector2[CharCount, CharCount];
+                        kerningOffsets ??= new Vector2[CharCount, CharCount];
                         kerningOffsets[a - FirstChar, b - FirstChar] = offset * Font.Size * (DrawDpi / CalcDpi) / fontMetrics.UnitsPerEm;
                     }
                 }
