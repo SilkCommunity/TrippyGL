@@ -37,11 +37,11 @@ namespace TrippyGL
         // Holding a reference to huge lists that might no longer be needed isn't a good idea, so
         // instead we'll hold WeakReference-s to them, allowing them to be garbage collected.
         private static readonly object listsLock = new object();
-        private static WeakReference<List<int>> indicesReference;
-        private static WeakReference<List<Vector3>> positionsReference;
-        private static WeakReference<List<Vector3>> normalsReference;
-        private static WeakReference<List<Color4b>> colorsReference;
-        private static WeakReference<List<Vector2>> texCoordsReference;
+        private static WeakReference<List<int>?>? indicesReference;
+        private static WeakReference<List<Vector3>?>? positionsReference;
+        private static WeakReference<List<Vector3>?>? normalsReference;
+        private static WeakReference<List<Color4b>?>? colorsReference;
+        private static WeakReference<List<Vector2>?>? texCoordsReference;
 
         /// <summary>
         /// Loads a 3D model as an array of vertices from an OBJ file.
@@ -581,16 +581,18 @@ namespace TrippyGL
         {
             lock (listsLock)
             {
-                if (indicesReference != null && indicesReference.TryGetTarget(out indices))
+                if (indicesReference != null && indicesReference.TryGetTarget(out List<int>? indicesTarget))
                 {
+                    indices = indicesTarget;
                     indicesReference.SetTarget(null);
                     indices.Clear();
                 }
                 else
                     indices = new List<int>(128);
 
-                if (positionsReference != null && positionsReference.TryGetTarget(out positions))
+                if (positionsReference != null && positionsReference.TryGetTarget(out List<Vector3>? positionsTarget) && positionsTarget != null)
                 {
+                    positions = positionsTarget;
                     positionsReference.SetTarget(null);
                     positions.Clear();
                 }
@@ -599,8 +601,9 @@ namespace TrippyGL
 
                 if (loadNormals)
                 {
-                    if (normalsReference != null && normalsReference.TryGetTarget(out normals))
+                    if (normalsReference != null && normalsReference.TryGetTarget(out List<Vector3>? normalsTarget) && normalsTarget != null)
                     {
+                        normals = normalsTarget;
                         normalsReference.SetTarget(null);
                         normals.Clear();
                     }
@@ -608,12 +611,13 @@ namespace TrippyGL
                         normals = new List<Vector3>(128);
                 }
                 else
-                    normals = null;
+                    normals = null!;
 
                 if (loadColors)
                 {
-                    if (colorsReference != null && colorsReference.TryGetTarget(out colors))
+                    if (colorsReference != null && colorsReference.TryGetTarget(out List<Color4b>? colorsTarget) && colorsTarget != null)
                     {
+                        colors = colorsTarget;
                         colorsReference.SetTarget(null);
                         colors.Clear();
                     }
@@ -621,12 +625,13 @@ namespace TrippyGL
                         colors = new List<Color4b>(128);
                 }
                 else
-                    colors = null;
+                    colors = null!;
 
                 if (loadTexCoords)
                 {
-                    if (texCoordsReference != null && texCoordsReference.TryGetTarget(out texCoords))
+                    if (texCoordsReference != null && texCoordsReference.TryGetTarget(out List<Vector2>? texCoordsTarget) && texCoordsTarget != null)
                     {
+                        texCoords = texCoordsTarget;
                         texCoordsReference.SetTarget(null);
                         texCoords.Clear();
                     }
@@ -634,50 +639,49 @@ namespace TrippyGL
                         texCoords = new List<Vector2>(128);
                 }
                 else
-                    texCoords = null;
+                    texCoords = null!;
             }
         }
 
         /// <summary>
         /// Returns the given lists so they can be reused.
         /// </summary>
-        private static void ReturnLists(List<Vector3> positions, List<Vector3> normals, List<Color4b> colors,
-            List<Vector2> texCoords, List<int> indices)
+        private static void ReturnLists(List<Vector3> positions, List<Vector3>? normals, List<Color4b>? colors,
+            List<Vector2>? texCoords, List<int> indices)
         {
             lock (listsLock)
             {
-                if (indicesReference == null)
-                    indicesReference = new WeakReference<List<int>>(null);
+                indicesReference ??= new WeakReference<List<int>?>(null);
 
-                if (!indicesReference.TryGetTarget(out List<int> oldIndices) || oldIndices.Count < indices.Count)
+                if (!indicesReference.TryGetTarget(out List<int>? oldIndices) || oldIndices.Count < indices.Count)
                     indicesReference.SetTarget(indices);
 
                 if (positionsReference == null)
-                    positionsReference = new WeakReference<List<Vector3>>(positions);
-                else if (!positionsReference.TryGetTarget(out List<Vector3> oldPos) || oldPos.Count < positions.Count)
+                    positionsReference = new WeakReference<List<Vector3>?>(positions);
+                else if (!positionsReference.TryGetTarget(out List<Vector3>? oldPos) || oldPos.Count < positions.Count)
                     positionsReference.SetTarget(positions);
 
                 if (normals != null)
                 {
                     if (normalsReference == null)
-                        normalsReference = new WeakReference<List<Vector3>>(normals);
-                    else if (!normalsReference.TryGetTarget(out List<Vector3> oldNorm) || oldNorm.Count < normals.Count)
+                        normalsReference = new WeakReference<List<Vector3>?>(normals);
+                    else if (!normalsReference.TryGetTarget(out List<Vector3>? oldNorm) || oldNorm.Count < normals.Count)
                         normalsReference.SetTarget(normals);
                 }
 
                 if (colors != null)
                 {
                     if (colorsReference == null)
-                        colorsReference = new WeakReference<List<Color4b>>(colors);
-                    else if (!colorsReference.TryGetTarget(out List<Color4b> oldCols) || oldCols.Count < colors.Count)
+                        colorsReference = new WeakReference<List<Color4b>?>(colors);
+                    else if (!colorsReference.TryGetTarget(out List<Color4b>? oldCols) || oldCols.Count < colors.Count)
                         colorsReference.SetTarget(colors);
                 }
 
                 if (texCoords != null)
                 {
                     if (texCoordsReference == null)
-                        texCoordsReference = new WeakReference<List<Vector2>>(texCoords);
-                    else if (!texCoordsReference.TryGetTarget(out List<Vector2> oldCoords) || oldCoords.Count < texCoords.Count)
+                        texCoordsReference = new WeakReference<List<Vector2>?>(texCoords);
+                    else if (!texCoordsReference.TryGetTarget(out List<Vector2>? oldCoords) || oldCoords.Count < texCoords.Count)
                         texCoordsReference.SetTarget(texCoords);
                 }
             }

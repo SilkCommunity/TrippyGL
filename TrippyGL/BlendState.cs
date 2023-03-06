@@ -127,7 +127,7 @@ namespace TrippyGL
             return IsOpaque ? "Opaque BlendState" : "Non-Opaque BlendState";
         }
 
-        public bool Equals(BlendState other)
+        public bool Equals(BlendState? other)
         {
             return other != null
                 && IsOpaque == other.IsOpaque

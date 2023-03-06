@@ -42,7 +42,7 @@ namespace TrippyGL
             return Texture == other.Texture && AttachmentPoint == other.AttachmentPoint;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is FramebufferTextureAttachment framebufferTextureAttachment)
                 return Equals(framebufferTextureAttachment);
@@ -90,7 +90,7 @@ namespace TrippyGL
             return Renderbuffer == other.Renderbuffer && AttachmentPoint == other.AttachmentPoint;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is FramebufferRenderbufferAttachment framebufferRenderbufferAttachment)
                 return Equals(framebufferRenderbufferAttachment);

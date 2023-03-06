@@ -37,14 +37,14 @@ namespace TrippyGL
         private Matrix4x4 view;
         private Matrix4x4 projection;
         private Vector4 color;
-        private Texture2D texture;
+        private Texture2D? texture;
         private float reflectivity;
         private float specularPower;
         private Vector3 ambientLightColor;
 
         // The lists of directional/positional lights, or null if there are none.
-        private readonly DirectionalLight[] directionalLights;
-        private readonly PositionalLight[] positionalLights;
+        private readonly DirectionalLight[]? directionalLights;
+        private readonly PositionalLight[]? positionalLights;
 
         /// <summary>
         /// Gets or sets this <see cref="SimpleShaderProgram"/>'s World matrix.
@@ -115,12 +115,12 @@ namespace TrippyGL
         /// If enabled, the <see cref="SimpleShaderProgram"/> will sample this <see cref="Texture2D"/>
         /// using the coordinates in the vertices as part of the output color calculation.
         /// </remarks>
-        public Texture2D Texture
+        public Texture2D? Texture
         {
             get => texture;
             set
             {
-                sampUniform.SetValueTexture(value);
+                sampUniform.SetValueTexture(value!);
                 texture = value;
             }
         }
@@ -265,7 +265,7 @@ namespace TrippyGL
         /// by getting the <see cref="ShaderUniform"/>-s from <see cref="ShaderProgram.Uniforms"/>.
         /// </summary>
         /// <param name="directionalLightCount">The amount of directional lights on this <see cref="SimpleShaderProgram"/>.</param>
-        private DirectionalLight[] CreateDirectionalLights(int directionalLightCount)
+        private DirectionalLight[]? CreateDirectionalLights(int directionalLightCount)
         {
             if (directionalLightCount <= 0)
                 return null;
@@ -292,7 +292,7 @@ namespace TrippyGL
         /// by getting the <see cref="ShaderUniform"/>-s from <see cref="ShaderProgram.Uniforms"/>.
         /// </summary>
         /// <param name="positionalLightCount">The amount of positional lights on this <see cref="SimpleShaderProgram"/>.</param>
-        private PositionalLight[] CreatePositionalLights(int positionalLightCount)
+        private PositionalLight[]? CreatePositionalLights(int positionalLightCount)
         {
             if (positionalLightCount <= 0)
                 return null;

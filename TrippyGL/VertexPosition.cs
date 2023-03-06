@@ -64,7 +64,7 @@ namespace TrippyGL
             return Position == other.Position;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexPosition vertexPosition)
                 return Equals(vertexPosition);

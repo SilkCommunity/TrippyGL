@@ -55,7 +55,7 @@ namespace TrippyGL
                 && TexCoords == other.TexCoords;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexTexture vertexTexture)
                 return Equals(vertexTexture);

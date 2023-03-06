@@ -13,16 +13,16 @@ namespace TrippyGL
         public readonly ShaderProgram Program;
 
         /// <summary>All of the block uniforms in the <see cref="ShaderProgram"/>.</summary>
-        private readonly ShaderBlockUniform[] uniforms;
+        private readonly ShaderBlockUniform[]? uniforms;
 
         /// <summary>
         /// Gets a <see cref="ShaderBlockUniform"/> by name. If there's no such name, returns null.
         /// </summary>
         /// <param name="name">The name (declared in the shaders) of the <see cref="ShaderBlockUniform"/> to get.</param>
-        public ShaderBlockUniform this[string name] => GetUniformByName(name);
+        public ShaderBlockUniform? this[string name] => GetUniformByName(name);
 
         /// <summary>The amount of <see cref="ShaderBlockUniform"/> in the <see cref="ShaderProgram"/>.</summary>
-        public int Count => uniforms.Length;
+        public int Count => uniforms?.Length ?? 0;
 
         /// <summary>The total amount of uniforms from all the block. If a block has two values, these count as two uniforms.</summary>
         public readonly int TotalUniformCount;
@@ -72,8 +72,11 @@ namespace TrippyGL
         /// Gets a <see cref="ShaderBlockUniform"/> by name. If there's no such name, returns null.
         /// </summary>
         /// <param name="name">The name (as declared in the shaders) of the <see cref="ShaderBlockUniform"/> to get.</param>
-        public ShaderBlockUniform GetUniformByName(ReadOnlySpan<char> name)
+        public ShaderBlockUniform? GetUniformByName(ReadOnlySpan<char> name)
         {
+            if (uniforms == null)
+                return null;
+
             for (int i = 0; i < uniforms.Length; i++)
                 if (name.SequenceEqual(uniforms[i].Name))
                     return uniforms[i];
@@ -97,7 +100,7 @@ namespace TrippyGL
                 && uniforms == other.uniforms;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ShaderBlockUniformList shaderBlockUniformList)
                 return Equals(shaderBlockUniformList);

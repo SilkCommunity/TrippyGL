@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using TrippyGL.Utils;
-
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable
 
 namespace TrippyGL
 {
@@ -107,7 +106,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="depthTexture">The <see cref="Texture2D"/> this <see cref="Framebuffer2D"/> uses as depth buffer, if there is one.</param>
         /// <returns>Whether this <see cref="Framebuffer2D"/> has a <see cref="Texture2D"/> as depth buffer.</returns>
-        public bool TryGetDepthTexture(out Texture2D depthTexture)
+        public bool TryGetDepthTexture([NotNullWhen(true)] out Texture2D? depthTexture)
         {
             if (Framebuffer.TryGetTextureAttachment(FramebufferAttachmentPoint.Depth, out FramebufferTextureAttachment depthAttachment)
                 && depthAttachment.Texture is Texture2D dptTex)
@@ -145,7 +144,7 @@ namespace TrippyGL
             return Framebuffer == other.Framebuffer;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Framebuffer2D framebuffer)
                 return Equals(framebuffer);

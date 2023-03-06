@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Numerics;
 using System.Text;
@@ -29,7 +30,7 @@ namespace TrippyGL
         public GraphicsDevice GraphicsDevice { get; }
 
         /// <summary>Used to store vertices before sending them to <see cref="vertexBuffer"/>.</summary>
-        private VertexColorTexture[] triangles;
+        private VertexColorTexture[]? triangles;
 
         /// <summary>Stores the triangles for rendering.</summary>
         private readonly VertexBuffer<VertexColorTexture> vertexBuffer;
@@ -51,7 +52,7 @@ namespace TrippyGL
         public BatcherBeginMode BeginMode { get; private set; }
 
         /// <summary>The <see cref="ShaderProgram"/> this <see cref="TextureBatcher"/> is currently using.</summary>
-        public ShaderProgram ShaderProgram { get; private set; }
+        public ShaderProgram? ShaderProgram { get; private set; }
 
         /// <summary>
         /// The <see cref="ShaderUniform"/> this <see cref="TextureBatcher"/> uses for setting the texture
@@ -235,11 +236,16 @@ namespace TrippyGL
         /// <remarks>
         /// <see cref="triangles"/> will always be resized to have the same size as <see cref="vertexBuffer"/>.
         /// </remarks>
+        [MemberNotNull(nameof(triangles))]
         private void EnsureBufferCapacity(int requiredCapacity)
         {
             uint currentCapacity = vertexBuffer.StorageLength;
             if (currentCapacity == MaxBufferCapacity)
+#pragma warning disable CS8774 // Member must have a non-null value when exiting.
+// This warning complains that "triangles" is not being assigned, and that is must be a non-null value before this
+// function exits (for the nullable code analyzer). However, the if condition ensures that triangles is not null.
                 return;
+#pragma warning restore CS8774 // Member must have a non-null value when exiting.
 
             if (currentCapacity < requiredCapacity)
                 vertexBuffer.RecreateStorage(Math.Min((uint)TrippyMath.GetNextCapacity((int)currentCapacity, requiredCapacity), MaxBufferCapacity));
@@ -998,7 +1004,7 @@ namespace TrippyGL
         {
             item.SortValue = BeginMode switch
             {
-                BatcherBeginMode.SortByTexture => item.Texture.Handle,
+                BatcherBeginMode.SortByTexture => item.Texture!.Handle,
                 BatcherBeginMode.SortFrontToBack => item.VertexTL.Position.Z,
                 BatcherBeginMode.SortBackToFront => -item.VertexTL.Position.Z,
                 _ => 0
@@ -1056,7 +1062,7 @@ namespace TrippyGL
             while (itemStartIndex < batchItemCount)
             {
                 // We get the texture to draw with for this batch (the texture of next item to draw).
-                Texture2D currentTexture = batchItems[itemStartIndex].Texture;
+                Texture2D currentTexture = batchItems[itemStartIndex].Texture!;
 
                 // We search for the end of this batch. That is, up to what item can we draw with this texture.
                 int itemEndIndex = sameTextureEnsured ? batchItemCount : FindDifferentTexture(currentTexture, itemStartIndex + 1);

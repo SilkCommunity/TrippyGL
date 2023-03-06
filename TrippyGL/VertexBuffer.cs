@@ -24,7 +24,7 @@ namespace TrippyGL
         public readonly VertexArray VertexArray;
 
         /// <summary>The <see cref="IndexBufferSubset"/> that manages the index storage.</summary>
-        public IndexBufferSubset IndexSubset => VertexArray.IndexBuffer;
+        public IndexBufferSubset? IndexSubset => VertexArray.IndexBuffer;
 
         /// <summary>The size of a single vertex measured in bytes.</summary>
         public readonly uint ElementSize;
@@ -33,7 +33,7 @@ namespace TrippyGL
         public uint StorageLength => DataSubset.StorageLength;
 
         /// <summary>The length of the <see cref="VertexBuffer{T}"/>'s index storage measured in index elements.</summary>
-        public uint IndexStorageLength => IndexSubset.StorageLength;
+        public uint IndexStorageLength => IndexSubset?.StorageLength ?? 0;
 
         /// <summary>Whether this <see cref="VertexBuffer{T}"/> has been disposed.</summary>
         public bool IsDisposed => Buffer.IsDisposed;
@@ -72,7 +72,7 @@ namespace TrippyGL
 
             Buffer = new BufferObject(graphicsDevice, bufferStorageLengthBytes, usageHint);
             DataSubset = new VertexDataBufferSubset<T>(Buffer, 0, storageLength);
-            IndexBufferSubset indexSubset = hasIndexBuffer ? new IndexBufferSubset(Buffer, indexSubsetStartBytes, indexStorageLength, indexElementType) : null;
+            IndexBufferSubset? indexSubset = hasIndexBuffer ? new IndexBufferSubset(Buffer, indexSubsetStartBytes, indexStorageLength, indexElementType) : null;
 
             VertexArray = VertexArray.CreateSingleBuffer<T>(graphicsDevice, DataSubset, indexSubset);
         }
@@ -153,20 +153,19 @@ namespace TrippyGL
         {
             ValidateStorageLength(storageLength);
 
-            IndexBufferSubset indexSubset = IndexSubset;
-            bool hasIndexSubset = indexSubset != null;
+            IndexBufferSubset? indexSubset = IndexSubset;
 
             uint bufferStorageLengthBytes;
             uint elementSubsetLengthBytes = storageLength * ElementSize;
 
             uint indexSubsetStartBytes;
 
-            if (hasIndexSubset)
+            if (indexSubset != null)
             {
                 if (indexStorageLength <= 0)
                     indexStorageLength = indexSubset.StorageLength;
 
-                uint indexElementSize = IndexSubset.ElementSize;
+                uint indexElementSize = indexSubset.ElementSize;
                 indexSubsetStartBytes = (elementSubsetLengthBytes + indexElementSize - 1) / indexElementSize * indexElementSize;
 
                 bufferStorageLengthBytes = indexSubsetStartBytes + indexElementSize * indexStorageLength;
@@ -235,7 +234,7 @@ namespace TrippyGL
             return Buffer == other.Buffer;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexBuffer<T> vertexBuffer)
                 return Equals(vertexBuffer);

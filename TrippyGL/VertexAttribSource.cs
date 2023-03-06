@@ -122,7 +122,7 @@ namespace TrippyGL
             return HashCode.Combine(BufferSubset, AttribDescription);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexAttribSource vertexAttribSource)
                 return Equals(vertexAttribSource);

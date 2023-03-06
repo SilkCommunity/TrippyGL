@@ -10,33 +10,33 @@ namespace TrippyGL
     public struct ShaderProgramBuilder : IEquatable<ShaderProgramBuilder>
     {
         /// <summary>The vertex shader code for the <see cref="ShaderProgram"/>.</summary>
-        public string VertexShaderCode;
+        public string? VertexShaderCode;
         /// <summary>Whether <see cref="VertexShaderCode"/> is not null or white spaces.</summary>
         public bool HasVertexShader => !string.IsNullOrWhiteSpace(VertexShaderCode);
 
         /// <summary>The geometry shader code for the <see cref="ShaderProgram"/>.</summary>
-        public string GeometryShaderCode;
+        public string? GeometryShaderCode;
         /// <summary>Whether <see cref="GeometryShaderCode"/> is not null or white spaces.</summary>
         public bool HasGeometryShader => !string.IsNullOrWhiteSpace(GeometryShaderCode);
 
         /// <summary>The fragment shader code for the <see cref="ShaderProgram"/>.</summary>
-        public string FragmentShaderCode;
+        public string? FragmentShaderCode;
         /// <summary>Whether <see cref="FragmentShaderCode"/> is not null or white spaces.</summary>
         public bool HasFragmentShader => !string.IsNullOrWhiteSpace(FragmentShaderCode);
 
         /// <summary>The specified attributes ordered by attribute index.</summary>
-        private SpecifiedShaderAttrib[] specifiedAttribs;
+        private SpecifiedShaderAttrib[]? specifiedAttribs;
         /// <summary>Whether vertex attributes have been specified to this <see cref="ShaderProgramBuilder"/>.</summary>
         public bool HasAttribsSpecified => specifiedAttribs != null;
 
         /// <summary>The vertex shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
-        public string VertexShaderLog;
+        public string? VertexShaderLog;
         /// <summary>The geometry shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
-        public string GeometryShaderLog;
+        public string? GeometryShaderLog;
         /// <summary>The fragment shader log of the last <see cref="ShaderProgram"/> this builder created.</summary>
-        public string FragmentShaderLog;
+        public string? FragmentShaderLog;
         /// <summary>The program log of the last <see cref="ShaderProgram"/> this builder created.</summary>
-        public string ProgramLog;
+        public string? ProgramLog;
 
         public static bool operator ==(ShaderProgramBuilder left, ShaderProgramBuilder right) => left.Equals(right);
         public static bool operator !=(ShaderProgramBuilder left, ShaderProgramBuilder right) => !left.Equals(right);
@@ -55,7 +55,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribs">The vertex attributes in order of index.</param>
         /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
-        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribDescription> attribs, ReadOnlySpan<string> attribNames)
+        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribDescription> attribs, ReadOnlySpan<string?> attribNames)
         {
             int length = 0;
             for (int i = 0; i < attribs.Length; i++)
@@ -77,7 +77,7 @@ namespace TrippyGL
         /// </summary>
         /// <param name="attribs">The vertex attributes in order of index.</param>
         /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
-        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribSource> attribs, ReadOnlySpan<string> attribNames)
+        public void SpecifyVertexAttribs(ReadOnlySpan<VertexAttribSource> attribs, ReadOnlySpan<string?> attribNames)
         {
             int length = 0;
             for (int i = 0; i < attribs.Length; i++)
@@ -99,7 +99,7 @@ namespace TrippyGL
         /// </summary>
         /// <typeparam name="T">The type of vertex to use.</typeparam>
         /// <param name="attribNames">The names of the attributes orderd by attribute index.</param>
-        public void SpecifyVertexAttribs<T>(ReadOnlySpan<string> attribNames) where T : unmanaged, IVertex
+        public void SpecifyVertexAttribs<T>(ReadOnlySpan<string?> attribNames) where T : unmanaged, IVertex
         {
             T t = default;
             int attribCount = t.AttribDescriptionCount;
@@ -137,7 +137,7 @@ namespace TrippyGL
             if (!HasVertexShader)
                 throw new InvalidOperationException("A vertex shader must be specified");
 
-            if (!HasAttribsSpecified)
+            if (specifiedAttribs == null) // (!HasAttribsSpecified)
                 throw new InvalidOperationException("Vertex attributes must be specified");
 
             // glCreateShader returns non-zero values so we can set these as default no problem
@@ -375,7 +375,7 @@ namespace TrippyGL
                 && ReferenceEquals(ProgramLog, other.ProgramLog);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ShaderProgramBuilder shaderProgramBuilder)
                 return Equals(shaderProgramBuilder);

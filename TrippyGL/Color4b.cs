@@ -212,7 +212,7 @@ namespace TrippyGL
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Color4b color4b)
                 return Equals(color4b);
