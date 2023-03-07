@@ -20,9 +20,6 @@
     <None Update="diamond.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="font.tglf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="particles.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
