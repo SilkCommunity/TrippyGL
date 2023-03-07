@@ -5,8 +5,6 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
 namespace TrippyGL
 {
     /// <summary>

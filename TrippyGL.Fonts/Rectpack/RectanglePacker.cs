@@ -13,7 +13,7 @@ namespace TrippyGL.Fonts.Rectpack
     public static class RectanglePacker
     {
         /// <summary>A weak reference to the last list used, so it can be reused in subsequent packs.</summary>
-        private static WeakReference<List<PackingRectangle>> oldListReference;
+        private static WeakReference<List<PackingRectangle>?>? oldListReference;
         private static readonly object oldListReferenceLock = new object();
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace TrippyGL.Fonts.Rectpack
             // We turn the acceptableDensity parameter into an acceptableArea value, so we can
             // compare the area directly rather than having to calculate the density each time.
             uint totalArea = CalculateTotalArea(rectangles);
-            acceptableDensity = Math.Clamp(acceptableDensity, 0.1f, 1);
+            acceptableDensity = Math.Min(Math.Max(acceptableDensity, 0.1f), 1f);
             uint acceptableArea = (uint)Math.Ceiling(totalArea / acceptableDensity);
 
             // We get a list that will be used (and reused) by the packing algorithm.
@@ -269,7 +269,7 @@ namespace TrippyGL.Fonts.Rectpack
 
             lock (oldListReferenceLock)
             {
-                if (oldListReference.TryGetTarget(out List<PackingRectangle> list))
+                if (oldListReference.TryGetTarget(out List<PackingRectangle>? list))
                 {
                     oldListReference.SetTarget(null);
                     return list;
@@ -286,12 +286,12 @@ namespace TrippyGL.Fonts.Rectpack
         private static void ReturnList(List<PackingRectangle> list)
         {
             if (oldListReference == null)
-                oldListReference = new WeakReference<List<PackingRectangle>>(list);
+                oldListReference = new WeakReference<List<PackingRectangle>?>(list);
             else
             {
                 lock (oldListReferenceLock)
                 {
-                    if (!oldListReference.TryGetTarget(out List<PackingRectangle> oldList) || oldList.Capacity < list.Capacity)
+                    if (!oldListReference.TryGetTarget(out List<PackingRectangle>? oldList) || oldList.Capacity < list.Capacity)
                         oldListReference.SetTarget(list);
                 }
             }
