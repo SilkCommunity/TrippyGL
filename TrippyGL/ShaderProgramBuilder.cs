@@ -124,7 +124,7 @@ namespace TrippyGL
         /// <exception cref="ShaderCompilationException"/>
         /// <exception cref="ProgramLinkException"/>
         internal uint CreateInternal(GraphicsDevice graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
-            out bool hasVs, out bool hasGs, out bool hasFs, bool getLogs = false)
+            out bool hasVs, out bool hasGs, out bool hasFs, bool getLogs, bool raiseShaderCompiled)
         {
             VertexShaderLog = null;
             FragmentShaderLog = null;
@@ -267,7 +267,8 @@ namespace TrippyGL
                 graphicsDevice.GL.DeleteShader(vsHandle);
                 graphicsDevice.GL.DeleteShader(gsHandle);
                 graphicsDevice.GL.DeleteShader(fsHandle);
-                graphicsDevice.OnShaderCompiled(this, success);
+                if (raiseShaderCompiled)
+                    graphicsDevice.OnShaderCompiled(this, success);
             }
         }
 
@@ -279,7 +280,7 @@ namespace TrippyGL
         public ShaderProgram Create(GraphicsDevice graphicsDevice, bool getLogs = false)
         {
             uint programHandle = CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
-                out bool hasVs, out bool hasGs, out bool hasFs, getLogs);
+                out bool hasVs, out bool hasGs, out bool hasFs, getLogs, true);
             return new ShaderProgram(graphicsDevice, programHandle, activeAttribs, hasVs, hasGs, hasFs);
         }
 

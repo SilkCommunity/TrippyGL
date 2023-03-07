@@ -361,7 +361,7 @@ namespace TrippyGL
                 // Also, once we know the SimpleShaderProgram's code is flawless we should change this
                 // somehow so it doesn't raise the GraphicsDevice.ShaderCompiled event.
                 programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
-                    out bool hasVs, out bool hasGs, out bool hasFs, true);
+                    out bool hasVs, out bool hasGs, out bool hasFs, false, false);
                 return new SimpleShaderProgram(graphicsDevice, programHandle, activeAttribs, hasVs, hasGs, hasFs,
                     VertexColorsEnabled, TextureEnabled, DirectionalLights, PositionalLights);
             }
