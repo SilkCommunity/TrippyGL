@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using SixLabors.Fonts;
@@ -31,7 +32,7 @@ namespace TrippyGL.Fonts.Building
         private readonly IPathCollection[] glyphPaths;
 
         /// <summary>The colors of the paths that make up each character. Might be null.</summary>
-        private readonly Color?[][] pathColors;
+        private readonly Color?[][]? pathColors;
 
         /// <summary>Configuration for how glyphs should be rendered.</summary>
         public DrawingOptions DrawingOptions;
@@ -96,7 +97,7 @@ namespace TrippyGL.Fonts.Building
         /// Creates the <see cref="IPathCollection"/> for all the characters, also getting their colors,
         /// glyph sizes and render offsets.
         /// </summary>
-        private IPathCollection[] CreatePaths(out Color?[][] colors, out System.Drawing.Point[] sizes, out Vector2[] offsets)
+        private IPathCollection[] CreatePaths(out Color?[][]? colors, out System.Drawing.Point[] sizes, out Vector2[] offsets)
         {
             FontMetrics fontMetrics = Font.FontMetrics;
             ColorGlyphRenderer glyphRenderer = new ColorGlyphRenderer();
@@ -114,7 +115,7 @@ namespace TrippyGL.Fonts.Building
             {
                 char c = (char)(i + FirstChar);
                 glyphRenderer.Reset();
-                GlyphMetrics glyphMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(c), ColorFontSupport.None).FirstOrDefault();
+                GlyphMetrics? glyphMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(c), ColorFontSupport.None).FirstOrDefault();
                 if (glyphMetrics == null)
                     continue;
 
@@ -141,7 +142,7 @@ namespace TrippyGL.Fonts.Building
             return paths;
         }
 
-        public bool GetAdvances(out float[] advances)
+        public bool GetAdvances([NotNullWhen(true)] out float[]? advances)
         {
             FontMetrics fontMetrics = Font.FontMetrics;
 
@@ -150,18 +151,18 @@ namespace TrippyGL.Fonts.Building
             // If at least two glyphs have differente advance values, that value of "adv" will be ignored, and
             // "advances" will store every glyph's advance separately.
             // If no glyph is found with a valid advance value, both will remain null.
-            advances = null;
+            float[]? advancesArray = null;
             float? adv = null;
 
             for (int i = FirstChar; i <= LastChar; i++)
             {
-                GlyphMetrics inst = fontMetrics.GetGlyphMetrics(new CodePoint(i), ColorFontSupport.None).FirstOrDefault();
+                GlyphMetrics? inst = fontMetrics.GetGlyphMetrics(new CodePoint(i), ColorFontSupport.None).FirstOrDefault();
                 if (inst == null)
                     continue;
 
                 float iAdv = inst.AdvanceWidth * Font.Size * (DrawDpi / CalcDpi) / inst.UnitsPerEm;
 
-                if (advances == null)
+                if (advancesArray == null)
                 {
                     if (adv == null)
                     {
@@ -172,26 +173,27 @@ namespace TrippyGL.Fonts.Building
                         // We need to create the "advances" array and move every glyph's advance value to there.
                         // All the glyphs up to this point had the same advance value "adv", so we fill the "advances"
                         // array with that value up to the index of the current glyph.
-                        advances = new float[CharCount];
+                        advancesArray = new float[CharCount];
                         for (int c = 0; c < i - FirstChar; c++)
-                            advances[c] = adv.Value;
-                        advances[i - FirstChar] = iAdv;
+                            advancesArray[c] = adv.Value;
+                        advancesArray[i - FirstChar] = iAdv;
                     }
                 }
                 else
-                    advances[i - FirstChar] = iAdv;
+                    advancesArray[i - FirstChar] = iAdv;
             }
 
-            if (advances == null)
+            if (advancesArray == null)
             {
                 advances = new float[1] { adv.GetValueOrDefault() };
                 return false;
             }
 
+            advances = advancesArray;
             return true;
         }
 
-        public bool TryGetKerning(out Vector2[,] kerningOffsets)
+        public bool TryGetKerning([NotNullWhen(true)] out Vector2[,]? kerningOffsets)
         {
             FontMetrics fontMetrics = Font.FontMetrics;
 
@@ -201,7 +203,7 @@ namespace TrippyGL.Fonts.Building
 
             for (int a = FirstChar; a <= LastChar; a++)
             {
-                GlyphMetrics aMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(a), ColorFontSupport.None).FirstOrDefault();
+                GlyphMetrics? aMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(a), ColorFontSupport.None).FirstOrDefault();
                 if (aMetrics == null)
                     continue;
 
@@ -241,7 +243,7 @@ namespace TrippyGL.Fonts.Building
         /// <summary>
         /// Draws a collection of paths with the given colors onto the image.
         /// </summary>
-        private void DrawColoredPaths(Image<Rgba32> image, IPathCollection paths, Color?[] pathColors)
+        private void DrawColoredPaths(Image<Rgba32> image, IPathCollection paths, Color?[]? pathColors)
         {
             IEnumerator<IPath> pathEnumerator = paths.GetEnumerator();
 
@@ -249,7 +251,7 @@ namespace TrippyGL.Fonts.Building
             while (pathEnumerator.MoveNext())
             {
                 IPath path = pathEnumerator.Current;
-                Color color = (pathColors != null && i < pathColors.Length && pathColors[i].HasValue) ? pathColors[i].Value : DefaultGlyphColor;
+                Color color = (pathColors != null && i < pathColors.Length) ? pathColors[i] ?? DefaultGlyphColor : DefaultGlyphColor;
                 image.Mutate(x => x.Fill(DrawingOptions, color, path));
                 i++;
             }

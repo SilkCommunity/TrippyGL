@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Silk.NET.OpenGL;
 
 namespace TrippyGL
@@ -39,7 +40,7 @@ namespace TrippyGL
         /// Stores the handle of the last buffer bound to the <see cref="BufferTarget"/>
         /// found on the same index on the <see cref="bufferBindingTargets"/> array.
         /// </summary>
-        private BufferObject[] bufferBindings;
+        private BufferObject?[] bufferBindings;
 
         /// <summary>The <see cref="BufferTarget"/>-s for the handles found on the <see cref="bufferBindings"/> array.</summary>
         private BufferTarget[] bufferBindingTargets;
@@ -53,6 +54,7 @@ namespace TrippyGL
         /// <summary>
         /// Initializes all the fields needed for buffer binding.
         /// </summary>
+        [MemberNotNull(nameof(bufferBindingTargets), nameof(bufferBindings), nameof(bufferRangeBindings))]
         private void InitBufferObjectStates()
         {
             bufferBindingTargets = new BufferTarget[BufferTargetCount];
@@ -86,42 +88,42 @@ namespace TrippyGL
         }
 
         /// <summary>Gets or sets (binds) the <see cref="BufferObject"/> currently bound to GL_ARRAY_BUFFER.</summary>
-        public BufferObject ArrayBuffer
+        public BufferObject? ArrayBuffer
         {
             get => bufferBindings[arrayBufferIndex];
             set
             {
                 if (bufferBindings[arrayBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTargetARB.ArrayBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.ArrayBuffer, value?.Handle ?? 0);
                     bufferBindings[arrayBufferIndex] = value;
                 }
             }
         }
 
         /// <summary>Gets or sets (binds) the <see cref="BufferObject"/> currently bound to GL_COPY_READ_BUFFER.</summary>
-        public BufferObject CopyReadBuffer
+        public BufferObject? CopyReadBuffer
         {
             get => bufferBindings[copyReadBufferIndex];
             set
             {
                 if (bufferBindings[copyReadBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTargetARB.CopyReadBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.CopyReadBuffer, value?.Handle ?? 0);
                     bufferBindings[copyReadBufferIndex] = value;
                 }
             }
         }
 
         /// <summary>Gets or sets (binds) the <see cref="BufferObject"/> currently bound to GL_COPY_WRITE_BUFFER.</summary>
-        public BufferObject CopyWriteBuffer
+        public BufferObject? CopyWriteBuffer
         {
             get => bufferBindings[copyWriteBufferIndex];
             set
             {
                 if (bufferBindings[copyWriteBufferIndex] != value)
                 {
-                    GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, value == null ? 0 : value.Handle);
+                    GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, value?.Handle ?? 0);
                     bufferBindings[copyWriteBufferIndex] = value;
                 }
             }
@@ -208,9 +210,9 @@ namespace TrippyGL
         /// Binds a buffer to the GL_COPY_READ_BUFFER target without first checking whether it's already bound.
         /// </summary>
         /// <param name="buffer">The buffer to bind.</param>
-        internal void ForceBindBufferCopyRead(BufferObject buffer)
+        internal void ForceBindBufferCopyRead(BufferObject? buffer)
         {
-            GL.BindBuffer(BufferTargetARB.CopyReadBuffer, buffer == null ? 0 : buffer.Handle);
+            GL.BindBuffer(BufferTargetARB.CopyReadBuffer, buffer?.Handle ?? 0);
             bufferBindings[copyReadBufferIndex] = buffer;
         }
 
@@ -218,9 +220,9 @@ namespace TrippyGL
         /// Binds a buffer to the GL_COPY_WRITE_BUFFER taret without first checking whether it's already bound.
         /// </summary>
         /// <param name="buffer">The buffer to bind.</param>
-        internal void ForceBindBufferCopyWrite(BufferObject buffer)
+        internal void ForceBindBufferCopyWrite(BufferObject? buffer)
         {
-            GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, buffer == null ? 0 : buffer.Handle);
+            GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, buffer?.Handle ?? 0);
             bufferBindings[copyWriteBufferIndex] = buffer;
         }
 
@@ -256,14 +258,17 @@ namespace TrippyGL
         public void ResetBufferStates()
         {
             for (int i = 0; i < BufferTargetCount; i++)
-                GL.BindBuffer((GLEnum)bufferBindingTargets[i], bufferBindings[i] == null ? 0 : bufferBindings[i].Handle);
+                GL.BindBuffer((GLEnum)bufferBindingTargets[i], bufferBindings[i]?.Handle ?? 0);
 
             for (int i = 0; i < bufferRangeBindings.Length; i++)
             {
                 BufferRangeBinding[] arr = bufferRangeBindings[i];
                 for (int c = 0; c < arr.Length; c++)
-                    if (arr[c].Buffer != null)
-                        GL.BindBufferRange((GLEnum)bufferBindingTargets[i], (uint)c, arr[c].Buffer.Handle, (int)arr[c].Offset, arr[c].Size);
+                {
+                    BufferRangeBinding buf = arr[c];
+                    if (buf.Buffer != null)
+                        GL.BindBufferRange((GLEnum)bufferBindingTargets[i], (uint)c, buf.Buffer.Handle, (int)buf.Offset, buf.Size);
+                }
             }
         }
 
@@ -274,7 +279,7 @@ namespace TrippyGL
         /// </summary>
         internal struct BufferRangeBinding
         {
-            public BufferObject Buffer;
+            public BufferObject? Buffer;
             public uint Offset;
             public uint Size;
 
@@ -310,17 +315,17 @@ namespace TrippyGL
 
         #region VertexArrayBindingStates
 
-        private VertexArray vertexArray;
+        private VertexArray? vertexArray;
 
         /// <summary>Gets or sets (binds) the currently bound <see cref="TrippyGL.VertexArray"/>.</summary>
-        public VertexArray VertexArray
+        public VertexArray? VertexArray
         {
             get => vertexArray;
             set
             {
                 if (vertexArray != value)
                 {
-                    GL.BindVertexArray(value == null ? 0 : value.Handle);
+                    GL.BindVertexArray(value?.Handle ?? 0);
                     vertexArray = value;
                 }
             }
@@ -330,9 +335,9 @@ namespace TrippyGL
         /// Binds a <see cref="TrippyGL.VertexArray"/> without first checking whether it's already bound.
         /// </summary>
         /// <param name="array">The <see cref="TrippyGL.VertexArray"/> to bind.</param>
-        internal void ForceBindVertexArray(VertexArray array)
+        internal void ForceBindVertexArray(VertexArray? array)
         {
-            GL.BindVertexArray(array == null ? 0 : array.Handle);
+            GL.BindVertexArray(array?.Handle ?? 0);
             vertexArray = array;
         }
 
@@ -342,17 +347,17 @@ namespace TrippyGL
         /// </summary>
         public void ResetVertexArrayStates()
         {
-            GL.BindVertexArray(vertexArray == null ? 0 : vertexArray.Handle);
+            GL.BindVertexArray(vertexArray?.Handle ?? 0);
         }
 
         #endregion VertexArrayBindingStates
 
         #region ShaderProgramBindingStates
 
-        private ShaderProgram shaderProgram;
+        private ShaderProgram? shaderProgram;
 
         /// <summary>Gets or sets (binds) the currently bound <see cref="TrippyGL.ShaderProgram"/>.</summary>
-        public ShaderProgram ShaderProgram
+        public ShaderProgram? ShaderProgram
         {
             get => shaderProgram;
             set
@@ -367,9 +372,9 @@ namespace TrippyGL
         /// pipeline without first checking whether it's already in use.
         /// </summary>
         /// <param name="program">The <see cref="TrippyGL.ShaderProgram"/> to use.</param>
-        internal void ForceUseShaderProgram(ShaderProgram program)
+        internal void ForceUseShaderProgram(ShaderProgram? program)
         {
-            GL.UseProgram(program == null ? 0 : program.Handle);
+            GL.UseProgram(program?.Handle ?? 0);
             shaderProgram = program;
         }
 
@@ -379,7 +384,7 @@ namespace TrippyGL
         /// </summary>
         public void ResetShaderProgramStates()
         {
-            GL.UseProgram(shaderProgram == null ? 0 : shaderProgram.Handle);
+            GL.UseProgram(shaderProgram?.Handle ?? 0);
         }
 
         #endregion ShaderProgramBindingStates
@@ -387,7 +392,7 @@ namespace TrippyGL
         #region TextureBindingStates
 
         /// <summary>The array containing for each texture unit (that is, the index of the array) which texture handle is bound to it.</summary>
-        private Texture[] textureBindings;
+        private Texture?[] textureBindings;
 
         /// <summary>This variable counts which texture unit will be used the next time a texture needs binding.</summary>
         private int nextBindUnit;
@@ -498,15 +503,21 @@ namespace TrippyGL
         /// <summary>
         /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
-        public void BindAllTextures(ReadOnlySpan<Texture> textures)
+        public void BindAllTextures(ReadOnlySpan<Texture?> textures)
         {
-            if (textures.Length > textureBindings.Length)
-                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
-
+            int textureCount = 0;
             for (int i = 0; i < textures.Length; i++)
             {
-                Texture t = textures[i];
-                if (t != null && textureBindings[t.lastBindUnit] != t)
+                Texture? t = textures[i];
+
+                if (t == null)
+                    continue;
+
+                textureCount++;
+                if (textureCount > textureBindings.Length)
+                    throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
+
+                if (textureBindings[t.lastBindUnit] != t)
                 {
                     SetActiveTexture(FindUnusedTextureUnit(textures));
                     ForceBindTextureToCurrentUnit(t);
@@ -514,22 +525,25 @@ namespace TrippyGL
             }
 
             // Find a texture unit that's not in use by any of the given textures
-            int FindUnusedTextureUnit(ReadOnlySpan<Texture> texturesToBind)
+            int FindUnusedTextureUnit(ReadOnlySpan<Texture?> texturesToBind)
             {
                 int unit;
                 do
                 {
+                    // NOTE: This will not loop forever because GetNextBindTextureUnit() passes through all the possible
+                    // texture units, and if you try to bind more textures than there are texture units an exception is thrown
+                    // so at least one texture unit must be not used by any texture in texturesToBind.
                     unit = GetNextBindTextureUnit();
                 } while (IsTextureUnitInUse(unit, texturesToBind));
                 return unit;
             }
 
             // Whether a texture unit is currently in use by any of the specified textures
-            bool IsTextureUnitInUse(int unit, ReadOnlySpan<Texture> texturesToBind)
+            bool IsTextureUnitInUse(int unit, ReadOnlySpan<Texture?> texturesToBind)
             {
                 for (int i = 0; i < texturesToBind.Length; i++)
                 {
-                    Texture t = texturesToBind[i];
+                    Texture? t = texturesToBind[i];
                     if (t != null && t.lastBindUnit == unit && textureBindings[unit] == t)
                         return true;
                 }
@@ -540,52 +554,15 @@ namespace TrippyGL
         /// <summary>
         /// Ensures all of the given <see cref="Texture"/>-s are bound to a texture unit. Nulls are ignored.
         /// </summary>
-        public void BindAllTextures(List<Texture> textures)
+        public void BindAllTextures(List<Texture?> textures)
         {
-            if (textures == null)
-                throw new ArgumentNullException(nameof(textures));
-
-            if (textures.Count > textureBindings.Length)
-                throw new NotSupportedException("You tried to bind more textures at the same time than this system supports");
-
-            for (int i = 0; i < textures.Count; i++)
-            {
-                Texture t = textures[i];
-                if (t != null && textureBindings[t.lastBindUnit] != t)
-                {
-                    SetActiveTexture(FindUnusedTextureUnit(textures));
-                    ForceBindTextureToCurrentUnit(t);
-                }
-            }
-
-            // Find a texture unit that's not in use by any of the given textures
-            int FindUnusedTextureUnit(List<Texture> texturesToBind)
-            {
-                int unit;
-                do
-                {
-                    unit = GetNextBindTextureUnit();
-                } while (IsTextureUnitInUse(unit, texturesToBind));
-                return unit;
-            }
-
-            // Whether a texture unit is currently in use by any of the specified textures
-            bool IsTextureUnitInUse(int unit, List<Texture> texturesToBind)
-            {
-                for (int i = 0; i < texturesToBind.Count; i++)
-                {
-                    Texture t = texturesToBind[i];
-                    if (t != null && t.lastBindUnit == unit && textureBindings[unit] == t)
-                        return true;
-                }
-                return false;
-            }
+            BindAllTextures(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(textures));
         }
 
         /// <summary>
         /// Returns whether a <see cref="Texture"/> is the one currently bound to it's last bind location.
         /// </summary>
-        public bool IsTextureBound(Texture texture)
+        public bool IsTextureBound(Texture? texture)
         {
             return texture != null && textureBindings[texture.lastBindUnit] == texture;
         }
@@ -593,6 +570,7 @@ namespace TrippyGL
         /// <summary>
         /// Initiates all variables that track texture binding states.
         /// </summary>
+        [MemberNotNull(nameof(textureBindings))]
         private void InitTextureStates()
         {
             textureBindings = new Texture[MaxTextureImageUnits];
@@ -608,8 +586,11 @@ namespace TrippyGL
         public void ResetTextureStates()
         {
             for (int i = 0; i < textureBindings.Length; i++)
-                if (textureBindings[i] != null)
-                    GL.BindTexture((TextureTarget)textureBindings[i].TextureType, textureBindings[i].Handle);
+            {
+                Texture? tex = textureBindings[i];
+                if (tex != null)
+                    GL.BindTexture((TextureTarget)tex.TextureType, tex.Handle);
+            }
 
             GL.ActiveTexture(TextureUnit.Texture0 + ActiveTextureUnit);
         }
@@ -618,46 +599,46 @@ namespace TrippyGL
 
         #region FramebufferBindings
 
-        private FramebufferObject drawFramebuffer;
-        private FramebufferObject readFramebuffer;
-        private RenderbufferObject renderbuffer;
+        private FramebufferObject? drawFramebuffer;
+        private FramebufferObject? readFramebuffer;
+        private RenderbufferObject? renderbuffer;
 
         /// <summary>Gets or sets (binds) the <see cref="FramebufferObject"/> currently bound for drawing.</summary>
-        public FramebufferObject DrawFramebuffer
+        public FramebufferObject? DrawFramebuffer
         {
             get => drawFramebuffer;
             set
             {
                 if (drawFramebuffer != value)
                 {
-                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, value == null ? 0 : value.Handle);
+                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, value?.Handle ?? 0);
                     drawFramebuffer = value;
                 }
             }
         }
 
         /// <summary>Gets or sets (binds) the <see cref="FramebufferObject"/> currently bound for reading.</summary>
-        public FramebufferObject ReadFramebuffer
+        public FramebufferObject? ReadFramebuffer
         {
             get => readFramebuffer;
             set
             {
                 if (readFramebuffer != value)
                 {
-                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, value == null ? 0 : value.Handle);
+                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, value?.Handle ?? 0);
                     readFramebuffer = value;
                 }
             }
         }
 
         /// <summary>Sets (binds) a <see cref="FramebufferObject"/> for both drawing and reading.</summary>
-        public FramebufferObject Framebuffer
+        public FramebufferObject? Framebuffer
         {
             set
             {
                 if (readFramebuffer != value || drawFramebuffer != value)
                 {
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, value == null ? 0 : value.Handle);
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, value?.Handle ?? 0);
                     drawFramebuffer = value;
                     readFramebuffer = value;
                 }
@@ -665,14 +646,14 @@ namespace TrippyGL
         }
 
         /// <summary>Gets or sets (binds) the current <see cref="RenderbufferObject"/>.</summary>
-        public RenderbufferObject Renderbuffer
+        public RenderbufferObject? Renderbuffer
         {
             get => renderbuffer;
             set
             {
                 if (renderbuffer != value)
                 {
-                    GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, value == null ? 0 : value.Handle);
+                    GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, value?.Handle ?? 0);
                     renderbuffer = value;
                 }
             }
@@ -681,18 +662,18 @@ namespace TrippyGL
         /// <summary>
         /// Binds a <see cref="FramebufferObject"/> for drawing without first checking whether it's already bound.
         /// </summary>
-        internal void ForceBindDrawFramebuffer(FramebufferObject framebuffer)
+        internal void ForceBindDrawFramebuffer(FramebufferObject? framebuffer)
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, framebuffer?.Handle ?? 0);
             drawFramebuffer = framebuffer;
         }
 
         /// <summary>
         /// Binds a <see cref="FramebufferObject"/> for reading without first checking whether it's already bound.
         /// </summary>
-        internal void ForceBindReadFramebuffer(FramebufferObject framebuffer)
+        internal void ForceBindReadFramebuffer(FramebufferObject? framebuffer)
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer == null ? 0 : framebuffer.Handle);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, framebuffer?.Handle ?? 0);
             readFramebuffer = framebuffer;
         }
 
@@ -711,9 +692,9 @@ namespace TrippyGL
         /// </summary>
         public void ResetFramebufferStates()
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, drawFramebuffer == null ? 0 : drawFramebuffer.Handle);
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, readFramebuffer == null ? 0 : readFramebuffer.Handle);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbuffer == null ? 0 : renderbuffer.Handle);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, drawFramebuffer?.Handle ?? 0);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, readFramebuffer?.Handle ?? 0);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbuffer?.Handle ?? 0);
         }
 
         #endregion

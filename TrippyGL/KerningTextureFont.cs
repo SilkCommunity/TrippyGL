@@ -2,8 +2,6 @@
 using System.Drawing;
 using System.Numerics;
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace TrippyGL
 {
     /// <summary>

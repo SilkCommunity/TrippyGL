@@ -15,7 +15,7 @@ namespace TrippyGL
     /// <param name="messageId">An identifier of the message (same messages have same identifiers).</param>
     /// <param name="debugSeverity">The severity of the message.</param>
     /// <param name="message">A human-readable text explaining the message.</param>
-    public delegate void GLDebugMessageReceivedHandler(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string message);
+    public delegate void GLDebugMessageReceivedHandler(DebugSource debugSource, DebugType debugType, int messageId, DebugSeverity debugSeverity, string? message);
 
     /// <summary>
     /// Manages an OpenGL Context and it's <see cref="GraphicsResource"/>-s.
@@ -47,7 +47,7 @@ namespace TrippyGL
 
             InitIsAvailableVariables();
 
-            graphicsResources = new List<GraphicsResource>();
+            graphicsResources = new HashSet<GraphicsResource>();
 
             InitGLGetVariables();
             InitBufferObjectStates();
@@ -100,7 +100,7 @@ namespace TrippyGL
         private bool debugMessagingEnabled;
 
         /// <summary>An event for recieving OpenGL debug messages. Debug messaging must be enabled for this to work.</summary>
-        public event GLDebugMessageReceivedHandler DebugMessageReceived;
+        public event GLDebugMessageReceivedHandler? DebugMessageReceived;
 
         /// <summary>Whether OpenGL message debugging is enabled (using the KHR_debug extension or v4.3).</summary>
         public bool DebugMessagingEnabled
@@ -274,6 +274,12 @@ namespace TrippyGL
         /// <param name="count">The amount of vertices to render.</param>
         public void DrawArrays(PrimitiveType primitiveType, int startIndex, uint count)
         {
+            if (shaderProgram == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawArrays) + "() was called but no shader program is set");
+
+            if (vertexArray == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawArrays) + "() was called but no vertex array is bound");
+
             shaderProgram.EnsurePreDrawStates();
             GL.DrawArrays((GLEnum)primitiveType, startIndex, count);
         }
@@ -286,8 +292,17 @@ namespace TrippyGL
         /// <param name="count">The amount of elements to render.</param>
         public unsafe void DrawElements(PrimitiveType primitiveType, int startIndex, uint count)
         {
+            if (shaderProgram == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElements) + "() was called but no shader program is set");
+
+            if (vertexArray == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElements) + "() was called but no vertex array is bound");
+
+            IndexBufferSubset? indexSubset = vertexArray.IndexBuffer;
+            if (indexSubset == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElements) + "() was called but the currently bound vertex array has no index buffer");
+
             shaderProgram.EnsurePreDrawStates();
-            IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
             GL.DrawElements((GLEnum)primitiveType, count, (GLEnum)indexSubset.ElementType, (void*)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize));
         }
 
@@ -300,6 +315,12 @@ namespace TrippyGL
         /// <param name="instanceCount">The amount of instances to render.</param>
         public void DrawArraysInstanced(PrimitiveType primitiveType, int startIndex, uint count, uint instanceCount)
         {
+            if (shaderProgram == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawArraysInstanced) + "() was called but no shader program is set");
+
+            if (vertexArray == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawArraysInstanced) + "() was called but no vertex array is bound");
+
             shaderProgram.EnsurePreDrawStates();
             GL.DrawArraysInstanced((GLEnum)primitiveType, startIndex, count, instanceCount);
         }
@@ -313,8 +334,17 @@ namespace TrippyGL
         /// <param name="instanceCount">The amount of instances to render.</param>
         public unsafe void DrawElementsInstanced(PrimitiveType primitiveType, int startIndex, uint count, uint instanceCount)
         {
+            if (shaderProgram == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElementsInstanced) + "() was called but no shader program is set");
+
+            if (vertexArray == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElementsInstanced) + "() was called but no vertex array is bound");
+
+            IndexBufferSubset? indexSubset = vertexArray.IndexBuffer;
+            if (indexSubset == null)
+                throw new InvalidOperationException(nameof(GraphicsDevice) + "." + nameof(DrawElementsInstanced) + "() was called but the currently bound vertex array has no index buffer");
+
             shaderProgram.EnsurePreDrawStates();
-            IndexBufferSubset indexSubset = vertexArray.IndexBuffer;
             GL.DrawElementsInstanced((GLEnum)primitiveType, count, (GLEnum)indexSubset.ElementType, (void*)(indexSubset.StorageOffsetInBytes + startIndex * indexSubset.ElementSize), instanceCount);
         }
 
@@ -382,7 +412,7 @@ namespace TrippyGL
         /// then logs will be queried from OpenGL anyway, but only for the particular thing that failed.<para/>
         /// The "success" parameter will only be true if the whole operation, including program linking, succeeded.
         /// </remarks>
-        public event ShaderCompiledHandler ShaderCompiled;
+        public event ShaderCompiledHandler? ShaderCompiled;
 
         /// <summary>
         /// Raises the <see cref="ShaderCompiled"/> event.
@@ -396,7 +426,7 @@ namespace TrippyGL
 
         #region GraphicsResource Management
 
-        private readonly List<GraphicsResource> graphicsResources;
+        private readonly HashSet<GraphicsResource> graphicsResources;
 
         /// <summary>
         /// This is called by all <see cref="GraphicsResource"/>-s on creation.
@@ -423,8 +453,8 @@ namespace TrippyGL
         /// </summary>
         public void DisposeAllResources()
         {
-            for (int i = 0; i < graphicsResources.Count; i++)
-                graphicsResources[i].DisposeByGraphicsDevice();
+            foreach (GraphicsResource resource in graphicsResources)
+                resource.DisposeByGraphicsDevice();
             graphicsResources.Clear();
         }
 

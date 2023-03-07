@@ -1,8 +1,6 @@
 using System;
 using System.Numerics;
 
-#pragma warning disable CA1062 // Validate arguments of public methods
-
 namespace TrippyGL.Utils
 {
     /// <summary>

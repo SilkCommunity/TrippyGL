@@ -10,14 +10,14 @@ namespace TrippyGL
     {
         public ShaderCompilationException() : base() { }
 
-        public ShaderCompilationException(string infoLog) : this(infoLog, null) { }
+        public ShaderCompilationException(string? infoLog) : this(infoLog, null) { }
 
-        public ShaderCompilationException(string infoLog, Exception innerException)
+        public ShaderCompilationException(string? infoLog, Exception? innerException)
             : base(string.Concat("Shader didn't compile properly: ", Environment.NewLine, infoLog), innerException) { }
 
-        public ShaderCompilationException(ShaderType shaderType, string infoLog) : this(shaderType, infoLog, null) { }
+        public ShaderCompilationException(ShaderType shaderType, string? infoLog) : this(shaderType, infoLog, null) { }
 
-        public ShaderCompilationException(ShaderType shaderType, string infoLog, Exception innerException)
+        public ShaderCompilationException(ShaderType shaderType, string? infoLog, Exception? innerException)
             : base(string.Concat(shaderType.ToString(), " didn't compile properly: ", Environment.NewLine, infoLog), innerException) { }
     }
 
@@ -28,9 +28,9 @@ namespace TrippyGL
     {
         public ProgramLinkException() : base() { }
 
-        public ProgramLinkException(string infoLog) : this(infoLog, null) { }
+        public ProgramLinkException(string? infoLog) : this(infoLog, null) { }
 
-        public ProgramLinkException(string infoLog, Exception innerException)
+        public ProgramLinkException(string? infoLog, Exception? innerException)
             : base(string.Concat("Program didn't link properly: ", Environment.NewLine, infoLog), innerException) { }
     }
 
@@ -41,9 +41,9 @@ namespace TrippyGL
     {
         public FramebufferException() : base() { }
 
-        public FramebufferException(string message) : base(message) { }
+        public FramebufferException(string? message) : base(message) { }
 
-        public FramebufferException(string message, Exception innerException) : base(message, innerException) { }
+        public FramebufferException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -53,9 +53,9 @@ namespace TrippyGL
     {
         public InvalidBlitException() : base() { }
 
-        public InvalidBlitException(string message) : base(message) { }
+        public InvalidBlitException(string? message) : base(message) { }
 
-        public InvalidBlitException(string message, Exception innerException) : base(message, innerException) { }
+        public InvalidBlitException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -65,9 +65,9 @@ namespace TrippyGL
     {
         public InvalidFramebufferAttachmentException() : base() { }
 
-        public InvalidFramebufferAttachmentException(string message) : base(message) { }
+        public InvalidFramebufferAttachmentException(string? message) : base(message) { }
 
-        public InvalidFramebufferAttachmentException(string message, Exception innerException) : base(message, innerException) { }
+        public InvalidFramebufferAttachmentException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -77,9 +77,9 @@ namespace TrippyGL
     {
         public BufferCopyException() : base() { }
 
-        public BufferCopyException(string message) : base(message) { }
+        public BufferCopyException(string? message) : base(message) { }
 
-        public BufferCopyException(string message, Exception innerException) : base(message, innerException) { }
+        public BufferCopyException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 
     /// <summary>
@@ -89,8 +89,8 @@ namespace TrippyGL
     {
         public ObjLoaderException() : base() { }
 
-        public ObjLoaderException(string message) : base(message) { }
+        public ObjLoaderException(string? message) : base(message) { }
 
-        public ObjLoaderException(string message, Exception innerException) : base(message, innerException) { }
+        public ObjLoaderException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 }

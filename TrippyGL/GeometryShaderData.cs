@@ -61,7 +61,7 @@ namespace TrippyGL
                 && GeometryVerticesOut == other.GeometryVerticesOut;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is GeometryShaderData geometryShaderData)
                 return Equals(geometryShaderData);

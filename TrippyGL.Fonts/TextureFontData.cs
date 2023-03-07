@@ -2,9 +2,6 @@
 using System.IO;
 using System.Numerics;
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
 namespace TrippyGL.Fonts
 {
     /// <summary>
@@ -37,19 +34,19 @@ namespace TrippyGL.Fonts
         public float LineGap;
 
         /// <summary>This <see cref="TextureFontData"/>'s name.</summary>
-        public string Name;
+        public string? Name;
 
         /// <summary>The advance values for the characters in this font.</summary>
-        public float[] Advances;
+        public float[]? Advances;
 
         /// <summary>The kerning offsets for each character. This are in order [from, to].</summary>
-        public Vector2[,] KerningOffsets;
+        public Vector2[,]? KerningOffsets;
 
         /// <summary>Offsets that should be directly applied to the characters when drawing them.</summary>
-        public Vector2[] RenderOffsets;
+        public Vector2[]? RenderOffsets;
 
         /// <summary>The areas in the font's image/texture where each character is located.</summary>
-        public System.Drawing.Rectangle[] SourceRectangles;
+        public System.Drawing.Rectangle[]? SourceRectangles;
 
         /// <summary>
         /// Writes the data of this <see cref="TextureFontData"/> into a stream.
@@ -132,7 +129,7 @@ namespace TrippyGL.Fonts
                         streamWriter.Write(Advances[i]);
                 }
 
-                if (typeByte == FontTypeByte.SpacedWithKerning)
+                if (KerningOffsets != null)
                 {
                     for (int i = 0; i < KerningOffsets.GetLength(0); i++)
                         for (int c = 0; c < KerningOffsets.GetLength(1); c++)
@@ -192,14 +189,14 @@ namespace TrippyGL.Fonts
                 throw new FontLoadingException("Invalid " + nameof(FontTypeByte));
 
             ushort nameLength = streamReader.ReadUInt16();
-            string name = nameLength == 0 ? null : string.Create(nameLength, streamReader, (chars, sr) =>
+            string? name = nameLength == 0 ? null : string.Create(nameLength, streamReader, (chars, sr) =>
             {
                 for (int i = 0; i < chars.Length; i++)
                     chars[i] = sr.ReadChar();
             });
 
             float[] advances = typeByte == FontTypeByte.Monospace ? new float[1] : new float[charCount];
-            Vector2[,] kerningOffsets = null;
+            Vector2[,]? kerningOffsets = null;
 
             if (typeByte == FontTypeByte.Monospace)
             {

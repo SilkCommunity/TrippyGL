@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -42,7 +43,7 @@ namespace TrippyGL.Fonts
         /// The implementation shouldn't hold a reference to the returned array. Users of this interface
         /// are allowed to use the same array instance without having to copy the data to a new location.
         /// </remarks>
-        public bool GetAdvances(out float[] advances);
+        public bool GetAdvances([NotNullWhen(true)] out float[]? advances);
 
         /// <summary>
         /// Tries to get kerning for all glyphs.
@@ -54,7 +55,7 @@ namespace TrippyGL.Fonts
         /// The implementation shouldn't hold a reference to the returned array. Users of this interface
         /// are allowed to use the same array instance without having to copy the data to a new location.
         /// </remarks>
-        public bool TryGetKerning(out Vector2[,] kerningOffsets);
+        public bool TryGetKerning([NotNullWhen(true)] out Vector2[,]? kerningOffsets);
 
         /// <summary>
         /// Gets the render offsets for all glyphs.

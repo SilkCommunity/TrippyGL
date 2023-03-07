@@ -6,8 +6,8 @@ namespace TrippyGL.Fonts
     {
         public FontLoadingException() : base() { }
 
-        public FontLoadingException(string message) : base(message) { }
+        public FontLoadingException(string? message) : base(message) { }
 
-        public FontLoadingException(string message, Exception innerException) : base(message, innerException) { }
+        public FontLoadingException(string? message, Exception? innerException) : base(message, innerException) { }
     }
 }

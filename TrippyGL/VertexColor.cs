@@ -64,7 +64,7 @@ namespace TrippyGL
                 && Color == other.Color;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexColor vertexColor)
                 return Equals(vertexColor);

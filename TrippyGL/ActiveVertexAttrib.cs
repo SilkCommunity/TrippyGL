@@ -61,7 +61,7 @@ namespace TrippyGL
                 && Name == other.Name;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ActiveVertexAttrib activeVertexAttrib)
                 return Equals(activeVertexAttrib);
