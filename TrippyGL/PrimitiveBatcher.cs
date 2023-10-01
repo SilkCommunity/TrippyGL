@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using TrippyGL.Utils;
 
 namespace TrippyGL
@@ -15,8 +16,8 @@ namespace TrippyGL
 
         public const int InitialCapacity = 64;
 
-        private T[] triangles;
-        private T[] lines;
+        private T[]? triangles;
+        private T[]? lines;
 
         /// <summary>
         /// Gets a <see cref="Span{T}"/> with the batched triangle vertices. If <see cref="TriangleVertexCapacity"/>
@@ -45,24 +46,24 @@ namespace TrippyGL
         /// <summary>The amount of triangle vertices the primitive batcher can currently hold.</summary>
         public int TriangleVertexCapacity
         {
-            get { return triangles.Length; }
+            get { return triangles?.Length ?? 0; }
             set
             {
                 if (TriangleVertexCount > value)
                     throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
-                ResizeTriangles(value, true);
+                Array.Resize(ref triangles, value);
             }
         }
 
         /// <summary>The amount of line vertices the primitive batcher can currently hold.</summary>
         public int LineVertexCapacity
         {
-            get { return lines.Length; }
+            get { return lines?.Length ?? 0; }
             set
             {
                 if (LineVertexCount > value)
                     throw new InvalidOperationException("The primitive batcher's capacity must be able to hold the currently batched vertices");
-                ResizeLines(value, true);
+                Array.Resize(ref lines, value);
             }
         }
 
@@ -267,10 +268,11 @@ namespace TrippyGL
         /// </summary>
         /// <param name="requiredVertexCount">The minimum amount of triangle vertices required.</param>
         /// <param name="copyOldData">Whether to copy the old array data to the new array.</param>
-        public void EnsureTriangleSpace(int requiredVertexCount, bool copyOldData = true)
+        [MemberNotNull(nameof(triangles))]
+        public void EnsureTriangleSpace(int requiredVertexCount)
         {
-            if (requiredVertexCount > triangles.Length)
-                ResizeTriangles(TrippyMath.GetNextCapacity(triangles.Length, requiredVertexCount), copyOldData);
+            if (triangles == null || requiredVertexCount > triangles.Length)
+                Array.Resize(ref triangles, TrippyMath.GetNextCapacity(triangles?.Length ?? 1, requiredVertexCount));
         }
 
         /// <summary>
@@ -279,48 +281,11 @@ namespace TrippyGL
         /// </summary>
         /// <param name="requiredVertexCount">The minimum amount of lines vertices required.</param>
         /// <param name="copyOldData">Whether to copy the old array data to the new array.</param>
-        public void EnsureLineSpace(int requiredVertexCount, bool copyOldData = true)
+        [MemberNotNull(nameof(lines))]
+        public void EnsureLineSpace(int requiredVertexCount)
         {
-            if (requiredVertexCount > lines.Length)
-                ResizeLines(TrippyMath.GetNextCapacity(lines.Length, requiredVertexCount), copyOldData);
-        }
-
-        /// <summary>
-        /// Resizes the triangles array to the new specified length (which is assumed to be higher than the old length).
-        /// </summary>
-        /// <param name="newLength">The new triangles array length. Assumed to be greater than <see cref="TriangleVertexCapacity"/>.</param>
-        /// <param name="copyOldData">Whether to copy the old array data to the new array.</param>
-        private void ResizeTriangles(int newLength, bool copyOldData)
-        {
-            T[] oldTriangles = triangles;
-            triangles = new T[newLength];
-
-            if (copyOldData)
-            {
-                for (int i = 0; i < TriangleVertexCount; i++)
-                    triangles[i] = oldTriangles[i];
-            }
-            else
-                TriangleVertexCount = 0;
-        }
-
-        /// <summary>
-        /// Resizes the lines array to the new specified length (which is a ssumed to be higher than the old length).
-        /// </summary>
-        /// <param name="newLength">The new lines array length. Assumed to be greater than <see cref="LineVertexCapacity"/>.</param>
-        /// <param name="copyOldData">Whether to copy the old array data to the new array.</param>
-        private void ResizeLines(int newLength, bool copyOldData)
-        {
-            T[] oldLines = lines;
-            lines = new T[newLength];
-
-            if (copyOldData)
-            {
-                for (int i = 0; i < LineVertexCount; i++)
-                    lines[i] = oldLines[i];
-            }
-            else
-                LineVertexCount = 0;
+            if (lines == null || requiredVertexCount > lines.Length)
+                Array.Resize(ref lines, TrippyMath.GetNextCapacity(lines?.Length ?? 1, requiredVertexCount));
         }
 
         /// <summary>
@@ -328,8 +293,8 @@ namespace TrippyGL
         /// </summary>
         public void TrimTriangles()
         {
-            if (TriangleVertexCount != triangles.Length)
-                ResizeTriangles(TriangleVertexCount, true);
+            if (triangles != null && TriangleVertexCount != triangles.Length)
+                Array.Resize(ref triangles, TriangleVertexCount);
         }
 
         /// <summary>
@@ -337,8 +302,8 @@ namespace TrippyGL
         /// </summary>
         public void TrimLines()
         {
-            if (LineVertexCount != lines.Length)
-                ResizeLines(LineVertexCount, true);
+            if (lines != null && LineVertexCount != lines.Length)
+                Array.Resize(ref lines, LineVertexCount);
         }
 
         /// <summary>

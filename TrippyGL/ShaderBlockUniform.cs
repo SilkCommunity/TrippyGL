@@ -19,7 +19,7 @@ namespace TrippyGL
         /// <summary>The amount of active uniforms this uniform block contains.</summary>
         public readonly int ActiveUniformCount;
 
-        private UniformBufferSubset uniformSource;
+        private UniformBufferSubset? uniformSource;
         private uint uniformBindOffsetBytes, uniformBindLengthBytes;
 
         internal ShaderBlockUniform(ShaderProgram owner, uint bindingIndex, string name, int activeUniformCount)
@@ -53,8 +53,7 @@ namespace TrippyGL
         /// </summary>
         internal void ApplyUniformValue()
         {
-            if (uniformSource != null)
-                uniformSource.BindBufferRange(BindingIndex, uniformBindOffsetBytes, uniformBindLengthBytes);
+            uniformSource?.BindBufferRange(BindingIndex, uniformBindOffsetBytes, uniformBindLengthBytes);
         }
 
         public override string ToString()

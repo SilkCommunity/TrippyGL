@@ -48,7 +48,7 @@ namespace TrippyGL.Fonts.Rectpack
         /// <returns>The value that should be assigned to <see cref="PackingRectangle.SortKey"/>.</returns>
         private delegate uint GetSortKeyDelegate(in PackingRectangle rectangle);
 
-        /// <summary>The maximum amount of hints that can be specified by a <see cref="PackingHints"/>.</summary>
+        /// <summary>The maximum amount of hints that can be specified by a <see cref="PackingHint"/>.</summary>
         internal const int MaxHintCount = 6;
 
         public static uint GetArea(in PackingRectangle rectangle) => rectangle.Area;
@@ -59,10 +59,10 @@ namespace TrippyGL.Fonts.Rectpack
         public static uint GetPathologicalMultiplier(in PackingRectangle rectangle) => rectangle.PathologicalMultiplier;
 
         /// <summary>
-        /// Separates a <see cref="PackingHints"/> into the multiple options it contains,
+        /// Separates a <see cref="PackingHint"/> into the multiple options it contains,
         /// saving each of those separately onto a <see cref="Span{T}"/>.
         /// </summary>
-        /// <param name="packingHint">The <see cref="PackingHints"/> to separate.</param>
+        /// <param name="packingHint">The <see cref="PackingHint"/> to separate.</param>
         /// <param name="span">The span in which to write the resulting hints. This span's excess will be sliced.</param>
         public static void GetFlagsFrom(PackingHints packingHint, ref Span<PackingHints> span)
         {
@@ -83,7 +83,7 @@ namespace TrippyGL.Fonts.Rectpack
         }
 
         /// <summary>
-        /// Sorts the given <see cref="PackingRectangle"/> array using the specified <see cref="PackingHints"/>.
+        /// Sorts the given <see cref="PackingRectangle"/> array using the specified <see cref="PackingHint"/>.
         /// </summary>
         /// <param name="rectangles">The rectangles to sort.</param>
         /// <param name="packingHint">The hint to sort by. Must be a single bit value.</param>
@@ -93,15 +93,29 @@ namespace TrippyGL.Fonts.Rectpack
         public static void SortByPackingHint(PackingRectangle[] rectangles, PackingHints packingHint)
         {
             // We first get the appropiate delegate for getting a rectangle's sort key.
-            GetSortKeyDelegate getKeyDelegate = packingHint switch
+            GetSortKeyDelegate getKeyDelegate;
+            switch (packingHint)
             {
-                PackingHints.TryByArea => GetArea,
-                PackingHints.TryByPerimeter => GetPerimeter,
-                PackingHints.TryByBiggerSide => GetBiggerSide,
-                PackingHints.TryByWidth => GetWidth,
-                PackingHints.TryByHeight => GetHeight,
-                PackingHints.TryByPathologicalMultiplier => GetPathologicalMultiplier,
-                _ => throw new ArgumentException(nameof(packingHint))
+                case PackingHints.TryByArea:
+                    getKeyDelegate = GetArea;
+                    break;
+                case PackingHints.TryByPerimeter:
+                    getKeyDelegate = GetPerimeter;
+                    break;
+                case PackingHints.TryByBiggerSide:
+                    getKeyDelegate = GetBiggerSide;
+                    break;
+                case PackingHints.TryByWidth:
+                    getKeyDelegate = GetWidth;
+                    break;
+                case PackingHints.TryByHeight:
+                    getKeyDelegate = GetHeight;
+                    break;
+                case PackingHints.TryByPathologicalMultiplier:
+                    getKeyDelegate = GetPathologicalMultiplier;
+                    break;
+                default:
+                    throw new ArgumentException(nameof(packingHint));
             };
 
             // We use the getKeyDelegate to set the sort keys for all the rectangles.

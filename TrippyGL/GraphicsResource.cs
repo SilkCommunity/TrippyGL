@@ -2,7 +2,6 @@ using System;
 using Silk.NET.OpenGL;
 
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-#pragma warning disable CA1063 // Implement IDisposable Correctly
 
 namespace TrippyGL
 {
@@ -16,10 +15,10 @@ namespace TrippyGL
         public GraphicsDevice GraphicsDevice { get; internal set; }
 
         /// <summary>Gets this <see cref="GraphicsResource"/>'s GL object.</summary>
-        internal GL GL => GraphicsDevice.GL;
+        internal GL GL => GraphicsDevice!.GL;
 
         /// <summary>Whether this <see cref="GraphicsResource"/> has been disposed.</summary>
-        public bool IsDisposed { get; private set; }
+        public bool IsDisposed => GraphicsDevice == null;
 
         /// <summary>
         /// Creates a <see cref="GraphicsResource"/> that uses the specified <see cref="TrippyGL.GraphicsDevice"/>.
@@ -52,9 +51,8 @@ namespace TrippyGL
             if (!IsDisposed)
             {
                 Dispose(true);
-                IsDisposed = true;
                 GC.SuppressFinalize(this);
-                GraphicsDevice = null;
+                GraphicsDevice = null!;
             }
         }
 
@@ -66,10 +64,9 @@ namespace TrippyGL
             if (!IsDisposed)
             {
                 Dispose(true);
-                IsDisposed = true;
                 GC.SuppressFinalize(this);
-                GraphicsDevice.OnResourceRemoved(this);
-                GraphicsDevice = null;
+                GraphicsDevice!.OnResourceRemoved(this);
+                GraphicsDevice = null!;
             }
         }
     }

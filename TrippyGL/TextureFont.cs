@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Numerics;
 
-#pragma warning disable CA1063 // Implement IDisposable Correctly
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
 
 namespace TrippyGL
@@ -203,7 +203,8 @@ namespace TrippyGL
         /// <param name="defaultChar">The char to replace unavailable chars with.</param>
         /// <param name="ignoreNewline">Whether to count the newline character as a valid character.</param>
         /// <returns>A newly created string, or the same string instance if no chars need replacing.</returns>
-        public string SanitizeString(string text, char defaultChar = '?', bool ignoreNewline = true)
+        [return: NotNullIfNotNull(nameof(text))]
+        public string? SanitizeString(string? text, char defaultChar = '?', bool ignoreNewline = true)
         {
             if (text == null)
                 return null;
@@ -249,7 +250,7 @@ namespace TrippyGL
         /// <param name="text">The string of text to sanitize.</param>
         /// <param name="defaultChar">The char to replace unavailable chars with.</param>
         /// <param name="ignoreNewline">Whether to count the newline character as a valid character.</param>
-        public void SanitizeString(System.Text.StringBuilder text, char defaultChar = '?', bool ignoreNewline = true)
+        public void SanitizeString(System.Text.StringBuilder? text, char defaultChar = '?', bool ignoreNewline = true)
         {
             if (text == null)
                 return;

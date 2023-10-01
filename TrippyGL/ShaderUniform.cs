@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Silk.NET.OpenGL;
 using TrippyGL.Utils;
@@ -35,9 +36,9 @@ namespace TrippyGL
         public readonly bool IsSamplerType;
 
         /// <summary>For sampler uniforms, the <see cref="Texture"/>/s the user set to this <see cref="ShaderUniform"/>.</summary>
-        private readonly Texture[] textureValues;
+        private readonly Texture[]? textureValues;
         /// <summary>For sampler uniforms, the texture units last set as the uniform's value/s.</summary>
-        private readonly int[] textureLastAppliedUnits;
+        private readonly int[]? textureLastAppliedUnits;
 
         /// <summary>
         /// Provides direct read-only access to this <see cref="ShaderUniform"/>'s set textures.
@@ -735,6 +736,8 @@ namespace TrippyGL
         /// </summary>
         internal void ApplyUniformTextureValues()
         {
+            ValidateIsSampler();
+
             if (Size == 1)
             {
                 int unit = textureValues[0] == null ? 0 : textureValues[0].lastBindUnit;
@@ -782,6 +785,10 @@ namespace TrippyGL
                 throw new ArgumentOutOfRangeException("value.Length", valueLength, "You tried to set too many elements for this uniform");
         }
 
+#pragma warning disable CS8774 // Member must have a non-null value when exiting.
+// Disabled warning because ValidateIsSampler() does ensure that textureValues and textureLastAppliedUnits are
+// not null, since they are never null when IsSamplerType is true.
+        [MemberNotNull(nameof(textureValues), nameof(textureLastAppliedUnits))]
         private void ValidateIsSampler()
         {
             if (IsEmpty)
@@ -790,6 +797,7 @@ namespace TrippyGL
             if (!IsSamplerType)
                 throw new InvalidOperationException("Tried to set a texture on a non-sampler uniform");
         }
+#pragma warning restore CS8774 // Member must have a non-null value when exiting.
 
         public override string ToString()
         {
@@ -820,7 +828,7 @@ namespace TrippyGL
                 && Name == other.Name;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ShaderUniform shaderUniform)
                 return Equals(shaderUniform);

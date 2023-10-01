@@ -161,7 +161,7 @@ namespace TrippyGL
                 && AttribDivisor == other.AttribDivisor;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexAttribDescription vertexAttribDescription)
                 return Equals(vertexAttribDescription);

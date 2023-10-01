@@ -130,7 +130,7 @@ namespace TrippyGL
             return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Viewport viewport)
                 return Equals(viewport);

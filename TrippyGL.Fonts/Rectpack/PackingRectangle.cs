@@ -145,7 +145,7 @@ namespace TrippyGL.Fonts.Rectpack
                 && Height == other.Height && Id == other.Id;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is PackingRectangle viewport)
                 return Equals(viewport);

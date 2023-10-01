@@ -80,7 +80,7 @@ namespace TrippyGL
             );
         }
 
-        public bool Equals(DepthState other)
+        public bool Equals(DepthState? other)
         {
             return other != null
                 && DepthTestingEnabled == other.DepthTestingEnabled

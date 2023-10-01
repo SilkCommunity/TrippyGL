@@ -253,7 +253,7 @@ namespace TrippyGL
             }
 
             FramebufferStatus c = GetStatus();
-            if (c != FramebufferStatus.FramebufferComplete)
+            if (c != FramebufferStatus.Complete)
                 throw new FramebufferException("The " + nameof(FramebufferObject) + " is not complete: " + c);
         }
 

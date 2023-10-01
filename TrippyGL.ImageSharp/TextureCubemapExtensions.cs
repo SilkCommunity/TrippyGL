@@ -4,8 +4,6 @@ using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
 namespace TrippyGL.ImageSharp
 {
     /// <summary>
@@ -31,11 +29,20 @@ namespace TrippyGL.ImageSharp
                 throw new InvalidOperationException(nameof(TextureCubemap.ImageFormat) + " must be " + nameof(TextureImageFormat.Color4b) + " in order to do this");
 
             if (image.Width != texture.Size || image.Height != texture.Size)
-                throw new InvalidOperationException("The width and height of the image must match " + nameof(TextureCubemap.Size));
+                throw new InvalidOperationException("The width and height of the image must be " + nameof(TextureCubemap.Size));
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-            texture.SetData<Rgba32>(face, pixels, PixelFormat.Rgba);
+            if (image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixels))
+            {
+                texture.SetData<Rgba32>(face, pixels.Span, PixelFormat.Rgba);
+            }
+            else
+            {
+                image.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < accessor.Height; y++)
+                        texture.SetData<Rgba32>(face, accessor.GetRowSpan(y), 0, y, (uint)accessor.Width, 1);
+                });
+            }
         }
 
         /// <summary>

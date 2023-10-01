@@ -113,7 +113,7 @@ namespace TrippyGL.Fonts
                     glyphSources[glyphSourceIndex].DrawGlyphToImage(charCode, new System.Drawing.Point((int)rect.X + 1, (int)rect.Y + 1), image);
 
                     // We set the glyph's source to match this rectangle.
-                    fontDatas[glyphSourceIndex].SourceRectangles[charIndex] = new System.Drawing.Rectangle((int)rect.X + 1, (int)rect.Y + 1, (int)rect.Width - 2, (int)rect.Height - 2);
+                    fontDatas[glyphSourceIndex].SourceRectangles![charIndex] = new System.Drawing.Rectangle((int)rect.X + 1, (int)rect.Y + 1, (int)rect.Width - 2, (int)rect.Height - 2);
                 }
 
                 // We go through all the fontDatas and set the remaining information.

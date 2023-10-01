@@ -10,7 +10,7 @@ namespace TrippyGL
     internal sealed class TextureBatchItem : IComparable<TextureBatchItem>
     {
         /// <summary>The <see cref="Texture2D"/> to draw the vertices with.</summary>
-        public Texture2D Texture;
+        public Texture2D? Texture;
 
         /// <summary>
         /// A value used for sorting. It's value might come from different places depending
@@ -185,9 +185,9 @@ namespace TrippyGL
         /// <summary>
         /// Compares this item's <see cref="SortValue"/> with another item's.
         /// </summary>
-        public int CompareTo(TextureBatchItem other)
+        public int CompareTo(TextureBatchItem? other)
         {
-            return SortValue.CompareTo(other.SortValue);
+            return SortValue.CompareTo(other!.SortValue);
         }
 
         public override string ToString()

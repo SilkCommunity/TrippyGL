@@ -434,7 +434,6 @@ namespace TrippyGL.Utils
         }
 
 #pragma warning disable IDE0060 // Remove unused parameter
-#pragma warning disable CA1801
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a stencil-only format.
         /// </summary>
@@ -443,7 +442,6 @@ namespace TrippyGL.Utils
             return false; //there are no stencil-only image formats haha yes
         }
 #pragma warning restore IDE0060 // Remove unused parameter
-#pragma warning restore CA1801
 
         /// <summary>
         /// Returns whether the given <see cref="TextureImageFormat"/> represents a depth-stencil format.

@@ -200,7 +200,7 @@ namespace TrippyGL
             return StencilTestingEnabled ? "Enabled StencilState" : "Disabled StencilState";
         }
 
-        public bool Equals(StencilState other)
+        public bool Equals(StencilState? other)
         {
             return other != null
                 && StencilTestingEnabled == other.StencilTestingEnabled

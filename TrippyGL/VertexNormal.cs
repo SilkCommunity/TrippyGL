@@ -55,7 +55,7 @@ namespace TrippyGL
                 && Normal == other.Normal;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is VertexNormal vertexNormal)
                 return Equals(vertexNormal);

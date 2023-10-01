@@ -356,13 +356,13 @@ namespace TrippyGL
 
                     if (stencilState.FrontWriteMask != value.FrontWriteMask)
                     {
-                        GL.StencilMaskSeparate(StencilFaceDirection.Front, value.FrontWriteMask);
+                        GL.StencilMaskSeparate(TriangleFace.Front, value.FrontWriteMask);
                         stencilState.FrontWriteMask = value.FrontWriteMask;
                     }
 
                     if (stencilState.BackWriteMask != value.BackWriteMask)
                     {
-                        GL.StencilMaskSeparate(StencilFaceDirection.Back, value.BackWriteMask);
+                        GL.StencilMaskSeparate(TriangleFace.Back, value.BackWriteMask);
                         stencilState.BackWriteMask = value.BackWriteMask;
                     }
 

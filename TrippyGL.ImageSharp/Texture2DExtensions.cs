@@ -31,10 +31,20 @@ namespace TrippyGL.ImageSharp
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-
-            texture.SetData<Rgba32>(pixels, x, y, (uint)image.Width, (uint)image.Height, PixelFormat.Rgba);
+            // ImageSharp might have the images stores contiguously in memory, or it might not.
+            // If it does, then let's set the texture data all at once. If it doesn't, then we do it by rows.
+            if (image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixels))
+            {
+                texture.SetData<Rgba32>(pixels.Span, x, y, (uint)image.Width, (uint)image.Height, PixelFormat.Rgba);
+            }
+            else
+            {
+                image.ProcessPixelRows(accessor =>
+                {
+                    for (int yi = 0; yi < accessor.Height; yi++)
+                        texture.SetData<Rgba32>(accessor.GetRowSpan(yi), x, y + yi, (uint)accessor.Width, 1, PixelFormat.Rgba);
+                });
+            }
         }
 
         /// <summary>
@@ -67,9 +77,27 @@ namespace TrippyGL.ImageSharp
             if (image.Width != texture.Width || image.Height != texture.Height)
                 throw new ArgumentException(nameof(image), ImageUtils.ImageSizeMustMatchTextureSizeError);
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-            texture.GetData(pixels, PixelFormat.Rgba);
+            if (image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixels))
+            {
+                texture.GetData(pixels.Span, PixelFormat.Rgba);
+            }
+            else
+            {
+                // Unfortunately, OpenGL only has functions for getting the whole texture at once. Not by parts.
+                Rgba32[] data = new Rgba32[texture.Width * texture.Height];
+                texture.GetData<Rgba32>(data);
+
+                image.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < accessor.Height; y++)
+                    {
+                        Span<Rgba32> dataRowSpan = data.AsSpan((int)(texture.Width * y), (int)texture.Width);
+                        Span<Rgba32> imageRowSpan = accessor.GetRowSpan(y);
+
+                        dataRowSpan.CopyTo(imageRowSpan);
+                    }
+                });
+            }
 
             if (flip)
                 image.Mutate(x => x.Flip(FlipMode.Vertical));
@@ -89,13 +117,11 @@ namespace TrippyGL.ImageSharp
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-
             Texture2D texture = new Texture2D(graphicsDevice, (uint)image.Width, (uint)image.Height);
+
             try
             {
-                texture.SetData<Rgba32>(pixels, PixelFormat.Rgba);
+                texture.SetData(image);
 
                 if (generateMipmaps)
                     texture.GenerateMipmaps();

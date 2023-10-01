@@ -3,10 +3,6 @@ using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-#pragma warning disable CA1063 // Implement IDisposable Correctly
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
 namespace TrippyGL.Fonts
 {
     /// <summary>
@@ -27,8 +23,8 @@ namespace TrippyGL.Fonts
         /// <param name="image">The image containing the font's characters.</param>
         public TrippyFontFile(TextureFontData[] fontDatas, Image<Rgba32> image)
         {
-            FontDatas = fontDatas;
-            Image = image;
+            FontDatas = fontDatas ?? throw new ArgumentNullException(nameof(fontDatas));
+            Image = image ?? throw new ArgumentNullException(nameof(image));
         }
 
         /// <summary>
@@ -56,7 +52,7 @@ namespace TrippyGL.Fonts
         public void Dispose()
         {
             Image?.Dispose();
-            Image = null;
+            Image = null!;
         }
 
         /// <summary>

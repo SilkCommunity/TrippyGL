@@ -9,14 +9,14 @@ namespace TrippyGL
     public struct SimpleShaderProgramBuilder : IEquatable<SimpleShaderProgramBuilder>
     {
         private static readonly object stringBuilderReferenceLock = new object();
-        private static WeakReference<StringBuilder> stringBuilderReference;
+        private static WeakReference<StringBuilder?>? stringBuilderReference;
 
         /// <summary>
         /// The version-profile string for GLSL to use. If null, the current GL version will be used.
         /// If set to an empty string, no version string will be used.
         /// <para>Don't include the "#version" in your string, write only the number and profile: "330 core"</para>
         /// </summary>
-        public string GLSLVersionString;
+        public string? GLSLVersionString;
 
         /// <summary>The index of the vertex attribute from which the <see cref="SimpleShaderProgram"/> will read vertex positions.</summary>
         public int PositionAttributeIndex;
@@ -61,11 +61,11 @@ namespace TrippyGL
         public bool LightingEnabled => DirectionalLights > 0 || PositionalLights > 0;
 
         /// <summary>The vertex shader log of the last <see cref="SimpleShaderProgram"/> this builder created.</summary>
-        public string VertexShaderLog;
+        public string? VertexShaderLog;
         /// <summary>The fragment shader log of the last <see cref="SimpleShaderProgram"/> this builder created.</summary>
-        public string FragmentShaderLog;
+        public string? FragmentShaderLog;
         /// <summary>The program log of the last <see cref="SimpleShaderProgram"/> this builder created.</summary>
-        public string ProgramLog;
+        public string? ProgramLog;
 
         public static bool operator ==(SimpleShaderProgramBuilder left, SimpleShaderProgramBuilder right) => left.Equals(right);
         public static bool operator !=(SimpleShaderProgramBuilder left, SimpleShaderProgramBuilder right) => !left.Equals(right);
@@ -361,7 +361,7 @@ namespace TrippyGL
                 // Also, once we know the SimpleShaderProgram's code is flawless we should change this
                 // somehow so it doesn't raise the GraphicsDevice.ShaderCompiled event.
                 programHandle = programBuilder.CreateInternal(graphicsDevice, out ActiveVertexAttrib[] activeAttribs,
-                    out bool hasVs, out bool hasGs, out bool hasFs, true);
+                    out bool hasVs, out bool hasGs, out bool hasFs, false, false);
                 return new SimpleShaderProgram(graphicsDevice, programHandle, activeAttribs, hasVs, hasGs, hasFs,
                     VertexColorsEnabled, TextureEnabled, DirectionalLights, PositionalLights);
             }
@@ -442,7 +442,7 @@ namespace TrippyGL
                 && PositionalLights == other.PositionalLights;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is SimpleShaderProgramBuilder other)
                 return Equals(other);
@@ -453,7 +453,7 @@ namespace TrippyGL
         {
             lock (stringBuilderReferenceLock)
             {
-                if (stringBuilderReference != null && stringBuilderReference.TryGetTarget(out StringBuilder builder))
+                if (stringBuilderReference != null && stringBuilderReference.TryGetTarget(out StringBuilder? builder))
                 {
                     stringBuilderReference.SetTarget(null);
                     builder.Clear();
@@ -469,10 +469,10 @@ namespace TrippyGL
             lock (stringBuilderReferenceLock)
             {
                 if (stringBuilderReference == null)
-                    stringBuilderReference = new WeakReference<StringBuilder>(stringBuilder);
+                    stringBuilderReference = new WeakReference<StringBuilder?>(stringBuilder);
                 else
                 {
-                    if (!stringBuilderReference.TryGetTarget(out StringBuilder oldBuilder) || oldBuilder == null || oldBuilder.Length < stringBuilder.Length)
+                    if (!stringBuilderReference.TryGetTarget(out StringBuilder? oldBuilder) || oldBuilder.Length < stringBuilder.Length)
                         stringBuilderReference.SetTarget(stringBuilder);
                 }
             }

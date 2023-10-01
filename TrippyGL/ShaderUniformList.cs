@@ -25,7 +25,7 @@ namespace TrippyGL
         public ReadOnlySpan<ShaderUniform> Uniforms => new ReadOnlySpan<ShaderUniform>(uniforms);
 
         /// <summary>A not-always-correct list with all the textures currently applied to the sampler uniforms.</summary>
-        private readonly List<Texture> textureList;
+        private readonly List<Texture>? textureList;
 
         /// <summary>Whether this list contains at least one sampler-type (or sampler-array-type) <see cref="ShaderUniform"/>.</summary>
         internal readonly bool hasSamplerUniforms;
@@ -90,7 +90,7 @@ namespace TrippyGL
                 if (Program.areSamplerUniformsDirty)
                     RemakeTextureList();
 
-                Program.GraphicsDevice.BindAllTextures(textureList);
+                Program.GraphicsDevice.BindAllTextures(textureList!);
 
                 for (int i = 0; i < uniforms.Length; i++)
                     if (uniforms[i].IsSamplerType)
@@ -104,7 +104,7 @@ namespace TrippyGL
         /// </summary>
         private void RemakeTextureList()
         {
-            textureList.Clear();
+            textureList!.Clear();
 
             for (int i = 0; i < uniforms.Length; i++)
             {
@@ -172,7 +172,7 @@ namespace TrippyGL
                 && uniforms == other.uniforms;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ShaderBlockUniformList shaderBlockUniformList)
                 return Equals(shaderBlockUniformList);
@@ -187,7 +187,7 @@ namespace TrippyGL
         internal static ShaderUniformList CreateForProgram(ShaderProgram program)
         {
             program.GL.GetProgram(program.Handle, ProgramPropertyARB.ActiveUniforms, out int totalUniformCount);
-            int totalUniformBlockCount = program.BlockUniforms == null ? 0 : program.BlockUniforms.TotalUniformCount;
+            int totalUniformBlockCount = program.BlockUniforms.TotalUniformCount;
 
             if (totalUniformCount - totalUniformBlockCount <= 0)
                 return default;

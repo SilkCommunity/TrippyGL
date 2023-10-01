@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/SilkCommunity/TrippyGL</PackageProjectUrl>
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
@@ -15,6 +15,7 @@
 - Fixed multiple misspells of "Lighting" as "Lightning" (ka-chow!)
 - Added some more XML documentation</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -27,11 +28,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Silk.NET.OpenGL" Version="2.13.0" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
   </ItemGroup>
 
   <ItemGroup>

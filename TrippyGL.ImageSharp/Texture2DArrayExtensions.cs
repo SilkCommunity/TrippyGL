@@ -31,9 +31,18 @@ namespace TrippyGL.ImageSharp
             if (image.Width != texture.Width || image.Height != texture.Height)
                 throw new InvalidOperationException("The size of the image must match the size of the " + nameof(Texture2DArray));
 
-            if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixels))
-                throw new InvalidDataException(ImageUtils.ImageNotContiguousError);
-            texture.SetData<Rgba32>(pixels, depthLevel, PixelFormat.Rgba);
+            if (image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixels))
+            {
+                texture.SetData<Rgba32>(pixels.Span, depthLevel, PixelFormat.Rgba);
+            }
+            else
+            {
+                image.ProcessPixelRows(accessor =>
+                {
+                    for (int yi = 0; yi < accessor.Height; yi++)
+                        texture.SetData<Rgba32>(accessor.GetRowSpan(yi), 0, yi, depthLevel, (uint)accessor.Width, 1, 1, PixelFormat.Rgba);
+                });
+            }
         }
 
         /// <summary>
