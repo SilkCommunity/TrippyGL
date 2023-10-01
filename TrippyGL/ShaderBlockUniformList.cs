@@ -44,10 +44,10 @@ namespace TrippyGL
                 uniforms = new ShaderBlockUniform[blockUniformCount];
                 for (uint i = 0; i < blockUniformCount; i++)
                 {
-                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockNameLength, out int nameLength);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.NameLength, out int nameLength);
                     program.GL.GetActiveUniformBlockName(program.Handle, i, (uint)nameLength, out uint _, out string name);
-                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockBinding, out int bindingIndex);
-                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.UniformBlockActiveUniforms, out int activeUniformCount);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.Binding, out int bindingIndex);
+                    program.GL.GetActiveUniformBlock(program.Handle, i, UniformBlockPName.ActiveUniforms, out int activeUniformCount);
                     TotalUniformCount += activeUniformCount;
 
                     uniforms[i] = new ShaderBlockUniform(program, (uint)bindingIndex, name, activeUniformCount);

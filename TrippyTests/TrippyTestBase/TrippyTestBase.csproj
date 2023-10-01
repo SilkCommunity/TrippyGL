@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Input" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Windowing" Version="2.13.0" />
+    <PackageReference Include="Silk.NET.Input" Version="2.17.1" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.17.1" />
   </ItemGroup>
 
   <ItemGroup>
