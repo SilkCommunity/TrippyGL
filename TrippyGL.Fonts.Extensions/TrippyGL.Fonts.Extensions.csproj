@@ -7,7 +7,7 @@
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>ThomasMiz</Authors>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
 
@@ -15,10 +15,20 @@ This package provides integration between TrippyGL.Fonts and the main TrippyGL p
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
+    <PackageReleaseNotes>Changelog from 1.1.1:
+- Now built against .NET 6.0
+- Upgraded SixLabors.ImageSharp to 3.0.2
+- Upgraded SixLabors.Fonts to 2.0.0
+
+BREAKING CHANGES:
+- No longer supports .NET Standard 2.1, only .NET 6.0+
+- No longer supports Silk.NET &lt;2.17.1
+- SixLabors.Fonts has revamped their rendering and their output now exactly matches the rendering of web browsers. Your text might look different when assets are built on this new version.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\Thomas Mizrahi\Documents\Visual Studio 2019\GitHub\ThomasMiz\TrippyGL\TrippyGL.Fonts.Extensions\TrippyGL.Fonts.Extensions.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +38,10 @@ This package provides integration between TrippyGL.Fonts and the main TrippyGL p
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\TrippyGL_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

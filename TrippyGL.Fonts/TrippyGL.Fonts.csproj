@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <Authors>ThomasMiz</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/SilkCommunity/TrippyGL</RepositoryUrl>
@@ -13,14 +13,20 @@
 
 This package provides basic font creating/loading/saving functionality.</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
-    <PackageReleaseNotes>Changelog from 1.0.0:
-- Fixed possible issue when building many fonts on different threads at the same time</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.1.1:
+- Now built against .NET 6.0
+- Upgraded SixLabors.ImageSharp to 3.0.2
+
+BREAKING CHANGES:
+- No longer supports .NET Standard 2.1, only .NET 6.0+
+- SixLabors.Fonts has revamped their rendering and their output now exactly matches the rendering of web browsers. Your text might look different when assets are built on this new version.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\Thomas Mizrahi\Documents\Visual Studio 2019\GitHub\ThomasMiz\TrippyGL\TrippyGL.Fonts\TrippyGL.Fonts.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +38,10 @@ This package provides basic font creating/loading/saving functionality.</Descrip
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\TrippyGL_logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
