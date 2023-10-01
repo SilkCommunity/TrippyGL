@@ -57,11 +57,11 @@ namespace TrippyGL.Fonts.Building
 
         public string Name { get; }
 
-        public float Ascender => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.Ascender / Font.FontMetrics.UnitsPerEm;
+        public float Ascender => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.HorizontalMetrics.Ascender / Font.FontMetrics.UnitsPerEm;
 
-        public float Descender => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.Descender / Font.FontMetrics.UnitsPerEm;
+        public float Descender => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.HorizontalMetrics.Descender / Font.FontMetrics.UnitsPerEm;
 
-        public float LineGap => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.LineGap / Font.FontMetrics.UnitsPerEm;
+        public float LineGap => Font.Size * (DrawDpi / CalcDpi) * Font.FontMetrics.HorizontalMetrics.LineGap / Font.FontMetrics.UnitsPerEm;
 
         public int CharCount => LastChar - FirstChar + 1;
 
@@ -83,7 +83,7 @@ namespace TrippyGL.Fonts.Building
 
             DrawingOptions = new DrawingOptions
             {
-                ShapeOptions = { IntersectionRule = IntersectionRule.Nonzero },
+                ShapeOptions = { IntersectionRule = IntersectionRule.NonZero },
             };
         }
 
@@ -115,7 +115,9 @@ namespace TrippyGL.Fonts.Building
             {
                 char c = (char)(i + FirstChar);
                 glyphRenderer.Reset();
-                GlyphMetrics? glyphMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(c), ColorFontSupport.None).FirstOrDefault();
+                if (!fontMetrics.TryGetGlyphMetrics(new CodePoint(c), TextAttributes.None, TextDecorations.None, LayoutMode.HorizontalTopBottom, ColorFontSupport.None, out IReadOnlyList<GlyphMetrics>? glyphs))
+                    continue;
+                GlyphMetrics? glyphMetrics = glyphs.FirstOrDefault();
                 if (glyphMetrics == null)
                     continue;
 
@@ -156,7 +158,10 @@ namespace TrippyGL.Fonts.Building
 
             for (int i = FirstChar; i <= LastChar; i++)
             {
-                GlyphMetrics? inst = fontMetrics.GetGlyphMetrics(new CodePoint(i), ColorFontSupport.None).FirstOrDefault();
+
+                if (!fontMetrics.TryGetGlyphMetrics(new CodePoint(i), TextAttributes.None, TextDecorations.None, LayoutMode.HorizontalTopBottom, ColorFontSupport.None, out IReadOnlyList<GlyphMetrics>? glyphs))
+                    continue;
+                GlyphMetrics? inst = glyphs.FirstOrDefault();
                 if (inst == null)
                     continue;
 
@@ -203,18 +208,21 @@ namespace TrippyGL.Fonts.Building
 
             for (int a = FirstChar; a <= LastChar; a++)
             {
-                GlyphMetrics? aMetrics = fontMetrics.GetGlyphMetrics(new CodePoint(a), ColorFontSupport.None).FirstOrDefault();
-                if (aMetrics == null)
+                if (!Font.TryGetGlyphs(new CodePoint(a), out IReadOnlyList<Glyph>? aGlyphs) || aGlyphs.Count == 0)
                     continue;
+                Glyph aGlyph = aGlyphs.First();
 
                 for (int b = FirstChar; b <= LastChar; b++)
                 {
-                    //Vector2 offset = FontMetrics.GetOffset(FontMetrics.GetGlyph(b), aMetrics);
-                    Vector2 offset = Vector2.Zero; // TODO: Add kerning once that functionality is added back to SixLabors.Fonts
+                    if (!Font.TryGetGlyphs(new CodePoint(b), out IReadOnlyList<Glyph>? bGlyphs) || bGlyphs.Count == 0)
+                        continue;
+                    Glyph bGlyph = bGlyphs.First();
+
+                    Font.TryGetKerningOffset(bGlyph, aGlyph, DrawDpi, out Vector2 offset);
                     if (offset.X != 0 || offset.Y != 0)
                     {
                         kerningOffsets ??= new Vector2[CharCount, CharCount];
-                        kerningOffsets[a - FirstChar, b - FirstChar] = offset * Font.Size * (DrawDpi / CalcDpi) / fontMetrics.UnitsPerEm;
+                        kerningOffsets[a - FirstChar, b - FirstChar] = offset;
                     }
                 }
             }

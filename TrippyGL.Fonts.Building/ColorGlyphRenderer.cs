@@ -35,9 +35,9 @@ namespace TrippyGL.Fonts.Building
 
         void IGlyphRenderer.EndText() { }
 
-        void IGlyphRenderer.BeginText(FontRectangle rect) { }
+        void IGlyphRenderer.BeginText(in FontRectangle rect) { }
 
-        bool IGlyphRenderer.BeginGlyph(FontRectangle rect, GlyphRendererParameters cachKey)
+        bool IGlyphRenderer.BeginGlyph(in FontRectangle rect, in GlyphRendererParameters cachKey)
         {
             currentColor = null;
             builder.Clear();
@@ -127,6 +127,16 @@ namespace TrippyGL.Fonts.Building
         public void Reset()
         {
             Reset(0, 0);
+        }
+
+        public TextDecorations EnabledDecorations()
+        {
+            return TextDecorations.None;
+        }
+
+        public void SetDecoration(TextDecorations textDecorations, Vector2 start, Vector2 end, float thickness)
+        {
+
         }
     }
 }
