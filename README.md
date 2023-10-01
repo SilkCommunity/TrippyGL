@@ -18,12 +18,12 @@ For windowing and input, the [Silk.NET.Windowing](https://www.nuget.org/packages
 Feel free to come ask questions over at the [TrippyGL Discord server](https://discord.gg/3j5Q4zN)!
 
 ## Gallery
-![](images/img_terrain.png)
+![](https://raw.githubusercontent.com/SilkCommunity/TrippyGL/master/images/img_terrain.png)
 
-![](images/img_lighting.png)
+![](https://raw.githubusercontent.com/SilkCommunity/TrippyGL/master/images/img_lighting.png)
 
-![](images/img_fractal.png)
+![](https://raw.githubusercontent.com/SilkCommunity/TrippyGL/master/images/img_fractal.png)
 
-![](images/img_conways.png)
+![](https://raw.githubusercontent.com/SilkCommunity/TrippyGL/master/images/img_conways.png)
 
-![](images/img_bouncyballs.png)
+![](https://raw.githubusercontent.com/SilkCommunity/TrippyGL/master/images/img_bouncyballs.png)
