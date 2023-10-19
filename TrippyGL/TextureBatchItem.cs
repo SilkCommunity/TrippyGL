@@ -183,6 +183,41 @@ namespace TrippyGL
         }
 
         /// <summary>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// </summary>
+        public void SetValue(Texture2D texture, Matrix3x2 transform, Rectangle source, Color4b color, Vector2 origin, float depth)
+        {
+            transform.Translation -= Vector2.TransformNormal(origin, transform);
+
+            SetValue(texture,transform,source,color, depth);
+        }
+
+        /// <summary>
+        /// Calculates and sets all the values in this <see cref="TextureBatchItem"/> except for <see cref="SortValue"/>.
+        /// </summary>
+        public void SetValue(Texture2D texture, Matrix3x2 transform, Rectangle source, Color4b color, float depth)
+        {
+            Texture = texture;            
+
+            transform = Matrix3x2.CreateScale(source.Width, source.Height) * transform;
+            
+            VertexTL.Position = new Vector3(transform.Translation, depth);
+            VertexTR.Position = new Vector3(transform.M11 + transform.M31, transform.M12 + transform.M32, depth);
+            VertexBL.Position = new Vector3(transform.M21 + transform.M31, transform.M22 + transform.M32, depth);
+            VertexBR.Position = new Vector3(transform.M11 + transform.M21 + transform.M31, transform.M12 + transform.M22 + transform.M32, depth);            
+
+            VertexTL.TexCoords = new Vector2(source.X / (float)texture.Width, source.Y / (float)texture.Height);
+            VertexBR.TexCoords = new Vector2(source.Right / (float)texture.Width, source.Bottom / (float)texture.Height);
+            VertexTR.TexCoords = new Vector2(VertexBR.TexCoords.X, VertexTL.TexCoords.Y);
+            VertexBL.TexCoords = new Vector2(VertexTL.TexCoords.X, VertexBR.TexCoords.Y);
+
+            VertexTL.Color = color;
+            VertexTR.Color = color;
+            VertexBL.Color = color;
+            VertexBR.Color = color;
+        }
+
+        /// <summary>
         /// Compares this item's <see cref="SortValue"/> with another item's.
         /// </summary>
         public int CompareTo(TextureBatchItem? other)
