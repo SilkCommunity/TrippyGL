@@ -115,7 +115,7 @@ namespace TextureBatcherTest
             graphicsDevice.Clear(ClearBuffers.Color);
 
             Vector2 mousePos = new Vector2(InputContext.Mice[0].Position.X, InputContext.Mice[0].Position.Y);
-
+            
             textureBatcher.Begin(BatcherBeginMode.OnTheFly);
 
             float loreIpsumScale = 1 + 0.1f * MathF.Sin(time * 4.32f);
@@ -137,6 +137,17 @@ namespace TextureBatcherTest
 
             textureBatcher.End();
 
+            // example of drawing textures using a matrix for bone concatenation:
+            textureBatcher.Begin(BatcherBeginMode.OnTheFly);
+            var diamondCorner = new Vector2(35, 0);
+            var xform0 = Matrix3x2.CreateScale(1.5f) * Matrix3x2.CreateTranslation(300, 200);
+            var xform1 = Matrix3x2.CreateRotation(time) * Matrix3x2.CreateTranslation(0, 60);            
+            textureBatcher.Draw(diamondTexture, xform1 * xform0, null, Color4b.White, diamondCorner);
+            textureBatcher.Draw(diamondTexture, xform1 * xform1 * xform0, null, Color4b.White, diamondCorner);
+            textureBatcher.Draw(diamondTexture, xform1 * xform1 * xform1 * xform0, null, Color4b.White, diamondCorner);
+            textureBatcher.Draw(diamondTexture, xform1 * xform1 * xform1 * xform1 * xform0, null, Color4b.White, diamondCorner);
+            textureBatcher.Draw(diamondTexture, xform1 * xform1 * xform1 * xform1 * xform1 * xform0, null, Color4b.White, diamondCorner);
+            textureBatcher.End();
 
             textureBatcher.Begin(BatcherBeginMode.SortBackToFront);
             Vector2 rectOrigin = new Vector2(rectangleTexture.Width / 2f, rectangleTexture.Height / 2f);
