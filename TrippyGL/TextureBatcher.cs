@@ -339,6 +339,43 @@ namespace TrippyGL
         /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
         /// </summary>
         /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="transform">The location (Scale*Rotation*Translation) at which to draw the texture.</param>
+        /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
+        /// <param name="color">The color with which to draw the texture.</param>        
+        /// <param name="depth">The depth at which to draw the texture.</param>
+        public void Draw(Texture2D texture, in Matrix3x2 transform, Rectangle? source, Color4b color, float depth = 0)
+        {
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, transform, source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, depth);
+
+            EndDraw(item);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
+        /// <param name="transform">The location (Scale*Rotation*Translation) at which to draw the texture.</param>
+        /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
+        /// <param name="color">The color with which to draw the texture.</param>
+        /// <param name="origin">The origin for rotation and scaling in pixel coordinates.</param>
+        /// <param name="depth">The depth at which to draw the texture.</param>
+        public void Draw(Texture2D texture, in Matrix3x2 transform, Rectangle? source, Color4b color, Vector2 origin, float depth = 0)
+        {
+            StartDraw(texture);
+
+            TextureBatchItem item = GetNextBatchItem();
+            item.SetValue(texture, transform, source ?? new Rectangle(0, 0, (int)texture.Width, (int)texture.Height), color, origin, depth);
+
+            EndDraw(item);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Texture2D"/> for drawing to the current batch.
+        /// </summary>
+        /// <param name="texture">The <see cref="Texture2D"/> to draw.</param>
         /// <param name="position">The position at which to draw the texture.</param>
         /// <param name="source">The area of the texture to draw (or null to draw the whole texture).</param>
         /// <param name="color">The color with which to draw the texture.</param>
