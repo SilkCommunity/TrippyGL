@@ -101,6 +101,7 @@ namespace TrippyGL
                 throw new ObjLoaderException("Vertex format not supported. Use a library-provided vertex type instead.");
 
             bool largePolygons = !options.HasFlag(ObjLoadOptions.TrianglesOnly);
+            bool flipYCoord = !options.HasFlag(ObjLoadOptions.DontFlipTexCoordY);
 
             // We're gonna need lists to store temporary data. Let's get them form here.
             GetLists(loadNormals, loadColors, loadTexCoords, out List<Vector3> positions, out List<Vector3> normals,
@@ -300,7 +301,7 @@ namespace TrippyGL
                         {
                             Vector2 tex = texCoords[indices[ind++]];
                             ptrToTmp[0] = tex.X;
-                            ptrToTmp[1] = 1 - tex.Y;
+                            ptrToTmp[1] = flipYCoord ? (1 - tex.Y) : tex.Y;
                             ptrToTmp += 2;
                         }
 
@@ -732,6 +733,9 @@ namespace TrippyGL
         None = 0,
 
         /// <summary>Any face with more than 3 vertices is stripped down to just the first 3 vertices.</summary>
-        TrianglesOnly = 1
+        TrianglesOnly = 1,
+
+        /// <summary>By default, the Y texture coordinate is flipped (y = 1-y). Specify this flag to disable that.</summary>
+        DontFlipTexCoordY = 2,
     }
 }
