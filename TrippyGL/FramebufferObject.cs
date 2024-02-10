@@ -401,7 +401,7 @@ namespace TrippyGL
 
         private static void ValidateAttachmentTypeExists(FramebufferAttachmentPoint attachment)
         {
-            if (!Enum.IsDefined(typeof(FramebufferAttachmentPoint), attachment))
+            if (!Enum.IsDefined(attachment))
                 throw new FormatException("Invalid attachment point");
         }
 

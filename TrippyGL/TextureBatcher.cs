@@ -166,7 +166,7 @@ namespace TrippyGL
             if (vertexBuffer.IsDisposed)
                 throw new ObjectDisposedException(nameof(TextureBatcher));
 
-            if (!Enum.IsDefined(typeof(BatcherBeginMode), beginMode))
+            if (!Enum.IsDefined(beginMode))
                 throw new ArgumentException("Invalid " + nameof(BatcherBeginMode) + " value.", nameof(beginMode));
 
             if (ShaderProgram == null)

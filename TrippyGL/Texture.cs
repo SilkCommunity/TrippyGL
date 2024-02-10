@@ -60,10 +60,10 @@ namespace TrippyGL
         /// <param name="imageFormat">The type of image format this texture will store.</param>
         internal Texture(GraphicsDevice graphicsDevice, TextureType type, TextureImageFormat imageFormat) : base(graphicsDevice)
         {
-            if (!Enum.IsDefined(typeof(TextureType), type))
+            if (!Enum.IsDefined(type))
                 throw new FormatException("Invalid texture target");
 
-            if (!Enum.IsDefined(typeof(TextureImageFormat), imageFormat))
+            if (!Enum.IsDefined(imageFormat))
                 throw new FormatException("Invalid texture image format");
 
             TextureType = type;

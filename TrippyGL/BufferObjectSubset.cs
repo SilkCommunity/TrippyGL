@@ -48,7 +48,7 @@ namespace TrippyGL
             if (bufferObject == null)
                 throw new ArgumentNullException(nameof(bufferObject));
 
-            if (!Enum.IsDefined(typeof(BufferTarget), bufferTarget))
+            if (!Enum.IsDefined(bufferTarget))
                 throw new ArgumentException(nameof(bufferTarget) + " must be a valid " + nameof(BufferTarget) + " value", nameof(bufferTarget));
 
             bufferTargetBindingIndex = bufferObject.GraphicsDevice.GetBindingTargetIndex(bufferTarget);

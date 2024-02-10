@@ -84,7 +84,7 @@ namespace TrippyGL
         /// </summary>
         private static void ValidateBufferUsage(BufferUsage usageHint)
         {
-            if (!Enum.IsDefined(typeof(BufferUsage), usageHint))
+            if (!Enum.IsDefined(usageHint))
                 throw new ArgumentException(nameof(usageHint) + " is not a valid " + nameof(BufferUsage) + " value", nameof(usageHint));
         }
     }
