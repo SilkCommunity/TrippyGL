@@ -6,7 +6,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/SilkCommunity/TrippyGL</PackageProjectUrl>
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>ThomasMiz</Authors>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>TrippyGL is a highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core.
@@ -15,15 +15,8 @@ This package provides integration with the SixLabors.Fonts library for the Tripp
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;fonts;text</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
-    <PackageReleaseNotes>Changelog from 1.1.1:
-- Now built against .NET 6.0
-- Upgraded SixLabors.ImageSharp to 3.0.2
-- Upgraded SixLabors.Fonts to 2.0.0
-
-BREAKING CHANGES:
-- No longer supports .NET Standard 2.1, only .NET 6.0+
-- No longer supports Silk.NET &lt;2.17.1
-- SixLabors.Fonts has revamped their rendering and their output now exactly matches the rendering of web browsers. Your text might look different when assets are built on this new version.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.2.0:
+- Upgraded all dependencies</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -32,12 +25,12 @@ BREAKING CHANGES:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SixLabors.Fonts" Version="2.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.0.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="2.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>

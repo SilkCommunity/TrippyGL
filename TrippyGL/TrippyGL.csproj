@@ -7,25 +7,14 @@
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/SilkCommunity/TrippyGL</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <Authors>ThomasMiz</Authors>
     <Description>A highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;</PackageTags>
-    <PackageReleaseNotes>Changelog from 1.1.1:
-- Now built against .NET 6.0
-- Upgraded SixLabors.ImageSharp to 3.0.2
-- Upgraded SixLabors.Fonts to 2.0.0
-- Stopped SimpleShaderProgram from raising events on internal compilation
-- Enable nullable support
-- Fixed wrong names on array uniforms
-- Allow creating VertexArrays and ShaderPrograms with no vertex attributes
-- Fixed empty ShaderUniformLists raising exceptions
-- Fixed SimpleShaderProgram using wrong GLSL version on GL 3.2
-
-BREAKING CHANGES:
-- No longer supports .NET Standard 2.1, only .NET 6.0+
-- No longer supports Silk.NET &lt;2.17.1
-- SixLabors.Fonts has revamped their rendering and their output now exactly matches the rendering of web browsers. Your text might look different when assets are built on this new version.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.2.0:
+- Upgraded all dependencies
+- Add new matrix-oriented TextureBatcher.Draw() methods (Thanks @vpenades for your contribution!)
+- Replace Enum.IsDefined with newer variant to avoid boxing allocation (Thanks @pannoniae for raising this issue!)</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -43,11 +32,11 @@ BREAKING CHANGES:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.20.0" />
   </ItemGroup>
 
   <ItemGroup>
