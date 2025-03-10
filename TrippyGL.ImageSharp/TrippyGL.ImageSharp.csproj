@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>ThomasMiz</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -15,7 +15,7 @@ This package provides integration with the ImageSharp library, allowing loading 
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;images;ImageSharp;textures;</PackageTags>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
-    <PackageReleaseNotes>Changelog from 1.2.0:
+    <PackageReleaseNotes>Changelog from 1.2.1:
 - Upgraded all dependencies</PackageReleaseNotes>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>

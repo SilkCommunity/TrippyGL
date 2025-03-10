@@ -7,14 +7,12 @@
     <PackageIcon>TrippyGL_logo.png</PackageIcon>
     <RepositoryUrl>https://github.com/SilkCommunity/TrippyGL</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <Authors>ThomasMiz</Authors>
     <Description>A highly versatile, yet lightweight and simple to use OpenGL graphics library that runs on .NET Core</Description>
     <PackageTags>OpenGL;graphics;gamedev;desktopgl;</PackageTags>
-    <PackageReleaseNotes>Changelog from 1.2.0:
-- Upgraded all dependencies
-- Add new matrix-oriented TextureBatcher.Draw() methods (Thanks @vpenades for your contribution!)
-- Replace Enum.IsDefined with newer variant to avoid boxing allocation (Thanks @pannoniae for raising this issue!)</PackageReleaseNotes>
+    <PackageReleaseNotes>Changelog from 1.2.1:
+- Upgraded all dependencies</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
