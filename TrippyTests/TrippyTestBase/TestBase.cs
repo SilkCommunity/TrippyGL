@@ -34,10 +34,7 @@ namespace TrippyTestBase
                 if (value == IsFullscreen)
                     return;
 
-                IMonitor? windowMonitor = Window.Monitor;
-                if (windowMonitor == null)
-                    throw new Exception("Failed to switch to fullscreen: This window isn't on any monitor!");
-
+                IMonitor? windowMonitor = Window.Monitor ?? throw new Exception("Failed to switch to fullscreen: This window isn't on any monitor!");
                 Window.Resize -= OnResized;
                 if (value)
                 {
@@ -77,7 +74,7 @@ namespace TrippyTestBase
 
             IMonitor mainMonitor = Monitor.GetMainMonitor(null);
             Vector2D<int> windowSize = GetNewWindowSize(mainMonitor);
-            WindowOptions windowOpts = new WindowOptions()
+            WindowOptions windowOpts = new()
             {
                 API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Debug, new APIVersion(3, 3)),
                 VSync = false,

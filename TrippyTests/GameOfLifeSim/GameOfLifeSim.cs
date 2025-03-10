@@ -87,9 +87,7 @@ namespace GameOfLifeSim
             drawProgram.Texture = fbo2;
             graphicsDevice.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexBuffer.StorageLength);
 
-            Framebuffer2D tmpFbo = fbo2;
-            fbo2 = fbo1;
-            fbo1 = tmpFbo;
+            (fbo1, fbo2) = (fbo2, fbo1);
         }
 
         protected override void OnResized(Vector2D<int> size)
